@@ -33,9 +33,17 @@ module.exports = {
 
 		const content = `**Date:** ${dateField}\n**Heure:** ${timeField}\n**Durée:** ${durationField}\n**Description:** ${descriptionField}`;
 
-		await interaction.reply({
-			content: `Opération **${operation.get('title')}** en cours de préparation..\n\n${content}`,
-			components: [actionRow],
-		});
+        try {
+            const message = await interaction.reply({
+                content: `Opération **${operation.get('title')}** en cours de préparation..\n\n${content}`,
+                components: [actionRow],
+				fetchReply: true,
+            });
+
+			await require("../../../messages/react.js").execute(message);
+
+        } catch (error) {
+            console.error(error);
+        }
 	},
 };
