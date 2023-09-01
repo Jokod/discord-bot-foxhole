@@ -1,0 +1,17 @@
+{
+	"name": "cmr-bot",
+	"version": "0.1.0",
+	"description": "CMR bot discord",
+	"types": "./typings.d.ts",
+	"main": "bot.js",
+	"scripts": {
+		"start": "node bot.js",
+		"dev": "nodemon bot.js"
+	},
+	"dependencies": {
+		"discord-api-types": "^0.37.43",
+		"discord.js": "^14.13.0",
+		"sequelize": "^6.32.1",
+		"sqlite3": "^5.1.6"
+	}
+}
