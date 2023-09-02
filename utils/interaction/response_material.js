@@ -4,7 +4,6 @@ class ResponseMaterial {
     constructor(interaction, material) {
         this.interaction = interaction;
         this.material = material;
-        console.log(this.material);
         this.manageMaterialInstance = new ManageMaterial(interaction).actionRow();
     }
 

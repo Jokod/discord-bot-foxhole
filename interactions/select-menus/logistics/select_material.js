@@ -2,11 +2,10 @@ const { Material } = require("../../../data/models.js");
 const ResponseMaterial = require("../../../utils/interaction/response_material.js");
 
 module.exports = {
-	id: "stringSelect_logistics_add_material",
+	id: "logistics_add_material",
 
 	async execute(interaction) {
         const materialId = interaction.customId.split('-')[3];
-        console.log(materialId);
         const value = interaction.values[0];
 
         try {

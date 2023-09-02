@@ -40,7 +40,7 @@ module.exports = {
 			})
 
 			await interaction.reply({
-				content: `Ajout d'un matériel à l'opération **${operation.get('title')}**`,
+				content: `**ID:** ${interaction.id}\nAjout d'un matériel à l'opération **${operation.get('title')}**`,
 				components: [ActionRow],
 			});
 		} catch (err) {

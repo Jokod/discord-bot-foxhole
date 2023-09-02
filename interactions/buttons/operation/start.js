@@ -27,8 +27,8 @@ module.exports = {
 					status: 'started',
 				},
 				{ where: { operation_id: operationId }
-			});	
-	
+			});
+
 			await interaction.update({
 				content: `Opération **${operation.get('title')}** lancée ! @everyone\n${content}`,
 				components: [ActionRow],
