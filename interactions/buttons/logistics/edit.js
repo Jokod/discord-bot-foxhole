@@ -1,8 +1,8 @@
-const { Material } = require("../../../data/models.js");
-const ResponseMaterial = require("../../../utils/interaction/response_material.js");
+const { Material } = require('../../../data/models.js');
+const ResponseMaterial = require('../../../utils/interaction/response_material.js');
 
 module.exports = {
-	id: "button_logistics_edit",
+	id: 'button_logistics_edit',
 
 	async execute(interaction) {
 		const materialId = interaction.customId.split('-')[3];
@@ -13,10 +13,11 @@ module.exports = {
 			const material = await Material.findOne({ where: { material_id: materialId } });
 
 			await new ResponseMaterial(interaction, material).response();
-		} catch (err) {
+		}
+		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: "Une erreur s'est produite lors de l'annulation de l'opération !",
+				content: 'Une erreur s\'est produite lors de l\'annulation de l\'opération !',
 				ephemeral: true,
 			});
 		}

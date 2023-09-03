@@ -1,17 +1,17 @@
-const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
 	// The data needed to register slash commands to Discord.
 
 	data: new SlashCommandBuilder()
-		.setName("help")
+		.setName('help')
 		.setDescription(
-			"Liste de toutes les commandes ou informations sur une commande spécifique."
+			'Liste de toutes les commandes ou informations sur une commande spécifique.',
 		)
 		.addStringOption((option) =>
 			option
-				.setName("command")
-				.setDescription("Nom de la commande à obtenir")
+				.setName('command')
+				.setDescription('Nom de la commande à obtenir'),
 		),
 
 	async execute(interaction) {
@@ -19,13 +19,13 @@ module.exports = {
 		 * @type {string}
 		 * @description The "command" argument
 		 */
-		let name = interaction.options.getString("command");
+		let name = interaction.options.getString('command');
 
 		/**
 		 * @type {EmbedBuilder}
 		 * @description Help command's embed
 		 */
-		const helpEmbed = new EmbedBuilder().setColor("Random");
+		const helpEmbed = new EmbedBuilder().setColor('Random');
 
 		if (name) {
 			name = name.toLowerCase();
@@ -37,26 +37,29 @@ module.exports = {
 			if (interaction.client.slashCommands.has(name)) {
 				const command = interaction.client.slashCommands.get(name);
 
-				if (command.data.description)
+				if (command.data.description) {
 					helpEmbed.setDescription(
-						command.data.description + "\n\n**Parameters:**"
+						command.data.description + '\n\n**Parameters:**',
 					);
-			} else {
+				}
+			}
+			else {
 				helpEmbed
 					.setDescription(`Aucune commande avec le nom \`${name}\` n'a été trouvée.`)
-					.setColor("Red");
+					.setColor('Red');
 			}
-		} else {
+		}
+		else {
 			// Give a list of all the commands
 
 			helpEmbed
-				.setTitle("Liste des commandes")
+				.setTitle('Liste des commandes')
 				.setDescription(
-					"`" +
+					'`' +
 						interaction.client.slashCommands
 							.map((command) => command.data.name)
-							.join("`, `") +
-						"`"
+							.join('`, `') +
+						'`',
 				);
 		}
 

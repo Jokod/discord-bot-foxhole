@@ -1,8 +1,8 @@
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const { Operation } = require("../../../data/models.js");
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { Operation } = require('../../../data/models.js');
 
 module.exports = {
-	id: "button_logistics_add_material",
+	id: 'button_logistics_add_material',
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
@@ -25,7 +25,7 @@ module.exports = {
 			.setCustomId(`logistics_select_material_utilities-${operationId}-${threadId}-${materialId}`)
 			.setLabel('Utilitaires')
 			.setStyle(ButtonStyle.Primary);
-		
+
 		const buttonShipables = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_shipables-${operationId}-${threadId}-${materialId}`)
 			.setLabel('Objets transportables')

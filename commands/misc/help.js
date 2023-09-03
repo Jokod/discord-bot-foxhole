@@ -1,11 +1,11 @@
-const { prefix } = require("./../../config.json");
-const { EmbedBuilder, ChannelType } = require("discord.js");
+const { prefix } = require('./../../config.json');
+const { EmbedBuilder, ChannelType } = require('discord.js');
 
 module.exports = {
-	name: "help",
-	description: "Liste de toutes les commandes ou informations sur une commande spécifique.",
-	aliases: ["commands"],
-	usage: "[command name]",
+	name: 'help',
+	description: 'Liste de toutes les commandes ou informations sur une commande spécifique.',
+	aliases: ['commands'],
+	usage: '[command name]',
 	cooldown: 5,
 
 	execute(message, args) {
@@ -19,16 +19,16 @@ module.exports = {
 			 * @description Help command embed object
 			 */
 
-			let helpEmbed = new EmbedBuilder()
-				.setColor("Random")
-				.setTitle("Liste des commandes")
+			const helpEmbed = new EmbedBuilder()
+				.setColor('Random')
+				.setTitle('Liste des commandes')
 				.setDescription(
-					"`" + commands.map((command) => command.name).join("`, `") + "`"
+					'`' + commands.map((command) => command.name).join('`, `') + '`',
 				)
 
 				.addFields([
 					{
-						name: "Usage",
+						name: 'Usage',
 						value: `\nVous pouvez envoyer \`${prefix}help [command name]\` pour obtenir des informations sur une commande spécifique !`,
 					},
 				]);
@@ -44,7 +44,7 @@ module.exports = {
 					// On validation, reply back.
 
 					message.reply({
-						content: "Je vous ai envoyé un DM avec toutes mes commandes !",
+						content: 'Je vous ai envoyé un DM avec toutes mes commandes !',
 						ephermal: true,
 					});
 				})
@@ -53,11 +53,11 @@ module.exports = {
 
 					console.error(
 						`Je n'ai pas pu envoyer de DM à ${message.author.tag}.\n`,
-						error
+						error,
 					);
 
-					message.reply({ 
-						content: "Il semble que je ne puisse pas DM vous !",
+					message.reply({
+						content: 'Il semble que je ne puisse pas DM vous !',
 						ephermal: true,
 					});
 				});
@@ -79,8 +79,8 @@ module.exports = {
 		// If it's an invalid command.
 
 		if (!command) {
-			return message.reply({ 
-				content: "Ce n'est pas une commande valide !",
+			return message.reply({
+				content: 'Ce n\'est pas une commande valide !',
 				ephermal: true,
 			});
 		}
@@ -90,34 +90,35 @@ module.exports = {
 		 * @description Embed of Help command for a specific command.
 		 */
 
-		let commandEmbed = new EmbedBuilder()
-			.setColor("Random")
-			.setTitle("Commande d\'aide")
+		const commandEmbed = new EmbedBuilder()
+			.setColor('Random')
+			.setTitle('Commande d\'aide');
 
-		if (command.description)
-			commandEmbed.setDescription(`${command.description}`);
+		if (command.description) {commandEmbed.setDescription(`${command.description}`);}
 
-		if (command.aliases)
+		if (command.aliases) {
 			commandEmbed.addFields([
 				{
-					name: "Aliases",
-					value: `\`${command.aliases.join(", ")}\``,
+					name: 'Aliases',
+					value: `\`${command.aliases.join(', ')}\``,
 					inline: true,
 				},
 				{
-					name: "Cooldown",
+					name: 'Cooldown',
 					value: `${command.cooldown || 3} seconde(s)`,
 					inline: true,
 				},
 			]);
-		if (command.usage)
+		}
+		if (command.usage) {
 			commandEmbed.addFields([
 				{
-					name: "Usage",
+					name: 'Usage',
 					value: `\`${prefix}${command.name} ${command.usage}\``,
 					inline: true,
 				},
 			]);
+		}
 
 		// Finally send the embed.
 

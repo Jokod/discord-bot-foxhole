@@ -1,7 +1,7 @@
-const { Operation, Group, Material } = require("../../../data/models.js");
+const { Operation, Group, Material } = require('../../../data/models.js');
 
 module.exports = {
-	id: "button_create_operation_cancel",
+	id: 'button_create_operation_cancel',
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
@@ -10,8 +10,8 @@ module.exports = {
 		try {
 			const threads = await Group.findAll({ where: { operation_id: operationId } });
 			for (const thread of threads) {
-				const t = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
-				if (t) await t.delete();
+				const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
+				if (result) await result.delete();
 			}
 
 			await Operation.destroy({ where: { operation_id: operationId } });
@@ -22,10 +22,11 @@ module.exports = {
 				content: `Opération **${operation.get('title')}** annulée !`,
 				components: [],
 			});
-		} catch (err) {
+		}
+		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: "Une erreur s'est produite lors de l'annulation de l'opération !",
+				content: 'Une erreur s\'est produite lors de l\'annulation de l\'opération !',
 				ephemeral: true,
 			});
 		}

@@ -1,9 +1,9 @@
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const { Operation } = require("../../../data/models.js");
-const { getUtilities } = require("../../../data/fournis.js");
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { Operation } = require('../../../data/models.js');
+const { getUtilities } = require('../../../data/fournis.js');
 
 module.exports = {
-	id: "logistics_select_material_utilities",
+	id: 'logistics_select_material_utilities',
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];

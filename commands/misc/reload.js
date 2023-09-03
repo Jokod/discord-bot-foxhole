@@ -1,8 +1,8 @@
-const fs = require("fs");
+const fs = require('fs');
 
 module.exports = {
-	name: "reload",
-	description: "Recharger une commande.",
+	name: 'reload',
+	description: 'Recharger une commande.',
 	args: true,
 	ownerOnly: true,
 
@@ -17,7 +17,7 @@ module.exports = {
 		const command =
 			message.client.commands.get(commandName) ||
 			message.client.commands.find(
-				(cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+				(cmd) => cmd.aliases && cmd.aliases.includes(commandName),
 			);
 
 		// Command returns if there is no such command with the specific command name or alias.
@@ -33,7 +33,7 @@ module.exports = {
 		 * @description Array of all command categories aka folders.
 		 */
 
-		const commandFolders = fs.readdirSync("./commands");
+		const commandFolders = fs.readdirSync('./commands');
 
 		/**
 		 * @type {String}
@@ -41,7 +41,7 @@ module.exports = {
 		 */
 
 		const folderName = commandFolders.find((folder) =>
-			fs.readdirSync(`./commands/${folder}`).includes(`${command.name}.js`)
+			fs.readdirSync(`./commands/${folder}`).includes(`${command.name}.js`),
 		);
 
 		// Deletes current cache of that specified command.
@@ -64,7 +64,8 @@ module.exports = {
 				content: `La commande \`${command.name}\` a été rechargée!`,
 				ephemeral: true,
 			});
-		} catch (error) {
+		}
+		catch (error) {
 			// Catch block executes if there is any error in your code. It logs the error in console and also sends back in discord GUI.
 
 			console.error(error);

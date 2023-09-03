@@ -1,8 +1,8 @@
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-const { Operation, Material } = require("../../../data/models.js");
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { Operation, Material } = require('../../../data/models.js');
 
 module.exports = {
-	id: "button_logistics_add",
+	id: 'button_logistics_add',
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
@@ -37,16 +37,17 @@ module.exports = {
 				operation_id: operationId,
 				group_id: threadId,
 				status: 'pending',
-			})
+			});
 
 			await interaction.reply({
 				content: `**ID:** ${interaction.id}\nAjout d'un matériel à l'opération **${operation.get('title')}**`,
 				components: [ActionRow],
 			});
-		} catch (err) {
+		}
+		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: "Une erreur s'est produite lors de l'annulation de l'opération !",
+				content: 'Une erreur s\'est produite lors de l\'annulation de l\'opération !',
 				ephemeral: true,
 			});
 		}

@@ -1,8 +1,8 @@
-const { ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require("discord.js");
-const { Material } = require("../../../data/models.js");
+const { ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { Material } = require('../../../data/models.js');
 
 module.exports = {
-	id: "button_logistics_add_quantity_ask",
+	id: 'button_logistics_add_quantity_ask',
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
@@ -13,10 +13,10 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
-			.setTitle('Séléctionnez une quantité')
+			.setTitle('Séléctionnez une quantité');
 
 		const quantityAskField = new TextInputBuilder()
-			.setCustomId(`quantity_ask`)
+			.setCustomId('quantity_ask')
 			.setLabel('Saissisez une quantité')
 			.setStyle(TextInputStyle.Short)
 			.setValue(`${material.get('quantityAsk')}` ?? '0')

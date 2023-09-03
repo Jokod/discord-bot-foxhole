@@ -1,11 +1,11 @@
-const { Events } = require("discord.js");
+const { Events } = require('discord.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
 
 	/**
 	 * @description Executes when an interaction is created and handle it.
-	
+
 	 * @param {import('discord.js').ContextMenuCommandInteraction & { client: import('../typings').Client }} interaction The interaction which was created
 	 */
 
@@ -17,23 +17,24 @@ module.exports = {
 
 		if (!interaction.isContextMenuCommand()) return;
 
-		/**********************************************************************/
+		/** ********************************************************************/
 
 		// Checks if the interaction target was a user
 
 		if (interaction.isUserContextMenuCommand()) {
 			const command = client.contextCommands.get(
-				"USER " + interaction.commandName
+				'USER ' + interaction.commandName,
 			);
 
 			// A try to execute the interaction.
 
 			try {
 				return await command.execute(interaction);
-			} catch (err) {
+			}
+			catch (err) {
 				console.error(err);
 				await interaction.reply({
-					content: "Une erreur s'est produite lors de l'exécution de cette commande !",
+					content: 'Une erreur s\'est produite lors de l\'exécution de cette commande !',
 					ephemeral: true,
 				});
 			}
@@ -41,17 +42,18 @@ module.exports = {
 		// Checks if the interaction target was a message
 		else if (interaction.isMessageContextMenuCommand()) {
 			const command = client.contextCommands.get(
-				"MESSAGE " + interaction.commandName
+				'MESSAGE ' + interaction.commandName,
 			);
 
 			// A try to execute the interaction.
 
 			try {
 				return await command.execute(interaction);
-			} catch (err) {
+			}
+			catch (err) {
 				console.error(err);
 				await interaction.reply({
-					content: "Une erreur s'est produite lors de l'exécution de cette commande !",
+					content: 'Une erreur s\'est produite lors de l\'exécution de cette commande !',
 					ephemeral: true,
 				});
 			}
@@ -61,7 +63,7 @@ module.exports = {
 		// Possible Fix is a restart!
 		else {
 			return console.log(
-				"Quelque chose s'est mal passé lors de l'exécution de la commande de menu contextuel !"
+				'Quelque chose s\'est mal passé lors de l\'exécution de la commande de menu contextuel !',
 			);
 		}
 	},

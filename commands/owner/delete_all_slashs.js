@@ -1,16 +1,15 @@
-const fs = require("fs");
-const { Routes } = require("discord.js");
-const { client_id, test_guild_id } = require("../../config.json");
+const { Routes } = require('discord.js');
+const { client_id, test_guild_id } = require('../../config.json');
 
 module.exports = {
-	name: "delete_all_slashs",
-	description: "Supprimer toutes les commandes",
+	name: 'delete_all_slashs',
+	description: 'Supprimer toutes les commandes',
 	ownerOnly: true,
 
-	execute(message, args) {
+	execute(message) {
 
 		try {
-			console.log(`Début de la suppression des commandes...`);
+			console.log('Début de la suppression des commandes...');
 
 			message.client.rest.put(
 				Routes.applicationGuildCommands(client_id, test_guild_id),
@@ -20,11 +19,12 @@ module.exports = {
 				},
 			);
 
-			console.log(`Suppression des commandes terminée !`);
-		} catch (error) {
+			console.log('Suppression des commandes terminée !');
+		}
+		catch (error) {
 			console.log(error);
 			message.channel.send({
-				content: `Il y a eu une erreur lors du rechargement de la commande \`${command.name}\`:\n\`${error.message}\``,
+				content: `Il y a eu une erreur lors de la suppression des commandes : ${error}`,
 				ephermal: true,
 			});
 		}
