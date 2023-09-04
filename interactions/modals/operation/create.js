@@ -41,12 +41,12 @@ module.exports = {
 					duration: durationField,
 					description: descriptionField,
 				},
-				{ new: true }
+				{ new: true },
 			);
 
 			if (!operation) {
 				return await interaction.reply({
-					content: "L'opération n'a pas été trouvée",
+					content: 'L\'opération n\'a pas été trouvée',
 					ephemeral: true,
 				});
 			}

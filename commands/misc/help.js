@@ -45,7 +45,7 @@ module.exports = {
 
 					message.reply({
 						content: 'Je vous ai envoyé un DM avec toutes mes commandes !',
-						ephermal: true,
+						ephemeral: true,
 					});
 				})
 				.catch((error) => {
@@ -58,7 +58,7 @@ module.exports = {
 
 					message.reply({
 						content: 'Il semble que je ne puisse pas DM vous !',
-						ephermal: true,
+						ephemeral: true,
 					});
 				});
 		}
@@ -81,7 +81,7 @@ module.exports = {
 		if (!command) {
 			return message.reply({
 				content: 'Ce n\'est pas une commande valide !',
-				ephermal: true,
+				ephemeral: true,
 			});
 		}
 

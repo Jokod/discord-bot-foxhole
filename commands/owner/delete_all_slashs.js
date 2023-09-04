@@ -25,7 +25,7 @@ module.exports = {
 			console.log(error);
 			message.channel.send({
 				content: `Il y a eu une erreur lors de la suppression des commandes : ${error}`,
-				ephermal: true,
+				ephemeral: true,
 			});
 		}
 	},

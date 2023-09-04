@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { Collection, ChannelType, Events } = require('discord.js');
+const { Server } = require('../data/models.js');
 
 const escapeRegex = (string) => {
 	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -83,10 +84,20 @@ module.exports = {
 
 		if (!command) return;
 
+		if (command.init && !(await Server.findOne({ guild_id: message.guild.id }))) {
+			return message.reply({
+				content: 'Le serveur n\'est pas configuré, veuillez utiliser la commande `/setup`.',
+				ephemeral: true,
+			});
+		}
+
 		// Owner Only Property, add in your command properties if true.
 
-		if (command.ownerOnly && message.author.id !== owner) {
-			return message.reply({ content: 'Ceci est une commande réservée aux propriétaires du bot !' });
+		if (command.ownerOnly && message.author.id !== process.env.OWNER) {
+			return message.reply({
+				content: 'Ceci est une commande réservée aux propriétaires du bot !',
+				ephemeral: true,
+			});
 		}
 
 		// Guild Only Property, add in your command properties if true.
@@ -94,6 +105,7 @@ module.exports = {
 		if (command.guildOnly && message.channel.type === ChannelType.DM) {
 			return message.reply({
 				content: 'Je ne peux pas exécuter cette commande dans les messages privés !',
+				ephemeral: true,
 			});
 		}
 
@@ -103,7 +115,10 @@ module.exports = {
 		if (command.permissions && message.channel.type !== ChannelType.DM) {
 			const authorPerms = message.channel.permissionsFor(message.author);
 			if (!authorPerms || !authorPerms.has(command.permissions)) {
-				return message.reply({ content: 'Vous ne pouvez pas faire cela !' });
+				return message.reply({
+					content: 'Vous ne pouvez pas faire cela !',
+					ephemeral: true,
+				});
 			}
 		}
 
@@ -116,7 +131,10 @@ module.exports = {
 				reply += `\nLa bonne utilisation serait: \`${process.env.PREFIX}${command.name} ${command.usage}\``;
 			}
 
-			return message.channel.send({ content: reply });
+			return message.channel.send({
+				content: reply,
+				ephemeral: true,
+			});
 		}
 
 		// Cooldowns
@@ -140,6 +158,7 @@ module.exports = {
 					content: `Veuillez attendre ${timeLeft.toFixed(
 						1,
 					)} seconde(s) avant de réutiliser la commande \`${command.name}\` !`,
+					ephemeral: true,
 				});
 			}
 		}
@@ -157,6 +176,7 @@ module.exports = {
 			console.error(error);
 			message.reply({
 				content: 'Une erreur s\'est produite lors de l\'exécution de cette commande !',
+				ephemeral: true,
 			});
 		}
 	},

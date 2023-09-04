@@ -2,6 +2,7 @@ const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Act
 const { Operation } = require('../../../data/models.js');
 
 module.exports = {
+	init: true,
 	data: new SlashCommandBuilder()
 		.setName('create_operation')
 		.setDescription('Créer une nouvelle opération')
@@ -65,6 +66,7 @@ module.exports = {
 		try {
 			new Operation({
 				title: title,
+				guild_id: `${interaction.guild.id}`,
 				operation_id: `${interaction.id}`,
 				owner_id: `${interaction.user.id}`,
 				status: 'pending',

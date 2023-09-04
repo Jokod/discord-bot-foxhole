@@ -1,11 +1,13 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../data/models.js');
-const { getShipables } = require('../../../data/fournis.js');
+const { Operation } = require('../../../../data/models.js');
+const { getUtilities } = require('../../../../data/fournis.js');
 
 module.exports = {
-	id: 'logistics_select_material_shipables',
+	init: true,
+	id: 'logistics_select_material_utilities',
 
 	async execute(interaction) {
+		const guildId = interaction.guild.id;
 		const operationId = interaction.customId.split('-')[1];
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
@@ -16,12 +18,12 @@ module.exports = {
 			.setLabel('Retour')
 			.setStyle(ButtonStyle.Secondary);
 
-		const shipables = getShipables({ operationId, threadId, materialId });
+		const utilitiesRow = await getUtilities({ guildId, operationId, threadId, materialId });
 		const buttonArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({
-			content: `**ID:** ${materialId}\nListe des objets transportables disponibles pour l'opération **${operation.title}**`,
-			components: [...shipables, buttonArrowRow],
+			content: `**ID:** ${materialId}\nListe des utilitaires disponibles pour l'opération **${operation.title}**`,
+			components: [...utilitiesRow, buttonArrowRow],
 		});
 	},
 };

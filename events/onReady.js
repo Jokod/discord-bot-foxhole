@@ -1,5 +1,4 @@
 const { Events } = require('discord.js');
-const { Operation, Material, Group } = require('../data/models.js');
 
 module.exports = {
 	name: Events.ClientReady,

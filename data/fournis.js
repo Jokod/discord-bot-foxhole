@@ -1,4 +1,5 @@
 const { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder } = require('discord.js');
+const { Server } = require('./models');
 const Fournis = require('./materials.json');
 
 const categoryIcons = {
@@ -21,11 +22,11 @@ const names = {
 
 const getIcon = (itemCategory) => categoryIcons[itemCategory] || '❓';
 
-const getFournis = () => {
-	return Object.values(Fournis).filter(value => value.faction.includes('warden'));
+const getFournis = (server) => {
+	return Object.values(Fournis).filter(value => value.faction.includes(server.camp));
 };
 
-const setStringSelectOption = (item) => {
+const createMenuOption = (item) => {
 	const desc = item.itemDesc.length > 100 ? `${item.itemDesc.substring(0, 90)}...` : item.itemDesc;
 
 	return new StringSelectMenuOptionBuilder()
@@ -35,43 +36,60 @@ const setStringSelectOption = (item) => {
 		.setEmoji(getIcon(item.itemCategory));
 };
 
-const setStringSelectMenu = (group, category, operation, uniqueNumber) => {
-	const { operationId, threadId, materialId } = operation;
-
+const createStringSelectMenu = (operationId, threadId, materialId, category, options, camp, uniqueNumber) => {
 	return new StringSelectMenuBuilder()
-		.setCustomId(`logistics_add_material-${operationId}-${threadId}-${materialId}-${category}_${uniqueNumber}`)
-		.setPlaceholder(`Liste #${uniqueNumber} des ${names[category]}`)
-		.addOptions(group.map(setStringSelectOption));
+		.setCustomId(`logistics_add_material-${operationId}-${threadId}-${materialId}-${category}-${uniqueNumber}`)
+		.setPlaceholder(`Liste #${uniqueNumber} des ${names[category]} pour ${camp}`)
+		.addOptions(options);
 };
 
-const getActionsRows = (category, operation) => {
-	const menus = setMenusByCategory(category, operation);
+const setMenusByCategory = async (category, operation) => {
+	const server = await Server.findOne({ guild_id: operation.guildId })
+		.catch(err => console.error(err));
 
-	if (menus.length > 4) {return console.error('Too many menus for one row');}
+	if (!server) console.error('No server found for this operation');
 
-	return menus.map(menu => new ActionRowBuilder().addComponents(menu));
-};
+	const datas = getFournis(server);
 
-const setMenusByCategory = (category, operation) => {
-	const datas = getFournis();
-	const categoryItems = datas.filter(value => value.itemCategory === category);
+	const categoryItems = datas.filter(data => data.itemCategory === category);
 
 	let uniqueNumber = 1;
 
 	const groups = [];
 	for (let i = 0; i < categoryItems.length; i += 25) {
-		groups.push(setStringSelectMenu(categoryItems.slice(i, i + 25), category, operation, uniqueNumber));
-		uniqueNumber++;
+		const group = categoryItems.slice(i, i + 25).map(createMenuOption);
+		groups.push(
+			createStringSelectMenu(
+				operation.operationId,
+				operation.threadId,
+				operation.materialId,
+				category,
+				group,
+				server.camp,
+				uniqueNumber++,
+			),
+		);
 	}
 
 	return groups;
 };
 
+const getCategoryActions = (category) => async (operation) => {
+	const menus = await setMenusByCategory(category, operation);
+
+	if (menus.length > 4) {
+		console.error('Too many menus for one row');
+		return;
+	}
+
+	return menus.map(menu => new ActionRowBuilder().addComponents(menu));
+};
+
 module.exports = {
-	getSmallArms: (operation) => getActionsRows('small_arms', operation),
-	getHeavyArms: (operation) => getActionsRows('heavy_arms', operation),
-	getUtilities: (operation) => getActionsRows('utilities', operation),
-	getShipables: (operation) => getActionsRows('shipables', operation),
-	getVehicles: (operation) => getActionsRows('vehicles', operation),
-	getUniforms: (operation) => getActionsRows('uniforms', operation),
+	getSmallArms: getCategoryActions('small_arms'),
+	getHeavyArms: getCategoryActions('heavy_arms'),
+	getUtilities: getCategoryActions('utilities'),
+	getShipables: getCategoryActions('shipables'),
+	getVehicles: getCategoryActions('vehicles'),
+	getUniforms: getCategoryActions('uniforms'),
 };

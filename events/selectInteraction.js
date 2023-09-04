@@ -1,4 +1,5 @@
 const { Events } = require('discord.js');
+const { Server } = require('../data/models.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -24,6 +25,13 @@ module.exports = {
 
 		if (!command) {
 			return await require('../messages/defaultSelectError').execute(interaction);
+		}
+
+		if (command.init && !(await Server.findOne({ guild_id: interaction.guild.id }))) {
+			return interaction.reply({
+				content: 'Le serveur n\'est pas configuré, veuillez utiliser la commande `/setup`.',
+				ephemeral: true,
+			});
 		}
 
 		// A try to execute the interaction.

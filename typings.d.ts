@@ -50,6 +50,11 @@ export interface LegacyCommand {
 	ownerOnly?: boolean;
 
 	/**
+	 * Server need to be initialized.
+	 */
+	init?: boolean;
+
+	/**
 	 * The command executor when it is called by the template handler.
 	 * @param message The message that triggered this command.
 	 * @param args The message arguments of the command (seperated by spaces (' ') in an array, this excludes prefix and command/alias itself).
@@ -67,6 +72,7 @@ export interface SlashInteractionCommand {
 	/**
 	 * The data of Application Command Interaction (Slash Command).
 	 */
+	init?: boolean;
 	data: Discord.SlashCommandBuilder;
 	options: Array<
 		| Discord.SlashCommandStringOption
@@ -94,6 +100,7 @@ export interface ButtonInteractionCommand {
 	/**
 	 * The custom ID of the button which was interacted with.
 	 */
+	init?: boolean;
 	id: string;
 
 	/**
@@ -112,6 +119,7 @@ export interface SelectInteractionCommand {
 	/**
 	 * The custom ID of the select (menu option) which was interacted with.
 	 */
+	init?: boolean;
 	id: string;
 
 	/**
@@ -130,6 +138,7 @@ export interface ContextInteractionCommandData {
 	/**
 	 * The name of the context (menu option) which was interacted with.
 	 */
+	init?: boolean;
 	name: string;
 
 	/**
@@ -147,6 +156,7 @@ export interface ContextInteractionCommand {
 	/**
 	 * The data of Context Menu Interaction Command.
 	 */
+	init?: boolean;
 	data: ContextInteractionCommandData;
 
 	/**
@@ -165,6 +175,7 @@ export interface ModalInteractionCommand {
 	/**
 	 * The custom ID of the modal (submit) which was interacted with.
 	 */
+	init?: boolean;
 	id: string;
 
 	/**
@@ -183,6 +194,7 @@ export interface TriggerCommand {
 	/**
 	 * The names / aliases of the trigger command.
 	 */
+	init?: boolean;
 	name: string[];
 	/**
 	 * The command executor when it is called by the template handler.
@@ -202,6 +214,7 @@ export interface AutocompleteInteraction {
 	/**
 	 * The command name of the autocomplete interaction which was interacted with.
 	 */
+	init?: boolean;
 	name: string;
 
 	/**

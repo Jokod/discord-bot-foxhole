@@ -1,11 +1,13 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../data/models.js');
-const { getUniforms } = require('../../../data/fournis.js');
+const { Operation } = require('../../../../data/models.js');
+const { getUniforms } = require('../../../../data/fournis.js');
 
 module.exports = {
+	init: true,
 	id: 'logistics_select_material_uniforms',
 
 	async execute(interaction) {
+		const guildId = interaction.guild.id;
 		const operationId = interaction.customId.split('-')[1];
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
@@ -16,7 +18,7 @@ module.exports = {
 			.setLabel('Retour')
 			.setStyle(ButtonStyle.Secondary);
 
-		const uniformsRow = getUniforms({ operationId, threadId, materialId });
+		const uniformsRow = await getUniforms({ guildId, operationId, threadId, materialId });
 		const buttonArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({

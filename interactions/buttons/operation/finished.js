@@ -12,15 +12,15 @@ module.exports = {
 		try {
 
 			Group.find({ operation_id: `${operationId}` }).exec()
-			.then(threads => {
-				threads.forEach(async thread => {
-					const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
-					await result.setLocked(true);
-					await result.setArchived(true);
-				});
-			}).catch(err => console.error(err));
-			
-			await Operation.updateOne({ operation_id: `${operationId}` },{ status: 'finished' });
+				.then(threads => {
+					threads.forEach(async thread => {
+						const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
+						await result.setLocked(true);
+						await result.setArchived(true);
+					});
+				}).catch(err => console.error(err));
+
+			await Operation.updateOne({ operation_id: `${operationId}` }, { status: 'finished' });
 
 			await interaction.update({
 				content: `Opération **${operation.title}** terminée !\n${content}`,

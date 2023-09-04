@@ -26,7 +26,7 @@ module.exports = {
 		}
 
 		try {
-			await Material.updateOne({ material_id: `${id}` }, { owner_id: null }, );
+			await Material.updateOne({ material_id: `${id}` }, { owner_id: null });
 
 			await interaction.reply({
 				content: `La tâche n'est plus assigné à <@${material.owner_id}> !`,

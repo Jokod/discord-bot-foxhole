@@ -1,5 +1,5 @@
 const { ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
-const { Material } = require('../../../data/models.js');
+const { Material } = require('../../../../data/models.js');
 
 module.exports = {
 	id: 'button_logistics_add_quantity_ask',

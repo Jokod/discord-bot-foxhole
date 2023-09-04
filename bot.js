@@ -18,7 +18,6 @@ mongoose.connect(process.env.MONGODB_URL)
 	.catch((err) => console.log('Failed to connect to MongoDB', err));
 
 
-
 /** ********************************************************************/
 
 const client = new Client({

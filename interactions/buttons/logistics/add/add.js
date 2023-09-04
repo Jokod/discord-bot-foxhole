@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation, Material } = require('../../../data/models.js');
+const { Operation, Material } = require('../../../../data/models.js');
 
 module.exports = {
 	id: 'button_logistics_add',

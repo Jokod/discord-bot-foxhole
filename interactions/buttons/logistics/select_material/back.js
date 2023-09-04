@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../data/models.js');
+const { Operation } = require('../../../../data/models.js');
 
 module.exports = {
 	id: 'logistics_select_material_back',
