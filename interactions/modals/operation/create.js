@@ -6,7 +6,6 @@ module.exports = {
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
-		const operation = await Operation.findOne({ where: { operation_id: operationId } });
 
 		const dateField = interaction.fields.getTextInputValue('date');
 		const timeField = interaction.fields.getTextInputValue('time');
@@ -34,14 +33,31 @@ module.exports = {
 		const content = `**Date:** ${dateField}\n**Heure:** ${timeField}\n**Durée:** ${durationField} min\n**Description:** ${descriptionField}`;
 
 		try {
+			const operation = await Operation.findOneAndUpdate(
+				{ operation_id: `${operationId}` },
+				{
+					date: dateField,
+					time: timeField,
+					duration: durationField,
+					description: descriptionField,
+				},
+				{ new: true }
+			);
+
+			if (!operation) {
+				return await interaction.reply({
+					content: "L'opération n'a pas été trouvée",
+					ephemeral: true,
+				});
+			}
+
 			const message = await interaction.reply({
-				content: `Opération **${operation.get('title')}** en cours de préparation..\n\n${content}`,
+				content: `Opération **${operation.title}** en cours de préparation..\n\n${content}`,
 				components: [actionRow],
 				fetchReply: true,
 			});
 
 			await require('../../../messages/react.js').execute(message);
-
 		}
 		catch (error) {
 			console.error(error);

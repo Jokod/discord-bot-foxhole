@@ -6,7 +6,7 @@ module.exports = {
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
-		const operation = await Operation.findOne({ where: { operation_id: operationId } });
+		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
 		const finishedButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_finished-${operationId}`)
@@ -20,17 +20,13 @@ module.exports = {
 
 		const ActionRow = new ActionRowBuilder().addComponents(finishedButton, cancelButton);
 
-		const content = `**Date:** ${operation.get('date')}\n**Heure:** ${operation.get('time')}\n**Durée:** ${operation.get('duration')} min\n**Description:** ${operation.get('description')}`;
+		const content = `**Date:** ${operation.date}\n**Heure:** ${operation.time}\n**Durée:** ${operation.duration} min\n**Description:** ${operation.description}`;
 
 		try {
-			await Operation.update({
-				status: 'started',
-			},
-			{ where: { operation_id: operationId },
-			});
+			await Operation.updateOne({ operation_id: `${operationId}` }, { status: 'started' });
 
 			await interaction.update({
-				content: `Opération **${operation.get('title')}** lancée ! @everyone\n${content}`,
+				content: `Opération **${operation.title}** lancée ! @everyone\n${content}`,
 				components: [ActionRow],
 			});
 		}

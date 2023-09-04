@@ -9,7 +9,7 @@ module.exports = {
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
 
-		const material = await Material.findOne({ where: { operation_id: operationId, group_id: threadId, material_id: materialId } });
+		const material = await Material.findOne({ operation_id: `${operationId}`, group_id: `${threadId}`, material_id: `${materialId}` });
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
@@ -19,7 +19,7 @@ module.exports = {
 			.setCustomId('quantity_ask')
 			.setLabel('Saissisez une quantité')
 			.setStyle(TextInputStyle.Short)
-			.setValue(`${material.get('quantityAsk')}` ?? '0')
+			.setValue(`${material.quantityAsk}` ?? '0')
 			.setMinLength(1)
 			.setMaxLength(5)
 			.setRequired(true);

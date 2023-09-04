@@ -1,4 +1,4 @@
-const { prefix } = require('./../../config.json');
+require('dotenv').config();
 const { EmbedBuilder, ChannelType } = require('discord.js');
 
 module.exports = {
@@ -29,7 +29,7 @@ module.exports = {
 				.addFields([
 					{
 						name: 'Usage',
-						value: `\nVous pouvez envoyer \`${prefix}help [command name]\` pour obtenir des informations sur une commande spécifique !`,
+						value: `\nVous pouvez envoyer \`${process.env.PREFIX}help [command name]\` pour obtenir des informations sur une commande spécifique !`,
 					},
 				]);
 
@@ -114,7 +114,7 @@ module.exports = {
 			commandEmbed.addFields([
 				{
 					name: 'Usage',
-					value: `\`${prefix}${command.name} ${command.usage}\``,
+					value: `\`${process.env.PREFIX}${command.name} ${command.usage}\``,
 					inline: true,
 				},
 			]);

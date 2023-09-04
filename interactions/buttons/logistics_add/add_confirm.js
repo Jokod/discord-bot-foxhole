@@ -17,9 +17,9 @@ module.exports = {
 		const actionRow = new ActionRowBuilder().addComponents(assigneeButton);
 
 		try {
-			await Material.update({ status: 'confirmed' }, { where: { material_id: materialId } });
+			await Material.updateOne({ material_id: `${materialId}` }, { status: 'confirmed' });
 
-			const material = await Material.findOne({ where: { material_id: materialId } });
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
 			if (!material.name || !material.quantityAsk) {
 				return await interaction.reply({
@@ -31,14 +31,14 @@ module.exports = {
 			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
 
 			await interaction.update({
-				content: `**ID:** ${materialId}\n**Matériel:** ${name}\n**Quantité:** ${material.get('quantityAsk')}**\nResponsable:** Aucun`,
+				content: `**ID:** ${materialId}\n**Matériel:** ${name}\n**Quantité:** ${material.quantityAsk}**\nResponsable:** Aucun`,
 				components: [actionRow],
 			});
 		}
 		catch (err) {
 			console.error(err);
-			return await interaction.update({
-				content: 'Une erreur s\'est produite lors de la suppression du matériel !',
+			return await interaction.reply({
+				content: 'Une erreur s\'est produite lors de la confirmation du matériel !',
 				ephemeral: true,
 			});
 		}

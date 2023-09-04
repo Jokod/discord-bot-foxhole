@@ -9,7 +9,7 @@ module.exports = {
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
 
-		const operation = await Operation.findOne({ where: { operation_id: operationId } });
+		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
 		const buttonSmallArms = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_small_arms-${operationId}-${threadId}-${materialId}`)
@@ -51,7 +51,7 @@ module.exports = {
 		const thirdArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({
-			content: `**ID:** ${materialId}\nSélectionnez le type de matériel à ajouter à l'opération **${operation.get('title')}**`,
+			content: `**ID:** ${materialId}\nSélectionnez le type de matériel à ajouter à l'opération **${operation.title}**`,
 			components: [firstArrowRow, secondArrowRow, thirdArrowRow],
 		});
 	},

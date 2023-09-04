@@ -7,7 +7,7 @@ module.exports = {
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
 		const threadId = interaction.customId.split('-')[2];
-		const operation = await Operation.findOne({ where: { operation_id: operationId } });
+		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
 		const materialButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${interaction.id}`)
@@ -40,7 +40,7 @@ module.exports = {
 			});
 
 			await interaction.reply({
-				content: `**ID:** ${interaction.id}\nAjout d'un matériel à l'opération **${operation.get('title')}**`,
+				content: `**ID:** ${interaction.id}\nAjout d'un matériel à l'opération **${operation.title}**`,
 				components: [ActionRow],
 			});
 		}

@@ -62,46 +62,20 @@ module.exports = {
 
 		modal.addComponents(firstActionRow, secondActionRow, thirdActionRow, fourthActionRow);
 
-		await interaction.showModal(modal);
-
 		try {
+			new Operation({
+				title: title,
+				operation_id: `${interaction.id}`,
+				owner_id: `${interaction.user.id}`,
+				status: 'pending',
+			}).save();
 
-			const submitted = await interaction.awaitModalSubmit({ time: 60000, filter: i => i.user.id === interaction.user.id })
-				.catch(error => {
-					console.error(error);
-					return null;
-				});
-
-			if (submitted) {
-				const date = submitted.fields.getTextInputValue('date');
-				const time = submitted.fields.getTextInputValue('time');
-				const duration = submitted.fields.getTextInputValue('duration');
-				const description = submitted.fields.getTextInputValue('description');
-
-				await Operation.create({
-					title: title,
-					operation_id: interaction.id,
-					owner_id: interaction.user.id,
-					date: date,
-					time: time,
-					duration: duration,
-					description: description,
-					status: 'created',
-				});
-			}
-
+			await interaction.showModal(modal);
 		}
 		catch (error) {
-			console.log(error);
-			if (error.name === 'SequelizeUniqueConstraintError') {
-				return interaction.reply({
-					content: 'Cette opération existe déjà.',
-					ephemeral: true,
-				});
-			}
-
+			console.error(error);
 			return interaction.reply({
-				content: 'Une erreur est survenue lors de l\'initialisation de l\'opération.',
+				content: 'Une erreur est survenue lors de la création de l\'opération.',
 				ephemeral: true,
 			});
 		}

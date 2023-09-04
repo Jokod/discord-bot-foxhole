@@ -1,5 +1,5 @@
+require('dotenv').config();
 const { Collection, ChannelType, Events } = require('discord.js');
-const { prefix, owner } = require('../config.json');
 
 const escapeRegex = (string) => {
 	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -35,7 +35,7 @@ module.exports = {
 		 * @type {String}
 		 */
 
-		const checkPrefix = prefix.toLowerCase();
+		const checkPrefix = (process.env.PREFIX).toLowerCase();
 
 		/**
 		 * @description Regex expression for mention prefix
@@ -113,7 +113,7 @@ module.exports = {
 			let reply = `Vous n'avez pas fourni d'arguments, ${message.author}!`;
 
 			if (command.usage) {
-				reply += `\nLa bonne utilisation serait: \`${prefix}${command.name} ${command.usage}\``;
+				reply += `\nLa bonne utilisation serait: \`${process.env.PREFIX}${command.name} ${command.usage}\``;
 			}
 
 			return message.channel.send({ content: reply });

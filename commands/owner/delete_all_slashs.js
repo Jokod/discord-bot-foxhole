@@ -1,5 +1,5 @@
+require('dotenv').config();
 const { Routes } = require('discord.js');
-const { client_id, test_guild_id } = require('../../config.json');
 
 module.exports = {
 	name: 'delete_all_slashs',
@@ -12,8 +12,8 @@ module.exports = {
 			console.log('Début de la suppression des commandes...');
 
 			message.client.rest.put(
-				Routes.applicationGuildCommands(client_id, test_guild_id),
-				// Routes.applicationCommands(client_id),
+				Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.TEST_GUILD_ID),
+				// Routes.applicationCommands(process.env.CLIENT_ID),
 				{
 					body: [],
 				},

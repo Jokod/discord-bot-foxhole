@@ -8,14 +8,14 @@ module.exports = {
 		const { client, channel } = interaction;
 
 		const operationId = interaction.customId.split('-')[1];
-		const operation = await Operation.findOne({ where: { operation_id: operationId } });
+		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
 		if (!client.logistics) {client.logistics = new Collection();}
 
 		const logisticId = client.logistics.size + 1;
 
 		const thread = await channel.threads.create({
-			name: `Logistique #${logisticId} pour l'opération ${operation.get('title')}`,
+			name: `Logistique #${logisticId} pour l'opération ${operation.title}`,
 		});
 
 		if (thread.joinable) await thread.join();

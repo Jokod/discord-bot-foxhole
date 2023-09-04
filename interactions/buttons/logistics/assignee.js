@@ -22,14 +22,14 @@ module.exports = {
 		const actionRow = new ActionRowBuilder().addComponents(revokeButton, validateButton);
 
 		try {
-			await Material.update({ owner_id: interaction.user.id }, { where: { material_id: materialId } });
+			await Material.updateOne({ material_id: `${materialId}` }, { owner_id: interaction.user.id });
 
-			const material = await Material.findOne({ where: { material_id: materialId } });
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
-			const name = material.get('name').charAt(0).toUpperCase() + material.get('name').slice(1);
+			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
 
 			await interaction.update({
-				content: `**ID:** ${materialId}\n**Matériel:** ${name}\n**Quantité:** ${material.get('quantityAsk')}**\nResponsable:** <@${interaction.user.id}>`,
+				content: `**ID:** ${materialId}\n**Matériel:** ${name}\n**Quantité:** ${material.quantityAsk}**\nResponsable:** <@${interaction.user.id}>`,
 				components: [actionRow],
 			});
 		}

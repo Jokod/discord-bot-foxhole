@@ -10,9 +10,6 @@ module.exports = {
 	 * @param {import('../typings').Client} client Main Application Client.
 	 */
 	execute(client) {
-		Operation.sync();
-		Material.sync();
-		Group.sync();
 
 		console.log(`Connecté en tant que ${client.user.tag}!`);
 	},

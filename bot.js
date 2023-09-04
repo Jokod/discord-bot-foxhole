@@ -1,3 +1,4 @@
+require('dotenv').config();
 const {
 	Client,
 	Collection,
@@ -6,8 +7,19 @@ const {
 	REST,
 	Routes,
 } = require('discord.js');
-const { token, client_id, test_guild_id } = require('./config.json');
+const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
+
+/** ********************************************************************/
+// Connect to MongoDB
+
+mongoose.connect(process.env.MONGODB_URL)
+	.then(() => console.log('Connected to MongoDB'))
+	.catch((err) => console.log('Failed to connect to MongoDB', err));
+
+
+
+/** ********************************************************************/
 
 const client = new Client({
 	// https://ziad87.net/intents/
@@ -102,7 +114,7 @@ getFiles('./interactions/select-menus', (command) => {
 /** ********************************************************************/
 // Registration of Slash-Commands in Discord API
 
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 const commandJsonData = [
 	...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
@@ -121,7 +133,7 @@ const commandJsonData = [
 			 * 2. Please comment the below (uncommented) line (for guild commands).
 			 */
 
-			Routes.applicationGuildCommands(client_id, test_guild_id),
+			Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.TEST_GUILD_ID),
 
 			/**
 			 * Good advice for global commands, you need to execute them only once to update
@@ -129,7 +141,7 @@ const commandJsonData = [
 			 * to ensure they don't get re-deployed on the next restart.
 			 */
 
-			// Routes.applicationCommands(client_id),
+			// Routes.applicationCommands(process.env.CLIENT_ID),
 
 			{ body: commandJsonData },
 		);
@@ -150,4 +162,4 @@ getFiles('./triggers', (trigger) => {
 
 /** ********************************************************************/
 
-client.login(token);
+client.login(process.env.TOKEN);

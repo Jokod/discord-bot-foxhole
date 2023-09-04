@@ -7,7 +7,7 @@ module.exports = {
 		const materialId = interaction.customId.split('-')[3];
 
 		try {
-			const rowCount = await Material.destroy({ where: { material_id: materialId } });
+			const rowCount = await Material.deleteOne({ material_id: `${materialId}` });
 
 			if (!rowCount) {
 				return await interaction.reply({
@@ -23,7 +23,7 @@ module.exports = {
 		}
 		catch (err) {
 			console.error(err);
-			return await interaction.update({
+			return await interaction.reply({
 				content: 'Une erreur s\'est produite lors de la suppression du matériel !',
 				ephemeral: true,
 			});

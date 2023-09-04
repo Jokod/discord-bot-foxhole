@@ -8,7 +8,7 @@ module.exports = {
 		const materialId = interaction.fields.getTextInputValue('material_id');
 
 		try {
-			const material = await Material.findOne({ where: { material_id: materialId } });
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
 			if (!material) {
 				return await interaction.reply({
@@ -17,14 +17,14 @@ module.exports = {
 				});
 			}
 
-			if (material.get('operation_id') !== operationId) {
+			if (material.operation_id !== operationId) {
 				return await interaction.reply({
 					content: 'Ce matériel n\'appartient pas à cette opération !',
 					ephemeral: true,
 				});
 			}
 
-			await Material.destroy({ where: { material_id: materialId } });
+			await Material.deleteOne({ material_id: `${materialId}` });
 
 			await interaction.reply({
 				content: 'Le matériel a bien été supprimé !',

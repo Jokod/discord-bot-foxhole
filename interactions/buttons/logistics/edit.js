@@ -8,9 +8,9 @@ module.exports = {
 		const materialId = interaction.customId.split('-')[3];
 
 		try {
-			await Material.update({ status: 'pending' }, { where: { material_id: materialId } });
+			await Material.updateOne({ material_id: `${materialId}` }, { status: 'pending' });
 
-			const material = await Material.findOne({ where: { material_id: materialId } });
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
 			await new ResponseMaterial(interaction, material).response();
 		}

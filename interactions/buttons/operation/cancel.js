@@ -5,21 +5,21 @@ module.exports = {
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
-		const operation = await Operation.findOne({ where: { operation_id: operationId } });
+		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
 		try {
-			const threads = await Group.findAll({ where: { operation_id: operationId } });
+			const threads = await Group.find({ operation_id: `${operationId}` });
 			for (const thread of threads) {
 				const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
 				if (result) await result.delete();
 			}
 
-			await Operation.destroy({ where: { operation_id: operationId } });
-			await Group.destroy({ where: { operation_id: operationId } });
-			await Material.destroy({ where: { operation_id: operationId } });
+			await Operation.deleteOne({ operation_id: `${operationId}` });
+			await Group.deleteOne({ operation_id: `${operationId}` });
+			await Material.deleteOne({ operation_id: `${operationId}` });
 
 			await interaction.update({
-				content: `Opération **${operation.get('title')}** annulée !`,
+				content: `Opération **${operation.title}** annulée !`,
 				components: [],
 			});
 		}

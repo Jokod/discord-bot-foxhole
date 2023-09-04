@@ -9,9 +9,9 @@ module.exports = {
 		const value = interaction.values[0];
 
 		try {
-			await Material.update({ name: value }, { where: { material_id: materialId } });
+			await Material.updateOne({ material_id: `${materialId}` }, { name: value });
 
-			const material = await Material.findOne({ where: { material_id: materialId } });
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
 			await new ResponseMaterial(interaction, material).response();
 		}

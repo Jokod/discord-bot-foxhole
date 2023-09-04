@@ -1,18 +1,14 @@
-const Sequelize = require('sequelize');
-const database = require('../../database.js');
+const mongoose = require('mongoose');
 
-const Group = database.define('groups', {
-	threadId: {
-		type: Sequelize.STRING,
-		allowNull: false,
-	},
-	operation_id: {
-		type: Sequelize.STRING,
-		allowNull: false,
-	},
-	materials: {
-		type: Sequelize.JSON,
-	},
+const Group = mongoose.Schema({
+  threadId: {
+    type: String,
+    required: true,
+  },
+  operation_id: {
+    type: String,
+    required: true,
+  },
 });
 
-module.exports = Group;
+module.exports = mongoose.model('Group', Group);

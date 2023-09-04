@@ -10,9 +10,9 @@ module.exports = {
 		const quantity_ask = interaction.fields.getTextInputValue('quantity_ask');
 
 		try {
-			await Material.update({ quantityAsk: quantity_ask }, { where: { material_id: materialId } });
+			await Material.updateOne({ material_id: `${materialId}` }, { quantityAsk: quantity_ask });
 
-			const material = await Material.findOne({ where: { material_id: materialId } });
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
 			await new ResponseMaterial(interaction, material).response();
 		}
