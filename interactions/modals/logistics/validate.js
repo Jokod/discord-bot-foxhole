@@ -22,6 +22,7 @@ module.exports = {
 				{
 					localization,
 					quantityGiven,
+					status: 'validated',
 				}, { new: true });
 
 			if (!material) {

@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../data/models.js');
+const { Operation, Material } = require('../../../data/models.js');
 
 module.exports = {
 	id: 'button_create_operation_start',
@@ -23,6 +23,24 @@ module.exports = {
 		const content = `**Date:** ${operation.date}\n**Heure:** ${operation.time}\n**Durée:** ${operation.duration} min\n**Description:** ${operation.description}`;
 
 		try {
+			let validated = 0;
+			const materials = Material.find({ operation_id: `${operationId}` })
+				.then(material => {
+					if (material.status === 'validated') validated++;
+				});
+
+			if (validated !== materials.length) {
+				await interaction.reply({
+					content: 'Tous les matériaux n\'ont pas été validés !\nImpossible de lancer l\'opération !\nVeuillez valider ou supprimer les matériaux non validés.',
+					ephemeral: true,
+				});
+
+				return await interaction.followUp({
+					content: 'Vous pouvez utiliser la commande `/logistics` pour voir les matériels non validés.',
+					ephemeral: true,
+				});
+			}
+
 			await Operation.updateOne({ operation_id: `${operationId}` }, { status: 'started' });
 
 			await interaction.update({

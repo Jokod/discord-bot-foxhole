@@ -122,30 +122,18 @@ const commandJsonData = [
 
 (async () => {
 	try {
-		console.log(`Début du déploiement de ${commandJsonData.length} (/) commandes.`);
+		console.log(`Début du déploiement en ${process.env.APP_ENV} de ${commandJsonData.length} (/) commandes.`);
+
+		const route = process.env.APP_ENV === 'dev'
+			? Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.TEST_GUILD_ID)
+			: Routes.applicationCommands(process.env.CLIENT_ID);
 
 		const data = await rest.put(
-			/**
-			 * By default, you will be using guild commands during development.
-			 * Once you are done and ready to use global commands (which have 1 hour cache time),
-			 * 1. Please uncomment the below (commented) line to deploy global commands.
-			 * 2. Please comment the below (uncommented) line (for guild commands).
-			 */
-
-			Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.TEST_GUILD_ID),
-
-			/**
-			 * Good advice for global commands, you need to execute them only once to update
-			 * your commands to the Discord API. Please comment it again after running the bot once
-			 * to ensure they don't get re-deployed on the next restart.
-			 */
-
-			// Routes.applicationCommands(process.env.CLIENT_ID),
-
+			route,
 			{ body: commandJsonData },
 		);
 
-		console.log(`Réussite du déploiement des ${data.length} (/) commandes.`);
+		console.log(`Réussite du déploiement en ${process.env.APP_ENV} des ${data.length} (/) commandes.`);
 	}
 	catch (error) {
 		console.error(error);

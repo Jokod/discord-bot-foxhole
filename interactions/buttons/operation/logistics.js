@@ -5,17 +5,21 @@ module.exports = {
 	id: 'button_create_operation_logistics',
 
 	async execute(interaction) {
-		const { client, channel } = interaction;
+		const { channel } = interaction;
 
 		const operationId = interaction.customId.split('-')[1];
 		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
-		if (!client.logistics) {client.logistics = new Collection();}
+		const logistics = await Group.find({ operation_id: `${operationId}` });
 
-		const logisticId = client.logistics.size + 1;
+		const logisticsIds = new Collection();
+
+		logistics.forEach(logistic => {
+			logisticsIds.set(logistic.threadId, logistic);
+		});
 
 		const thread = await channel.threads.create({
-			name: `Logistique #${logisticId} pour l'opération ${operation.title}`,
+			name: `Logistique #${logisticsIds.size + 1} pour l'opération ${operation.title}`,
 		});
 
 		if (thread.joinable) await thread.join();
@@ -30,7 +34,12 @@ module.exports = {
 			.setLabel('Retirer un matériel')
 			.setStyle(ButtonStyle.Danger);
 
-		const actionRow = new ActionRowBuilder().addComponents(addButton, removeButton);
+		const closeThreadButton = new ButtonBuilder()
+			.setCustomId(`button_logistics_close-${operationId}-${thread.id}`)
+			.setLabel('Supprimer')
+			.setStyle(ButtonStyle.Secondary);
+
+		const actionRow = new ActionRowBuilder().addComponents(addButton, removeButton, closeThreadButton);
 
 		try {
 
