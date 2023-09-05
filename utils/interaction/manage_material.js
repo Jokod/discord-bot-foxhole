@@ -36,7 +36,7 @@ class ManageMaterial {
 		);
 
 		const deleteButton = this.createButton(
-			`button_logistics_add_delete-${operationId}-${threadId}-${materialId}`,
+			`button_logistics_material_delete-${materialId}`,
 			'Supprimer',
 			ButtonStyle.Danger,
 		);

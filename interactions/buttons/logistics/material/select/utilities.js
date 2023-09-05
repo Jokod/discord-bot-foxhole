@@ -1,10 +1,10 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../../data/models.js');
-const { getSmallArms } = require('../../../../data/fournis.js');
+const { Operation } = require('../../../../../data/models.js');
+const { getUtilities } = require('../../../../../data/fournis.js');
 
 module.exports = {
 	init: true,
-	id: 'logistics_select_material_small_arms',
+	id: 'logistics_select_material_utilities',
 
 	async execute(interaction) {
 		const guildId = interaction.guild.id;
@@ -18,12 +18,12 @@ module.exports = {
 			.setLabel('Retour')
 			.setStyle(ButtonStyle.Secondary);
 
-		const smallArmsRow = await getSmallArms({ guildId, operationId, threadId, materialId });
+		const utilitiesRow = await getUtilities({ guildId, operationId, threadId, materialId });
 		const buttonArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({
-			content: `**ID:** ${materialId}\nListe des armes légères disponibles pour l'opération **${operation.title}**`,
-			components: [...smallArmsRow, buttonArrowRow],
+			content: `**ID:** ${materialId}\nListe des utilitaires disponibles pour l'opération **${operation.title}**`,
+			components: [...utilitiesRow, buttonArrowRow],
 		});
 	},
 };

@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation, Material } = require('../../../../data/models.js');
+const { Operation, Material } = require('../../../../../data/models.js');
 
 module.exports = {
 	id: 'button_logistics_add',
@@ -25,7 +25,7 @@ module.exports = {
 			.setStyle(ButtonStyle.Success);
 
 		const deleteButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_add_delete-${operationId}-${threadId}-${interaction.id}`)
+			.setCustomId(`button_logistics_material_delete-${interaction.id}`)
 			.setLabel('Supprimer')
 			.setStyle(ButtonStyle.Danger);
 

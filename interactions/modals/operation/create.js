@@ -40,8 +40,7 @@ module.exports = {
 					time: timeField,
 					duration: durationField,
 					description: descriptionField,
-				},
-				{ new: true },
+				}, { new: true },
 			);
 
 			if (!operation) {
@@ -54,7 +53,6 @@ module.exports = {
 			const message = await interaction.reply({
 				content: `Opération **${operation.title}** en cours de préparation..\n\n${content}`,
 				components: [actionRow],
-				fetchReply: true,
 			});
 
 			await require('../../../messages/react.js').execute(message);

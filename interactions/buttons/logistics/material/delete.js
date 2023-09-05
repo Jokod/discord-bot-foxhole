@@ -1,7 +1,7 @@
 const { Material } = require('../../../../data/models.js');
 
 module.exports = {
-	id: 'button_logistics_add_delete',
+	id: 'button_logistics_material_delete',
 
 	async execute(interaction) {
 		const materialId = interaction.customId.split('-')[3];

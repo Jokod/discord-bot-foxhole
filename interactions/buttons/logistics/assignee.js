@@ -15,7 +15,7 @@ module.exports = {
 			.setStyle(ButtonStyle.Danger);
 
 		const validateButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_validate-${operationId}-${threadId}-${materialId}`)
+			.setCustomId(`button_logistics_material_validate-${operationId}-${threadId}-${materialId}`)
 			.setLabel('Valider')
 			.setStyle(ButtonStyle.Success);
 
