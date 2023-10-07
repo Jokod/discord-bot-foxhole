@@ -1,58 +1,67 @@
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection } = require("discord.js");
-const { Operation, Group } = require("../../../data/models.js");
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection } = require('discord.js');
+const { Operation, Group } = require('../../../data/models.js');
 
 module.exports = {
-	id: "button_create_operation_logistics",
+	id: 'button_create_operation_logistics',
 
 	async execute(interaction) {
-        const { client, channel } = interaction;
+		const { channel } = interaction;
 
-        const operationId = interaction.customId.split('-')[1];
-        const operation = await Operation.findOne({ where: { operation_id: operationId } });
+		const operationId = interaction.customId.split('-')[1];
+		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
-        if (!client.logistics)
-            client.logistics = new Collection();
+		const logistics = await Group.find({ operation_id: `${operationId}` });
 
-        const logisticId = client.logistics.size + 1;
+		const logisticsIds = new Collection();
 
-        const thread = await channel.threads.create({
-            name: `Logistique #${logisticId} pour l'opération ${operation.get('title')}`,
-        })
+		logistics.forEach(logistic => {
+			logisticsIds.set(logistic.threadId, logistic);
+		});
 
-        if (thread.joinable) await thread.join();
+		const thread = await channel.threads.create({
+			name: `Logistique #${logisticsIds.size + 1} pour l'opération ${operation.title}`,
+		});
 
-        const addButton = new ButtonBuilder()
-            .setCustomId(`button_logistics_add-${operationId}-${thread.id}`)
-            .setLabel('Ajouter un matériel')
-            .setStyle(ButtonStyle.Primary);
+		if (thread.joinable) await thread.join();
 
-        const removeButton = new ButtonBuilder()
-            .setCustomId(`button_logistics_remove-${operationId}-${thread.id}`)
-            .setLabel('Retirer un matériel')
-            .setStyle(ButtonStyle.Danger);
+		const addButton = new ButtonBuilder()
+			.setCustomId(`button_logistics_add-${operationId}-${thread.id}`)
+			.setLabel('Ajouter un matériel')
+			.setStyle(ButtonStyle.Primary);
 
-        const actionRow = new ActionRowBuilder().addComponents(addButton, removeButton);
+		const removeButton = new ButtonBuilder()
+			.setCustomId(`button_logistics_remove-${operationId}-${thread.id}`)
+			.setLabel('Retirer un matériel')
+			.setStyle(ButtonStyle.Danger);
+
+		const closeThreadButton = new ButtonBuilder()
+			.setCustomId(`button_logistics_close-${operationId}-${thread.id}`)
+			.setLabel('Supprimer')
+			.setStyle(ButtonStyle.Secondary);
+
+		const actionRow = new ActionRowBuilder().addComponents(addButton, removeButton, closeThreadButton);
 
 		try {
 
-            await Group.create({
-                threadId: thread.id,
-                operation_id: operationId,
-                materials: null,
-            });
+			await Group.create({
+				threadId: thread.id,
+				operation_id: operationId,
+				materials: null,
+			});
 
-            await thread.send({
-                components: [actionRow],
-            });
+			await thread.send({
+				components: [actionRow],
+			});
 
-            await interaction.reply({
-                content: 'Thread de logistique créé !',
-                ephemeral: true,
-            });
-		} catch (err) {
+			await interaction.reply({
+				content: 'Thread de logistique créé !',
+				ephemeral: true,
+			});
+		}
+		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: "Une erreur s'est produite lors de l'implémentation de la logistique !",
+				content: 'Une erreur s\'est produite lors de l\'implémentation de la logistique !',
 				ephemeral: true,
 			});
 		}

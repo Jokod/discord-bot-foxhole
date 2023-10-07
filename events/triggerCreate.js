@@ -1,11 +1,11 @@
-const { Events } = require("discord.js");
+const { Events } = require('discord.js');
 
 module.exports = {
 	name: Events.MessageCreate,
 
 	/**
 	 * @description Executes when a message is created and handle it.
-	
+
 	 * @param {import('discord.js').Message & { client: import('../typings').Client }} message The message which was created.
 	 */
 
@@ -40,13 +40,14 @@ module.exports = {
 				if (message.content.includes(name)) {
 					try {
 						trigger.execute(message, args);
-					} catch (error) {
+					}
+					catch (error) {
 						// If triggereds fail, reply back!
 
 						console.error(error);
 
 						message.reply({
-							content: "Une erreur s'est produite lors de l'exécution de ce déclencheur !",
+							content: 'An error occured while executing the trigger.',
 						});
 					}
 

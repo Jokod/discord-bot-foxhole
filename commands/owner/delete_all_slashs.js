@@ -1,31 +1,31 @@
-const fs = require("fs");
-const { Routes } = require("discord.js");
-const { client_id, test_guild_id } = require("../../config.json");
+require('dotenv').config();
+const { Routes } = require('discord.js');
 
 module.exports = {
-	name: "delete_all_slashs",
-	description: "Supprimer toutes les commandes",
+	name: 'delete_all_slashs',
+	description: 'Delete all slash commands.',
 	ownerOnly: true,
 
-	execute(message, args) {
+	execute(message) {
 
 		try {
-			console.log(`Début de la suppression des commandes...`);
+			console.log('Deleting all slash commands...');
 
 			message.client.rest.put(
-				Routes.applicationGuildCommands(client_id, test_guild_id),
-				// Routes.applicationCommands(client_id),
+				// Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.TEST_GUILD_ID),
+				Routes.applicationCommands(process.env.CLIENT_ID),
 				{
 					body: [],
 				},
 			);
 
-			console.log(`Suppression des commandes terminée !`);
-		} catch (error) {
+			console.log('All slash commands deleted!');
+		}
+		catch (error) {
 			console.log(error);
 			message.channel.send({
-				content: `Il y a eu une erreur lors du rechargement de la commande \`${command.name}\`:\n\`${error.message}\``,
-				ephermal: true,
+				content: `An error occured while deleting all slash commands.`,
+				ephemeral: true,
 			});
 		}
 	},

@@ -1,33 +1,36 @@
-const { Operation } = require("../../../data/models.js");
+const { Operation, Group } = require('../../../data/models.js');
 
 module.exports = {
-	id: "button_create_operation_finished",
+	id: 'button_create_operation_finished',
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
-		const operation = await Operation.findOne({ where: { operation_id: operationId } });
+		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
-		const content = `**Date:** ${operation.get('date')}\n**Heure:** ${operation.get('time')}\n**Durée:** ${operation.get('duration')}\n**Description:** ${operation.get('description')}`;
+		const content = `**Date:** ${operation.date}\n**Heure:** ${operation.time}\n**Durée:** ${operation.duration} min\n**Description:** ${operation.description}`;
 
 		try {
-			const thread = interaction.channel.threads.cache.find(thread => thread.name === `Opération ${operation.get('title')}`);
-			await thread.setLocked(true);
-			await thread.setArchived(true);
 
-			await Operation.update({
-					status: 'finished',
-				},
-				{ where: { operation_id: operationId }
-			});
+			Group.find({ operation_id: `${operationId}` }).exec()
+				.then(threads => {
+					threads.forEach(async thread => {
+						const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
+						await result.setLocked(true);
+						await result.setArchived(true);
+					});
+				}).catch(err => console.error(err));
+
+			await Operation.updateOne({ operation_id: `${operationId}` }, { status: 'finished' });
 
 			await interaction.update({
-				content: `Opération **${operation.get('title')}** terminée !\n${content}`,
+				content: `Opération **${operation.title}** terminée !\n${content}`,
 				components: [],
 			});
-		} catch (err) {
+		}
+		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: "Une erreur s'est produite lors de l'annulation de l'opération !",
+				content: 'Une erreur s\'est produite lors de la fin de l\'opération !',
 				ephemeral: true,
 			});
 		}

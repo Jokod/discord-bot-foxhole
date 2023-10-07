@@ -1,41 +1,39 @@
-const Sequelize = require('sequelize');
-const database = require('../../database.js');
+const mongoose = require('mongoose');
 
-const Material = database.define('materials', {
-    material_id: {
-        type: Sequelize.STRING,
-        primaryKey: true,
-        allowNull: false,
-    },
-    operation_id: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-    group_id: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-    owner_id: {
-        type: Sequelize.STRING,
-    },
-    name: {
-        type: Sequelize.STRING(100),
-    },
-    quantityAsk: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-    },
-    quantityGiven: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-    },
-    localization: {
-        type: Sequelize.STRING(100),
-    },
-    status: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
+const Material = mongoose.Schema({
+	material_id: {
+		type: String,
+		required: true,
+	},
+	operation_id: {
+		type: String,
+		required: true,
+	},
+	group_id: {
+		type: String,
+		required: true,
+	},
+	owner_id: String,
+	name: {
+		type: String,
+		maxlength: 100,
+	},
+	quantityAsk: {
+		type: Number,
+		default: 0,
+	},
+	quantityGiven: {
+		type: Number,
+		default: 0,
+	},
+	localization: {
+		type: String,
+		maxlength: 100,
+	},
+	status: {
+		type: String,
+		required: true,
+	},
 });
 
-module.exports = Material;
+module.exports = mongoose.model('Material', Material);

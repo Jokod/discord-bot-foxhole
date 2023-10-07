@@ -1,33 +1,31 @@
-const Sequelize = require('sequelize');
-const database = require('../database.js');
+const mongoose = require('mongoose');
 
-const Operation = database.define('operations', {
-    id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
-    title: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-    operation_id: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-    },
-    owner_id: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-    date: Sequelize.STRING,
-    time: Sequelize.STRING,
-    duration: Sequelize.INTEGER,
-    description: Sequelize.STRING,
-    status: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
+const Operation = mongoose.Schema({
+	title: {
+		type: String,
+		required: true,
+	},
+	guild_id: {
+		type: String,
+		required: true,
+	},
+	operation_id: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	owner_id: {
+		type: String,
+		required: true,
+	},
+	date: String,
+	time: String,
+	duration: Number,
+	description: String,
+	status: {
+		type: String,
+		required: true,
+	},
 });
 
-module.exports = Operation;
+module.exports = mongoose.model('Operation', Operation);

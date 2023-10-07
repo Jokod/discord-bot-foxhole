@@ -1,8 +1,8 @@
 module.exports = {
-	name: "ping",
+	name: 'ping',
 	// Refer to typings.d.ts for available properties.
 
-	execute(message, args) {
-		message.channel.send({ content: "Pong." });
+	execute(message) {
+		message.channel.send({ content: 'Pong.' });
 	},
 };
