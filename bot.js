@@ -13,7 +13,7 @@ const getFiles = require('./utils/getFiles');
 /** ********************************************************************/
 // Connect to MongoDB
 
-mongoose.connect(process.env.MONGODB_URL)
+mongoose.connect(process.env.MONGODB_URL, { dbName: process.env.MONGODB_NAME })
 	.then(() => console.log('Connected to MongoDB'))
 	.catch((err) => console.log('Failed to connect to MongoDB', err));
 
