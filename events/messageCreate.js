@@ -86,7 +86,7 @@ module.exports = {
 
 		if (command.init && !(await Server.findOne({ guild_id: message.guild.id }))) {
 			return message.reply({
-				content: 'Le serveur n\'est pas configuré, veuillez utiliser la commande `/setup`.',
+				content: 'This server is not initialized, please run the `/setup` command.',
 				ephemeral: true,
 			});
 		}
@@ -95,7 +95,7 @@ module.exports = {
 
 		if (command.ownerOnly && message.author.id !== process.env.OWNER) {
 			return message.reply({
-				content: 'Ceci est une commande réservée aux propriétaires du bot !',
+				content: 'This command is only for the bot owner!',
 				ephemeral: true,
 			});
 		}
@@ -104,7 +104,7 @@ module.exports = {
 
 		if (command.guildOnly && message.channel.type === ChannelType.DM) {
 			return message.reply({
-				content: 'Je ne peux pas exécuter cette commande dans les messages privés !',
+				content: 'I can\'t execute that command inside DMs!',
 				ephemeral: true,
 			});
 		}
@@ -116,7 +116,7 @@ module.exports = {
 			const authorPerms = message.channel.permissionsFor(message.author);
 			if (!authorPerms || !authorPerms.has(command.permissions)) {
 				return message.reply({
-					content: 'Vous ne pouvez pas faire cela !',
+					content: 'You can not do this!',
 					ephemeral: true,
 				});
 			}
@@ -125,10 +125,10 @@ module.exports = {
 		// Args missing
 
 		if (command.args && !args.length) {
-			let reply = `Vous n'avez pas fourni d'arguments, ${message.author}!`;
+			let reply = `You didn't provide any arguments, ${message.author}!`;
 
 			if (command.usage) {
-				reply += `\nLa bonne utilisation serait: \`${process.env.PREFIX}${command.name} ${command.usage}\``;
+				reply += `\nThe proper usage would be: \`${matchedPrefix}${command.name} ${command.usage}\``;
 			}
 
 			return message.channel.send({
@@ -155,9 +155,9 @@ module.exports = {
 			if (now < expirationTime) {
 				const timeLeft = (expirationTime - now) / 1000;
 				return message.reply({
-					content: `Veuillez attendre ${timeLeft.toFixed(
+					content: `Please wait ${timeLeft.toFixed(
 						1,
-					)} seconde(s) avant de réutiliser la commande \`${command.name}\` !`,
+					)} more second(s) before reusing the \`${command.name}\` command.`,
 					ephemeral: true,
 				});
 			}
@@ -175,7 +175,7 @@ module.exports = {
 		catch (error) {
 			console.error(error);
 			message.reply({
-				content: 'Une erreur s\'est produite lors de l\'exécution de cette commande !',
+				content: 'An error occured while executing the command.',
 				ephemeral: true,
 			});
 		}

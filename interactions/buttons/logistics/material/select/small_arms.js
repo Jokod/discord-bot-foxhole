@@ -15,7 +15,7 @@ module.exports = {
 
 		const buttonBack = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Retour')
+			.setLabel('Back')
 			.setStyle(ButtonStyle.Secondary);
 
 		const smallArmsRow = await getSmallArms({ guildId, operationId, threadId, materialId });

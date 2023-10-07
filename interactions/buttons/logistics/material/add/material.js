@@ -13,37 +13,37 @@ module.exports = {
 
 		const buttonSmallArms = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_small_arms-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Armes légères')
+			.setLabel('Small arms')
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonHeavyArms = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_heavy_arms-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Armes lourdes')
+			.setLabel('Heavy arms')
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonUtilities = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_utilities-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Utilitaires')
+			.setLabel('Utilities')
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonShipables = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_shipables-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Objets transportables')
+			.setLabel('Shipables')
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonVehicles = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_vehicles-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Véhicules')
+			.setLabel('Vehicle')
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonUniforms = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_uniforms-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Uniformes')
+			.setLabel('Uniforms')
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonBack = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_back-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Retour')
+			.setLabel('Back')
 			.setStyle(ButtonStyle.Secondary);
 
 		const firstArrowRow = new ActionRowBuilder().addComponents(buttonSmallArms, buttonUtilities, buttonHeavyArms);

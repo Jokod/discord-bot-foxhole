@@ -12,7 +12,7 @@ module.exports = {
 
 				if (!thread) {
 					return interaction.reply({
-						content: 'Le thread de logistique n\'existe pas !',
+						content: 'This thread does not exist !',
 						ephemeral: true,
 					});
 				}
@@ -24,7 +24,7 @@ module.exports = {
 			}).catch(err => {
 				console.error(err);
 				return interaction.reply({
-					content: 'Une erreur s\'est produite lors de la suppression de la logistique !',
+					content: 'An error occured while closing the thread.',
 					ephemeral: true,
 				});
 			});

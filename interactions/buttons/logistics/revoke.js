@@ -11,7 +11,7 @@ module.exports = {
 
 		const assigneeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_assignee-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Me l\'assigner')
+			.setLabel('Assignee')
 			.setStyle(ButtonStyle.Primary);
 
 		const actionRow = new ActionRowBuilder().addComponents(assigneeButton);
@@ -21,7 +21,7 @@ module.exports = {
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
-					content: 'Vous n\'êtes pas le responsable de ce matériel !',
+					content: 'You are not the owner of this material !',
 					ephemeral: true,
 				});
 			}
@@ -38,7 +38,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.update({
-				content: 'Une erreur s\'est produite lors de l\'assignation du matériel !',
+				content: 'An error occured while assigning the material.',
 				ephemeral: true,
 			});
 		}

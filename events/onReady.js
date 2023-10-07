@@ -10,6 +10,6 @@ module.exports = {
 	 */
 	execute(client) {
 
-		console.log(`Connecté en tant que ${client.user.tag}!`);
+		console.log(`Logged in as ${client.user.tag}!`);
 	},
 };

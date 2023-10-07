@@ -14,17 +14,17 @@ module.exports = {
 
 		const startButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_start-${operationId}`)
-			.setLabel('Lancer')
+			.setLabel('Start')
 			.setStyle(ButtonStyle.Success);
 
 		const cancelButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_cancel-${operationId}`)
-			.setLabel('Annuler')
+			.setLabel('Cancel')
 			.setStyle(ButtonStyle.Danger);
 
 		const logisticsButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_logistics-${operationId}`)
-			.setLabel('Logistique')
+			.setLabel('Logistics')
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji('📦');
 
@@ -45,13 +45,13 @@ module.exports = {
 
 			if (!operation) {
 				return await interaction.reply({
-					content: 'L\'opération n\'a pas été trouvée',
+					content: 'The operation does not exist.',
 					ephemeral: true,
 				});
 			}
 
 			const message = await interaction.reply({
-				content: `Opération **${operation.title}** en cours de préparation..\n\n${content}`,
+				content: `Operation ${operation.title} created.\n${content}`,
 				components: [actionRow],
 			});
 

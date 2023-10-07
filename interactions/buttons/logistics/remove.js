@@ -9,11 +9,11 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_remove-${operationId}-${threadId}`)
-			.setTitle('Saissisez l\'identifiant du matériel à retirer');
+			.setTitle('Enter the material ID')
 
 		const materialIdField = new TextInputBuilder()
 			.setCustomId('material_id')
-			.setLabel('Saissisez l\'identifiant du matériel')
+			.setLabel('Enter the material ID')
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(1)
 			.setRequired(true);

@@ -11,22 +11,22 @@ module.exports = {
 
 		const materialButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${interaction.id}`)
-			.setLabel('Matériel')
+			.setLabel('Material')
 			.setStyle(ButtonStyle.Primary);
 
 		const quantityAskButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_quantity_ask-${operationId}-${threadId}-${interaction.id}`)
-			.setLabel('Quantité')
+			.setLabel('Quantity')
 			.setStyle(ButtonStyle.Secondary);
 
 		const confirmButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_confirm-${operationId}-${threadId}-${interaction.id}`)
-			.setLabel('Confirmer')
+			.setLabel('Confirm')
 			.setStyle(ButtonStyle.Success);
 
 		const deleteButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_material_delete-${interaction.id}`)
-			.setLabel('Supprimer')
+			.setLabel('Delete')
 			.setStyle(ButtonStyle.Danger);
 
 		const ActionRow = new ActionRowBuilder().addComponents(materialButton, quantityAskButton, confirmButton, deleteButton);
@@ -47,7 +47,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de l\'annulation de l\'opération !',
+				content: 'An error occured while creating the material.',
 				ephemeral: true,
 			});
 		}

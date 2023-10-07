@@ -12,22 +12,22 @@ module.exports = {
 
 		const materialButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Matériel')
+			.setLabel('Material')
 			.setStyle(ButtonStyle.Primary);
 
 		const quantityAskButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Quantité')
+			.setLabel('Quantity')
 			.setStyle(ButtonStyle.Secondary);
 
 		const confirmButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_confirm-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Confirmer')
+			.setLabel('Confirm')
 			.setStyle(ButtonStyle.Success);
 
 		const deleteButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_material_delete-${materialId}`)
-			.setLabel('Supprimer')
+			.setLabel('Delete')
 			.setStyle(ButtonStyle.Danger);
 
 		const ActionRow = new ActionRowBuilder().addComponents(materialButton, quantityAskButton, confirmButton, deleteButton);

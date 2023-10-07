@@ -122,7 +122,7 @@ const commandJsonData = [
 
 (async () => {
 	try {
-		console.log(`Début du déploiement en ${process.env.APP_ENV} de ${commandJsonData.length} (/) commandes.`);
+		console.log(`Started refreshing application (/) commands in ${process.env.APP_ENV}...`);
 
 		const route = process.env.APP_ENV === 'dev'
 			? Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.TEST_GUILD_ID)
@@ -133,7 +133,7 @@ const commandJsonData = [
 			{ body: commandJsonData },
 		);
 
-		console.log(`Réussite du déploiement en ${process.env.APP_ENV} des ${data.length} (/) commandes.`);
+		console.log(`Successfully reloaded application (/) commands in ${process.env.APP_ENV}.`, data);
 	}
 	catch (error) {
 		console.error(error);

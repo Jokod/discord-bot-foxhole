@@ -35,8 +35,8 @@ module.exports = {
 						})
 						.setRequired(true)
 						.addChoices(
-							{ name: 'Français', value: 'fr' },
 							{ name: 'English', value: 'en' },
+							{ name: 'Français', value: 'fr' },
 						),
 				),
 		)
@@ -68,17 +68,17 @@ module.exports = {
 
 		if (!server) {
 			return interaction.reply({
-				content: 'Le serveur n\'est pas configuré, veuillez utiliser la commande `/setup`.',
+				content: 'The server is not initialized, use the `/setup` command.',
 				ephemeral: true,
 			});
 		}
 
 		const embed = new EmbedBuilder()
-			.setTitle('Configuration du serveur')
+			.setTitle('Server configuration')
 			.addFields(
-				{ name: 'Serveur', value: guild.name, inline: false },
-				{ name: 'ID du serveur', value: guild.id, inline: false },
-				{ name: 'Langue', value: server.langue, inline: false },
+				{ name: 'Server', value: guild.name, inline: false },
+				{ name: 'Server ID', value: guild.id, inline: false },
+				{ name: 'Language', value: server.lang, inline: false },
 				{ name: 'Camp', value: server.camp, inline: false },
 			);
 
@@ -88,15 +88,15 @@ module.exports = {
 				embeds: [embed],
 				ephemeral: true,
 			});
-		case 'langue':
+		case 'lang':
 			await Server.findOneAndUpdate(
 				{ guild_id: guild.id },
-				{ langue: interaction.options.getString('langue') },
+				{ lang: interaction.options.getString('lang') },
 				{ new: true },
 			);
 
 			return interaction.reply({
-				content: `La langue du serveur a été changée en ${server.langue}.`,
+				content: `The language of the server has been changed to **${(interaction.options.getString('lang')).toUpperCase()}**.`,
 				ephemeral: true,
 			});
 		case 'camp':
@@ -107,7 +107,7 @@ module.exports = {
 			);
 
 			return interaction.reply({
-				content: `Le camp du serveur a été changé en ${server.camp}.`,
+				content: `The camp of the server has been changed to **${(interaction.options.getString('camp')).toUpperCase()}**.`,
 				ephemeral: true,
 			});
 		default:

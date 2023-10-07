@@ -3,7 +3,7 @@ const { EmbedBuilder, ChannelType } = require('discord.js');
 
 module.exports = {
 	name: 'help',
-	description: 'Liste de toutes les commandes ou informations sur une commande spécifique.',
+	description: 'List all of my commands or info about a specific command.',
 	aliases: ['commands'],
 	usage: '[command name]',
 	cooldown: 5,
@@ -21,7 +21,7 @@ module.exports = {
 
 			const helpEmbed = new EmbedBuilder()
 				.setColor('Random')
-				.setTitle('Liste des commandes')
+				.setTitle('List of commands')
 				.setDescription(
 					'`' + commands.map((command) => command.name).join('`, `') + '`',
 				)
@@ -29,7 +29,7 @@ module.exports = {
 				.addFields([
 					{
 						name: 'Usage',
-						value: `\nVous pouvez envoyer \`${process.env.PREFIX}help [command name]\` pour obtenir des informations sur une commande spécifique !`,
+						value: `\nYou can send \`${process.env.PREFIX}help [command name]\` to get info on a specific command!`,
 					},
 				]);
 
@@ -44,7 +44,7 @@ module.exports = {
 					// On validation, reply back.
 
 					message.reply({
-						content: 'Je vous ai envoyé un DM avec toutes mes commandes !',
+						content: 'I\'ve sent you a DM with all my commands!',
 						ephemeral: true,
 					});
 				})
@@ -52,12 +52,12 @@ module.exports = {
 					// On failing, throw error.
 
 					console.error(
-						`Je n'ai pas pu envoyer de DM à ${message.author.tag}.\n`,
+						`I could not send help DM to ${message.author.tag}.\n`,
 						error,
 					);
 
 					message.reply({
-						content: 'Il semble que je ne puisse pas DM vous !',
+						content: 'It seems like I can\'t DM you!',
 						ephemeral: true,
 					});
 				});
@@ -80,7 +80,7 @@ module.exports = {
 
 		if (!command) {
 			return message.reply({
-				content: 'Ce n\'est pas une commande valide !',
+				content: 'That\'s not a valid command!',
 				ephemeral: true,
 			});
 		}
@@ -92,7 +92,7 @@ module.exports = {
 
 		const commandEmbed = new EmbedBuilder()
 			.setColor('Random')
-			.setTitle('Commande d\'aide');
+			.setTitle('Help for the command `' + command.name + '`');
 
 		if (command.description) {commandEmbed.setDescription(`${command.description}`);}
 
@@ -105,7 +105,7 @@ module.exports = {
 				},
 				{
 					name: 'Cooldown',
-					value: `${command.cooldown || 3} seconde(s)`,
+					value: `${command.cooldown || 3} second(s)`,
 					inline: true,
 				},
 			]);

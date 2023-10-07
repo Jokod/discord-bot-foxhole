@@ -11,20 +11,20 @@ module.exports = {
 
 			if (!rowCount) {
 				return await interaction.reply({
-					content: 'Ce matériel n\'existe pas !',
+					content: 'This material does not exist !',
 					ephemeral: true,
 				});
 			}
 
 			await interaction.update({
-				content: 'Le matériel a été supprimé avec succès.',
+				content: 'The material has been deleted !',
 				components: [],
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de la suppression du matériel !',
+				content: 'An error occured while deleting the material.',
 				ephemeral: true,
 			});
 		}

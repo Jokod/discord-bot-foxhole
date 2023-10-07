@@ -13,11 +13,11 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
-			.setTitle('Séléctionnez une quantité');
+			.setTitle('Select the quantity');
 
 		const quantityAskField = new TextInputBuilder()
 			.setCustomId('quantity_ask')
-			.setLabel('Saissisez une quantité')
+			.setLabel('Select the quantity')
 			.setStyle(TextInputStyle.Short)
 			.setValue(`${material.quantityAsk}`)
 			.setMinLength(1)

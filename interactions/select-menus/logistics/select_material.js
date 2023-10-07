@@ -18,7 +18,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de la séléction du matériel !',
+				content: 'An error occured while updating the material.',
 				ephemeral: true,
 			});
 		}

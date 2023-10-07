@@ -11,20 +11,20 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_material_validate-${materialId}`)
-			.setTitle('Confirmer le matériel');
+			.setTitle('Confirm the material')
 
 		const locationInput = new TextInputBuilder()
 			.setCustomId('localization')
-			.setLabel('Lieu de stockage')
-			.setPlaceholder('Lieu de stockage')
+			.setLabel('Stockage Area')
+			.setPlaceholder('Stockage Area')
 			.setStyle(TextInputStyle.Short)
 			.setMaxLength(100)
 			.setRequired(true);
 
 		const quantityGiven = new TextInputBuilder()
 			.setCustomId('quantity_given')
-			.setLabel('Quantité donnée')
-			.setPlaceholder('Quantité donnée')
+			.setLabel('Quantity given')
+			.setPlaceholder('Quantity given')
 			.setValue(`${material.quantityAsk}`)
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(1)

@@ -11,7 +11,7 @@ module.exports = {
 
 		const removeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_material_delete-${materialId}`)
-			.setLabel('Supprimer')
+			.setLabel('Delete')
 			.setStyle(ButtonStyle.Danger);
 
 		const actionRow = new ActionRowBuilder().addComponents(removeButton);
@@ -27,7 +27,7 @@ module.exports = {
 
 			if (!material) {
 				return await interaction.reply({
-					content: 'Le matériel n\'a pas été trouvé !',
+					content: 'This material does not exist !',
 					ephemeral: true,
 				});
 			}
@@ -40,7 +40,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de la validation du matériel !',
+				content: 'An error occured while validating the material.',
 				ephemeral: true,
 			});
 		}

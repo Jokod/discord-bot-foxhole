@@ -78,7 +78,7 @@ module.exports = {
 
 			if (!operation) {
 				return interaction.reply({
-					content: 'L\'opération n\'existe pas !',
+					content: 'The operation doesn\'t exist !',
 					ephemeral: true,
 				});
 			}
@@ -96,7 +96,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setColor('Random')
-				.setTitle(`Groupes logistiques de l'opération ${operation.title}`)
+				.setTitle(`Groups of the operation #${operation.title}`)
 				.setDescription(content.join('\n\n'));
 
 			await interaction.reply({
@@ -110,7 +110,7 @@ module.exports = {
 
 			if (!group) {
 				return interaction.reply({
-					content: 'Le groupe n\'existe pas !',
+					content: 'The group doesn\'t exist !',
 					ephemeral: true,
 				});
 			}
@@ -124,7 +124,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setColor('Random')
-				.setTitle(`Liste des matériaux de la logistique #${inputListId}`)
+				.setTitle(`List of materials of the group #${inputListId}`)
 				.setDescription(content.join('\n\n'));
 
 			await interaction.reply({
@@ -138,7 +138,7 @@ module.exports = {
 
 			if (!material) {
 				return interaction.reply({
-					content: 'Le matériel n\'existe pas !',
+					content: 'The material doesn\'t exist !',
 					ephemeral: true,
 				});
 			}
@@ -151,7 +151,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setColor('Random')
-				.setTitle(`Détails du matériel (${material.material_id})`)
+				.setTitle(`Details of the material #${material.material_id}`)
 				.setDescription(content);
 
 			await interaction.reply({

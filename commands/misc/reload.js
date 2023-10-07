@@ -2,7 +2,7 @@ const fs = require('fs');
 
 module.exports = {
 	name: 'reload',
-	description: 'Recharger une commande.',
+	description: 'Reloads a command',
 	args: true,
 	ownerOnly: true,
 
@@ -23,7 +23,7 @@ module.exports = {
 		// Command returns if there is no such command with the specific command name or alias.
 		if (!command) {
 			return message.channel.send({
-				content: `Il n'y a aucune commande avec le nom ou l'alias \`${commandName}\`, ${message.author}!`,
+				content: `There is no command with name or alias \`${commandName}\`, ${message.author}!`,
 				ephemeral: true,
 			});
 		}
@@ -61,7 +61,7 @@ module.exports = {
 
 			// 🎉 Confirmation sent if reloading was successful!
 			message.channel.send({
-				content: `La commande \`${command.name}\` a été rechargée!`,
+				content: `Command \`${command.name}\` was reloaded!`,
 				ephemeral: true,
 			});
 		}
@@ -70,7 +70,7 @@ module.exports = {
 
 			console.error(error);
 			message.channel.send({
-				content: `Il y a eu une erreur lors du rechargement de la commande \`${command.name}\`:\n\`${error.message}\``,
+				content: `There was an error while reloading a command \`${command.name}\`:\n\`${error.message}\``,
 				ephemeral: true,
 			});
 		}

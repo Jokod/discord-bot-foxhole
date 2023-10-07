@@ -11,7 +11,7 @@ module.exports = {
 
 		const assigneeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_assignee-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Me l\'assigner')
+			.setLabel('Assignee')
 			.setStyle(ButtonStyle.Primary);
 
 		const actionRow = new ActionRowBuilder().addComponents(assigneeButton);
@@ -23,7 +23,7 @@ module.exports = {
 
 			if (!material.name || !material.quantityAsk) {
 				return await interaction.reply({
-					content: 'Le matériel n\'a pas été correctement configuré !',
+					content: 'This material has no name or quantity !',
 					ephemeral: true,
 				});
 			}
@@ -38,7 +38,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de la confirmation du matériel !',
+				content: 'An error occured while confirming the material.',
 				ephemeral: true,
 			});
 		}

@@ -12,14 +12,14 @@ module.exports = {
 
 			if (!material) {
 				return await interaction.reply({
-					content: 'Aucun matériel n\'a été trouvé avec cet identifiant !',
+					content: 'This material does not exist !',
 					ephemeral: true,
 				});
 			}
 
 			if (material.operation_id !== operationId) {
 				return await interaction.reply({
-					content: 'Ce matériel n\'appartient pas à cette opération !',
+					content: 'This material does not belong to this operation !',
 					ephemeral: true,
 				});
 			}
@@ -27,14 +27,14 @@ module.exports = {
 			await Material.deleteOne({ material_id: `${materialId}` });
 
 			await interaction.reply({
-				content: 'Le matériel a bien été supprimé !',
+				content: 'The material has been deleted !',
 				ephemeral: true,
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de la suppression du matériel !',
+				content: 'An error occured while deleting the material.',
 				ephemeral: true,
 			});
 		}

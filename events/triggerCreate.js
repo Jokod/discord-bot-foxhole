@@ -47,7 +47,7 @@ module.exports = {
 						console.error(error);
 
 						message.reply({
-							content: 'Une erreur s\'est produite lors de l\'exécution de ce déclencheur !',
+							content: 'An error occured while executing the trigger.',
 						});
 					}
 

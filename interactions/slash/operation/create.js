@@ -5,25 +5,31 @@ module.exports = {
 	init: true,
 	data: new SlashCommandBuilder()
 		.setName('create_operation')
-		.setDescription('Créer une nouvelle opération')
+		.setDescription('Create a new operation')
+		.setDescriptionLocalizations({
+			fr: 'Créer une nouvelle opération',
+		})
 		.addStringOption((option) =>
 			option
-				.setName('titre')
-				.setDescription('Titre de l\'opération')
+				.setName('title')
+				.setDescription('Title of the operation')
+				.setDescriptionLocalizations({
+					fr: 'Titre de l\'opération',
+				})
 				.setRequired(true),
 		)
 		.setDMPermission(false),
 
 	async execute(interaction) {
-		const title = interaction.options.getString('titre').toUpperCase();
+		const title = interaction.options.getString('title').toUpperCase();
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_create_operation-${interaction.id}`)
-			.setTitle(`Opération ${title}`);
+			.setTitle(`Operation ${title}`)
 
 		const dateField = new TextInputBuilder()
 			.setCustomId('date')
-			.setLabel('Date de l\'opération (dd/mm/yyyy)')
+			.setLabel('Date of the operation (dd/mm/yyyy)')
 			.setPlaceholder('dd/mm/yyyy')
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(10)
@@ -32,7 +38,7 @@ module.exports = {
 
 		const timeField = new TextInputBuilder()
 			.setCustomId('time')
-			.setLabel('Heure de l\'opération (hh:mm)')
+			.setLabel('Hour of the operation (hh:mm)')
 			.setPlaceholder('hh:mm')
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(5)
@@ -41,7 +47,7 @@ module.exports = {
 
 		const durationField = new TextInputBuilder()
 			.setCustomId('duration')
-			.setLabel('Durée de l\'opération (en minutes)')
+			.setLabel('Duration of the operation (in minutes)')
 			.setValue('60')
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(1)
@@ -50,7 +56,7 @@ module.exports = {
 
 		const descriptionField = new TextInputBuilder()
 			.setCustomId('description')
-			.setLabel('Description de l\'opération')
+			.setLabel('Description of the operation')
 			.setStyle(TextInputStyle.Paragraph)
 			.setMinLength(1)
 			.setMaxLength(1000)
@@ -77,7 +83,7 @@ module.exports = {
 		catch (error) {
 			console.error(error);
 			return interaction.reply({
-				content: 'Une erreur est survenue lors de la création de l\'opération.',
+				content: 'There was an error while creating the operation.',
 				ephemeral: true,
 			});
 		}

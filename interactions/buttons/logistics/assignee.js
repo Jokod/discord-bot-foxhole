@@ -11,12 +11,12 @@ module.exports = {
 
 		const revokeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_revoke-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Révoquer')
+			.setLabel('Revoke')
 			.setStyle(ButtonStyle.Danger);
 
 		const validateButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_material_validate-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Valider')
+			.setLabel('Validate')
 			.setStyle(ButtonStyle.Success);
 
 		const actionRow = new ActionRowBuilder().addComponents(revokeButton, validateButton);
@@ -36,7 +36,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.update({
-				content: 'Une erreur s\'est produite lors de l\'assignation du matériel !',
+				content: 'An error occured while assigning the material.',
 				ephemeral: true,
 			});
 		}

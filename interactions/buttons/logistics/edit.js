@@ -17,7 +17,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de l\'annulation de l\'opération !',
+				content: 'An error occured while updating the material.',
 				ephemeral: true,
 			});
 		}

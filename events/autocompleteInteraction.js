@@ -30,7 +30,7 @@ module.exports = {
 
 		if (request.init && !(await Server.findOne({ guild_id: interaction.guild.id }))) {
 			return interaction.reply({
-				content: 'Le serveur n\'est pas configuré, veuillez utiliser la commande `/setup`.',
+				content: 'This server is not initialized, please run the `/setup` command.',
 				ephemeral: true,
 			});
 		}

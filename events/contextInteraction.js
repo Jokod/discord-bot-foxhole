@@ -29,7 +29,7 @@ module.exports = {
 
 			if (command.init && !(await Server.findOne({ guild_id: interaction.guild.id }))) {
 				return interaction.reply({
-					content: 'Le serveur n\'est pas configuré, veuillez utiliser la commande `/setup`.',
+					content: 'This server is not initialized, please run the `/setup` command.',
 					ephemeral: true,
 				});
 			}
@@ -42,7 +42,7 @@ module.exports = {
 			catch (err) {
 				console.error(err);
 				await interaction.reply({
-					content: 'Une erreur s\'est produite lors de l\'exécution de cette commande !',
+					content: 'An error occured while executing the command.',
 					ephemeral: true,
 				});
 			}
@@ -61,7 +61,7 @@ module.exports = {
 			catch (err) {
 				console.error(err);
 				await interaction.reply({
-					content: 'Une erreur s\'est produite lors de l\'exécution de cette commande !',
+					content: 'An error occured while executing the command.',
 					ephemeral: true,
 				});
 			}
@@ -71,7 +71,7 @@ module.exports = {
 		// Possible Fix is a restart!
 		else {
 			return console.log(
-				'Quelque chose s\'est mal passé lors de l\'exécution de la commande de menu contextuel !',
+				'An error occured while executing the context command.',
 			);
 		}
 	},
