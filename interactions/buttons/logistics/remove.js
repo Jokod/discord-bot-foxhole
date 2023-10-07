@@ -9,7 +9,7 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_remove-${operationId}-${threadId}`)
-			.setTitle('Enter the material ID')
+			.setTitle('Enter the material ID');
 
 		const materialIdField = new TextInputBuilder()
 			.setCustomId('material_id')

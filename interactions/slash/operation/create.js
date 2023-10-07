@@ -25,7 +25,7 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_create_operation-${interaction.id}`)
-			.setTitle(`Operation ${title}`)
+			.setTitle(`Operation ${title}`);
 
 		const dateField = new TextInputBuilder()
 			.setCustomId('date')
