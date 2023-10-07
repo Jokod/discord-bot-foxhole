@@ -11,7 +11,7 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_material_validate-${materialId}`)
-			.setTitle('Confirm the material')
+			.setTitle('Confirm the material');
 
 		const locationInput = new TextInputBuilder()
 			.setCustomId('localization')

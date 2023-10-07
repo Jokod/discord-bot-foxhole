@@ -9,7 +9,7 @@ module.exports = {
 		.addStringOption((option) =>
 			option
 				.setName('command')
-				.setDescription('The command to get help for.')
+				.setDescription('The command to get help for.'),
 		),
 
 	async execute(interaction) {
