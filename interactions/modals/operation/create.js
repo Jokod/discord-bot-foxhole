@@ -12,6 +12,34 @@ module.exports = {
 		const durationField = interaction.fields.getTextInputValue('duration');
 		const descriptionField = interaction.fields.getTextInputValue('description');
 
+		const dateRegex = new RegExp('^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}$');
+		const timeRegex = new RegExp('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$');
+
+		if (!dateRegex.test(dateField)) {
+			return await interaction.reply({
+				content: 'The date format is incorrect.',
+				ephemeral: true,
+			});
+		}
+
+		if (!timeRegex.test(timeField)) {
+			return await interaction.reply({
+				content: 'The time format is incorrect.',
+				ephemeral: true,
+			});
+		}
+
+		const dateParts = dateField.split('/');
+		const timeParts = timeField.split(':');
+
+		const year = dateParts[2];
+		const month = dateParts[1];
+		const day = dateParts[0];
+		const hours = timeParts[0];
+		const minutes = timeParts[1];
+
+		const timestamp = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`).getTime() / 1000;
+
 		const startButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_start-${operationId}`)
 			.setLabel('Start')
@@ -30,14 +58,14 @@ module.exports = {
 
 		const actionRow = new ActionRowBuilder().addComponents(startButton, cancelButton, logisticsButton);
 
-		const content = `**Date:** ${dateField}\n**Heure:** ${timeField}\n**Durée:** ${durationField} min\n**Description:** ${descriptionField}`;
+		const content = `**ID:** ${operationId}\n**Date:** <t:${timestamp}:d>\n**Heure:** <t:${timestamp}:t>\n**Durée:** ${durationField} min\n**Description:** ${descriptionField}`;
 
 		try {
 			const operation = await Operation.findOneAndUpdate(
 				{ operation_id: `${operationId}` },
 				{
-					date: dateField,
-					time: timeField,
+					date: `<t:${timestamp}:d>`,
+					time: `<t:${timestamp}:t>`,
 					duration: durationField,
 					description: descriptionField,
 				}, { new: true },
