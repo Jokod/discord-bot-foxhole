@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../data/models.js');
 
 module.exports = {
 	init: true,
@@ -22,6 +21,8 @@ module.exports = {
 
 	async execute(interaction) {
 		const title = interaction.options.getString('title').toUpperCase();
+
+		interaction.client.sessions[interaction.user.id] = { title: title };
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_create_operation-${interaction.id}`)
@@ -69,23 +70,6 @@ module.exports = {
 
 		modal.addComponents(firstActionRow, secondActionRow, thirdActionRow, fourthActionRow);
 
-		try {
-			new Operation({
-				title: title,
-				guild_id: `${interaction.guild.id}`,
-				operation_id: `${interaction.id}`,
-				owner_id: `${interaction.user.id}`,
-				status: 'pending',
-			}).save();
-
-			await interaction.showModal(modal);
-		}
-		catch (error) {
-			console.error(error);
-			return interaction.reply({
-				content: 'There was an error while creating the operation.',
-				ephemeral: true,
-			});
-		}
+		await interaction.showModal(modal);
 	},
 };

@@ -84,6 +84,14 @@ module.exports = {
 			}
 
 			const groups = await Group.find({ operation_id: inputOperationId });
+
+			if (!groups.length) {
+				return interaction.reply({
+					content: 'The operation doesn\'t have groups !',
+					ephemeral: true,
+				});
+			}
+
 			const promises = groups.map(async (group) => {
 				const materials = await Material.find({ group_id: group.threadId });
 				const numberTotal = materials.length;

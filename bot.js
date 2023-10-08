@@ -60,6 +60,7 @@ client.modalCommands = new Collection();
 client.cooldowns = new Collection();
 client.autocompleteInteractions = new Collection();
 client.triggers = new Collection();
+client.sessions = new Collection();
 
 /** ********************************************************************/
 // Registration of Message-Based Legacy Commands.
@@ -128,12 +129,12 @@ const commandJsonData = [
 			? Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.TEST_GUILD_ID)
 			: Routes.applicationCommands(process.env.CLIENT_ID);
 
-		const data = await rest.put(
+		await rest.put(
 			route,
 			{ body: commandJsonData },
 		);
 
-		console.log(`Successfully reloaded application (/) commands in ${process.env.APP_ENV}.`, data);
+		console.log(`Successfully reloaded application (/) commands in ${process.env.APP_ENV}.`);
 	}
 	catch (error) {
 		console.error(error);

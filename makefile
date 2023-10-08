@@ -9,6 +9,9 @@
 NPM           = npm
 DOCKER		  = docker
 
+SSH_COMMAND := ssh -F /home/jordan/.ssh/config -p 822 nas-synology
+REMOTE_PATH := /var/services/web/foxbot
+
 # Misc
 .DEFAULT_GOAL = help
 .PHONY       =  # Not needed here, but you can put your all your targets to be sure
@@ -65,3 +68,8 @@ js-dev: js-install ## Rebuild assets for the dev env
 
 js-start: ## Build assets for production
 	$(NPM) run start
+
+## —— Deploy 🚀 ————————————————————————————————————————————————————————————————
+
+deploy-prod: ## Deploy on production
+	$(SSH_COMMAND) "cd $(REMOTE_PATH) && git fetch && git pull origin main"
