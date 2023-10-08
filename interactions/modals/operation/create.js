@@ -7,6 +7,7 @@ module.exports = {
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
 
+		const title = interaction.client.sessions[interaction.user.id].title;
 		const dateField = interaction.fields.getTextInputValue('date');
 		const timeField = interaction.fields.getTextInputValue('time');
 		const durationField = interaction.fields.getTextInputValue('duration');
@@ -61,27 +62,24 @@ module.exports = {
 		const content = `**ID:** ${operationId}\n**Date:** <t:${timestamp}:d>\n**Heure:** <t:${timestamp}:t>\n**Durée:** ${durationField} min\n**Description:** ${descriptionField}`;
 
 		try {
-			const operation = await Operation.findOneAndUpdate(
-				{ operation_id: `${operationId}` },
-				{
-					date: `<t:${timestamp}:d>`,
-					time: `<t:${timestamp}:t>`,
-					duration: durationField,
-					description: descriptionField,
-				}, { new: true },
-			);
-
-			if (!operation) {
-				return await interaction.reply({
-					content: 'The operation does not exist.',
-					ephemeral: true,
-				});
-			}
+			const operation = await Operation.create({
+				title: `${title}`,
+				guild_id: `${interaction.guild.id}`,
+				operation_id: `${operationId}`,
+				owner_id: `${interaction.user.id}`,
+				date: `<t:${timestamp}:d>`,
+				time: `<t:${timestamp}:t>`,
+				duration: durationField,
+				description: descriptionField,
+				status: 'pending',
+			});
 
 			const message = await interaction.reply({
 				content: `Operation ${operation.title} created.\n${content}`,
 				components: [actionRow],
 			});
+
+			delete interaction.client.sessions[interaction.user.id];
 
 			await require('../../../messages/react.js').execute(message);
 		}

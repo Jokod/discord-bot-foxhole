@@ -60,6 +60,7 @@ client.modalCommands = new Collection();
 client.cooldowns = new Collection();
 client.autocompleteInteractions = new Collection();
 client.triggers = new Collection();
+client.sessions = new Collection();
 
 /** ********************************************************************/
 // Registration of Message-Based Legacy Commands.
