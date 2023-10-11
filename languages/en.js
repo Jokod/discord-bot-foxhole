@@ -16,11 +16,16 @@ module.exports = {
 	CANCEL: 'Cancel',
 	FINISHED: 'Finished',
 	CONFIRM: 'Confirm',
+	VALIDATE: 'Validate',
+	VALIDATED: 'Validated',
+	PENDING: 'Pending',
 	LOGISTICS: 'Logistics',
 	ASSIGNEE: 'Assignee',
+	REVOKE: 'Revoke',
 	BACK: 'Back',
 	INTERACTION_ERROR: 'No interaction was found for this action.',
 	PREFIX_MESSAGE: 'Hi %author%! My prefix is %prefix%, for help %prefix%help',
+	STATUS: 'Status',
 
 	// SERVER ---------------------------------------------
 
@@ -43,7 +48,7 @@ module.exports = {
 	// OPERATION ---------------------------------------------
 
 	// OPERATION CREATE
-	OPERATION_CREATE_TITLE: 'Operation %tilte%',
+	OPERATION_CREATE_TITLE: 'Operation %title%',
 	OPERATION_CREATE_LABEL_DATE: 'Operation Date (dd/mm/yyyy)',
 	OPERATION_CREATE_LABEL_TIME: 'Operation Time (hh:mm)',
 	OPERATION_CREATE_LABEL_DURATION: 'Operation Duration (in minutes)',

@@ -15,12 +15,17 @@ module.exports = {
 	START: 'Démarrer',
 	CANCEL: 'Annuler',
 	FINISHED: 'Terminer',
+	VALIDATE: 'Valider',
+	VALIDATED: 'Validé',
+	PENDING: 'En attente',
 	CONFIRM: 'Confirmer',
 	LOGISTICS: 'Logistique',
 	ASSIGNEE: 'Assigné',
+	REVOKE: 'Se rétracter',
 	BACK: 'Retour',
 	INTERACTION_ERROR: 'Aucune intéraction n\'a été trouvée pour cette action.',
 	PREFIX_MESSAGE: 'Salut %author%! Mon prefix est %prefix%, pour avoir de l\'aide %prefix%help',
+	STATUS: 'Statut',
 
 	// SERVER ---------------------------------------------
 

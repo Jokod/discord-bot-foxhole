@@ -6,7 +6,9 @@ class Translate {
 
 
 	translate(key, params = {}) {
-		const lang = this.client.traductions.get(this.guildID);
+		let lang = this.client.traductions.get(this.guildID);
+		if (!this.client.languages.has(lang)) lang = this.client.languages.get('en');
+
 		const sentence = this.client.languages.get(lang)[key];
 
 		if (!sentence) {

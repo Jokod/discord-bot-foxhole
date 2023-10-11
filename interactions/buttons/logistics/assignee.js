@@ -13,12 +13,12 @@ module.exports = {
 
 		const revokeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_revoke-${operationId}-${threadId}-${materialId}`)
-			.setLabel(translations.translate('MATERIAL_REVOKE'))
+			.setLabel(translations.translate('REVOKE'))
 			.setStyle(ButtonStyle.Danger);
 
 		const validateButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_material_validate-${operationId}-${threadId}-${materialId}`)
-			.setLabel(translations.translate('MATERIAL_VALIDATE'))
+			.setLabel(translations.translate('VALIDATE'))
 			.setStyle(ButtonStyle.Success);
 
 		const actionRow = new ActionRowBuilder().addComponents(revokeButton, validateButton);
