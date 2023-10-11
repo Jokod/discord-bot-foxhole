@@ -1,11 +1,13 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection } = require('discord.js');
 const { Operation, Group } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_create_operation_logistics',
 
 	async execute(interaction) {
-		const { channel } = interaction;
+		const { channel, client, guild } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		const operationId = interaction.customId.split('-')[1];
 		const operation = await Operation.findOne({ operation_id: `${operationId}` });
@@ -19,24 +21,24 @@ module.exports = {
 		});
 
 		const thread = await channel.threads.create({
-			name: `Logistique #${logisticsIds.size + 1} pour l'opération ${operation.title}`,
+			name: translations.translate('GROUP_TITLE', { size: logisticsIds.size + 1, title: operation.title }),
 		});
 
 		if (thread.joinable) await thread.join();
 
 		const addButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_add-${operationId}-${thread.id}`)
-			.setLabel('Ajouter un matériel')
+			.setLabel(translations.translate('MATERIAL_ADD'))
 			.setStyle(ButtonStyle.Primary);
 
 		const removeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_remove-${operationId}-${thread.id}`)
-			.setLabel('Retirer un matériel')
+			.setLabel(translations.translate('MATERIAL_REMOVE'))
 			.setStyle(ButtonStyle.Danger);
 
 		const closeThreadButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_close-${operationId}-${thread.id}`)
-			.setLabel('Supprimer')
+			.setLabel(translations.translate('DELETE'))
 			.setStyle(ButtonStyle.Secondary);
 
 		const actionRow = new ActionRowBuilder().addComponents(addButton, removeButton, closeThreadButton);
@@ -54,14 +56,14 @@ module.exports = {
 			});
 
 			await interaction.reply({
-				content: 'Thread de logistique créé !',
+				content: translations.translate('GROUP_CREATE_SUCCESS'),
 				ephemeral: true,
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de l\'implémentation de la logistique !',
+				content: translations.translate('GROUP_CREATE_ERROR'),
 				ephemeral: true,
 			});
 		}

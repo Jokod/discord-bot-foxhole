@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Operation, Material } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_create_operation_start',
@@ -7,36 +8,37 @@ module.exports = {
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
 		const operation = await Operation.findOne({ operation_id: `${operationId}` });
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		const finishedButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_finished-${operationId}`)
-			.setLabel('Terminé')
+			.setLabel(translations.translate('FINISHED'))
 			.setStyle(ButtonStyle.Success);
 
 		const cancelButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_cancel-${operationId}`)
-			.setLabel('Annuler')
+			.setLabel(translations.translate('CANCEL'))
 			.setStyle(ButtonStyle.Danger);
 
 		const ActionRow = new ActionRowBuilder().addComponents(finishedButton, cancelButton);
 
-		const content = `**Date:** ${operation.date}\n**Heure:** ${operation.time}\n**Durée:** ${operation.duration} min\n**Description:** ${operation.description}`;
+		const content = `**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
 
 		try {
 			let validated = 0;
-			const materials = Material.find({ operation_id: `${operationId}` })
+			const materials = await Material.find({ operation_id: `${operationId}` })
 				.then(material => {
 					if (material.status === 'validated') validated++;
 				});
 
 			if (validated !== materials.length) {
 				await interaction.reply({
-					content: 'Tous les matériaux n\'ont pas été validés !\nImpossible de lancer l\'opération !\nVeuillez valider ou supprimer les matériaux non validés.',
+					content: translations.translate('OPERATION_MATERIALS_NOT_ALL_VALIDATE'),
 					ephemeral: true,
 				});
 
 				return await interaction.followUp({
-					content: 'Vous pouvez utiliser la commande `/logistics` pour voir les matériels non validés.',
+					content: translations.translate('LOGISTIC_SEE_MATERIALS_NOT_VALIDATE'),
 					ephemeral: true,
 				});
 			}
@@ -44,14 +46,14 @@ module.exports = {
 			await Operation.updateOne({ operation_id: `${operationId}` }, { status: 'started' });
 
 			await interaction.update({
-				content: `Opération **${operation.title}** lancée ! @everyone\n${content}`,
+				content: `${translations.translate('OPERATION_LAUNCH_SUCCESS', { title: operation.title })}\n${content}`,
 				components: [ActionRow],
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors du lancement de l\'opération !',
+				content: translations.translate('OPERATION_LAUNCH_ERROR'),
 				ephemeral: true,
 			});
 		}

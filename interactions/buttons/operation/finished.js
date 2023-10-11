@@ -1,4 +1,5 @@
 const { Operation, Group } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_create_operation_finished',
@@ -6,8 +7,9 @@ module.exports = {
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
 		const operation = await Operation.findOne({ operation_id: `${operationId}` });
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
-		const content = `**Date:** ${operation.date}\n**Heure:** ${operation.time}\n**Durée:** ${operation.duration} min\n**Description:** ${operation.description}`;
+		const content = `**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
 
 		try {
 
@@ -23,14 +25,14 @@ module.exports = {
 			await Operation.updateOne({ operation_id: `${operationId}` }, { status: 'finished' });
 
 			await interaction.update({
-				content: `Opération **${operation.title}** terminée !\n${content}`,
+				content: `${translations.translate('OPERATION_FINISHED_SUCCESS', { title: operation.title })}\n${content}`,
 				components: [],
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de la fin de l\'opération !',
+				content: translations.translate('OPERATION_FINISHED_ERROR'),
 				ephemeral: true,
 			});
 		}

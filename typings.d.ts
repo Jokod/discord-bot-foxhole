@@ -274,4 +274,9 @@ export interface Client extends Discord.Client {
 	 * Represents a collection of autocomplete interactions.
 	 */
 	autocompleteInteractions: Discord.Collection<string, AutocompleteInteraction>;
+
+	/**
+	 * Represents a collection of chat-based Message Events.
+	 */
+	anyInteraction: Discord.Collection<string, any>;
 }

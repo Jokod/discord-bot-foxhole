@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Material } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_logistics_revoke',
@@ -8,10 +9,11 @@ module.exports = {
 		const operationId = interaction.customId.split('-')[1];
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		const assigneeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_assignee-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Assignee')
+			.setLabel(translations.translate('ASSIGNEE'))
 			.setStyle(ButtonStyle.Primary);
 
 		const actionRow = new ActionRowBuilder().addComponents(assigneeButton);
@@ -21,7 +23,7 @@ module.exports = {
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
-					content: 'You are not the owner of this material !',
+					content: translations.translate('MATERIAL_ARE_NO_OWNER_ERROR'),
 					ephemeral: true,
 				});
 			}
@@ -31,14 +33,14 @@ module.exports = {
 			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
 
 			await interaction.update({
-				content: `**ID:** ${materialId}\n**Matériel:** ${name}\n**Quantité:** ${material.quantityAsk}**\nResponsable:** Aucun`,
+				content: `**${translations.translate('ID')}:** ${materialId}\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}`,
 				components: [actionRow],
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.update({
-				content: 'An error occured while assigning the material.',
+				content: translations.translate('MATERIAL_ASSIGN_ERROR'),
 				ephemeral: true,
 			});
 		}

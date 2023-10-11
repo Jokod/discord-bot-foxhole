@@ -15,9 +15,6 @@ const getFiles = (dir, callback) => {
 			const command = require('../' + filePath);
 			callback(command, filePath);
 		}
-		else {
-			console.log(`[ERROR] ${file} is not a .js file.`);
-		}
 	});
 };
 

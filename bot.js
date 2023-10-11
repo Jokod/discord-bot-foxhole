@@ -60,6 +60,8 @@ client.modalCommands = new Collection();
 client.cooldowns = new Collection();
 client.autocompleteInteractions = new Collection();
 client.triggers = new Collection();
+client.languages = new Collection();
+client.traductions = new Collection();
 client.sessions = new Collection();
 
 /** ********************************************************************/
@@ -149,5 +151,11 @@ getFiles('./triggers', (trigger) => {
 });
 
 /** ********************************************************************/
+
+// Load all languages
+
+getFiles('./languages', (language) => {
+	client.languages.set(language.code, language);
+});
 
 client.login(process.env.TOKEN);

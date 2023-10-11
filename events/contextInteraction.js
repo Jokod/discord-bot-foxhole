@@ -13,6 +13,7 @@ module.exports = {
 	execute: async (interaction) => {
 		// Deconstructed client from interaction object.
 		const { client } = interaction;
+		const guildId = interaction.guild.id;
 
 		// Checks if the interaction is a context interaction (to prevent weird bugs)
 
@@ -27,7 +28,9 @@ module.exports = {
 				'USER ' + interaction.commandName,
 			);
 
-			if (command.init && !(await Server.findOne({ guild_id: interaction.guild.id }))) {
+			const server = await Server.findOne({ guild_id: guildId });
+
+			if (command.init && !server) {
 				return interaction.reply({
 					content: 'This server is not initialized, please run the `/setup` command.',
 					ephemeral: true,
