@@ -114,9 +114,8 @@ module.exports = {
 	MATERIAL_PERSON_IN_CHARGE: 'Responsable',
 	MATERIAL_LIST_OF_GROUP: 'Liste des matériaux du groupe',
 	MATERIAL_LOCALIZATION: 'Lieu de stockage',
-	MATERIAL_ADD_TO_OPERATION: 'Ajouter un matériel à l\'opération',
 	MATERIAL_HAVE_NO_NAME_OR_QUANTITY: 'Le matériel doit avoir un nom et une quantité.',
-	MATERIAL_SELECT_TYPE: 'Sélectionnez un type de matériel à ajouter à l\'opération',
+	MATERIAL_SELECT_TYPE: 'Sélectionnez un type de matériel à ajouter',
 	MATERIAL_SMALL_ARMS: 'Armes légères',
 	MATERIAL_HEAVY_ARMS: 'Armes lourdes',
 	MATERIAL_UTILITIES: 'Utilitaires',
@@ -124,14 +123,15 @@ module.exports = {
 	MATERIAL_VEHICLES: 'Véhicules',
 	MATERIAL_UNIFORMS: 'Uniformes',
 
-	MATERIAL_LIST_SMALL_ARMS: 'Liste des armes légères disponibles pour l\'opération',
-	MATERIAL_LIST_HEAVY_ARMS: 'Liste des armes lourdes disponibles pour l\'opération',
-	MATERIAL_LIST_UTILITIES: 'Liste des utilitaires disponibles pour l\'opération',
-	MATERIAL_LIST_SHIPABLES: 'Liste des objets transportables disponibles pour l\'opération',
-	MATERIAL_LIST_VEHICLE: 'Liste des véhicules disponibles pour l\'opération',
-	MATERIAL_LIST_UNIFORMS: 'Liste des uniformes disponibles pour l\'opération',
+	MATERIAL_LIST_SMALL_ARMS: 'Liste des armes légères disponibles',
+	MATERIAL_LIST_HEAVY_ARMS: 'Liste des armes lourdes disponibles',
+	MATERIAL_LIST_UTILITIES: 'Liste des utilitaires disponibles',
+	MATERIAL_LIST_SHIPABLES: 'Liste des objets transportables disponibles',
+	MATERIAL_LIST_VEHICLE: 'Liste des véhicules disponibles',
+	MATERIAL_LIST_UNIFORMS: 'Liste des uniformes disponibles',
 
 	// MATERIAL SUCCESS
+	MATERIAL_CREATE_SUCCESS: 'Le matériel a été créé.',
 	MATERIAL_DELETE_SUCCESS: 'Le matériel a été supprimé.',
 
 	// MATERIAL ERRORS

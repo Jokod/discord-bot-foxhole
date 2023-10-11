@@ -1,5 +1,4 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../../../data/models.js');
 const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
@@ -10,8 +9,6 @@ module.exports = {
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
 		const translations = new Translate(interaction.client, interaction.guild.id);
-
-		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 
 		const buttonSmallArms = new ButtonBuilder()
 			.setCustomId(`logistics_select_material_small_arms-${operationId}-${threadId}-${materialId}`)
@@ -53,7 +50,7 @@ module.exports = {
 		const thirdArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({
-			content: `**${translations.translate('ID')}:** ${materialId}\n${translations.translate('MATERIAL_SELECT_TYPE')} **${operation.title}**`,
+			content: `**${translations.translate('ID')}:** ${materialId}\n${translations.translate('MATERIAL_SELECT_TYPE')}`,
 			components: [firstArrowRow, secondArrowRow, thirdArrowRow],
 		});
 	},

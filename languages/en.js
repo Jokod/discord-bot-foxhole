@@ -114,9 +114,8 @@ module.exports = {
 	MATERIAL_PERSON_IN_CHARGE: 'Responsible',
 	MATERIAL_LIST_OF_GROUP: 'List of Group Materials',
 	MATERIAL_LOCALIZATION: 'Storage Location',
-	MATERIAL_ADD_TO_OPERATION: 'Add Material to Operation',
 	MATERIAL_HAVE_NO_NAME_OR_QUANTITY: 'Material must have a name and quantity.',
-	MATERIAL_SELECT_TYPE: 'Select a material type to add to the operation',
+	MATERIAL_SELECT_TYPE: 'Select a material type to add',
 	MATERIAL_SMALL_ARMS: 'Small Arms',
 	MATERIAL_HEAVY_ARMS: 'Heavy Arms',
 	MATERIAL_UTILITIES: 'Utilities',
@@ -124,14 +123,15 @@ module.exports = {
 	MATERIAL_VEHICLES: 'Vehicles',
 	MATERIAL_UNIFORMS: 'Uniforms',
 
-	MATERIAL_LIST_SMALL_ARMS: 'List of available small arms for the operation',
-	MATERIAL_LIST_HEAVY_ARMS: 'List of available heavy arms for the operation',
-	MATERIAL_LIST_UTILITIES: 'List of available utilities for the operation',
-	MATERIAL_LIST_SHIPABLES: 'List of available shipable items for the operation',
-	MATERIAL_LIST_VEHICLE: 'List of available vehicles for the operation',
-	MATERIAL_LIST_UNIFORMS: 'List of available uniforms for the operation',
+	MATERIAL_LIST_SMALL_ARMS: 'List of available small arms',
+	MATERIAL_LIST_HEAVY_ARMS: 'List of available heavy arms',
+	MATERIAL_LIST_UTILITIES: 'List of available utilities',
+	MATERIAL_LIST_SHIPABLES: 'List of available shipable items',
+	MATERIAL_LIST_VEHICLE: 'List of available vehicles',
+	MATERIAL_LIST_UNIFORMS: 'List of available uniforms',
 
 	// MATERIAL SUCCESS
+	MATERIAL_CREATE_SUCCESS: 'Material has been created.',
 	MATERIAL_DELETE_SUCCESS: 'Material has been deleted.',
 
 	// MATERIAL ERRORS

@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation, Material } = require('../../../../../data/models.js');
+const { Material } = require('../../../../../data/models.js');
 const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
@@ -8,7 +8,6 @@ module.exports = {
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
 		const threadId = interaction.customId.split('-')[2];
-		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		const materialButton = new ButtonBuilder()
@@ -42,7 +41,7 @@ module.exports = {
 			});
 
 			await interaction.reply({
-				content: `**${translations.translate('ID')}:** ${interaction.id}\n${translations.translate('MATERIAL_ADD_TO_OPERATION')} **${operation.title}**`,
+				content: `**${translations.translate('ID')}:** ${interaction.id}\n${translations.translate('MATERIAL_ADD')}`,
 				components: [ActionRow],
 			});
 		}
