@@ -3,12 +3,18 @@ const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('help')
+		.setNameLocalizations({
+			fr: 'aide',
+		})
 		.setDescription(
 			'List all of my commands or info about a specific command.',
 		)
 		.addStringOption((option) =>
 			option
 				.setName('command')
+				.setNameLocalizations({
+					fr: 'commande',
+				})
 				.setDescription('The command to get help for.'),
 		),
 

@@ -1,11 +1,13 @@
 const { Material } = require('../../../data/models.js');
 const ResponseMaterial = require('../../../utils/interaction/response_material.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'modal_logistics_add_quantity_ask',
 
 	async execute(interaction) {
 		const materialId = interaction.customId.split('-')[3];
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		const quantity_ask = interaction.fields.getTextInputValue('quantity_ask');
 
@@ -19,7 +21,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'An error occured while selecting the material.',
+				content: translations.translate('MATERIAL_SELECT_ERROR'),
 				ephemeral: true,
 			});
 		}

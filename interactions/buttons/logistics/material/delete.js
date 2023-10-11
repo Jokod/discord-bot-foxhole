@@ -1,4 +1,5 @@
 const { Material } = require('../../../../data/models.js');
+const Translate = require('../../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_logistics_material_delete',
@@ -11,20 +12,20 @@ module.exports = {
 
 			if (rowCount.deletedCount === 0) {
 				return await interaction.reply({
-					content: 'This material does not exist !',
+					content: translations.translate('MATERIAL_NOT_EXIST'),
 					ephemeral: true,
 				});
 			}
 
 			await interaction.update({
-				content: 'The material has been deleted !',
+				content: translations.translate('MATERIAL_DELETE_SUCCESS'),
 				components: [],
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'An error occured while deleting the material.',
+				content: translations.translate('MATERIAL_DELETE_ERROR'),
 				ephemeral: true,
 			});
 		}

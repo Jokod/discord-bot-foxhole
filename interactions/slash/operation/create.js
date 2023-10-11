@@ -1,9 +1,13 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	init: true,
 	data: new SlashCommandBuilder()
 		.setName('create_operation')
+		.setNameLocalizations({
+			fr: 'créer_opération',
+		})
 		.setDescription('Create a new operation')
 		.setDescriptionLocalizations({
 			fr: 'Créer une nouvelle opération',
@@ -11,6 +15,9 @@ module.exports = {
 		.addStringOption((option) =>
 			option
 				.setName('title')
+				.setNameLocalizations({
+					fr: 'titre',
+				})
 				.setDescription('Title of the operation')
 				.setDescriptionLocalizations({
 					fr: 'Titre de l\'opération',
@@ -21,16 +28,17 @@ module.exports = {
 
 	async execute(interaction) {
 		const title = interaction.options.getString('title').toUpperCase();
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		interaction.client.sessions[interaction.user.id] = { title: title };
 
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_create_operation-${interaction.id}`)
-			.setTitle(`Operation ${title}`);
+			.setTitle(translations.translate('OPERATION_CREATE_TITLE', { title: title }));
 
 		const dateField = new TextInputBuilder()
 			.setCustomId('date')
-			.setLabel('Date of the operation (dd/mm/yyyy)')
+			.setLabel(translations.translate('OPERATION_CREATE_LABEL_DATE'))
 			.setPlaceholder('dd/mm/yyyy')
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(10)
@@ -39,7 +47,7 @@ module.exports = {
 
 		const timeField = new TextInputBuilder()
 			.setCustomId('time')
-			.setLabel('Hour of the operation (hh:mm)')
+			.setLabel(translations.translate('OPERATION_CREATE_LABEL_TIME'))
 			.setPlaceholder('hh:mm')
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(5)
@@ -48,7 +56,7 @@ module.exports = {
 
 		const durationField = new TextInputBuilder()
 			.setCustomId('duration')
-			.setLabel('Duration of the operation (in minutes)')
+			.setLabel(translations.translate('OPERATION_CREATE_LABEL_DURATION'))
 			.setValue('60')
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(1)
@@ -57,7 +65,7 @@ module.exports = {
 
 		const descriptionField = new TextInputBuilder()
 			.setCustomId('description')
-			.setLabel('Description of the operation')
+			.setLabel(translations.translate('OPERATION_CREATE_LABEL_DESCRIPTION'))
 			.setStyle(TextInputStyle.Paragraph)
 			.setMinLength(1)
 			.setMaxLength(1000)
