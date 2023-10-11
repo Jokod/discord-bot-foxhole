@@ -19,6 +19,7 @@ module.exports = {
 		// Declares const to be used.
 
 		const { client, content } = message;
+		const guildId = message.guild.id;
 
 		// Checks if the bot is mentioned in the message all alone and triggers onMention trigger.
 		// You can change the behavior as per your liking at ./messages/onMention.js
@@ -84,7 +85,9 @@ module.exports = {
 
 		if (!command) return;
 
-		if (command.init && !(await Server.findOne({ guild_id: message.guild.id }))) {
+		const server = await Server.findOne({ guild_id: guildId });
+
+		if (command.init && !server) {
 			return message.reply({
 				content: 'This server is not initialized, please run the `/setup` command.',
 				ephemeral: true,

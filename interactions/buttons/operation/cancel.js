@@ -1,4 +1,5 @@
 const { Operation, Group, Material } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_create_operation_cancel',
@@ -6,6 +7,7 @@ module.exports = {
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
 		const operation = await Operation.findOne({ operation_id: `${operationId}` });
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		try {
 			const threads = await Group.find({ operation_id: `${operationId}` });
@@ -19,14 +21,14 @@ module.exports = {
 			await Material.deleteOne({ operation_id: `${operationId}` });
 
 			await interaction.update({
-				content: `Opération **${operation.title}** annulée !`,
+				content: translations.translate('OPERATION_CANCELED_SUCCESS', { title: operation.title }),
 				components: [],
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'Une erreur s\'est produite lors de l\'annulation de l\'opération !',
+				content: translations.translate('OPERATION_CANCELED_ERROR'),
 				ephemeral: true,
 			});
 		}

@@ -1,70 +1,68 @@
-# Bot Discord Foxhole
+# Discord Bot for Foxhole
 
-![Logo du Bot](lien_vers_le_logo.png)
+The Discord Bot for Foxhole is an open-source project aimed at simplifying operations and logistics management in the Foxhole game using Discord as a communication platform. This bot offers powerful features to help gaming teams coordinate their activities and enhance their gaming experience.
 
-FoxBot est un projet open-source qui vise à simplifier la gestion des opérations et de la logistique dans le jeu Foxhole en utilisant Discord comme plateforme de communication. Ce bot offre des fonctionnalités puissantes pour aider les équipes de joueurs à coordonner leurs activités et à améliorer leur expérience de jeu.
+## Table of Contents
 
-## Table des Matières
-
-- [Fonctionnalités](#fonctionnalités)
+- [Features](#features)
 - [Configuration](#configuration)
 - [Installation](#installation)
-- [Utilisation](#utilisation)
-- [Contribuer](#contribuer)
+- [Usage](#usage)
+- [Contribute](#contribute)
 - [License](#license)
 
-## Fonctionnalités
+## Features
 
-Le Bot Discord Foxhole offre les fonctionnalités suivantes :
+The Discord Bot for Foxhole provides the following features:
 
-- **Gestion des Opérations :** Créez, suivez et mettez à jour des opérations en temps réel pour coordonner les activités de votre équipe.
+- **Operation Management:** Create, track, and update operations in real-time to coordinate your team's activities.
 
-- **Logistique Simplifiée :** Automatisez la distribution de ressources, la gestion des stocks et la création de threads logistiques.
+- **Streamlined Logistics:** Automate resource distribution, inventory management, and the creation of logistics threads.
 
-- **Communication Intégrée :** Utilisez des canaux vocaux et des salons textuels spécifiques aux opérations pour une communication efficace.
+- **Integrated Communication:** Use operation-specific voice channels and text channels for effective communication.
 
-- **Personnalisation :** Configurez le bot pour s'adapter aux besoins spécifiques de votre serveur Discord.
+- **Customization:** Configure the bot to fit the specific needs of your Discord server.
 
 ## Configuration
 
-Avant d'utiliser le Bot Discord Foxhole, vous devrez effectuer quelques configurations :
+Before using the Discord Bot for Foxhole, you will need to perform some configurations:
 
-1. Invitez le bot sur votre serveur Discord en suivant [ces instructions](https://github.com/Jokod/discord-bot-foxhole/wiki/Setup).
+1. Invite the bot to your Discord server by following [these instructions](link_to_invitation_instructions).
 
-2. Configurez les autorisations appropriées pour les commandes du bot en fonction des rôles sur votre serveur.
+2. Set up appropriate permissions for the bot's commands based on roles within your server.
 
-3. Initialisez le bot en utilisant la commande `/setup` pour spécifier la langue et le camp du serveur (colonial ou warden).
+3. Initialize the bot using the `/setup` command to specify the language and faction (colonial or warden) of the server.
 
 ## Installation
 
-Si vous souhaitez héberger votre propre instance du Bot Discord Foxhole, suivez ces étapes :
+If you want to host your own instance of the Discord Bot for Foxhole, follow these steps:
 
-1. Clonez ce dépôt GitHub sur votre machine.
+1. Clone this GitHub repository to your machine.
 
-2. Installez les dépendances en utilisant le gestionnaire de paquets de votre choix (par exemple, npm ou yarn) en exécutant `npm install`.
+2. Install dependencies using your preferred package manager (e.g., npm or yarn) by running `npm install`.
 
-3. Configurez les variables d'environnement nécessaires dans un fichier `.env` en vous basant sur un fichier `.env.example` fourni.
+3. Configure the necessary environment variables in a `.env` file based on the provided `.env.example` file.
 
-4. Lancez l'application en utilisant `npm run start`.
+4. Start the application using `npm start`.
 
-## Utilisation
+## Usage
 
-Une fois que le bot est configuré sur votre serveur Discord, vous pouvez utiliser les commandes pour créer des opérations, gérer la logistique et plus encore. Consultez [la documentation complète](https://github.com/Jokod/discord-bot-foxhole/wiki) pour plus de détails sur les commandes et les fonctionnalités disponibles.
+Once the bot is configured on your Discord server, you can use its commands to create operations, manage logistics, and more. Check out [the complete documentation](link_to_documentation) for more details on available commands and features.
 
-## Contribuer
+## Contribute
 
-Nous accueillons les contributions de la communauté ! Si vous souhaitez contribuer au développement du Bot Discord Foxhole, suivez ces étapes :
+We welcome contributions from the community! If you'd like to contribute to the development of the Discord Bot for Foxhole, follow these steps:
 
-1. Fork ce dépôt sur GitHub.
+1. Fork this GitHub repository.
 
-2. Créez une branche pour votre contribution : `git checkout -b ma-contribution`.
+2. Create a branch for your contribution: `git checkout -b my-contribution`.
 
-3. Effectuez vos modifications et testez-les.
+3. Make your changes and test them.
 
-4. Soumettez une demande d'extraction (Pull Request) vers la branche principale de ce dépôt.
+4. Submit a pull request to the main branch of this repository.
 
-5. Notre équipe examinera votre contribution et la fusionnera si elle est approuvée.
+5. Our team will review your contribution and merge it if approved.
 
 ## License
 
-Ce projet est sous licence [MIT](LICENSE). Vous êtes libre de l'utiliser, le modifier et le distribuer conformément aux termes de cette licence.
+This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute it in accordance with the terms of this license.

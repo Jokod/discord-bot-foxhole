@@ -1,11 +1,13 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Operation } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'modal_create_operation',
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		const title = interaction.client.sessions[interaction.user.id].title;
 		const dateField = interaction.fields.getTextInputValue('date');
@@ -18,14 +20,14 @@ module.exports = {
 
 		if (!dateRegex.test(dateField)) {
 			return await interaction.reply({
-				content: 'The date format is incorrect.',
+				content: translations.translate('OPERATION_DATE_FORMAT_ERROR'),
 				ephemeral: true,
 			});
 		}
 
 		if (!timeRegex.test(timeField)) {
 			return await interaction.reply({
-				content: 'The time format is incorrect.',
+				content: translations.translate('OPERATION_TIME_FORMAT_ERROR'),
 				ephemeral: true,
 			});
 		}
@@ -43,26 +45,26 @@ module.exports = {
 
 		const startButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_start-${operationId}`)
-			.setLabel('Start')
+			.setLabel(translations.translate('START'))
 			.setStyle(ButtonStyle.Success);
 
 		const cancelButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_cancel-${operationId}`)
-			.setLabel('Cancel')
+			.setLabel(translations.translate('CANCEL'))
 			.setStyle(ButtonStyle.Danger);
 
 		const logisticsButton = new ButtonBuilder()
 			.setCustomId(`button_create_operation_logistics-${operationId}`)
-			.setLabel('Logistics')
+			.setLabel(translations.translate('LOGISTICS'))
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji('📦');
 
 		const actionRow = new ActionRowBuilder().addComponents(startButton, cancelButton, logisticsButton);
 
-		const content = `**ID:** ${operationId}\n**Date:** <t:${timestamp}:d>\n**Heure:** <t:${timestamp}:t>\n**Durée:** ${durationField} min\n**Description:** ${descriptionField}`;
+		const content = `**${translations.translate('ID')}:** ${operationId}\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
 
 		try {
-			const operation = await Operation.create({
+			await Operation.create({
 				title: `${title}`,
 				guild_id: `${interaction.guild.id}`,
 				operation_id: `${operationId}`,
@@ -75,7 +77,7 @@ module.exports = {
 			});
 
 			const message = await interaction.reply({
-				content: `Operation ${operation.title} created.\n${content}`,
+				content: `${translations.translate('OPERATION_CREATE_SUCCESS', { title: title })}.\n${content}`,
 				components: [actionRow],
 			});
 

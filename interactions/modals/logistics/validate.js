@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Material } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'modal_logistics_material_validate',
@@ -8,10 +9,11 @@ module.exports = {
 		const materialId = interaction.customId.split('-')[1];
 		const localization = interaction.fields.getTextInputValue('localization');
 		const quantityGiven = interaction.fields.getTextInputValue('quantity_given');
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		const removeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_material_delete-${materialId}`)
-			.setLabel('Delete')
+			.setLabel(translations.translate('DELETE'))
 			.setStyle(ButtonStyle.Danger);
 
 		const actionRow = new ActionRowBuilder().addComponents(removeButton);
@@ -27,20 +29,20 @@ module.exports = {
 
 			if (!material) {
 				return await interaction.reply({
-					content: 'This material does not exist !',
+					content: translations.translate('MATERIAL_NOT_EXIST'),
 					ephemeral: true,
 				});
 			}
 
 			await interaction.update({
-				content: `**ID:** ${materialId}\n**Matériel:** ${material.name}\n**Quantité:** ${material.quantityAsk}**\nResponsable:** <@${interaction.user.id}>\n\n**Lieu de stockage:** ${localization}\n**Quantité donnée:** ${quantityGiven}`,
+				content: `**${translations.translate('ID')}:** ${materialId}\n**${translations.translate('MATERIAL')}:** ${material.name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** <@${interaction.user.id}>\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${quantityGiven}`,
 				components: [actionRow],
 			});
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'An error occured while validating the material.',
+				content: translations.translate('MATERIAL_VALIDATE_ERROR'),
 				ephemeral: true,
 			});
 		}

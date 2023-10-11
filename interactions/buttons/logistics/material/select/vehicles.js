@@ -1,6 +1,7 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Operation } = require('../../../../../data/models.js');
 const { getVehicles } = require('../../../../../data/fournis.js');
+const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
 	init: true,
@@ -12,17 +13,18 @@ module.exports = {
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
 		const operation = await Operation.findOne({ operation_id: `${operationId}` });
+		const translations = new Translate(interaction.client, guildId);
 
 		const buttonBack = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${materialId}`)
-			.setLabel('Back')
+			.setLabel(translations.translate('BACK'))
 			.setStyle(ButtonStyle.Secondary);
 
 		const vehcilesRow = await getVehicles({ guildId, operationId, threadId, materialId });
 		const buttonArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({
-			content: `**ID:** ${materialId}\nListe des véhicules disponibles pour l'opération **${operation.title}**`,
+			content: `**${translations.translate('ID')}:** ${materialId}\n${translations.translate('MATERIAL_LIST_VEHICLE')} **${operation.title}**`,
 			components: [...vehcilesRow, buttonArrowRow],
 		});
 	},

@@ -1,5 +1,6 @@
 const { Material } = require('../../../data/models.js');
 const ResponseMaterial = require('../../../utils/interaction/response_material.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'logistics_add_material',
@@ -7,6 +8,7 @@ module.exports = {
 	async execute(interaction) {
 		const materialId = interaction.customId.split('-')[3];
 		const value = interaction.values[0];
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		try {
 			await Material.updateOne({ material_id: `${materialId}` }, { name: value });
@@ -18,7 +20,7 @@ module.exports = {
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
-				content: 'An error occured while updating the material.',
+				content: translations.translate('MATERIAL_UPDATE_ERROR'),
 				ephemeral: true,
 			});
 		}

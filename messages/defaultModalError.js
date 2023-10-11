@@ -1,7 +1,11 @@
+const Translate = require('../utils/translations.js');
+
 module.exports = {
 	async execute(interaction) {
+		const translations = new Translate(interaction.client, interaction.guild.id);
+
 		await interaction.reply({
-			content: 'Aucune intéraction n\'a été trouvée pour cette action.',
+			content: translations.translate('INTERACTION_ERROR'),
 			ephemeral: true,
 		});
 		return;

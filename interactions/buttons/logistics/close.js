@@ -1,10 +1,12 @@
 const { Material, Group } = require('../../../data/models.js');
+const Translate = require('../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_logistics_close',
 
 	async execute(interaction) {
 		const threadId = interaction.customId.split('-')[2];
+		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		await Group.findOne({ threadId: `${threadId}` }).exec()
 			.then(async group => {
@@ -12,7 +14,7 @@ module.exports = {
 
 				if (!thread) {
 					return interaction.reply({
-						content: 'This thread does not exist !',
+						content: translations.translate('THREAD_NOT_EXIST'),
 						ephemeral: true,
 					});
 				}
@@ -24,7 +26,7 @@ module.exports = {
 			}).catch(err => {
 				console.error(err);
 				return interaction.reply({
-					content: 'An error occured while closing the thread.',
+					content: translations.translate('THREAD_CLOSE_ERROR'),
 					ephemeral: true,
 				});
 			});
