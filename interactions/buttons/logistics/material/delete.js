@@ -4,12 +4,12 @@ module.exports = {
 	id: 'button_logistics_material_delete',
 
 	async execute(interaction) {
-		const materialId = interaction.customId.split('-')[3];
+		const materialId = interaction.customId.split('-')[1];
 
 		try {
 			const rowCount = await Material.deleteOne({ material_id: `${materialId}` });
 
-			if (!rowCount) {
+			if (rowCount.deletedCount === 0) {
 				return await interaction.reply({
 					content: 'This material does not exist !',
 					ephemeral: true,
