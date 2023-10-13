@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Operation } = require('../../../data/models.js');
+const React = require('../../../messages/react.js');
 const Translate = require('../../../utils/translations.js');
 
 module.exports = {
@@ -79,11 +80,12 @@ module.exports = {
 			const message = await interaction.reply({
 				content: `${translations.translate('OPERATION_CREATE_SUCCESS', { title: title })}.\n${content}`,
 				components: [actionRow],
+				fetchReply: true,
 			});
 
 			delete interaction.client.sessions[interaction.user.id];
 
-			await require('../../../messages/react.js').execute(message);
+			await React.execute(message);
 		}
 		catch (error) {
 			console.error(error);

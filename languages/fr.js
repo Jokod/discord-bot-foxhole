@@ -26,7 +26,6 @@ module.exports = {
 	INTERACTION_ERROR: 'Aucune intéraction n\'a été trouvée pour cette action.',
 	PREFIX_MESSAGE: 'Salut %author%! Mon prefix est %prefix%, pour avoir de l\'aide %prefix%help',
 	STATUS: 'Statut',
-	WAIT: 'Veuillez patienter',
 
 	// COMMANDS
 
