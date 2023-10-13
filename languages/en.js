@@ -27,6 +27,16 @@ module.exports = {
 	PREFIX_MESSAGE: 'Hi %author%! My prefix is %prefix%, for help %prefix%help',
 	STATUS: 'Status',
 
+	// COMMANDS
+
+	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
+	OWNER_ONLY: 'This command is only available to the owner of the bot.',
+	NO_DM: 'I can\'t execute that command inside DMs!',
+	NO_PERMS: 'You don\'t have the permissions to use this command.',
+	ARGS_MISSING: 'You didn\'t provide any arguments, %author%!',
+	COMMAND_USAGE: 'The proper usage would be: `%prefix%%command% %usage%`',
+	COMMAND_COOLDOWN: 'Please wait %time% more seconds before using the `%command%` command again.',
+
 	// SERVER ---------------------------------------------
 
 	// SERVER INIT

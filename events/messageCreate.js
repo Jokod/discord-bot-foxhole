@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { Collection, ChannelType, Events } = require('discord.js');
 const { Server } = require('../data/models.js');
+const Translate = require('../utils/translations.js');
 
 const escapeRegex = (string) => {
 	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -20,6 +21,7 @@ module.exports = {
 
 		const { client, content } = message;
 		const guildId = message.guild.id;
+		const translations = new Translate(client, guildId);
 
 		// Checks if the bot is mentioned in the message all alone and triggers onMention trigger.
 		// You can change the behavior as per your liking at ./messages/onMention.js
@@ -89,7 +91,7 @@ module.exports = {
 
 		if (command.init && !server) {
 			return message.reply({
-				content: 'This server is not initialized, please run the `/setup` command.',
+				content: translations.translate('SERVER_IS_NOT_INIT'),
 				ephemeral: true,
 			});
 		}
@@ -98,7 +100,7 @@ module.exports = {
 
 		if (command.ownerOnly && message.author.id !== process.env.OWNER) {
 			return message.reply({
-				content: 'This command is only for the bot owner!',
+				content: translations.translate('OWNER_ONLY'),
 				ephemeral: true,
 			});
 		}
@@ -107,7 +109,7 @@ module.exports = {
 
 		if (command.guildOnly && message.channel.type === ChannelType.DM) {
 			return message.reply({
-				content: 'I can\'t execute that command inside DMs!',
+				content: translations.translate('NO_DM'),
 				ephemeral: true,
 			});
 		}
@@ -119,7 +121,7 @@ module.exports = {
 			const authorPerms = message.channel.permissionsFor(message.author);
 			if (!authorPerms || !authorPerms.has(command.permissions)) {
 				return message.reply({
-					content: 'You can not do this!',
+					content: translations.translate('NO_PERMS'),
 					ephemeral: true,
 				});
 			}
@@ -128,10 +130,10 @@ module.exports = {
 		// Args missing
 
 		if (command.args && !args.length) {
-			let reply = `You didn't provide any arguments, ${message.author}!`;
+			let reply = translations.translate('ARGS_MISSING', { author: message.author });
 
 			if (command.usage) {
-				reply += `\nThe proper usage would be: \`${matchedPrefix}${command.name} ${command.usage}\``;
+				reply += `\n${translations.translate('COMMAND_USAGE', { prefix: matchedPrefix, command: command.name, usage: command.usage })}`;
 			}
 
 			return message.channel.send({
@@ -158,9 +160,7 @@ module.exports = {
 			if (now < expirationTime) {
 				const timeLeft = (expirationTime - now) / 1000;
 				return message.reply({
-					content: `Please wait ${timeLeft.toFixed(
-						1,
-					)} more second(s) before reusing the \`${command.name}\` command.`,
+					content: translations.translate('COMMAND_COOLDOWN', { time: timeLeft.toFixed(1), command: command.name }),
 					ephemeral: true,
 				});
 			}
@@ -178,7 +178,7 @@ module.exports = {
 		catch (error) {
 			console.error(error);
 			message.reply({
-				content: 'An error occured while executing the command.',
+				content: translations.translate('COMMAND_EXECUTE_ERROR'),
 				ephemeral: true,
 			});
 		}

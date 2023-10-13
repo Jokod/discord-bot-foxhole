@@ -1,5 +1,6 @@
 const { Events } = require('discord.js');
 const { Server } = require('../data/models.js');
+const Translate = require('../utils/translations.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -14,6 +15,7 @@ module.exports = {
 		// Deconstructed client from interaction object.
 		const { client } = interaction;
 		const guildId = interaction.guild.id;
+		const translations = new Translate(client, guildId);
 
 		// Checks if the interaction is an autocomplete interaction (to prevent weird bugs)
 
@@ -33,7 +35,7 @@ module.exports = {
 
 		if (request.init && !server) {
 			return interaction.reply({
-				content: 'This server is not initialized, please run the `/setup` command.',
+				content: translations.translate('SERVER_IS_NOT_INIT'),
 				ephemeral: true,
 			});
 		}
