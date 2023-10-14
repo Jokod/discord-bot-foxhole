@@ -19,15 +19,13 @@ The Discord Bot for Foxhole provides the following features:
 
 - **Streamlined Logistics:** Automate resource distribution, inventory management, and the creation of logistics threads.
 
-- **Integrated Communication:** Use operation-specific voice channels and text channels for effective communication.
-
 - **Customization:** Configure the bot to fit the specific needs of your Discord server.
 
 ## Configuration
 
 Before using the Discord Bot for Foxhole, you will need to perform some configurations:
 
-1. Invite the bot to your Discord server by following [these instructions](link_to_invitation_instructions).
+1. Invite the bot to your Discord server by following [Add to my server discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=17998060588096&scope=applications.commands%20bot).
 
 2. Set up appropriate permissions for the bot's commands based on roles within your server.
 
@@ -41,13 +39,13 @@ If you want to host your own instance of the Discord Bot for Foxhole, follow the
 
 2. Install dependencies using your preferred package manager (e.g., npm or yarn) by running `npm install`.
 
-3. Configure the necessary environment variables in a `.env` file based on the provided `.env.example` file.
+3. Configure the necessary environment variables in a `.env` file based on the provided `.env.dist` file.
 
-4. Start the application using `npm start`.
+4. Start the application using `npm run start`.
 
 ## Usage
 
-Once the bot is configured on your Discord server, you can use its commands to create operations, manage logistics, and more. Check out [the complete documentation](link_to_documentation) for more details on available commands and features.
+Once the bot is configured on your Discord server, you can use its commands to create operations, manage logistics, and more. Check out [the wiki](https://github.com/Jokod/discord-bot-foxhole/wiki) for more details on available commands and features.
 
 ## Contribute
 
