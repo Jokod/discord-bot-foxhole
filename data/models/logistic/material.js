@@ -8,6 +8,7 @@ const Material = mongoose.Schema({
 	operation_id: String,
 	group_id: String,
 	owner_id: String,
+	person_id: String,
 	name: {
 		type: String,
 		maxlength: 100,

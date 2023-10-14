@@ -11,9 +11,18 @@ module.exports = {
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		try {
+			let material = await Material.findOne({ material_id: `${materialId}` });
+
+			if (interaction.user.id !== material.owner_id) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+					ephemeral: true,
+				});
+			}
+
 			await Material.updateOne({ material_id: `${materialId}` }, { name: value });
 
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			material = await Material.findOne({ material_id: `${materialId}` });
 
 			await new ResponseMaterial(interaction, material).response();
 		}

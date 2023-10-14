@@ -1,4 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { Material } = require('../../../../../data/models.js');
 const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
@@ -49,9 +50,27 @@ module.exports = {
 		const secondArrowRow = new ActionRowBuilder().addComponents(buttonShipables, buttonVehicles, buttonUniforms);
 		const thirdArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
-		await interaction.update({
-			content: `**${translations.translate('ID')}:** ${materialId}\n${translations.translate('MATERIAL_SELECT_TYPE')}`,
-			components: [firstArrowRow, secondArrowRow, thirdArrowRow],
-		});
+		try {
+			const material = await Material.findOne({ material_id: `${materialId}` });
+
+			if (interaction.user.id !== material.owner_id) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+					ephemeral: true,
+				});
+			}
+
+			await interaction.update({
+				content: `**${translations.translate('ID')}:** ${materialId}\n${translations.translate('MATERIAL_SELECT_TYPE')}`,
+				components: [firstArrowRow, secondArrowRow, thirdArrowRow],
+			});
+		}
+		catch (error) {
+			console.error(error);
+			await interaction.reply({
+				content: translations.translate('MATERIAL_CREATE_ERROR'),
+				ephemeral: true,
+			});
+		}
 	},
 };

@@ -11,6 +11,13 @@ module.exports = {
 
 		const quantity_ask = interaction.fields.getTextInputValue('quantity_ask');
 
+		if (isNaN(quantity_ask) || quantity_ask < 0) {
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_QUANTITY_ERROR'),
+				ephemeral: true,
+			});
+		}
+
 		try {
 			await Material.updateOne({ material_id: `${materialId}` }, { quantityAsk: quantity_ask });
 

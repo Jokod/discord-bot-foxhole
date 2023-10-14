@@ -9,6 +9,15 @@ module.exports = {
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		try {
+			const material = await Material.findOne({ material_id: `${materialId}` });
+
+			if (interaction.user.id !== material.owner_id) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+					ephemeral: true,
+				});
+			}
+
 			const rowCount = await Material.deleteOne({ material_id: `${materialId}` });
 
 			if (rowCount.deletedCount === 0) {

@@ -1,40 +1,32 @@
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const ResponseMaterial = require('../../../../../utils/interaction/response_material.js');
+const { Material } = require('../../../../../data/models.js');
 const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
 	id: 'logistics_select_material_back',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
-		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
-		const materialButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${materialId}`)
-			.setLabel(translations.translate('MATERIAL'))
-			.setStyle(ButtonStyle.Primary);
+		try {
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
-		const quantityAskButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
-			.setLabel(translations.translate('QUANTITY'))
-			.setStyle(ButtonStyle.Secondary);
+			if (interaction.user.id !== material.owner_id) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+					ephemeral: true,
+				});
+			}
 
-		const confirmButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_add_confirm-${operationId}-${threadId}-${materialId}`)
-			.setLabel(translations.translate('CONFIRM'))
-			.setStyle(ButtonStyle.Success);
-
-		const deleteButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_material_delete-${materialId}`)
-			.setLabel(translations.translate('DELETE'))
-			.setStyle(ButtonStyle.Danger);
-
-		const ActionRow = new ActionRowBuilder().addComponents(materialButton, quantityAskButton, confirmButton, deleteButton);
-
-		await interaction.update({
-			content: `**${translations.translate('ID')}:** ${materialId}\n${translations.translate('MATERIAL_ADD')}`,
-			components: [ActionRow],
-		});
+			await new ResponseMaterial(interaction, material).response();
+		}
+		catch (error) {
+			console.error(error);
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_BACK_ERROR'),
+				ephemeral: true,
+			});
+		}
 	},
 };

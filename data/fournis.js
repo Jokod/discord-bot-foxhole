@@ -53,6 +53,8 @@ const setMenusByCategory = async (category, operation) => {
 
 	const categoryItems = datas.filter(data => data.itemCategory === category);
 
+	sortByAlphabeticalOrder(categoryItems);
+
 	let uniqueNumber = 1;
 
 	const groups = [];
@@ -84,6 +86,17 @@ const getCategoryActions = (category) => async (operation) => {
 
 	return menus.map(menu => new ActionRowBuilder().addComponents(menu));
 };
+
+function sortByAlphabeticalOrder(items) {
+	items.sort((a, b) => {
+		const nameA = a.itemName.toLowerCase();
+		const nameB = b.itemName.toLowerCase();
+
+		if (nameA < nameB) return -1;
+		if (nameA > nameB) return 1;
+		return 0;
+	});
+}
 
 module.exports = {
 	getSmallArms: getCategoryActions('small_arms'),

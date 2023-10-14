@@ -56,6 +56,7 @@ module.exports = {
 	SERVER_SET_CAMP_REPLY: 'The server camp has been changed to **%camp%**.',
 
 	// OPERATION ---------------------------------------------
+	OPERATION_CREATOR: 'Creator',
 
 	// OPERATION CREATE
 	OPERATION_CREATE_TITLE: 'Operation %title%',
@@ -84,6 +85,7 @@ module.exports = {
 	OPERATION_LAUNCH_ERROR: 'An error occurred while launching the operation.',
 	OPERATION_FINISHED_ERROR: 'An error occurred while finishing the operation.',
 	OPERATION_CANCELED_ERROR: 'An error occurred while canceling the operation.',
+	OPERATION_ARE_NO_OWNER_ERROR: 'You are not the owner of this operation.',
 
 	// GROUP ---------------------------------------------
 	GROUP_NOT_EXIST: 'This group does not exist.',
@@ -98,6 +100,7 @@ module.exports = {
 	// GROUP ERRORS
 	GROUP_CREATE_ERROR: 'An error occurred while implementing the logistics!',
 	THREAD_CLOSE_ERROR: 'An error occurred while closing the thread!',
+	THREAD_ARE_NO_OWNER_ERROR: 'You are not the owner of this thread!',
 
 	// LOGISTIC ---------------------------------------------
 
@@ -121,6 +124,7 @@ module.exports = {
 	MATERIAL_INVALIDATE: 'Invalidated Materials',
 	MATERIAL_QUANTITY_ASK: 'Requested Quantity',
 	MATERIAL_QUANTITY_GIVEN: 'Submitted Quantity',
+	MATERIAL_CREATOR: 'Creator',
 	MATERIAL_PERSON_IN_CHARGE: 'Responsible',
 	MATERIAL_LIST_OF_GROUP: 'List of Group Materials',
 	MATERIAL_LOCALIZATION: 'Storage Location',
@@ -153,5 +157,10 @@ module.exports = {
 	MATERIAL_CONFIRM_ERROR: 'An error occurred while confirming the material.',
 	MATERIAL_ASSIGN_ERROR: 'An error occurred while assigning the material.',
 	MATERIAL_NOT_BELONG_OPERATION: 'This material does not belong to this operation.',
+	MATERIAL_ARE_NO_CREATOR_ERROR: 'You are not the creator of this material.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'You are not the owner of this material.',
+	MATERIAL_QUANTITY_ERROR: 'The quantity must be a positive number.',
+	MATERIAL_SELECT_QUANTITY_ERROR: 'An error occurred while selecting the quantity.',
+	MATERIAL_LOCALIZATION_ERROR: 'The localization cannot be empty.',
+	MATERIAL_BACK_ERROR: 'An error occurred while returning to the previous menu.',
 };

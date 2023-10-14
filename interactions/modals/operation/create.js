@@ -62,7 +62,7 @@ module.exports = {
 
 		const actionRow = new ActionRowBuilder().addComponents(startButton, cancelButton, logisticsButton);
 
-		const content = `**${translations.translate('ID')}:** ${operationId}\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
+		const content = `**${translations.translate('ID')}:** ${operationId}\n**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
 
 		try {
 			await Operation.create({

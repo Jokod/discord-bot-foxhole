@@ -11,25 +11,41 @@ module.exports = {
 		const materialId = interaction.customId.split('-')[3];
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
-		const material = await Material.findOne({ material_id: `${materialId}` });
+		try {
+			const material = await Material.findOne({ material_id: `${materialId}` });
 
-		const modal = new ModalBuilder()
-			.setCustomId(`modal_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
-			.setTitle(translations.translate('MATERIAL_SELECT_QUANTITY'));
+			if (interaction.user.id !== material.owner_id) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+					ephemeral: true,
+				});
+			}
 
-		const quantityAskField = new TextInputBuilder()
-			.setCustomId('quantity_ask')
-			.setLabel(translations.translate('MATERIAL_SELECT_QUANTITY'))
-			.setStyle(TextInputStyle.Short)
-			.setValue(`${material.quantityAsk}`)
-			.setMinLength(1)
-			.setMaxLength(5)
-			.setRequired(true);
+			const modal = new ModalBuilder()
+				.setCustomId(`modal_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
+				.setTitle(translations.translate('MATERIAL_SELECT_QUANTITY'));
 
-		const actionRow = new ActionRowBuilder().addComponents(quantityAskField);
+			const quantityAskField = new TextInputBuilder()
+				.setCustomId('quantity_ask')
+				.setLabel(translations.translate('MATERIAL_SELECT_QUANTITY'))
+				.setStyle(TextInputStyle.Short)
+				.setValue(`${material.quantityAsk}`)
+				.setMinLength(1)
+				.setMaxLength(5)
+				.setRequired(true);
 
-		modal.addComponents(actionRow);
+			const actionRow = new ActionRowBuilder().addComponents(quantityAskField);
 
-		await interaction.showModal(modal);
+			modal.addComponents(actionRow);
+
+			await interaction.showModal(modal);
+		}
+		catch (error) {
+			console.error(error);
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_SELECT_QUANTITY_ERROR'),
+				ephemeral: true,
+			});
+		}
 	},
 };

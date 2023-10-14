@@ -1,4 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { Material } = require('../../../../../data/models.js');
 const { getVehicles } = require('../../../../../data/fournis.js');
 const Translate = require('../../../../../utils/translations.js');
 
@@ -12,6 +13,15 @@ module.exports = {
 		const threadId = interaction.customId.split('-')[2];
 		const materialId = interaction.customId.split('-')[3];
 		const translations = new Translate(interaction.client, guildId);
+
+		const material = await Material.findOne({ material_id: `${materialId}` });
+
+		if (interaction.user.id !== material.owner_id) {
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+				ephemeral: true,
+			});
+		}
 
 		const buttonBack = new ButtonBuilder()
 			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${materialId}`)

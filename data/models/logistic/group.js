@@ -9,6 +9,10 @@ const Group = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	owner_id: {
+		type: String,
+		required: true,
+	},
 });
 
 module.exports = mongoose.model('Group', Group);

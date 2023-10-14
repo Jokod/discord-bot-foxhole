@@ -56,6 +56,7 @@ module.exports = {
 	SERVER_SET_CAMP_REPLY: 'Le camp du serveur a été changé en **%camp%**.',
 
 	// OPERATION ---------------------------------------------
+	OPERATION_CREATOR: 'Créateur',
 
 	// OPERATION CREATE
 	OPERATION_CREATE_TITLE: 'Opération %title%',
@@ -84,6 +85,7 @@ module.exports = {
 	OPERATION_LAUNCH_ERROR: 'Une erreur est survenue lors du lancement de l\'opération.',
 	OPERATION_FINISHED_ERROR: 'Une erreur est survenue lors de la fin de l\'opération.',
 	OPERATION_CANCELED_ERROR: 'Une erreur est survenue lors de l\'annulation de l\'opération.',
+	OPERATION_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de cette opération.',
 
 	// GROUP ---------------------------------------------
 	GROUP_NOT_EXIST: 'Ce groupe n\'existe pas.',
@@ -98,6 +100,7 @@ module.exports = {
 	// GROUP ERRORS
 	GROUP_CREATE_ERROR: 'Une erreur s\'est produite lors de l\'implémentation de la logistique !',
 	THREAD_CLOSE_ERROR: 'Une erreur s\'est produite lors de la fermeture du thread !',
+	THREAD_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce thread !',
 
 	// LOGISTIC ---------------------------------------------
 
@@ -121,6 +124,7 @@ module.exports = {
 	MATERIAL_INVALIDATE: 'Matériaux invalidés',
 	MATERIAL_QUANTITY_ASK: 'Quantité demandée',
 	MATERIAL_QUANTITY_GIVEN: 'Quantité soumise',
+	MATERIAL_CREATOR: 'Créateur',
 	MATERIAL_PERSON_IN_CHARGE: 'Responsable',
 	MATERIAL_LIST_OF_GROUP: 'Liste des matériaux du groupe',
 	MATERIAL_LOCALIZATION: 'Lieu de stockage',
@@ -153,5 +157,10 @@ module.exports = {
 	MATERIAL_CONFIRM_ERROR: 'Une erreur est survenue lors de la confirmation du matériel.',
 	MATERIAL_ASSIGN_ERROR: 'Une erreur est survenue lors de l\'assignation du matériel.',
 	MATERIAL_NOT_BELONG_OPERATION: 'Ce matériel n\'appartient pas à cette opération.',
+	MATERIAL_ARE_NO_CREATOR_ERROR: 'Vous n\'êtes pas le créateur de ce matériel.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce matériel.',
+	MATERIAL_QUANTITY_ERROR: 'La quantité doit être un nombre positif.',
+	MATERIAL_SELECT_QUANTITY_ERROR: 'Une erreur est survenue lors de la sélection de la quantité.',
+	MATERIAL_LOCALIZATION_ERROR: 'La localisation ne peut pas être vide.',
+	MATERIAL_BACK_ERROR: 'Une erreur est survenue lors du retour au menu précédent.',
 };

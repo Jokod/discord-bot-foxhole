@@ -16,7 +16,7 @@ class ResponseMaterial {
 		}
 
 		await this.interaction.update({
-			content: `**${this.translate.translate('ID')}:** ${this.material.material_id}\n**${this.translate.translate('MATERIAL')}:** ${name}\n**${this.translate.translate('QUANTITY')}:** ${this.material.quantityAsk}\n**${this.translate.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${this.translate.translate('NONE')}`,
+			content: `**${this.translate.translate('ID')}:** ${this.material.material_id}\n**${this.translate.translate('MATERIAL_CREATOR')}:** <@${this.material.owner_id}>\n**${this.translate.translate('MATERIAL')}:** ${name}\n**${this.translate.translate('QUANTITY')}:** ${this.material.quantityAsk}\n**${this.translate.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${this.translate.translate('NONE')}`,
 			components: [this.manageMaterialInstance],
 		});
 	}

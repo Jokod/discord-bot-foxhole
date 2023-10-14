@@ -169,6 +169,7 @@ module.exports = {
 				material_id: interaction.id,
 				group_id: inputGroupId,
 				operation_id: operationId,
+				owner_id: interaction.user.id,
 				status: 'pending',
 			});
 
@@ -196,7 +197,7 @@ module.exports = {
 			const material = await Material.findOne({ material_id: `${inputMaterialId}` });
 
 			const name = material.name || translations.translate('NONE');
-			const owner = material.owner_id ? `<@${material.owner_id}>` : translations.translate('NONE');
+			const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
 			const localization = material.localization || translations.translate('NONE');
 
 			const content = `**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
