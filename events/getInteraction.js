@@ -1,18 +1,14 @@
 const { Events } = require('discord.js');
 const { Server } = require('../data/models.js');
+const Logs = require('../utils/logs.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
-
-	/**
-	 * @description Executes when an interaction is created and handle it.
-
-	 * @param {import('discord.js').AutocompleteInteraction & { client: import('../typings.js').Client }} interaction The interaction which was created
-	 */
-
 	async execute(interaction) {
-		const { client } = interaction;
-		const guildId = interaction.guild.id;
+		const { client, guild } = interaction;
+		const guildId = guild.id;
+
+		new Logs(interaction).write();
 
 		const server = await Server.findOne({ guild_id: guildId });
 
