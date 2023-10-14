@@ -157,6 +157,7 @@ module.exports = {
 	MATERIAL_CONFIRM_ERROR: 'Une erreur est survenue lors de la confirmation du matériel.',
 	MATERIAL_ASSIGN_ERROR: 'Une erreur est survenue lors de l\'assignation du matériel.',
 	MATERIAL_NOT_BELONG_OPERATION: 'Ce matériel n\'appartient pas à cette opération.',
+	MATERIAL_ARE_NO_CREATOR_ERROR: 'Vous n\'êtes pas le créateur de ce matériel.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce matériel.',
 	MATERIAL_QUANTITY_ERROR: 'La quantité doit être un nombre positif.',
 	MATERIAL_SELECT_QUANTITY_ERROR: 'Une erreur est survenue lors de la sélection de la quantité.',

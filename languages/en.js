@@ -157,6 +157,7 @@ module.exports = {
 	MATERIAL_CONFIRM_ERROR: 'An error occurred while confirming the material.',
 	MATERIAL_ASSIGN_ERROR: 'An error occurred while assigning the material.',
 	MATERIAL_NOT_BELONG_OPERATION: 'This material does not belong to this operation.',
+	MATERIAL_ARE_NO_CREATOR_ERROR: 'You are not the creator of this material.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'You are not the owner of this material.',
 	MATERIAL_QUANTITY_ERROR: 'The quantity must be a positive number.',
 	MATERIAL_SELECT_QUANTITY_ERROR: 'An error occurred while selecting the quantity.',

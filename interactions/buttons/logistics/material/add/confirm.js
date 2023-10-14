@@ -11,20 +11,24 @@ module.exports = {
 		const materialId = interaction.customId.split('-')[3];
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
-
 		const assigneeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_assignee-${operationId}-${threadId}-${materialId}`)
 			.setLabel(translations.translate('ASSIGNEE'))
 			.setStyle(ButtonStyle.Primary);
 
-		const actionRow = new ActionRowBuilder().addComponents(assigneeButton);
+		const removeButton = new ButtonBuilder()
+			.setCustomId(`button_logistics_material_delete-${materialId}`)
+			.setLabel(translations.translate('DELETE'))
+			.setStyle(ButtonStyle.Danger);
+
+		const actionRow = new ActionRowBuilder().addComponents(assigneeButton, removeButton);
 
 		try {
 			const material = await Material.findOne({ material_id: `${materialId}` });
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
-					content: translations.translate('MATERIAL_ARE_NO_OWNER_ERROR'),
+					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
 					ephemeral: true,
 				});
 			}

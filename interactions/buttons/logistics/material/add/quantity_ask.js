@@ -16,7 +16,7 @@ module.exports = {
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
-					content: translations.translate('MATERIAL_ARE_NO_OWNER_ERROR'),
+					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
 					ephemeral: true,
 				});
 			}
