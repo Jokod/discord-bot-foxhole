@@ -6,10 +6,19 @@ module.exports = {
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
-		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
+
 		try {
+			const operation = await Operation.findOne({ operation_id: `${operationId}` });
+
+			if (interaction.user.id !== operation.owner_id) {
+				return await interaction.reply({
+					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
+					ephemeral: true,
+				});
+			}
+
 			const threads = await Group.find({ operation_id: `${operationId}` });
 			for (const thread of threads) {
 				const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);

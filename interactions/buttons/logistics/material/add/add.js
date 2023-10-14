@@ -37,11 +37,12 @@ module.exports = {
 				material_id: interaction.id,
 				operation_id: operationId,
 				group_id: threadId,
+				owner_id: interaction.user.id,
 				status: 'pending',
 			});
 
 			await interaction.reply({
-				content: `**${translations.translate('ID')}:** ${interaction.id}\n${translations.translate('MATERIAL_ADD')}`,
+				content: `**${translations.translate('ID')}:** ${interaction.id}\n${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,
 				components: [ActionRow],
 			});
 		}

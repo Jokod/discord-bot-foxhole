@@ -19,21 +19,23 @@ module.exports = {
 		const actionRow = new ActionRowBuilder().addComponents(assigneeButton);
 
 		try {
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			let material = await Material.findOne({ material_id: `${materialId}` });
 
-			if (interaction.user.id !== material.owner_id) {
+			if (interaction.user.id !== material.person_id) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_ARE_NO_OWNER_ERROR'),
 					ephemeral: true,
 				});
 			}
 
-			await Material.updateOne({ material_id: `${materialId}` }, { owner_id: null });
+			await Material.updateOne({ material_id: `${materialId}` }, { person_id: null });
+
+			material = await Material.findOne({ material_id: `${materialId}` });
 
 			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
 
 			await interaction.update({
-				content: `**${translations.translate('ID')}:** ${materialId}\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}`,
+				content: `**${translations.translate('ID')}:** ${materialId}\n**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}`,
 				components: [actionRow],
 			});
 		}

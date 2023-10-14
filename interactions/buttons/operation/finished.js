@@ -6,12 +6,19 @@ module.exports = {
 
 	async execute(interaction) {
 		const operationId = interaction.customId.split('-')[1];
-		const operation = await Operation.findOne({ operation_id: `${operationId}` });
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
-		const content = `**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
-
 		try {
+			const operation = await Operation.findOne({ operation_id: `${operationId}` });
+
+			if (interaction.user.id !== operation.owner_id) {
+				return await interaction.reply({
+					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
+					ephemeral: true,
+				});
+			}
+
+			const content = `**${translations.translate('ID')}:** ${operationId}\n**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
 
 			Group.find({ operation_id: `${operationId}` }).exec()
 				.then(threads => {

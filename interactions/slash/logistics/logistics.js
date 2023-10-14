@@ -152,8 +152,8 @@ module.exports = {
 			const materials = await Material.find({ group_id: inputListId });
 			const content = materials.map(material => {
 				const name = material.name || translations.translate('NONE');
-				const owner = material.owner_id ? `<@${material.owner_id}>` : translations.translate('NONE');
-				return `**${translations.translate('ID')}:** ${material.material_id}\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('MATERIAL_QUANTITY_ASK')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
+				const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
+				return `**${translations.translate('ID')}:** ${material.material_id}\n**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('MATERIAL_QUANTITY_ASK')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
 			});
 
 			const embed = new EmbedBuilder()
@@ -178,10 +178,10 @@ module.exports = {
 			}
 
 			const name = material.name || translations.translate('NONE');
-			const owner = material.owner_id ? `<@${material.owner_id}>` : translations.translate('NONE');
+			const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
 			const localization = material.localization || translations.translate('NONE');
 
-			const content = `**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
+			const content = `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
 
 			const embed = new EmbedBuilder()
 				.setColor('Random')

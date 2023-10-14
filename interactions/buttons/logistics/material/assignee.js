@@ -24,14 +24,14 @@ module.exports = {
 		const actionRow = new ActionRowBuilder().addComponents(revokeButton, validateButton);
 
 		try {
-			await Material.updateOne({ material_id: `${materialId}` }, { owner_id: interaction.user.id });
+			await Material.updateOne({ material_id: `${materialId}` }, { person_id: interaction.user.id });
 
 			const material = await Material.findOne({ material_id: `${materialId}` });
 
 			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
 
 			await interaction.update({
-				content: `**${translations.translate('ID')}:** ${materialId}\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** <@${interaction.user.id}>`,
+				content: `**${translations.translate('ID')}:** ${materialId}\n**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** <@${interaction.user.id}>`,
 				components: [actionRow],
 			});
 		}
