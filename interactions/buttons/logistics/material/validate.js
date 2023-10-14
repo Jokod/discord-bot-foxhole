@@ -11,6 +11,13 @@ module.exports = {
 
 		const material = await Material.findOne({ material_id: `${materialId}` });
 
+		if (interaction.user.id !== material.owner_id) {
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_ARE_NO_OWNER_ERROR'),
+				ephemeral: true,
+			});
+		}
+
 		const modal = new ModalBuilder()
 			.setCustomId(`modal_logistics_material_validate-${materialId}`)
 			.setTitle(translations.translate('MATERIAL_CONFIRMATION'));

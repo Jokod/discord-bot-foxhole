@@ -1,6 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Material } = require('../../../data/models.js');
-const Translate = require('../../../utils/translations.js');
+const { Material } = require('../../../../data/models.js');
+const Translate = require('../../../../utils/translations.js');
 
 module.exports = {
 	id: 'button_logistics_revoke',
