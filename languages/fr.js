@@ -154,4 +154,6 @@ module.exports = {
 	MATERIAL_ASSIGN_ERROR: 'Une erreur est survenue lors de l\'assignation du matériel.',
 	MATERIAL_NOT_BELONG_OPERATION: 'Ce matériel n\'appartient pas à cette opération.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce matériel.',
+	MATERIAL_QUANTITY_ERROR: 'La quantité doit être un nombre positif.',
+	MATERIAL_LOCALIZATION_ERROR: 'La localisation ne peut pas être vide.',
 };

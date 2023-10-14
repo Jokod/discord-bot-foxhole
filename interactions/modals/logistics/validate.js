@@ -11,6 +11,20 @@ module.exports = {
 		const quantityGiven = interaction.fields.getTextInputValue('quantity_given');
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
+		if (isNaN(quantityGiven) || quantityGiven < 0) {
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_QUANTITY_ERROR'),
+				ephemeral: true,
+			});
+		}
+
+		if (!localization) {
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_LOCALIZATION_ERROR'),
+				ephemeral: true,
+			});
+		}
+
 		const removeButton = new ButtonBuilder()
 			.setCustomId(`button_logistics_material_delete-${materialId}`)
 			.setLabel(translations.translate('DELETE'))

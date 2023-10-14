@@ -154,4 +154,6 @@ module.exports = {
 	MATERIAL_ASSIGN_ERROR: 'An error occurred while assigning the material.',
 	MATERIAL_NOT_BELONG_OPERATION: 'This material does not belong to this operation.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'You are not the owner of this material.',
+	MATERIAL_QUANTITY_ERROR: 'The quantity must be a positive number.',
+	MATERIAL_LOCALIZATION_ERROR: 'The localization cannot be empty.',
 };
