@@ -63,6 +63,7 @@ client.triggers = new Collection();
 client.languages = new Collection();
 client.traductions = new Collection();
 client.sessions = new Collection();
+client.logs = new Collection();
 
 /** ********************************************************************/
 // Registration of Message-Based Legacy Commands.
@@ -156,6 +157,15 @@ getFiles('./triggers', (trigger) => {
 
 getFiles('./languages', (language) => {
 	client.languages.set(language.code, language);
+});
+
+/** ********************************************************************/
+
+// Load all logs
+
+getFiles('./var/logs', (log) => {
+	const logName = log.split('.')[0];
+	client.logs.set(logName);
 });
 
 client.login(process.env.TOKEN);
