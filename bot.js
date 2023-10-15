@@ -9,6 +9,7 @@ const {
 } = require('discord.js');
 const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
+const { Server } = require('./data/models.js');
 
 /** ********************************************************************/
 // Connect to MongoDB
@@ -157,6 +158,13 @@ getFiles('./triggers', (trigger) => {
 
 getFiles('./languages', (language) => {
 	client.languages.set(language.code, language);
+
+	Server.find()
+		.then((servers) => {
+			servers.forEach((server) => {
+				client.traductions.set(server.guild_id, server.lang || 'en');
+			});
+		});
 });
 
 /** ********************************************************************/
