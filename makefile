@@ -72,4 +72,4 @@ js-start: ## Build assets for production
 ## —— Deploy 🚀 ————————————————————————————————————————————————————————————————
 
 deploy-prod: ## Deploy on production
-	$(SSH_COMMAND) "cd $(REMOTE_PATH) && git fetch && git pull origin main && git reset --hard HEAD && docker container restart foxbot"
+	$(SSH_COMMAND) "cd $(REMOTE_PATH) && git fetch && git pull origin main && git reset --hard HEAD && /usr/local/bin/docker container restart foxbot"
