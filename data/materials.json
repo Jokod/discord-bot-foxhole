@@ -68,6 +68,14 @@
     "itemDesc": "The primary infantry rifle of the Colonial legion. Its predecessor, the Volta repeater, was a sturdy, reliable firearm but had many limitations, namely, fire rate. The Argenti solves this limitation as well as being more compact and lightweight.",
     "itemCategory": "small_arms"
   },
+    {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "AP⧸RPG",
+    "itemDesc": "The AP⧸RPG is a Colonial anti-tank shell used in the Venom c.II 35 and Bane 45. It's primary use is to be used on armored vehicles in order to deal tons of damage against them. However, it can also deal moderate damage against structures if need be, though this is not recommended due to there being more effective tools to take down structures. Like other RPG shells, its trajectory is affected by gravity as represented by the slightly curved white line when aiming a RPG",
+    "itemCategory": "heavy_arm"
+  },
 {
     "faction": [
       "colonial"
@@ -335,6 +343,23 @@
     "itemName": "Catara mo.II",
     "itemDesc": "A titanic light machine gun capable of scattering infantry lines with ease, the Catara is a modern weapon for the modern Colonial.",
     "itemCategory": "small_arms"
+  },
+    {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Catena rt.IV",
+    "itemDesc": "Le Catena rt.IV Auto-Rifle est un fusil automatique colonial, conçu pour permettre au joueur de tirer de manière soutenue pendant un certain temps. Contrairement à la plupart des fusils, il excelle dans les barrages soutenus, adéquats pour attaquer de grands groupes d'ennemis où la meilleure décision tactique est de ralentir l'avancée de l'ennemi grâce au volume de tirs, plutôt que de le tuer carrément",
+    "itemCategory": "small_arms",
+  },
+{
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Chevrotine",
+    "itemDesc": "Le calibre utilisé par les fusils de chasse",
+    "itemCategory": "small_arms",
   },
  {
     "faction": [
@@ -1251,6 +1276,16 @@
     "itemDesc": "Used by medics to revive wounded soldiers.",
     "itemCategory": "medical"
   },
+    {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Tremola Grenade GPb-1",
+    "itemDesc": "The Tremola Grenade GPb-1 is a HE Grenade that can only be launched from a Grenade Launcher. It cannot be thrown by hand. It has a 4s fuse. It deals decent damage against structures. Despite its description it deals Explosive damage and not High Explosive. It has a much longer range than thrown grenades allowing it to be used efficiently and safely without the help of Smoke Grenades or friendly suppressive fire (unlike the Mammon 91-b HE grenade).",
+    "itemCategory": "heavy_arm"
+  },
+
   {
     "faction": [
       "colonial",
