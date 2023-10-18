@@ -6,13 +6,11 @@ module.exports = {
 	id: 'button_logistics_add_quantity_ask',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
-		const threadId = interaction.customId.split('-')[2];
-		const materialId = interaction.customId.split('-')[3];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, message } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		try {
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			const material = await Material.findOne({ material_id: `${message.id}` });
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
@@ -22,7 +20,7 @@ module.exports = {
 			}
 
 			const modal = new ModalBuilder()
-				.setCustomId(`modal_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`)
+				.setCustomId('modal_logistics_add_quantity_ask')
 				.setTitle(translations.translate('MATERIAL_SELECT_QUANTITY'));
 
 			const quantityAskField = new TextInputBuilder()

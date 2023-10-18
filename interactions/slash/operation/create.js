@@ -33,7 +33,7 @@ module.exports = {
 		interaction.client.sessions[interaction.user.id] = { title: title };
 
 		const modal = new ModalBuilder()
-			.setCustomId(`modal_create_operation-${interaction.id}`)
+			.setCustomId('modal_create_operation')
 			.setTitle(translations.translate('OPERATION_CREATE_TITLE', { title: title }));
 
 		const dateField = new TextInputBuilder()

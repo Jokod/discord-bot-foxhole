@@ -123,7 +123,7 @@ module.exports = {
 				const numberTotal = materials.length;
 				const numberValidated = materials.filter(material => material.status === 'validated').length;
 				const numberInvalidated = numberTotal - numberValidated;
-				return `**${translations.translate('ID')}:** ${group.threadId}\n**${translations.translate('MATERIAL_NOMBER')}:** ${numberTotal}\n**${translations.translate('MATERIAL_VALIDATE')}:** ${numberValidated}\n**${translations.translate('MATERIAL_INVALIDATE')}:** ${numberInvalidated}`;
+				return `**${translations.translate('MATERIAL_NOMBER')}:** ${numberTotal}\n**${translations.translate('MATERIAL_VALIDATE')}:** ${numberValidated}\n**${translations.translate('MATERIAL_INVALIDATE')}:** ${numberInvalidated}`;
 			});
 
 			const content = await Promise.all(promises);
@@ -153,7 +153,7 @@ module.exports = {
 			const content = materials.map(material => {
 				const name = material.name || translations.translate('NONE');
 				const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
-				return `**${translations.translate('ID')}:** ${material.material_id}\n**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('MATERIAL_QUANTITY_ASK')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
+				return `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('MATERIAL_QUANTITY_ASK')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
 			});
 
 			const embed = new EmbedBuilder()

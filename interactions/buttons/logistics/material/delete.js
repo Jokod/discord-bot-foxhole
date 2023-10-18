@@ -5,11 +5,11 @@ module.exports = {
 	id: 'button_logistics_material_delete',
 
 	async execute(interaction) {
-		const materialId = interaction.customId.split('-')[1];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, message } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		try {
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			const material = await Material.findOne({ material_id: `${message.id}` });
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
@@ -18,7 +18,7 @@ module.exports = {
 				});
 			}
 
-			const rowCount = await Material.deleteOne({ material_id: `${materialId}` });
+			const rowCount = await Material.deleteOne({ material_id: `${message.id}` });
 
 			if (rowCount.deletedCount === 0) {
 				return await interaction.reply({
@@ -27,9 +27,11 @@ module.exports = {
 				});
 			}
 
-			await interaction.update({
+			await interaction.message.delete();
+
+			await interaction.reply({
 				content: translations.translate('MATERIAL_DELETE_SUCCESS'),
-				components: [],
+				ephemeral: true,
 			});
 		}
 		catch (err) {

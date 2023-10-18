@@ -6,7 +6,7 @@ module.exports = {
 	id: 'button_create_operation_start',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
+		const operationId = interaction.message.id;
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		try {
@@ -38,18 +38,18 @@ module.exports = {
 			}
 
 			const finishedButton = new ButtonBuilder()
-				.setCustomId(`button_create_operation_finished-${operationId}`)
+				.setCustomId('button_create_operation_finished')
 				.setLabel(translations.translate('FINISHED'))
 				.setStyle(ButtonStyle.Success);
 
 			const cancelButton = new ButtonBuilder()
-				.setCustomId(`button_create_operation_cancel-${operationId}`)
+				.setCustomId('button_create_operation_cancel')
 				.setLabel(translations.translate('CANCEL'))
 				.setStyle(ButtonStyle.Danger);
 
 			const ActionRow = new ActionRowBuilder().addComponents(finishedButton, cancelButton);
 
-			const content = `**${translations.translate('ID')}:** ${operationId}\n**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
+			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
 
 			await Operation.updateOne({ operation_id: `${operationId}` }, { status: 'started' });
 

@@ -1,13 +1,13 @@
-const { Material } = require('../../../data/models.js');
-const ResponseMaterial = require('../../../utils/interaction/response_material.js');
-const Translate = require('../../../utils/translations.js');
+const { Material } = require('../../../../data/models.js');
+const ResponseMaterial = require('../../../../utils/interaction/response_material.js');
+const Translate = require('../../../../utils/translations.js');
 
 module.exports = {
 	id: 'modal_logistics_add_quantity_ask',
 
 	async execute(interaction) {
-		const materialId = interaction.customId.split('-')[3];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, message } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		const quantity_ask = interaction.fields.getTextInputValue('quantity_ask');
 
@@ -19,9 +19,9 @@ module.exports = {
 		}
 
 		try {
-			await Material.updateOne({ material_id: `${materialId}` }, { quantityAsk: quantity_ask });
+			await Material.updateOne({ material_id: `${message.id}` }, { quantityAsk: quantity_ask });
 
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			const material = await Material.findOne({ material_id: `${message.id}` });
 
 			await new ResponseMaterial(interaction, material).response();
 		}

@@ -5,7 +5,6 @@ module.exports = {
 	// DEFAULT
 	COMMAND_UNKNOWN: 'Cette commande n\'existe pas.',
 	NONE: 'Aucun',
-	ID: 'ID',
 	QUANTITY: 'Quantité',
 	DELETE: 'Supprimer',
 	DATE: 'Date',
@@ -79,6 +78,7 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'L\'opération %title% annulée !',
 
 	// OPERATION ERRORS
+	OPERATION_CREATE_ERROR: 'Une erreur est survenue lors de la création de l\'opération.',
 	OPERATION_DATE_FORMAT_ERROR: 'Le format de la date est incorrect.',
 	OPERATION_TIME_FORMAT_ERROR: 'Le format de l\'heure est incorrect.',
 	OPERATION_MATERIALS_NOT_ALL_VALIDATE: 'Tous les matériaux n\'ont pas été validés !\nImpossible de lancer l\'opération !\nVeuillez valider ou supprimer les matériaux non validés.',
@@ -156,7 +156,6 @@ module.exports = {
 	MATERIAL_VALIDATE_ERROR: 'Une erreur est survenue lors de la validation du matériel.',
 	MATERIAL_CONFIRM_ERROR: 'Une erreur est survenue lors de la confirmation du matériel.',
 	MATERIAL_ASSIGN_ERROR: 'Une erreur est survenue lors de l\'assignation du matériel.',
-	MATERIAL_NOT_BELONG_OPERATION: 'Ce matériel n\'appartient pas à cette opération.',
 	MATERIAL_ARE_NO_CREATOR_ERROR: 'Vous n\'êtes pas le créateur de ce matériel.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce matériel.',
 	MATERIAL_QUANTITY_ERROR: 'La quantité doit être un nombre positif.',

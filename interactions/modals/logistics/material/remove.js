@@ -1,13 +1,14 @@
-const { Material } = require('../../../data/models.js');
-const Translate = require('../../../utils/translations.js');
+const { Material } = require('../../../../data/models.js');
+const Translate = require('../../../../utils/translations.js');
 
 module.exports = {
 	id: 'modal_logistics_remove',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
+		const { client, guild, channel } = interaction;
+		const translations = new Translate(client, guild.id);
+
 		const materialId = interaction.fields.getTextInputValue('material_id');
-		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		try {
 			const material = await Material.findOne({ material_id: `${materialId}` });
@@ -19,14 +20,17 @@ module.exports = {
 				});
 			}
 
-			if (material.operation_id !== operationId) {
-				return await interaction.reply({
-					content: translations.translate('MATERIAL_NOT_BELONG_OPERATION'),
-					ephemeral: true,
+			const message = await channel.messages.fetch(material.material_id)
+				.catch(async () => {
+					const parentChannel = await client.channels.fetch(channel.parentId);
+					return await parentChannel.messages.fetch(material.material_id);
 				});
+
+			if (message) {
+				await message.delete();
 			}
 
-			await Material.deleteOne({ material_id: `${materialId}` });
+			await Material.deleteOne({ material_id: material.material_id });
 
 			await interaction.reply({
 				content: translations.translate('MATERIAL_DELETE_SUCCESS'),
