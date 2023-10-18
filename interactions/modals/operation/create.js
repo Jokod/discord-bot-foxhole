@@ -7,7 +7,6 @@ module.exports = {
 	id: 'modal_create_operation',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		const title = interaction.client.sessions[interaction.user.id].title;
@@ -45,30 +44,28 @@ module.exports = {
 		const timestamp = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`).getTime() / 1000;
 
 		const startButton = new ButtonBuilder()
-			.setCustomId(`button_create_operation_start-${operationId}`)
+			.setCustomId('button_create_operation_start')
 			.setLabel(translations.translate('START'))
 			.setStyle(ButtonStyle.Success);
 
 		const cancelButton = new ButtonBuilder()
-			.setCustomId(`button_create_operation_cancel-${operationId}`)
+			.setCustomId('button_create_operation_cancel')
 			.setLabel(translations.translate('CANCEL'))
 			.setStyle(ButtonStyle.Danger);
 
 		const logisticsButton = new ButtonBuilder()
-			.setCustomId(`button_create_operation_logistics-${operationId}`)
+			.setCustomId('button_create_operation_logistics')
 			.setLabel(translations.translate('LOGISTICS'))
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji('📦');
 
 		const actionRow = new ActionRowBuilder().addComponents(startButton, cancelButton, logisticsButton);
 
-		const content = `**${translations.translate('ID')}:** ${operationId}\n**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
-
 		try {
 			await Operation.create({
 				title: `${title}`,
 				guild_id: `${interaction.guild.id}`,
-				operation_id: `${operationId}`,
+				operation_id: `${interaction.id}`,
 				owner_id: `${interaction.user.id}`,
 				date: `<t:${timestamp}:d>`,
 				time: `<t:${timestamp}:t>`,
@@ -77,11 +74,15 @@ module.exports = {
 				status: 'pending',
 			});
 
+			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
+
 			const message = await interaction.reply({
 				content: `${translations.translate('OPERATION_CREATE_SUCCESS', { title: title })}.\n${content}`,
 				components: [actionRow],
 				fetchReply: true,
 			});
+
+			await Operation.updateOne({ operation_id: `${interaction.id}` }, { operation_id: `${message.id}` });
 
 			delete interaction.client.sessions[interaction.user.id];
 
@@ -89,6 +90,11 @@ module.exports = {
 		}
 		catch (error) {
 			console.error(error);
+
+			await interaction.reply({
+				content: translations.translate('OPERATION_CREATE_ERROR'),
+				ephemeral: true,
+			});
 		}
 	},
 };

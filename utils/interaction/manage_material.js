@@ -2,9 +2,8 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const Translate = require('../translations.js');
 
 class ManageMaterial {
-	constructor(interaction) {
-		this.interaction = interaction;
-		this.translations = new Translate(this.interaction.client, this.interaction.guild.id);
+	constructor(client, guild) {
+		this.translations = new Translate(client, guild.id);
 	}
 
 	createButton(customId, label, style) {
@@ -15,30 +14,26 @@ class ManageMaterial {
 	}
 
 	actionRow() {
-		const operationId = this.interaction.customId.split('-')[1];
-		const threadId = this.interaction.customId.split('-')[2];
-		const materialId = this.interaction.customId.split('-')[3];
-
 		const materialButton = this.createButton(
-			`button_logistics_add_material-${operationId}-${threadId}-${materialId}`,
+			'button_logistics_add_material',
 			this.translations.translate('MATERIAL'),
 			ButtonStyle.Primary,
 		);
 
 		const quantityAskButton = this.createButton(
-			`button_logistics_add_quantity_ask-${operationId}-${threadId}-${materialId}`,
+			'button_logistics_add_quantity_ask',
 			this.translations.translate('QUANTITY'),
 			ButtonStyle.Secondary,
 		);
 
 		const confirmButton = this.createButton(
-			`button_logistics_add_confirm-${operationId}-${threadId}-${materialId}`,
+			'button_logistics_add_confirm',
 			this.translations.translate('CONFIRM'),
 			ButtonStyle.Success,
 		);
 
 		const deleteButton = this.createButton(
-			`button_logistics_material_delete-${materialId}`,
+			'button_logistics_material_delete',
 			this.translations.translate('DELETE'),
 			ButtonStyle.Danger,
 		);

@@ -18,6 +18,11 @@ const Operation = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	numberOfGroups: {
+		type: Number,
+		required: true,
+		default: 0,
+	},
 	date: String,
 	time: String,
 	duration: Number,

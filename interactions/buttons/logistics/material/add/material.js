@@ -6,43 +6,41 @@ module.exports = {
 	id: 'button_logistics_add_material',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
-		const threadId = interaction.customId.split('-')[2];
-		const materialId = interaction.customId.split('-')[3];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, message } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		const buttonSmallArms = new ButtonBuilder()
-			.setCustomId(`logistics_select_material_small_arms-${operationId}-${threadId}-${materialId}`)
+			.setCustomId('logistics_select_material_small_arms')
 			.setLabel(translations.translate('MATERIAL_SMALL_ARMS'))
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonHeavyArms = new ButtonBuilder()
-			.setCustomId(`logistics_select_material_heavy_arms-${operationId}-${threadId}-${materialId}`)
+			.setCustomId('logistics_select_material_heavy_arms')
 			.setLabel(translations.translate('MATERIAL_HEAVY_ARMS'))
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonUtilities = new ButtonBuilder()
-			.setCustomId(`logistics_select_material_utilities-${operationId}-${threadId}-${materialId}`)
+			.setCustomId('logistics_select_material_utilities')
 			.setLabel(translations.translate('MATERIAL_UTILITIES'))
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonShipables = new ButtonBuilder()
-			.setCustomId(`logistics_select_material_shipables-${operationId}-${threadId}-${materialId}`)
+			.setCustomId('logistics_select_material_shipables')
 			.setLabel(translations.translate('MATERIAL_SHIPABLES'))
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonVehicles = new ButtonBuilder()
-			.setCustomId(`logistics_select_material_vehicles-${operationId}-${threadId}-${materialId}`)
+			.setCustomId('logistics_select_material_vehicles')
 			.setLabel(translations.translate('MATERIAL_VEHICLES'))
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonUniforms = new ButtonBuilder()
-			.setCustomId(`logistics_select_material_uniforms-${operationId}-${threadId}-${materialId}`)
+			.setCustomId('logistics_select_material_uniforms')
 			.setLabel(translations.translate('MATERIAL_UNIFORMS'))
 			.setStyle(ButtonStyle.Primary);
 
 		const buttonBack = new ButtonBuilder()
-			.setCustomId(`logistics_select_material_back-${operationId}-${threadId}-${materialId}`)
+			.setCustomId('logistics_select_material_back')
 			.setLabel(translations.translate('BACK'))
 			.setStyle(ButtonStyle.Secondary);
 
@@ -51,7 +49,7 @@ module.exports = {
 		const thirdArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		try {
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			const material = await Material.findOne({ material_id: `${message.id}` });
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
@@ -61,7 +59,7 @@ module.exports = {
 			}
 
 			await interaction.update({
-				content: `**${translations.translate('ID')}:** ${materialId}\n${translations.translate('MATERIAL_SELECT_TYPE')}`,
+				content: `${translations.translate('MATERIAL_SELECT_TYPE')}`,
 				components: [firstArrowRow, secondArrowRow, thirdArrowRow],
 			});
 		}
