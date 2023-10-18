@@ -81,7 +81,6 @@ module.exports = {
 	OPERATION_CREATE_ERROR: 'Une erreur est survenue lors de la création de l\'opération.',
 	OPERATION_DATE_FORMAT_ERROR: 'Le format de la date est incorrect.',
 	OPERATION_TIME_FORMAT_ERROR: 'Le format de l\'heure est incorrect.',
-	OPERATION_MATERIALS_NOT_ALL_VALIDATE: 'Tous les matériaux n\'ont pas été validés !\nImpossible de lancer l\'opération !\nVeuillez valider ou supprimer les matériaux non validés.',
 	OPERATION_LAUNCH_ERROR: 'Une erreur est survenue lors du lancement de l\'opération.',
 	OPERATION_FINISHED_ERROR: 'Une erreur est survenue lors de la fin de l\'opération.',
 	OPERATION_CANCELED_ERROR: 'Une erreur est survenue lors de l\'annulation de l\'opération.',
@@ -105,7 +104,6 @@ module.exports = {
 	// LOGISTIC ---------------------------------------------
 
 	LOGISTIC_LIST_COMMANDS: 'Liste des commandes logistiques',
-	LOGISTIC_SEE_MATERIALS_NOT_VALIDATE: 'Vous pouvez utiliser la commande "/logistics" pour voir les matériels non validés.',
 
 	// MATERIAL ---------------------------------------------
 

@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation, Material } = require('../../../data/models.js');
+const { Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 
 module.exports = {
@@ -15,24 +15,6 @@ module.exports = {
 			if (interaction.user.id !== operation.owner_id) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
-					ephemeral: true,
-				});
-			}
-
-			let validated = 0;
-			const materials = await Material.find({ operation_id: `${operationId}` })
-				.then(material => {
-					if (material.status === 'validated') validated++;
-				});
-
-			if (materials && validated !== materials.length) {
-				await interaction.reply({
-					content: translations.translate('OPERATION_MATERIALS_NOT_ALL_VALIDATE'),
-					ephemeral: true,
-				});
-
-				return await interaction.followUp({
-					content: translations.translate('LOGISTIC_SEE_MATERIALS_NOT_VALIDATE'),
 					ephemeral: true,
 				});
 			}
