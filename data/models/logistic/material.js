@@ -5,7 +5,6 @@ const Material = mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	operation_id: String,
 	group_id: String,
 	owner_id: String,
 	person_id: String,

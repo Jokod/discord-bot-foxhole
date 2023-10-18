@@ -6,13 +6,11 @@ module.exports = {
 	id: 'button_logistics_material_validate',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
-		const threadId = interaction.customId.split('-')[2];
-		const materialId = interaction.customId.split('-')[3];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, message } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		try {
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			const material = await Material.findOne({ material_id: `${message.id}` });
 
 			if (interaction.user.id !== material.person_id) {
 				return await interaction.reply({
@@ -24,7 +22,7 @@ module.exports = {
 			const localization = material.localization ?? ' ';
 
 			const modal = new ModalBuilder()
-				.setCustomId(`modal_logistics_material_validate-${operationId}-${threadId}-${materialId}`)
+				.setCustomId('modal_logistics_material_validate')
 				.setTitle(translations.translate('MATERIAL_CONFIRMATION'));
 
 			const locationInput = new TextInputBuilder()

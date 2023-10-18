@@ -5,12 +5,12 @@ module.exports = {
 	id: 'button_logistics_close',
 
 	async execute(interaction) {
-		const threadId = interaction.customId.split('-')[2];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, channelId } = interaction;
+		const translations = new Translate(client, guild.id);
 
-		await Group.findOne({ threadId: `${threadId}` }).exec()
+		await Group.findOne({ threadId: `${channelId}` }).exec()
 			.then(async group => {
-				const thread = interaction.guild.channels.cache.get(`${threadId}`);
+				const thread = interaction.guild.channels.cache.get(`${channelId}`);
 
 				if (!thread) {
 					return interaction.reply({
@@ -26,10 +26,14 @@ module.exports = {
 					});
 				}
 
-				await Material.deleteMany({ group_id: `${threadId}` });
+				await Material.deleteMany({ group_id: `${channelId}` });
+
+				const parentChannel = client.channels.cache.get(interaction.channel.parentId);
+				await parentChannel.messages.fetch(thread.id).then(msg => msg.delete());
 
 				await thread.delete(true);
-				await group.deleteOne({ threadId: `${threadId}` });
+
+				await group.deleteOne({ threadId: `${channelId}` });
 			}).catch(err => {
 				console.error(err);
 				return interaction.reply({

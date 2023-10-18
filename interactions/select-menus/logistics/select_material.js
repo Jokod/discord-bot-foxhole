@@ -3,15 +3,15 @@ const ResponseMaterial = require('../../../utils/interaction/response_material.j
 const Translate = require('../../../utils/translations.js');
 
 module.exports = {
-	id: 'logistics_add_material',
+	id: 'select_logistics_add_material',
 
 	async execute(interaction) {
-		const materialId = interaction.customId.split('-')[3];
+		const { client, guild, message } = interaction;
 		const value = interaction.values[0];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const translations = new Translate(client, guild.id);
 
 		try {
-			let material = await Material.findOne({ material_id: `${materialId}` });
+			let material = await Material.findOne({ material_id: `${message.id}` });
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
@@ -20,9 +20,9 @@ module.exports = {
 				});
 			}
 
-			await Material.updateOne({ material_id: `${materialId}` }, { name: value });
+			await Material.updateOne({ material_id: `${message.id}` }, { name: value });
 
-			material = await Material.findOne({ material_id: `${materialId}` });
+			material = await Material.findOne({ material_id: `${message.id}` });
 
 			await new ResponseMaterial(interaction, material).response();
 		}

@@ -94,10 +94,10 @@ module.exports = {
 				),
 		),
 	async execute(interaction) {
-		const inputGroupId = interaction.options.getString('group') || null;
-		const inputMaterialId = interaction.options.getString('material') || null;
-		let operationId = null;
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, options } = interaction;
+		const inputGroupId = options.getString('group') || null;
+		const inputMaterialId = options.getString('material') || null;
+		const translations = new Translate(client, guild.id);
 
 		if (inputGroupId) {
 			const group = await Group.findOne({ threadId: `${inputGroupId}` });
@@ -108,8 +108,6 @@ module.exports = {
 					ephemeral: true,
 				});
 			}
-
-			operationId = group.operation_id;
 		}
 
 		if (inputMaterialId) {
@@ -144,22 +142,22 @@ module.exports = {
 			break;
 		case 'create':
 			const materialButton = new ButtonBuilder()
-				.setCustomId(`button_logistics_add_material-null-${inputGroupId}-${interaction.id}`)
+				.setCustomId('button_logistics_add_material')
 				.setLabel(translations.translate('MATERIAL'))
 				.setStyle(ButtonStyle.Primary);
 
 			const quantityAskButton = new ButtonBuilder()
-				.setCustomId(`button_logistics_add_quantity_ask-null-${inputGroupId}-${interaction.id}`)
+				.setCustomId('button_logistics_add_quantity_ask')
 				.setLabel(translations.translate('QUANTITY'))
 				.setStyle(ButtonStyle.Secondary);
 
 			const confirmButton = new ButtonBuilder()
-				.setCustomId(`button_logistics_add_confirm-null-${inputGroupId}-${interaction.id}`)
+				.setCustomId('button_logistics_add_confirm')
 				.setLabel(translations.translate('CONFIRM'))
 				.setStyle(ButtonStyle.Success);
 
 			const deleteButton = new ButtonBuilder()
-				.setCustomId(`button_logistics_material_delete-${interaction.id}`)
+				.setCustomId('button_logistics_material_delete')
 				.setLabel(translations.translate('DELETE'))
 				.setStyle(ButtonStyle.Danger);
 
@@ -168,15 +166,18 @@ module.exports = {
 			await Material.create({
 				material_id: interaction.id,
 				group_id: inputGroupId,
-				operation_id: operationId,
 				owner_id: interaction.user.id,
 				status: 'pending',
 			});
 
-			await interaction.reply({
-				content: `**${translations.translate('ID')}:** ${interaction.id}`,
+			const message = await interaction.reply({
+				content: `${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,
 				components: [ActionRow],
+				fetchReply: true,
 			});
+
+			await Material.updateOne({ material_id: `${interaction.id}` }, { material_id: `${message.id}` });
+
 			break;
 		case 'delete':
 			const rowCount = await Material.deleteOne({ material_id: `${inputMaterialId}` });

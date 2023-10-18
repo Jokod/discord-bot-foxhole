@@ -22,8 +22,15 @@ const names = {
 
 const getIcon = (itemCategory) => categoryIcons[itemCategory] || '❓';
 
-const getFournis = (server) => {
-	return Object.values(Fournis).filter(value => value.faction.includes(server.camp));
+const getFournis = async (guildId) => {
+	const server = await Server.findOne({ guild_id: guildId })
+		.catch(err => console.error(err));
+
+	if (!server) console.error('No server found for this operation');
+
+	const datas = Object.values(Fournis).filter(value => value.faction.includes(server.camp));
+
+	return { camp: server.camp, datas };
 };
 
 const createMenuOption = (item) => {
@@ -36,20 +43,15 @@ const createMenuOption = (item) => {
 		.setEmoji(getIcon(item.itemCategory));
 };
 
-const createStringSelectMenu = (operationId, threadId, materialId, category, options, camp, uniqueNumber) => {
+const createStringSelectMenu = (category, options, camp, uniqueNumber) => {
 	return new StringSelectMenuBuilder()
-		.setCustomId(`logistics_add_material-${operationId}-${threadId}-${materialId}-${category}-${uniqueNumber}`)
+		.setCustomId(`select_logistics_add_material-${uniqueNumber}`)
 		.setPlaceholder(`Liste #${uniqueNumber} des ${names[category]} pour ${camp}`)
 		.addOptions(options);
 };
 
-const setMenusByCategory = async (category, operation) => {
-	const server = await Server.findOne({ guild_id: operation.guildId })
-		.catch(err => console.error(err));
-
-	if (!server) console.error('No server found for this operation');
-
-	const datas = getFournis(server);
+const setMenusByCategory = async (category, guildId) => {
+	const { camp, datas } = await getFournis(guildId);
 
 	const categoryItems = datas.filter(data => data.itemCategory === category);
 
@@ -62,12 +64,9 @@ const setMenusByCategory = async (category, operation) => {
 		const group = categoryItems.slice(i, i + 25).map(createMenuOption);
 		groups.push(
 			createStringSelectMenu(
-				operation.operationId,
-				operation.threadId,
-				operation.materialId,
 				category,
 				group,
-				server.camp,
+				camp,
 				uniqueNumber++,
 			),
 		);
@@ -76,8 +75,8 @@ const setMenusByCategory = async (category, operation) => {
 	return groups;
 };
 
-const getCategoryActions = (category) => async (operation) => {
-	const menus = await setMenusByCategory(category, operation);
+const getCategoryActions = (category) => async (guildId) => {
+	const menus = await setMenusByCategory(category, guildId);
 
 	if (menus.length > 4) {
 		console.error('Too many menus for one row');

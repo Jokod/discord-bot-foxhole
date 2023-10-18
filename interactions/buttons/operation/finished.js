@@ -5,7 +5,7 @@ module.exports = {
 	id: 'button_create_operation_finished',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
+		const operationId = interaction.message.id;
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		try {
@@ -18,7 +18,7 @@ module.exports = {
 				});
 			}
 
-			const content = `**${translations.translate('ID')}:** ${operationId}\n**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
+			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
 
 			Group.find({ operation_id: `${operationId}` }).exec()
 				.then(threads => {

@@ -5,7 +5,6 @@ module.exports = {
 	// DEFAULT
 	COMMAND_UNKNOWN: 'This command does not exist.',
 	NONE: 'None',
-	ID: 'ID',
 	QUANTITY: 'Quantity',
 	DELETE: 'Delete',
 	DATE: 'Date',
@@ -79,9 +78,9 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'Operation %title% canceled!',
 
 	// OPERATION ERRORS
+	OPERATION_CREATE_ERROR: 'An error occurred while creating the operation.',
 	OPERATION_DATE_FORMAT_ERROR: 'The date format is incorrect.',
 	OPERATION_TIME_FORMAT_ERROR: 'The time format is incorrect.',
-	OPERATION_MATERIALS_NOT_ALL_VALIDATE: 'Not all materials have been validated!\nUnable to launch the operation!\nPlease validate or remove the unvalidated materials.',
 	OPERATION_LAUNCH_ERROR: 'An error occurred while launching the operation.',
 	OPERATION_FINISHED_ERROR: 'An error occurred while finishing the operation.',
 	OPERATION_CANCELED_ERROR: 'An error occurred while canceling the operation.',
@@ -105,7 +104,6 @@ module.exports = {
 	// LOGISTIC ---------------------------------------------
 
 	LOGISTIC_LIST_COMMANDS: 'List of logistic commands',
-	LOGISTIC_SEE_MATERIALS_NOT_VALIDATE: 'You can use the "/logistics" command to see unvalidated materials.',
 
 	// MATERIAL ---------------------------------------------
 
@@ -156,7 +154,6 @@ module.exports = {
 	MATERIAL_VALIDATE_ERROR: 'An error occurred while validating the material.',
 	MATERIAL_CONFIRM_ERROR: 'An error occurred while confirming the material.',
 	MATERIAL_ASSIGN_ERROR: 'An error occurred while assigning the material.',
-	MATERIAL_NOT_BELONG_OPERATION: 'This material does not belong to this operation.',
 	MATERIAL_ARE_NO_CREATOR_ERROR: 'You are not the creator of this material.',
 	MATERIAL_ARE_NO_OWNER_ERROR: 'You are not the owner of this material.',
 	MATERIAL_QUANTITY_ERROR: 'The quantity must be a positive number.',

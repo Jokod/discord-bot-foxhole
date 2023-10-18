@@ -6,27 +6,26 @@ module.exports = {
 	id: 'button_logistics_add',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
-		const threadId = interaction.customId.split('-')[2];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, channelId, guild } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		const materialButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_add_material-${operationId}-${threadId}-${interaction.id}`)
+			.setCustomId('button_logistics_add_material')
 			.setLabel(translations.translate('MATERIAL'))
 			.setStyle(ButtonStyle.Primary);
 
 		const quantityAskButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_add_quantity_ask-${operationId}-${threadId}-${interaction.id}`)
+			.setCustomId('button_logistics_add_quantity_ask')
 			.setLabel(translations.translate('QUANTITY'))
 			.setStyle(ButtonStyle.Secondary);
 
 		const confirmButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_add_confirm-${operationId}-${threadId}-${interaction.id}`)
+			.setCustomId('button_logistics_add_confirm')
 			.setLabel(translations.translate('CONFIRM'))
 			.setStyle(ButtonStyle.Success);
 
 		const deleteButton = new ButtonBuilder()
-			.setCustomId(`button_logistics_material_delete-${interaction.id}`)
+			.setCustomId('button_logistics_material_delete')
 			.setLabel(translations.translate('DELETE'))
 			.setStyle(ButtonStyle.Danger);
 
@@ -35,16 +34,18 @@ module.exports = {
 		try {
 			await Material.create({
 				material_id: interaction.id,
-				operation_id: operationId,
-				group_id: threadId,
+				group_id: channelId,
 				owner_id: interaction.user.id,
 				status: 'pending',
 			});
 
-			await interaction.reply({
-				content: `**${translations.translate('ID')}:** ${interaction.id}\n${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,
+			const message = await interaction.reply({
+				content: `${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,
 				components: [ActionRow],
+				fetchReply: true,
 			});
+
+			await Material.updateOne({ material_id: `${interaction.id}` }, { material_id: `${message.id}` });
 		}
 		catch (err) {
 			console.error(err);

@@ -5,12 +5,11 @@ module.exports = {
 	id: 'button_logistics_remove',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
-		const threadId = interaction.customId.split('-')[2];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		const modal = new ModalBuilder()
-			.setCustomId(`modal_logistics_remove-${operationId}-${threadId}`)
+			.setCustomId('modal_logistics_remove')
 			.setTitle(translations.translate('MATERIAL_ENTER_ID'));
 
 		const materialIdField = new TextInputBuilder()

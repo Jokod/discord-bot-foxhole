@@ -6,11 +6,11 @@ module.exports = {
 	id: 'logistics_select_material_back',
 
 	async execute(interaction) {
-		const materialId = interaction.customId.split('-')[3];
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, message } = interaction;
+		const translations = new Translate(client, guild.id);
 
 		try {
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			const material = await Material.findOne({ material_id: `${message.id}` });
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({

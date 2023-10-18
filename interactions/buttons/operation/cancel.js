@@ -5,9 +5,8 @@ module.exports = {
 	id: 'button_create_operation_cancel',
 
 	async execute(interaction) {
-		const operationId = interaction.customId.split('-')[1];
+		const operationId = interaction.message.id;
 		const translations = new Translate(interaction.client, interaction.guild.id);
-
 
 		try {
 			const operation = await Operation.findOne({ operation_id: `${operationId}` });
@@ -22,16 +21,22 @@ module.exports = {
 			const threads = await Group.find({ operation_id: `${operationId}` });
 			for (const thread of threads) {
 				const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
-				if (result) await result.delete();
+
+				if (result) {
+					await Material.deleteMany({ group_id: `${thread.threadId}` });
+					await interaction.channel.messages.fetch(result.id).then(msg => msg.delete());
+					await result.delete();
+					await thread.deleteOne({ threadId: `${result.id}` });
+				}
 			}
 
 			await Operation.deleteOne({ operation_id: `${operationId}` });
-			await Group.deleteOne({ operation_id: `${operationId}` });
-			await Material.deleteOne({ operation_id: `${operationId}` });
 
-			await interaction.update({
+			await interaction.message.delete();
+
+			await interaction.reply({
 				content: translations.translate('OPERATION_CANCELED_SUCCESS', { title: operation.title }),
-				components: [],
+				ephemeral: true,
 			});
 		}
 		catch (err) {
