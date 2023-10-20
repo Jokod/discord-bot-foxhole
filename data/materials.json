@@ -1508,6 +1508,15 @@
     "itemDesc": "Warden specialists require a uniform designed to optimize their capacity to haul a variety of heavy ammunition.",
     "itemCategory": "uniforms"
   },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Substances instables",
+    "itemDesc": "A reinforced barrel of extremely explosive substances required for the deadliest warheads.",
+    "itemCategory": "Ressource"
+  },
  {
     "faction": [
       "colonial",
@@ -1652,15 +1661,6 @@
     "itemName": "T20 \"Ixion\" Tankette",
     "itemDesc": "A bombastic variant of the T12 Tankette, the \"Ixion\" provides its crew with more support and mounted Infantry Support Gun. Added weight from the armor results in reduced overall speed.",
     "itemCategory": "vehicles"
-  },
-{
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Substances instables",
-    "itemDesc": "A reinforced barrel of extremely explosive substances required for the deadliest warheads.",
-    "itemCategory": "Ressource"
   },
   {
     "faction": [
