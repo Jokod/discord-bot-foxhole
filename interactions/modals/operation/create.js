@@ -17,6 +17,8 @@ module.exports = {
 
 		const dateRegex = new RegExp('^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}$');
 		const timeRegex = new RegExp('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$');
+		const durationRegex = new RegExp('^[0-9]{1,3}$');
+		const descriptionRegex = new RegExp('^[\\w\\s!@#]{1,1000}$');
 
 		if (!dateRegex.test(dateField)) {
 			return await interaction.reply({
@@ -28,6 +30,20 @@ module.exports = {
 		if (!timeRegex.test(timeField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_TIME_FORMAT_ERROR'),
+				ephemeral: true,
+			});
+		}
+
+		if (!durationRegex.test(durationField)) {
+			return await interaction.reply({
+				content: translations.translate('OPERATION_DURATION_FORMAT_ERROR'),
+				ephemeral: true,
+			});
+		}
+
+		if (!descriptionRegex.test(descriptionField)) {
+			return await interaction.reply({
+				content: translations.translate('OPERATION_DESCRIPTION_FORMAT_ERROR'),
 				ephemeral: true,
 			});
 		}

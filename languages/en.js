@@ -78,9 +78,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'Operation %title% canceled!',
 
 	// OPERATION ERRORS
+	OPERATION_TITLE_FORMAT_ERROR: 'The title must be alphanumeric without special characters.',
 	OPERATION_CREATE_ERROR: 'An error occurred while creating the operation.',
 	OPERATION_DATE_FORMAT_ERROR: 'The date format is incorrect.',
 	OPERATION_TIME_FORMAT_ERROR: 'The time format is incorrect.',
+	OPERATION_DURATION_FORMAT_ERROR: 'The duration format is incorrect.',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'The description format is incorrect.',
 	OPERATION_LAUNCH_ERROR: 'An error occurred while launching the operation.',
 	OPERATION_FINISHED_ERROR: 'An error occurred while finishing the operation.',
 	OPERATION_CANCELED_ERROR: 'An error occurred while canceling the operation.',
@@ -134,14 +137,15 @@ module.exports = {
 	MATERIAL_SHIPABLES: 'Shipable Items',
 	MATERIAL_VEHICLES: 'Vehicles',
 	MATERIAL_UNIFORMS: 'Uniforms',
+	MATERIAL_RESOURCES: 'Resources',
 
 	MATERIAL_LIST_SMALL_ARMS: 'List of available small arms',
 	MATERIAL_LIST_HEAVY_ARMS: 'List of available heavy arms',
 	MATERIAL_LIST_UTILITIES: 'List of available utilities',
 	MATERIAL_LIST_SHIPABLES: 'List of available shipable items',
-	MATERIAL_LIST_VEHICLE: 'List of available vehicles',
+	MATERIAL_LIST_VEHICLES: 'List of available vehicles',
 	MATERIAL_LIST_UNIFORMS: 'List of available uniforms',
-
+	MATERIAL_LIST_RESOURCES: 'List of available resources',
 	// MATERIAL SUCCESS
 	MATERIAL_CREATE_SUCCESS: 'Material has been created.',
 	MATERIAL_DELETE_SUCCESS: 'Material has been deleted.',
@@ -158,6 +162,6 @@ module.exports = {
 	MATERIAL_ARE_NO_OWNER_ERROR: 'You are not the owner of this material.',
 	MATERIAL_QUANTITY_ERROR: 'The quantity must be a positive number.',
 	MATERIAL_SELECT_QUANTITY_ERROR: 'An error occurred while selecting the quantity.',
-	MATERIAL_LOCALIZATION_ERROR: 'The localization cannot be empty.',
+	MATERIAL_LOCALIZATION_ERROR: 'The localization format is incorrect.',
 	MATERIAL_BACK_ERROR: 'An error occurred while returning to the previous menu.',
 };

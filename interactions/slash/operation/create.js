@@ -22,6 +22,8 @@ module.exports = {
 				.setDescriptionLocalizations({
 					fr: 'Titre de l\'opération',
 				})
+				.setMinLength(1)
+				.setMaxLength(10)
 				.setRequired(true),
 		)
 		.setDMPermission(false),
@@ -29,6 +31,14 @@ module.exports = {
 	async execute(interaction) {
 		const title = interaction.options.getString('title').toUpperCase();
 		const translations = new Translate(interaction.client, interaction.guild.id);
+
+		if (/^[\w\s!@#]{1,10}$/g.test(title) === false) {
+			await interaction.reply({
+				content: translations.translate('OPERATION_TITLE_FORMAT_ERROR'),
+				ephemeral: true,
+			});
+			return;
+		}
 
 		interaction.client.sessions[interaction.user.id] = { title: title };
 

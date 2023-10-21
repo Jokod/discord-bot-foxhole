@@ -56,11 +56,8 @@ client.commands = new Collection();
 client.slashCommands = new Collection();
 client.buttonCommands = new Collection();
 client.selectCommands = new Collection();
-client.contextCommands = new Collection();
 client.modalCommands = new Collection();
 client.cooldowns = new Collection();
-client.autocompleteInteractions = new Collection();
-client.triggers = new Collection();
 client.languages = new Collection();
 client.traductions = new Collection();
 client.sessions = new Collection();
@@ -78,20 +75,6 @@ getFiles('./commands', (command) => {
 
 getFiles('./interactions/slash', (command) => {
 	client.slashCommands.set(command.data.name, command);
-});
-
-/** ********************************************************************/
-// Registration of Autocomplete Interactions.
-
-getFiles('./interactions/autocomplete', (command) => {
-	client.autocompleteInteractions.set(command.name, command);
-});
-
-/** ********************************************************************/
-// Registration of Context-Menu Interactions
-
-getFiles('./interactions/context-menus', (command) => {
-	client.contextCommands.set(command.data.name, command);
 });
 
 /** ********************************************************************/
@@ -122,7 +105,6 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 const commandJsonData = [
 	...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
-	...Array.from(client.contextCommands.values()).map((c) => c.data),
 ];
 
 (async () => {
@@ -144,13 +126,6 @@ const commandJsonData = [
 		console.error(error);
 	}
 })();
-
-/** ********************************************************************/
-// Registration of Message Based Chat Triggers
-
-getFiles('./triggers', (trigger) => {
-	client.triggers.set(trigger.name, trigger);
-});
 
 /** ********************************************************************/
 

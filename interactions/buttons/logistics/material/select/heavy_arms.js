@@ -29,7 +29,7 @@ module.exports = {
 		const buttonArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({
-			content: `${translations.translate('MATERIAL_LIST_SMALL_ARMS')}`,
+			content: `${translations.translate('MATERIAL_LIST_HEAVY_ARMS')}`,
 			components: [...heavyArmsRow, buttonArrowRow],
 		});
 	},

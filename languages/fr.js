@@ -78,9 +78,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'L\'opération %title% annulée !',
 
 	// OPERATION ERRORS
+	OPERATION_TITLE_FORMAT_ERROR: 'Le titre doit être alphanumérique sans caractères spéciaux.',
 	OPERATION_CREATE_ERROR: 'Une erreur est survenue lors de la création de l\'opération.',
 	OPERATION_DATE_FORMAT_ERROR: 'Le format de la date est incorrect.',
 	OPERATION_TIME_FORMAT_ERROR: 'Le format de l\'heure est incorrect.',
+	OPERATION_DURATION_FORMAT_ERROR: 'Le format de la durée est incorrect.',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Le format de la description est incorrect.',
 	OPERATION_LAUNCH_ERROR: 'Une erreur est survenue lors du lancement de l\'opération.',
 	OPERATION_FINISHED_ERROR: 'Une erreur est survenue lors de la fin de l\'opération.',
 	OPERATION_CANCELED_ERROR: 'Une erreur est survenue lors de l\'annulation de l\'opération.',
@@ -134,13 +137,15 @@ module.exports = {
 	MATERIAL_SHIPABLES: 'Objets transportables',
 	MATERIAL_VEHICLES: 'Véhicules',
 	MATERIAL_UNIFORMS: 'Uniformes',
+	MATERIAL_RESOURCES: 'Ressources',
 
 	MATERIAL_LIST_SMALL_ARMS: 'Liste des armes légères disponibles',
 	MATERIAL_LIST_HEAVY_ARMS: 'Liste des armes lourdes disponibles',
 	MATERIAL_LIST_UTILITIES: 'Liste des utilitaires disponibles',
 	MATERIAL_LIST_SHIPABLES: 'Liste des objets transportables disponibles',
-	MATERIAL_LIST_VEHICLE: 'Liste des véhicules disponibles',
+	MATERIAL_LIST_VEHICLES: 'Liste des véhicules disponibles',
 	MATERIAL_LIST_UNIFORMS: 'Liste des uniformes disponibles',
+	MATERIAL_LIST_RESOURCES: 'Liste des ressources disponibles',
 
 	// MATERIAL SUCCESS
 	MATERIAL_CREATE_SUCCESS: 'Le matériel a été créé.',
@@ -158,6 +163,6 @@ module.exports = {
 	MATERIAL_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce matériel.',
 	MATERIAL_QUANTITY_ERROR: 'La quantité doit être un nombre positif.',
 	MATERIAL_SELECT_QUANTITY_ERROR: 'Une erreur est survenue lors de la sélection de la quantité.',
-	MATERIAL_LOCALIZATION_ERROR: 'La localisation ne peut pas être vide.',
+	MATERIAL_LOCALIZATION_ERROR: 'Le format de la localisation est incorrect.',
 	MATERIAL_BACK_ERROR: 'Une erreur est survenue lors du retour au menu précédent.',
 };

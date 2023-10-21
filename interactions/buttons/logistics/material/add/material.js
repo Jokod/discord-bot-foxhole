@@ -39,13 +39,18 @@ module.exports = {
 			.setLabel(translations.translate('MATERIAL_UNIFORMS'))
 			.setStyle(ButtonStyle.Primary);
 
+		const buttonResources = new ButtonBuilder()
+			.setCustomId('logistics_select_material_resources')
+			.setLabel(translations.translate('MATERIAL_RESOURCES'))
+			.setStyle(ButtonStyle.Primary);
+
 		const buttonBack = new ButtonBuilder()
 			.setCustomId('logistics_select_material_back')
 			.setLabel(translations.translate('BACK'))
 			.setStyle(ButtonStyle.Secondary);
 
 		const firstArrowRow = new ActionRowBuilder().addComponents(buttonSmallArms, buttonUtilities, buttonHeavyArms);
-		const secondArrowRow = new ActionRowBuilder().addComponents(buttonShipables, buttonVehicles, buttonUniforms);
+		const secondArrowRow = new ActionRowBuilder().addComponents(buttonShipables, buttonVehicles, buttonUniforms, buttonResources);
 		const thirdArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		try {

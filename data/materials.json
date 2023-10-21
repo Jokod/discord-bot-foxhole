@@ -78,6 +78,15 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Assembly Materials I",
+    "itemDesc": "Assembly Materials are a special class of advanced materials that are crafted and used in Facilities.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
       "colonial"
     ],
     "itemName": "A.T.R.P.G Shell",
@@ -104,6 +113,14 @@
     "itemName": "A3 Harpa Fragmentation Grenade",
     "itemDesc": "This anti-personnel fragmentation grenade is designed with pull-pin mechanics and a time fuse for user safety. Serrations in the casing allow for a better grip and increased fragmentation effectiveness.",
     "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "AU-A150 Taurine Rigger",
+    "itemDesc": "The AU-A150 Taurine Rigger is a Colonial Heavy-Duty Truck designed to be a powerful logistics vehicle, capable of moving cargo, equipment, and tow Field Weapons and Trailers with ease to various locations.",
+    "itemCategory": "vehicles"
   },
   {
     "faction": [
@@ -158,6 +175,15 @@
     "itemName": "Barbed Wire Pallet",
     "itemDesc": "A pallet of Barbed Wire that's used for the construction of frontline defenses.",
     "itemCategory": "shipables"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Basic Materials",
+    "itemDesc": "Basic Materials (also known as bmats) is a very common material with numerous applications in the game. It is used in the production, construction, and repair of various equipment, structures, and vehicles.",
+    "itemCategory": "resources"
   },
   {
     "faction": [
@@ -379,6 +405,24 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Coal",
+    "itemDesc": "Coal is a raw resource specially designed to be refined into Coke, or used as fuel for Trains.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Coke",
+    "itemDesc": "Coke is a type of resource required for various Facility processes.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
       "warden"
     ],
     "itemName": "Collins Cannon 68mm",
@@ -399,9 +443,35 @@
       "colonial",
       "warden"
     ],
+    "itemName": "Components",
+    "itemDesc": "Components (also known as Comps) are a type of rare raw resource that is refined to create higher tier materials.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Concrete Materials",
+    "itemDesc": "Concrete Materials (also known as Concrete) is a Large Material used to build concrete structures. Its most distinctive feature is the horizontal black bar going across the burlap sack.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
     "itemName": "Concrete Mixer",
     "itemDesc": "A portable device that mixes various materials to form Concrete, which are used to build heavily fortified structures.",
     "itemCategory": "shipables"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Conqueror",
+    "itemDesc": "The Conqueror is a Colonial Conqueror-Class Destroyer. It is equipped with ____.",
+    "itemCategory": "vehicles"
   },
   {
     "faction": [
@@ -442,6 +512,24 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "DAE 1b-2 “Serra",
+    "itemDesc": "The DAE 1b-2 “Serra” (also known as 'Emplaced Machine Gun' or 'EMG') is a Colonial Emplacement equipped with a 12.7mm machine gun.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "DAE 1o-3 “Polybolos",
+    "itemDesc": "The DAE 1o-3 “Polybolos” (also known as 'Emplaced AT Gun' or 'EAT') is a Colonial Emplacement equipped with twin ARC/RPG launchers.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
       "warden"
     ],
     "itemName": "Devitt-Caine Mk. IV MMR",
@@ -463,6 +551,15 @@
     "itemName": "Devitt Mk. III",
     "itemDesc": "A highly maneuverable lightweight tank. Designed for urban environments, the Devitt is fitted with a 40mm cannon.",
     "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Diesel",
+    "itemDesc": "Diesel is a liquid resource in a 100L canister. It is one of the two main fuel types in Foxhole, alongside Petrol.",
+    "itemCategory": "resources"
   },
   {
     "faction": [
@@ -554,6 +651,32 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Enriched Oil",
+    "itemDesc": "Enriched Oil is a late-game advanced liquid resource primarily used as fuel for certain vehicles and facility recipes. It is stored within a 30L canister.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Explosive Materials",
+    "itemDesc": "Explosive Materials (also known as emats) are a material used in the crafting of most explosive weapons and shells.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "E680-S Rudder Lock",
+    "itemDesc": "The E680-S Rudder Lock is a Colonial Sea Mine, which is a Large Item Explosive Charge that is primarily used against underwater naval vehicles, such as Submarines. In order to be deployed, it must be primed to explode at a certain depth.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
       "colonial"
     ],
     "itemName": "Fabri Rucksack",
@@ -576,6 +699,15 @@
     "itemName": "First Aid Kit",
     "itemDesc": "Used by medics to heal other soldiers.",
     "itemCategory": "medical"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Flame Ammo",
+    "itemDesc": "Flame Ammo is a large Magazine used by vehicles with mounted Flame weaponry.",
+    "itemCategory": "heavy_arms"
   },
   {
     "faction": [
@@ -626,6 +758,15 @@
       "colonial",
       "warden"
     ],
+    "itemName": "Gravel",
+    "itemDesc": "Gravel is a resource only used for building Provisional Roads and Foundations.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
     "itemName": "Green Ash Grenade",
     "itemDesc": "Green ash is an asphyxiating toxin. Inhaling it without protection will result in a quick death. Be sure to wear a gas mask with fresh filters when handling green ash.",
     "itemCategory": "heavy_arms",
@@ -649,6 +790,24 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Havoc Charge",
+    "itemDesc": "It is deployed by hand on the ground, requires the deployment of a Havoc Charge Detonator, and must be shot by friendly small arms to detonate.The explosion deals 1850 Demolition damage in a 6m radius and quickly decreasing amounts in a 7m radius..",
+    "itemCategory": "Utility"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Havoc Charge Detonator",
+    "itemDesc": "The Havoc Charge Detonator is a Large Item that serves as the detonator for the Havoc Charge.",
+    "itemCategory": "Utility"
+  },
+  {
+    "faction": [
       "colonial"
     ],
     "itemName": "HC-2 \"Scorpion\"",
@@ -663,6 +822,24 @@
     "itemName": "HC-7 \"Ballista\"",
     "itemDesc": "The HC-Class \"Ballista\" is a heavy tank designed to obliterate opposition defenses with its 250mm Hades Mortar Cannon.",
     "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Heavy Explosive Materials",
+    "itemDesc": "Heavy Explosive Materials (also known as HEmats) is a mid-to-late game material used in the crafting of the heavier equipment, specifically explosives.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Heavy Oil",
+    "itemDesc": "Heavy Oil is an advanced liquid resource in a 30L canister.",
+    "itemCategory": "resources"
   },
   {
     "faction": [
@@ -884,6 +1061,30 @@
   },
   {
     "faction": [
+      "colonial"
+    ],
+    "itemName": "Model-7 “Evie",
+    "itemDesc": "The Model-7 “Evie” is a Colonial Depth Charge, which is a Large Item Explosive Charge that is primarily used against underwater naval vehicles, such as Submarines. In order to be launched, it must be primed to explode at a certain depth.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Molten Wind",
+    "itemDesc": "The “Molten Wind” v.II Flame Torch is a Colonial handheld Flamethrower. Due to its incendiary damage and AoE, it's best used against Structures and swarms of infantry. It can damage unarmored vehicles but not armored ones.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Moray Torpedo",
+    "itemDesc": "The Moray Torpedo is a Warden high explosive shell. It is a Large Item that is primarily used against naval vehicles.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
       "colonial",
       "warden"
     ],
@@ -988,6 +1189,23 @@
   },
   {
     "faction": [
+      "colonial"
+    ],
+    "itemName": "Officialis' Attire",
+    "itemDesc": "The Officialis' Attire is the Colonial Officer Uniform. It is an equippable, roleplaying uniform that allows players of the same Regiment to teamkill each other without any repercussions. This allows any player with this on to act like a 'commissar' for their regiment. Its most distinctive features are the dark green officer's cap, the longer pauldron drapped on the soldier's left shoulder, which is bigger than the standard Colonial soldier's pauldron, and the small sword that's attached to the officer's hip (the sword is purely ceremonial/cosmetic and cannot be used in combat).",
+    "itemCategory": "Uniforms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Oil",
+    "itemDesc": "Oil is a raw liquid resource that is used in various facility recipes. It is stored within a 50L canister.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
       "warden"
     ],
     "itemName": "Outrider's Mantle",
@@ -1012,11 +1230,29 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Petrol",
+    "itemDesc": "Petrol is a liquid resource in a 50L canister. It is one of the two main fuel types in Foxhole, alongside Diesel.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
       "warden"
     ],
     "itemName": "Physician's Jacket",
     "itemDesc": "Physicians in the Warden army are unmatched and this uniform has a plethora of pockets and bags designed to carry and deploy first aid gear easily.",
     "itemCategory": "uniforms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Pipe",
+    "itemDesc": "A Pipe is a Large Material used in the construction of Pipelines for transporting liquids to various Facilities. It is a Large Item carried on a soldier's shoulder.",
+    "itemCategory": "resources"
   },
   {
     "faction": [
@@ -1047,11 +1283,29 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Rare Metals",
+    "itemDesc": "Rare Metals are a type of material in the game, which is used to produce and construct various structures and upgrades related to Large Ships, and Rockets.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
       "colonial"
     ],
     "itemName": "Recon Camo",
     "itemDesc": "Legion scouts are deployed on the most dangerous missions. Their gear is lightweight, sturdy and well-suited for extended operations in rugged terrain.",
     "itemCategory": "uniforms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Refined Materials",
+    "itemDesc": "Refined Materials (also known as rmats) are a type of production material used in the production of heavy vehicles, and equipment, such as combat vehicles.",
+    "itemCategory": "resources"
   },
   {
     "faction": [
@@ -1132,11 +1386,29 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "R-12b - “Salva” Flame Truck",
+    "itemDesc": "The R-12b - “Salva” Flame Truck is a Colonial Fire Engine equipped with a rear-mounted Water Cannon designed to combat fires from incendiary weaponry and extinguish them.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
       "colonial"
     ],
     "itemName": "R-15 - \"Chariot\"",
     "itemDesc": "The \"Chariot\" is a transport vehicle used to shuttle personnel to the front line.",
     "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Salvage",
+    "itemDesc": "Salvage (also known as Scrap) is one of the primary raw resources in the game, used in the production of numerous items and equipment.",
+    "itemCategory": "resources"
   },
   {
     "faction": [
@@ -1235,6 +1507,24 @@
   },
   {
     "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Substances instables",
+    "itemDesc": "A reinforced barrel of extremely explosive substances required for the deadliest warheads.",
+    "itemCategory": "Ressource"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Sulfur",
+    "itemDesc": "Sulfur is a type of rare raw resource that is refined to create higher tier materials.",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
       "warden"
     ],
     "itemName": "Swallowtail 988/127-2",
@@ -1265,6 +1555,23 @@
     "itemName": "\"The Pitch Gun\" mc. V",
     "itemDesc": "This classic submachine gun is sturdy and irreplaceable as a general tool for close-range engagements. The \"Pitch Gun\" earned its namesake from Mesean sailors who employed the weapon to successfully defend against a night raid on the Geraston docks.",
     "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Thermal Shielding",
+    "itemDesc": "Thermal Shielding are",
+    "itemCategory": "resources"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Titan",
+    "itemDesc": "The Titan is a Colonial Titan-class Battleship. It is equipped with ___",
+    "itemCategory": "vehicles"
   },
   {
     "faction": [
@@ -1390,6 +1697,14 @@
     "faction": [
       "colonial"
     ],
+    "itemName": "Velian Flak Vest",
+    "itemDesc": "The Velian Flak Vest is the Colonial Armour Uniform, which reduces small arms damage by -33%, and reduces bleed chance by -75%. When equipped, the uniform adds 35% encumbrance, which reduces overall movement. The Uniform only has four (4) inventory slots, which is one of the smallest inventory slots for all uniforms. Its most distinctive feature is the light green vest that completely covers the front and back of the Colonial's green uniform.",
+    "itemCategory": "Uniform"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
     "itemName": "Venom c.II 35",
     "itemDesc": "The venom RPG launcher fires anti-tank charges. Its simple design makes it easy to deploy, even in high-stakes operations",
     "itemCategory": "heavy_arms",
@@ -1405,6 +1720,15 @@
     "itemName": "Warhead",
     "itemDesc": "The payload for ballistic rockets. A high yield bomb that delivers over 3 tons of TNT and is capable of leveling an entire village or town block.",
     "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Water Bucket",
+    "itemDesc": "The Water Bucket is a faction-neutral piece equipment used to put out fires. It is equipped in your 1st equipment slot and used similarly to a grenade. It is one of two objects capable of extinguishing a fire. Similar to other weapons, it starts off without 'ammunition' (aka water), and must be 'reloaded' (aka filling it up with water at bodies of water, Water Wells, or with Water cans in your inventory) in order to be used. The Water Bucket weighs 1.8% when empty, but weighs 60% when filled (regardless of charges).",
+    "itemCategory": "Utility"
   },
   {
     "faction": [
@@ -1430,6 +1754,24 @@
     "itemName": "03MM \"Caster\"",
     "itemDesc": "A motorcycle and sidecar used to patrol large areas. Speed can be boosted at the cost of additional fuel.",
     "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "3C-High Explosive Rocket",
+    "itemDesc": "The 3C-High Explosive Rocket (also known as HE Rockets) is a large artillery rocket.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "4C-Fire Rocket",
+    "itemDesc": "The 4C-Fire Rocket (also known as Fire Rockets) is a large artillery rocket.",
+    "itemCategory": "heavy_arms"
   },
   {
     "faction": [
@@ -1505,6 +1847,15 @@
     "itemCategory": "heavy_arms",
     "damageDesc": "Can penetrate armored vehicles",
     "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "40-45 “Smelter” Heavy Field Gun",
+    "itemDesc": "The 40-45 “Smelter” Heavy Field Gun (also known as a Smelter or HV40) is a Colonial Heavy Field Gun equipped with a high-velocity 40mm cannon.",
+    "itemCategory": "vehicles"
   },
   {
     "faction": [
@@ -1597,6 +1948,15 @@
     "itemName": "86K-a \"Bardiche\"",
     "itemDesc": "Unlike the 85-series, the Bardiche sports a heavier, more durable build and is fitted with a coaxial heavy machinegun along with a powerful, short-barrelled 68mm turret. Modern Kraunian engineering allows for a fast reload, making it an ideal tool to combat enemy armor.",
     "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "94.5mm",
+    "itemDesc": "94.5mm is a large anti-tank Shell used by large cannons and very useful against armored vehicles.",
+    "itemCategory": "heavy_arms"
   },
   {
     "faction": [
