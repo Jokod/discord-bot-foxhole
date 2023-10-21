@@ -1312,7 +1312,7 @@
       "colonial",
       "warden"
     ],
-    "itemName": "resources Container",
+    "itemName": "Resource Container",
     "itemDesc": "A container that can carry large quantities of resources and can be transported by certain vehicles.",
     "itemCategory": "shipables"
   },
