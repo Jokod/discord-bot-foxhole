@@ -6,9 +6,10 @@ const categoryIcons = {
 	'small_arms': '🔫',
 	'heavy_arms': '💣',
 	'utilities': '🧰',
-	'shipables': '📦',
+	'shipables': '🚚',
 	'vehicles': '🚛',
 	'uniforms': '🪖',
+	'resources': '📦',
 };
 
 const names = {
@@ -18,6 +19,7 @@ const names = {
 	'shipables': 'Objets transportables',
 	'vehicles': 'Véhicules',
 	'uniforms': 'Uniformes',
+	'resources': 'Ressources',
 };
 
 const getIcon = (itemCategory) => categoryIcons[itemCategory] || '❓';
@@ -104,4 +106,5 @@ module.exports = {
 	getShipables: getCategoryActions('shipables'),
 	getVehicles: getCategoryActions('vehicles'),
 	getUniforms: getCategoryActions('uniforms'),
+	getResources: getCategoryActions('resources'),
 };

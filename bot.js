@@ -105,7 +105,6 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 const commandJsonData = [
 	...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
-	...Array.from(client.contextCommands.values()).map((c) => c.data),
 ];
 
 (async () => {

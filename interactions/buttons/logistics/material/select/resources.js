@@ -1,11 +1,11 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Material } = require('../../../../../data/models.js');
-const { getVehicles } = require('../../../../../data/fournis.js');
+const { getResources } = require('../../../../../data/fournis.js');
 const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
 	init: true,
-	id: 'logistics_select_material_vehicles',
+	id: 'logistics_select_material_resources',
 
 	async execute(interaction) {
 		const { client, guild, message } = interaction;
@@ -25,11 +25,11 @@ module.exports = {
 			.setLabel(translations.translate('BACK'))
 			.setStyle(ButtonStyle.Secondary);
 
-		const vehcilesRow = await getVehicles(guild.id);
+		const vehcilesRow = await getResources(guild.id);
 		const buttonArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
 		await interaction.update({
-			content: `${translations.translate('MATERIAL_LIST_VEHICLES')}`,
+			content: `${translations.translate('MATERIAL_LIST_RESOURCES')}`,
 			components: [...vehcilesRow, buttonArrowRow],
 		});
 	},

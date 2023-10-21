@@ -134,13 +134,15 @@ module.exports = {
 	MATERIAL_SHIPABLES: 'Objets transportables',
 	MATERIAL_VEHICLES: 'Véhicules',
 	MATERIAL_UNIFORMS: 'Uniformes',
+	MATERIAL_RESOURCES: 'Ressources',
 
 	MATERIAL_LIST_SMALL_ARMS: 'Liste des armes légères disponibles',
 	MATERIAL_LIST_HEAVY_ARMS: 'Liste des armes lourdes disponibles',
 	MATERIAL_LIST_UTILITIES: 'Liste des utilitaires disponibles',
 	MATERIAL_LIST_SHIPABLES: 'Liste des objets transportables disponibles',
-	MATERIAL_LIST_VEHICLE: 'Liste des véhicules disponibles',
+	MATERIAL_LIST_VEHICLES: 'Liste des véhicules disponibles',
 	MATERIAL_LIST_UNIFORMS: 'Liste des uniformes disponibles',
+	MATERIAL_LIST_RESOURCES: 'Liste des ressources disponibles',
 
 	// MATERIAL SUCCESS
 	MATERIAL_CREATE_SUCCESS: 'Le matériel a été créé.',
