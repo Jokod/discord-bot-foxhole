@@ -12,14 +12,17 @@ module.exports = {
 		const localization = interaction.fields.getTextInputValue('localization');
 		const quantityGiven = interaction.fields.getTextInputValue('quantity_given');
 
-		if (isNaN(quantityGiven) || quantityGiven < 0) {
+		const localizationRegex = new RegExp('^[\\w\\s!@#]{1,100}$');
+		const quantityRegex = new RegExp('^[0-9]{1,5}$');
+
+		if (isNaN(quantityGiven) || quantityGiven < 0 || !quantityRegex.test(quantityGiven)) {
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_QUANTITY_ERROR'),
 				ephemeral: true,
 			});
 		}
 
-		if (!localization) {
+		if (!localization || !localizationRegex.test(localization)) {
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_LOCALIZATION_ERROR'),
 				ephemeral: true,

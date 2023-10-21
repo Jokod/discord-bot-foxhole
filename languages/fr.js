@@ -78,9 +78,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'L\'opération %title% annulée !',
 
 	// OPERATION ERRORS
+	OPERATION_TITLE_FORMAT_ERROR: 'Le titre doit être alphanumérique sans caractères spéciaux.',
 	OPERATION_CREATE_ERROR: 'Une erreur est survenue lors de la création de l\'opération.',
 	OPERATION_DATE_FORMAT_ERROR: 'Le format de la date est incorrect.',
 	OPERATION_TIME_FORMAT_ERROR: 'Le format de l\'heure est incorrect.',
+	OPERATION_DURATION_FORMAT_ERROR: 'Le format de la durée est incorrect.',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Le format de la description est incorrect.',
 	OPERATION_LAUNCH_ERROR: 'Une erreur est survenue lors du lancement de l\'opération.',
 	OPERATION_FINISHED_ERROR: 'Une erreur est survenue lors de la fin de l\'opération.',
 	OPERATION_CANCELED_ERROR: 'Une erreur est survenue lors de l\'annulation de l\'opération.',
@@ -160,6 +163,6 @@ module.exports = {
 	MATERIAL_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce matériel.',
 	MATERIAL_QUANTITY_ERROR: 'La quantité doit être un nombre positif.',
 	MATERIAL_SELECT_QUANTITY_ERROR: 'Une erreur est survenue lors de la sélection de la quantité.',
-	MATERIAL_LOCALIZATION_ERROR: 'La localisation ne peut pas être vide.',
+	MATERIAL_LOCALIZATION_ERROR: 'Le format de la localisation est incorrect.',
 	MATERIAL_BACK_ERROR: 'Une erreur est survenue lors du retour au menu précédent.',
 };

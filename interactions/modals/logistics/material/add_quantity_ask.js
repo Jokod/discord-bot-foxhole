@@ -11,7 +11,9 @@ module.exports = {
 
 		const quantity_ask = interaction.fields.getTextInputValue('quantity_ask');
 
-		if (isNaN(quantity_ask) || quantity_ask < 0) {
+		const quantityRegex = new RegExp('^[0-9]{1,5}$');
+
+		if (isNaN(quantity_ask) || quantity_ask < 0 || !quantityRegex.test(quantity_ask)) {
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_QUANTITY_ERROR'),
 				ephemeral: true,

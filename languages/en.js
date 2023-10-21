@@ -78,9 +78,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'Operation %title% canceled!',
 
 	// OPERATION ERRORS
+	OPERATION_TITLE_FORMAT_ERROR: 'The title must be alphanumeric without special characters.',
 	OPERATION_CREATE_ERROR: 'An error occurred while creating the operation.',
 	OPERATION_DATE_FORMAT_ERROR: 'The date format is incorrect.',
 	OPERATION_TIME_FORMAT_ERROR: 'The time format is incorrect.',
+	OPERATION_DURATION_FORMAT_ERROR: 'The duration format is incorrect.',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'The description format is incorrect.',
 	OPERATION_LAUNCH_ERROR: 'An error occurred while launching the operation.',
 	OPERATION_FINISHED_ERROR: 'An error occurred while finishing the operation.',
 	OPERATION_CANCELED_ERROR: 'An error occurred while canceling the operation.',
@@ -159,6 +162,6 @@ module.exports = {
 	MATERIAL_ARE_NO_OWNER_ERROR: 'You are not the owner of this material.',
 	MATERIAL_QUANTITY_ERROR: 'The quantity must be a positive number.',
 	MATERIAL_SELECT_QUANTITY_ERROR: 'An error occurred while selecting the quantity.',
-	MATERIAL_LOCALIZATION_ERROR: 'The localization cannot be empty.',
+	MATERIAL_LOCALIZATION_ERROR: 'The localization format is incorrect.',
 	MATERIAL_BACK_ERROR: 'An error occurred while returning to the previous menu.',
 };
