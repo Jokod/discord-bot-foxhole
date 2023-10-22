@@ -132,7 +132,7 @@ module.exports = {
 		const translations = new Translate(client, guild.id);
 		const subcommand = options.getSubcommand();
 
-		const validateName = (name) => /^[a-zA-Z0-9_]{1,20}$/.test(name);
+		const validateName = (name) => /^[a-zA-Z0-9_ ]{1,50}$/.test(name);
 		const validatePassword = (password) => /^[a-zA-Z0-9_]{1,20}$/.test(password);
 		const validateId = (id) => /^\d+$/.test(id);
 
@@ -160,27 +160,25 @@ module.exports = {
 			const password = options.getString('password');
 
 			if (!validateName(stockName)) {
-				return interaction.reply({
+				return await interaction.reply({
 					content: translations.translate('STOCKPILE_INVALID_NAME'),
 					ephemeral: true,
 				});
 			}
 
 			if (!validatePassword(password)) {
-				return interaction.reply({
+				return await interaction.reply({
 					content: translations.translate('STOCKPILE_INVALID_PASSWORD'),
 					ephemeral: true,
 				});
 			}
 
-			const newStock = new Stockpile({
+			await Stockpile.create({
 				id: interaction.id,
 				server_id: guild.id,
 				name: stockName,
 				password: password,
 			});
-
-			await newStock.save();
 
 			await interaction.reply({
 				content: translations.translate('STOCKPILE_CREATE_SUCCESS'),
@@ -198,7 +196,7 @@ module.exports = {
 				});
 			}
 
-			const stock = await Stockpile.findOne({ id: stockId });
+			const stock = await Stockpile.findOne({ server_id: guild.id, id: stockId });
 
 			if (!stock || stock.server_id !== guild.id) {
 				return interaction.reply({
@@ -207,7 +205,7 @@ module.exports = {
 				});
 			}
 
-			await Stockpile.deleteOne({ id: stockId });
+			await Stockpile.deleteOne({ server_id: guild.id, id: stockId });
 
 			await interaction.reply({
 				content: translations.translate('STOCKPILE_DELETE_SUCCESS'),
@@ -239,6 +237,12 @@ module.exports = {
 				ephemeral: true,
 			});
 			break;
+
+		default:
+			return interaction.reply({
+				content: translations.translate('COMMAND_UNKNOWN'),
+				ephemeral: true,
+			});
 		}
 	},
 };
