@@ -5,6 +5,8 @@ module.exports = {
 	// DEFAULT
 	COMMAND_UNKNOWN: 'This command does not exist.',
 	NONE: 'None',
+	NAME: 'Name',
+	PASSWORD: 'Password',
 	QUANTITY: 'Quantity',
 	DELETE: 'Delete',
 	DATE: 'Date',
@@ -164,4 +166,23 @@ module.exports = {
 	MATERIAL_SELECT_QUANTITY_ERROR: 'An error occurred while selecting the quantity.',
 	MATERIAL_LOCALIZATION_ERROR: 'The localization format is incorrect.',
 	MATERIAL_BACK_ERROR: 'An error occurred while returning to the previous menu.',
+
+	// STOCKPILE ---------------------------------------------
+
+	STOCKPILE: 'Stockpile',
+	STOCKPILE_LIST_COMMANDS: 'List of stock commands',
+	STOCKPILE_LIST: 'List of stocks',
+
+	// STOCKPILE SUCCESS
+	STOCKPILE_CREATE_SUCCESS: 'The stock has been created.',
+	STOCKPILE_DELETE_SUCCESS: 'The stock has been deleted.',
+
+	// STOCKPILE ERRORS
+	STOCKPILE_LIST_EMPTY: 'There are no stocks.',
+	STOCKPILE_NOT_EXIST: 'This stock does not exist.',
+	STOCKPILE_INVALID_ID: 'The stock ID is invalid.',
+	STOCKPILE_INVALIDE_NAME: 'The stock name is invalid.',
+	STOCKPILE_CREATE_ERROR: 'An error occurred while creating the stock.',
+	STOCKPILE_DELETE_ERROR: 'An error occurred while deleting the stock.',
+	STOCKPILE_INVALID_PASSWORD: 'The password is invalid.',
 };

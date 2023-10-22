@@ -5,6 +5,8 @@ module.exports = {
 	// DEFAULT
 	COMMAND_UNKNOWN: 'Cette commande n\'existe pas.',
 	NONE: 'Aucun',
+	NAME: 'Nom',
+	PASSWORD: 'Mot de passe',
 	QUANTITY: 'Quantité',
 	DELETE: 'Supprimer',
 	DATE: 'Date',
@@ -165,4 +167,23 @@ module.exports = {
 	MATERIAL_SELECT_QUANTITY_ERROR: 'Une erreur est survenue lors de la sélection de la quantité.',
 	MATERIAL_LOCALIZATION_ERROR: 'Le format de la localisation est incorrect.',
 	MATERIAL_BACK_ERROR: 'Une erreur est survenue lors du retour au menu précédent.',
+
+	// STOCKPILE ---------------------------------------------
+
+	STOCKPILE: 'Stock',
+	STOCKPILE_LIST_COMMANDS: 'Liste des commandes de stock',
+	STOCKPILE_LIST: 'Liste des stocks',
+
+	// STOCKPILE SUCCESS
+	STOCKPILE_CREATE_SUCCESS: 'Le stock a été créé.',
+	STOCKPILE_DELETE_SUCCESS: 'Le stock a été supprimé.',
+
+	// STOCKPILE ERRORS
+	STOCKPILE_LIST_EMPTY: 'Il n\'y a pas de stocks.',
+	STOCKPILE_NOT_EXIST: 'Ce stock n\'existe pas.',
+	STOCKPILE_INVALID_ID: 'L\'ID du stock est invalide.',
+	STOCKPILE_INVALIDE_NAME: 'Le nom du stock est invalide.',
+	STOCKPILE_CREATE_ERROR: 'Une erreur est survenue lors de la création du stock.',
+	STOCKPILE_DELETE_ERROR: 'Une erreur est survenue lors de la suppression du stock.',
+	STOCKPILE_INVALID_PASSWORD: 'Le mot de passe du stock est invalide.',
 };
