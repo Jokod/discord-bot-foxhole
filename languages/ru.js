@@ -1,5 +1,5 @@
 module.exports = {
-	name: 'Russe',
+	name: 'Russian',
 	code: 'ru',
 
 	// DEFAULT

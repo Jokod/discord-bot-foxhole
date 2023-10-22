@@ -29,7 +29,7 @@ module.exports = {
 				.addChoices(
 					{ name: 'English', value: 'en' },
 					{ name: 'Français', value: 'fr' },
-					{ name: 'Russe', value: 'ru' },
+					{ name: 'Russian', value: 'ru' },
 					{ name: 'Chinese', value: 'zh-CN' },
 				),
 		)
