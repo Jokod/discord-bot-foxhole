@@ -181,8 +181,8 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: 'There are no stocks.',
 	STOCKPILE_NOT_EXIST: 'This stock does not exist.',
 	STOCKPILE_INVALID_ID: 'The stock ID is invalid.',
-	STOCKPILE_INVALIDE_NAME: 'The stock name is invalid.',
 	STOCKPILE_CREATE_ERROR: 'An error occurred while creating the stock.',
 	STOCKPILE_DELETE_ERROR: 'An error occurred while deleting the stock.',
+	STOCKPILE_INVALID_NAME: 'The stock name is invalid.',
 	STOCKPILE_INVALID_PASSWORD: 'The password is invalid.',
 };
