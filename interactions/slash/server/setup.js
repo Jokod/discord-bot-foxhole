@@ -8,21 +8,25 @@ module.exports = {
 		.setDescription('Command to init the server configuration.')
 		.setDescriptionLocalizations({
 			fr: 'Commande pour initialiser la configuration du serveur.',
+			ru: 'Команда для инициализации конфигурации сервера.',
 		})
 		.addStringOption(option =>
 			option
 				.setName('lang')
 				.setNameLocalizations({
 					fr: 'langue',
+					ru: 'язык',
 				})
 				.setDescription('The language of the server.')
 				.setDescriptionLocalizations({
 					fr: 'La langue du serveur.',
+					ru: 'Язык сервера.',
 				})
 				.setRequired(true)
 				.addChoices(
 					{ name: 'English', value: 'en' },
 					{ name: 'Français', value: 'fr' },
+					{ name: 'Russe', value: 'ru' },
 				),
 		)
 		.addStringOption(option =>

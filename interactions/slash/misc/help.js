@@ -5,17 +5,27 @@ module.exports = {
 		.setName('help')
 		.setNameLocalizations({
 			fr: 'aide',
+			ru: 'помощь',
 		})
 		.setDescription(
 			'List all of my commands or info about a specific command.',
 		)
+		.setDescriptionLocalizations({
+			fr: 'Liste toutes mes commandes ou des informations sur une commande spécifique.',
+			ru: 'Список всех моих команд или информация о конкретной команде.',
+		})
 		.addStringOption((option) =>
 			option
 				.setName('command')
 				.setNameLocalizations({
 					fr: 'commande',
+					ru: 'команда',
 				})
-				.setDescription('The command to get help for.'),
+				.setDescription('The command to get help for.')
+				.setDescriptionLocalizations({
+					fr: 'La commande pour obtenir de l\'aide.',
+					ru: 'Команда для получения помощи.',
+				})
 		),
 
 	async execute(interaction) {

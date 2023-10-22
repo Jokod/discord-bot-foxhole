@@ -7,20 +7,24 @@ module.exports = {
 		.setName('create_operation')
 		.setNameLocalizations({
 			fr: 'créer_opération',
+			ru: 'создать_операцию',
 		})
 		.setDescription('Create a new operation')
 		.setDescriptionLocalizations({
 			fr: 'Créer une nouvelle opération',
+			ru: 'Создать новую операцию',
 		})
 		.addStringOption((option) =>
 			option
 				.setName('title')
 				.setNameLocalizations({
 					fr: 'titre',
+					ru: 'заглавие',
 				})
 				.setDescription('Title of the operation')
 				.setDescriptionLocalizations({
 					fr: 'Titre de l\'opération',
+					ru: 'Заглавие операции',
 				})
 				.setMinLength(1)
 				.setMaxLength(10)

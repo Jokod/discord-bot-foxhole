@@ -7,20 +7,24 @@ module.exports = {
 		.setName('server')
 		.setNameLocalizations({
 			fr: 'serveur',
+			ru: 'сервер',
 		})
 		.setDescription('Commands to manage the server configuration.')
 		.setDescriptionLocalizations({
 			fr: 'Commandes pour gérer la configuration du serveur.',
+			ru: 'Команды для настройки сервера.',
 		})
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('infos')
 				.setNameLocalizations({
 					fr: 'informations',
+					ru: 'информация',
 				})
 				.setDescription('Displays the server configuration.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la configuration du serveur.',
+					ru: 'Отображает конфигурацию сервера.',
 				}),
 		)
 		.addSubcommand((subcommand) =>
@@ -28,25 +32,30 @@ module.exports = {
 				.setName('lang')
 				.setNameLocalizations({
 					fr: 'langue',
+					ru: 'язык',
 				})
 				.setDescription('Changes the bot language.')
 				.setDescriptionLocalizations({
 					fr: 'Change la langue du bot.',
+					ru: 'Изменяет язык бота.',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('lang')
 						.setNameLocalizations({
 							fr: 'langue',
+							ru: 'язык',
 						})
 						.setDescription('The language to use.')
 						.setDescriptionLocalizations({
 							fr: 'La langue à utiliser.',
+							ru: 'Язык для использования.',
 						})
 						.setRequired(true)
 						.addChoices(
 							{ name: 'English', value: 'en' },
 							{ name: 'Français', value: 'fr' },
+							{ name: 'Russe', value: 'ru' },
 						),
 				),
 		)
@@ -55,20 +64,24 @@ module.exports = {
 				.setName('camp')
 				.setNameLocalizations({
 					fr: 'camp',
+					ru: 'лагерь',
 				})
 				.setDescription('Changes the server camp.')
 				.setDescriptionLocalizations({
 					fr: 'Change le camp du serveur.',
+					ru: 'Изменяет лагерь сервера.',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('camp')
 						.setNameLocalizations({
 							fr: 'camp',
+							ru: 'лагерь',
 						})
 						.setDescription('The camp to use.')
 						.setDescriptionLocalizations({
 							fr: 'Le camp à utiliser.',
+							ru: 'Лагерь для использования.',
 						})
 						.setRequired(true)
 						.addChoices(

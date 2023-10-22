@@ -8,20 +8,24 @@ module.exports = {
 		.setName('logistics')
 		.setNameLocalizations({
 			fr: 'logistique',
+			ru: 'логистика',
 		})
 		.setDescription('Commands for logistics')
 		.setDescriptionLocalizations({
 			fr: 'Commandes pour gérer la configuration du serveur.',
+			ru: 'Команды для настройки сервера.',
 		})
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('help')
 				.setNameLocalizations({
 					fr: 'aide',
+					ru: 'помощь',
 				})
 				.setDescription('Displays the list of commands.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des commandes.',
+					ru: 'Отображает список команд.',
 				}),
 		)
 		.addSubcommand((subcommand) =>
@@ -29,20 +33,24 @@ module.exports = {
 				.setName('resume')
 				.setNameLocalizations({
 					fr: 'résumé',
+					ru: 'резюме',
 				})
 				.setDescription('Displays resume of the logistics.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche un résumé de la logistique.',
+					ru: 'Отображает резюме логистики.',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('operation')
 						.setNameLocalizations({
 							fr: 'opération',
+							ru: 'операция',
 						})
 						.setDescription('The id of the operation.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id de l\'opération.',
+							ru: 'Идентификатор операции.',
 						})
 						.setRequired(true),
 				),
@@ -52,20 +60,24 @@ module.exports = {
 				.setName('list')
 				.setNameLocalizations({
 					fr: 'liste',
+					ru: 'список',
 				})
 				.setDescription('Displays the list of materials.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des matériaux.',
+					ru: 'Отображает список материалов.',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('group')
 						.setNameLocalizations({
 							fr: 'groupe',
+							ru: 'группа',
 						})
 						.setDescription('The id of the group.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id du groupe.',
+							ru: 'Идентификатор группы.',
 						})
 						.setRequired(true),
 				),
@@ -75,20 +87,24 @@ module.exports = {
 				.setName('material')
 				.setNameLocalizations({
 					fr: 'matériel',
+					ru: 'материал',
 				})
 				.setDescription('Displays the details of a material.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche les détails d\'un matériel.',
+					ru: 'Отображает подробности материала.',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('material')
 						.setNameLocalizations({
 							fr: 'matériel',
+							ru: 'материал',
 						})
 						.setDescription('The id of the material.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id du matériel.',
+							ru: 'Идентификатор материала.',
 						})
 						.setRequired(true),
 				),

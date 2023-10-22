@@ -8,20 +8,24 @@ module.exports = {
 		.setName('stockpile')
 		.setNameLocalizations({
 			fr: 'stock',
+			ru: 'склад',
 		})
 		.setDescription('Commands for stockpile')
 		.setDescriptionLocalizations({
 			fr: 'Commandes pour gérer le stockage.',
+			ru: 'Команды для управления складом.',
 		})
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('help')
 				.setNameLocalizations({
 					fr: 'aide',
+					ru: 'помощь',
 				})
 				.setDescription('Displays the list of commands.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des commandes.',
+					ru: 'Отображает список команд.',
 				}),
 		)
 		.addSubcommand((subcommand) =>
@@ -29,20 +33,24 @@ module.exports = {
 				.setName('add')
 				.setNameLocalizations({
 					fr: 'ajouter',
+					ru: 'добавить',
 				})
 				.setDescription('Add a stockpile.')
 				.setDescriptionLocalizations({
 					fr: 'Ajoute un stock.',
+					ru: 'Добавить склад.',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('name')
 						.setNameLocalizations({
 							fr: 'nom',
+							ru: 'имя',
 						})
 						.setDescription('The name of the stockpile.')
 						.setDescriptionLocalizations({
 							fr: 'Le nom du stock.',
+							ru: 'Имя склада.',
 						})
 						.setMinLength(3)
 						.setMaxLength(16)
@@ -53,10 +61,12 @@ module.exports = {
 						.setName('password')
 						.setNameLocalizations({
 							fr: 'password',
+							ru: 'пароль',
 						})
 						.setDescription('The password of the stockpile.')
 						.setDescriptionLocalizations({
 							fr: 'Le mot de passe du stock.',
+							ru: 'Пароль склада.',
 						})
 						.setRequired(true),
 				),
@@ -66,20 +76,24 @@ module.exports = {
 				.setName('remove')
 				.setNameLocalizations({
 					fr: 'supprimer',
+					ru: 'удалить',
 				})
 				.setDescription('Remove a stockpile.')
 				.setDescriptionLocalizations({
 					fr: 'Supprime un stock.',
+					ru: 'Удалить склад.',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('id')
 						.setNameLocalizations({
 							fr: 'id',
+							ru: 'идентификатор',
 						})
 						.setDescription('The id of the stockpile.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id du stock.',
+							ru: 'Идентификатор склада.',
 						})
 						.setRequired(true),
 				),
@@ -89,10 +103,12 @@ module.exports = {
 				.setName('list')
 				.setNameLocalizations({
 					fr: 'liste',
+					ru: 'список',
 				})
 				.setDescription('Displays the list of stockpiles.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des stocks.',
+					ru: 'Отображает список складов.',
 				}),
 		),
 	async execute(interaction) {
