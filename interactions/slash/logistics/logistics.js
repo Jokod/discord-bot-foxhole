@@ -9,11 +9,13 @@ module.exports = {
 		.setNameLocalizations({
 			fr: 'logistique',
 			ru: 'логистика',
+			'zh-CN': '后勤',
 		})
 		.setDescription('Commands for logistics')
 		.setDescriptionLocalizations({
 			fr: 'Commandes pour gérer la configuration du serveur.',
 			ru: 'Команды для настройки сервера.',
+			'zh-CN': '管理服务器配置的命令。',
 		})
 		.addSubcommand((subcommand) =>
 			subcommand
@@ -21,11 +23,13 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'aide',
 					ru: 'помощь',
+					'zh-CN': '帮助',
 				})
 				.setDescription('Displays the list of commands.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des commandes.',
 					ru: 'Отображает список команд.',
+					'zh-CN': '显示命令列表。',
 				}),
 		)
 		.addSubcommand((subcommand) =>
@@ -34,11 +38,13 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'résumé',
 					ru: 'резюме',
+					'zh-CN': '简历',
 				})
 				.setDescription('Displays resume of the logistics.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche un résumé de la logistique.',
 					ru: 'Отображает резюме логистики.',
+					'zh-CN': '显示后勤简历。',
 				})
 				.addStringOption((option) =>
 					option
@@ -46,11 +52,13 @@ module.exports = {
 						.setNameLocalizations({
 							fr: 'opération',
 							ru: 'операция',
+							'zh-CN': '操作',
 						})
 						.setDescription('The id of the operation.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id de l\'opération.',
 							ru: 'Идентификатор операции.',
+							'zh-CN': '操作的ID。',
 						})
 						.setRequired(true),
 				),
@@ -61,11 +69,13 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'liste',
 					ru: 'список',
+					'zh-CN': '名单',
 				})
 				.setDescription('Displays the list of materials.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des matériaux.',
 					ru: 'Отображает список материалов.',
+					'zh-CN': '显示材料清单。',
 				})
 				.addStringOption((option) =>
 					option
@@ -73,11 +83,13 @@ module.exports = {
 						.setNameLocalizations({
 							fr: 'groupe',
 							ru: 'группа',
+							'zh-CN': '组',
 						})
 						.setDescription('The id of the group.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id du groupe.',
 							ru: 'Идентификатор группы.',
+							'zh-CN': '组的ID。',
 						})
 						.setRequired(true),
 				),
@@ -88,11 +100,13 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'matériel',
 					ru: 'материал',
+					'zh-CN': '材料',
 				})
 				.setDescription('Displays the details of a material.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche les détails d\'un matériel.',
 					ru: 'Отображает подробности материала.',
+					'zh-CN': '显示材料的详细信息。',
 				})
 				.addStringOption((option) =>
 					option
@@ -100,11 +114,13 @@ module.exports = {
 						.setNameLocalizations({
 							fr: 'matériel',
 							ru: 'материал',
+							'zh-CN': '材料',
 						})
 						.setDescription('The id of the material.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id du matériel.',
 							ru: 'Идентификатор материала.',
+							'zh-CN': '材料的ID。',
 						})
 						.setRequired(true),
 				),

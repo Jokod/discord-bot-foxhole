@@ -9,6 +9,7 @@ module.exports = {
 		.setDescriptionLocalizations({
 			fr: 'Commande pour initialiser la configuration du serveur.',
 			ru: 'Команда для инициализации конфигурации сервера.',
+			'zh-CN': '初始化服务器配置的命令。',
 		})
 		.addStringOption(option =>
 			option
@@ -16,17 +17,20 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'langue',
 					ru: 'язык',
+					'zh-CN': '语言',
 				})
 				.setDescription('The language of the server.')
 				.setDescriptionLocalizations({
 					fr: 'La langue du serveur.',
 					ru: 'Язык сервера.',
+					'zh-CN': '服务器的语言。',
 				})
 				.setRequired(true)
 				.addChoices(
 					{ name: 'English', value: 'en' },
 					{ name: 'Français', value: 'fr' },
 					{ name: 'Russe', value: 'ru' },
+					{ name: 'Chinese', value: 'zh-CN' },
 				),
 		)
 		.addStringOption(option =>
@@ -34,10 +38,14 @@ module.exports = {
 				.setName('camp')
 				.setNameLocalizations({
 					fr: 'camp',
+					ru: 'лагерь',
+					'zh-CN': '营地',
 				})
 				.setDescription('The camp of the server.')
 				.setDescriptionLocalizations({
 					fr: 'Le camp du serveur.',
+					ru: 'Лагерь сервера.',
+					'zh-CN': '服务器的营地。',
 				})
 				.setRequired(true)
 				.addChoices(

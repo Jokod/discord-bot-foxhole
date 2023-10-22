@@ -8,11 +8,13 @@ module.exports = {
 		.setNameLocalizations({
 			fr: 'serveur',
 			ru: 'сервер',
+			'zh-CN': '服务器',
 		})
 		.setDescription('Commands to manage the server configuration.')
 		.setDescriptionLocalizations({
 			fr: 'Commandes pour gérer la configuration du serveur.',
 			ru: 'Команды для настройки сервера.',
+			'zh-CN': '管理服务器配置的命令。',
 		})
 		.addSubcommand((subcommand) =>
 			subcommand
@@ -20,11 +22,13 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'informations',
 					ru: 'информация',
+					'zh-CN': '信息',
 				})
 				.setDescription('Displays the server configuration.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la configuration du serveur.',
 					ru: 'Отображает конфигурацию сервера.',
+					'zh-CN': '显示服务器配置。',
 				}),
 		)
 		.addSubcommand((subcommand) =>
@@ -33,11 +37,13 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'langue',
 					ru: 'язык',
+					'zh-CN': '语言',
 				})
 				.setDescription('Changes the bot language.')
 				.setDescriptionLocalizations({
 					fr: 'Change la langue du bot.',
 					ru: 'Изменяет язык бота.',
+					'zh-CN': '更改机器人语言。',
 				})
 				.addStringOption((option) =>
 					option
@@ -45,17 +51,20 @@ module.exports = {
 						.setNameLocalizations({
 							fr: 'langue',
 							ru: 'язык',
+							'zh-CN': '语言',
 						})
 						.setDescription('The language to use.')
 						.setDescriptionLocalizations({
 							fr: 'La langue à utiliser.',
 							ru: 'Язык для использования.',
+							'zh-CN': '要使用的语言。',
 						})
 						.setRequired(true)
 						.addChoices(
 							{ name: 'English', value: 'en' },
 							{ name: 'Français', value: 'fr' },
 							{ name: 'Russe', value: 'ru' },
+							{ name: 'Chinese', value: 'zh-CN' },
 						),
 				),
 		)
@@ -65,11 +74,13 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'camp',
 					ru: 'лагерь',
+					'zh-CN': '营地',
 				})
 				.setDescription('Changes the server camp.')
 				.setDescriptionLocalizations({
 					fr: 'Change le camp du serveur.',
 					ru: 'Изменяет лагерь сервера.',
+					'zh-CN': '更改服务器阵营。',
 				})
 				.addStringOption((option) =>
 					option
@@ -77,11 +88,13 @@ module.exports = {
 						.setNameLocalizations({
 							fr: 'camp',
 							ru: 'лагерь',
+							'zh-CN': '营地',
 						})
 						.setDescription('The camp to use.')
 						.setDescriptionLocalizations({
 							fr: 'Le camp à utiliser.',
 							ru: 'Лагерь для использования.',
+							'zh-CN': '要使用的营地。',
 						})
 						.setRequired(true)
 						.addChoices(
