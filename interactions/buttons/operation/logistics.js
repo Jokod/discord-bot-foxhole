@@ -6,13 +6,20 @@ module.exports = {
 	id: 'button_create_operation_logistics',
 
 	async execute(interaction) {
-		const { channel, client, guild, message } = interaction;
+		const { channel, client, guild, message, user } = interaction;
 		const translations = new Translate(client, guild.id);
 
 		try {
-			const operation = await Operation.findOne({ operation_id: `${message.id}` });
+			const operation = await Operation.findOne({ guild_id: guild.id, operation_id: `${message.id}` });
 
-			if (interaction.user.id !== operation.owner_id) {
+			if (!operation) {
+				return await interaction.reply({
+					content: translations.translate('OPERATION_NOT_EXIST'),
+					ephemeral: true,
+				});
+			}
+
+			if (user.id !== operation.owner_id) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
 					ephemeral: true,
@@ -43,13 +50,14 @@ module.exports = {
 			const actionRow = new ActionRowBuilder().addComponents(addButton, removeButton, closeThreadButton);
 
 			await Group.create({
+				guild_id: guild.id,
 				threadId: thread.id,
 				operation_id: message.id,
 				owner_id: interaction.user.id,
 				materials: null,
 			});
 
-			await Operation.updateOne({ operation_id: `${message.id}` }, { numberOfGroups: operation.numberOfGroups + 1 });
+			await Operation.updateOne({ guild_id: guild.id, operation_id: `${message.id}` }, { numberOfGroups: operation.numberOfGroups + 1 });
 
 			await thread.send({ components: [actionRow] });
 

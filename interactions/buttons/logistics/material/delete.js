@@ -9,7 +9,14 @@ module.exports = {
 		const translations = new Translate(client, guild.id);
 
 		try {
-			const material = await Material.findOne({ material_id: `${message.id}` });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
+
+			if (!material) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_NOT_EXIST'),
+					ephemeral: true,
+				});
+			}
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
@@ -18,7 +25,7 @@ module.exports = {
 				});
 			}
 
-			const rowCount = await Material.deleteOne({ material_id: `${message.id}` });
+			const rowCount = await Material.deleteOne({ guild_id: guild.id, material_id: `${message.id}` });
 
 			if (rowCount.deletedCount === 0) {
 				return await interaction.reply({

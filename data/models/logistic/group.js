@@ -5,6 +5,10 @@ const Group = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	guild_id: {
+		type: String,
+		required: true,
+	},
 	operation_id: {
 		type: String,
 		required: true,

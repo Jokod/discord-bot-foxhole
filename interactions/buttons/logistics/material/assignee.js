@@ -27,7 +27,7 @@ module.exports = {
 		const actionRow = new ActionRowBuilder().addComponents(revokeButton, validateButton, removeButton);
 
 		try {
-			await Material.updateOne({ material_id: `${message.id}` }, { person_id: interaction.user.id });
+			await Material.updateOne({ guild_id: guild.id, material_id: `${message.id}` }, { person_id: interaction.user.id });
 
 			const material = await Material.findOne({ material_id: `${message.id}` });
 

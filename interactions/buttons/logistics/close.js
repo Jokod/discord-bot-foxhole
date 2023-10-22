@@ -8,7 +8,7 @@ module.exports = {
 		const { client, guild, channelId } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		await Group.findOne({ threadId: `${channelId}` }).exec()
+		await Group.findOne({ guild_id: guild.id, threadId: `${channelId}` }).exec()
 			.then(async group => {
 				const thread = interaction.guild.channels.cache.get(`${channelId}`);
 
@@ -26,14 +26,14 @@ module.exports = {
 					});
 				}
 
-				await Material.deleteMany({ group_id: `${channelId}` });
+				await Material.deleteMany({ guild_id: guild.id, group_id: `${channelId}` });
 
 				const parentChannel = client.channels.cache.get(interaction.channel.parentId);
 				await parentChannel.messages.fetch(thread.id).then(msg => msg.delete());
 
 				await thread.delete(true);
 
-				await group.deleteOne({ threadId: `${channelId}` });
+				await group.deleteOne({ guild_id: guild.id, threadId: `${channelId}` });
 			}).catch(err => {
 				console.error(err);
 				return interaction.reply({

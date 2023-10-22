@@ -47,8 +47,15 @@ module.exports = {
 		const actionRow = new ActionRowBuilder().addComponents(revokeButton, validateButton, removeButton);
 
 		try {
-			let material = await Material.findOne({ material_id: `${message.id}` });
+			let material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
 			let status = 'pending';
+
+			if (!material) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_NOT_EXIST'),
+					ephemeral: true,
+				});
+			}
 
 			const quantityTotalGiven = parseInt(material.quantityGiven) + parseInt(quantityGiven);
 

@@ -100,7 +100,7 @@ module.exports = {
 		const translations = new Translate(client, guild.id);
 
 		if (inputGroupId) {
-			const group = await Group.findOne({ threadId: `${inputGroupId}` });
+			const group = await Group.findOne({ guild_id: guild.id, threadId: `${inputGroupId}` });
 
 			if (!group) {
 				return await interaction.reply({
@@ -111,7 +111,7 @@ module.exports = {
 		}
 
 		if (inputMaterialId) {
-			const material = await Material.findOne({ material_id: `${inputMaterialId}` });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: `${inputMaterialId}` });
 
 			if (!material) {
 				return await interaction.reply({
@@ -164,6 +164,7 @@ module.exports = {
 			const ActionRow = new ActionRowBuilder().addComponents(materialButton, quantityAskButton, confirmButton, deleteButton);
 
 			await Material.create({
+				guild_id: guild.id,
 				material_id: interaction.id,
 				group_id: inputGroupId,
 				owner_id: interaction.user.id,
@@ -176,11 +177,11 @@ module.exports = {
 				fetchReply: true,
 			});
 
-			await Material.updateOne({ material_id: `${interaction.id}` }, { material_id: `${message.id}` });
+			await Material.updateOne({ guild_id: guild.id, material_id: `${interaction.id}` }, { material_id: `${message.id}` });
 
 			break;
 		case 'delete':
-			const rowCount = await Material.deleteOne({ material_id: `${inputMaterialId}` });
+			const rowCount = await Material.deleteOne({ guild_id: guild.id, material_id: `${inputMaterialId}` });
 
 			if (rowCount.deletedCount === 0) {
 				return await interaction.reply({
@@ -195,7 +196,14 @@ module.exports = {
 			});
 			break;
 		case 'info':
-			const material = await Material.findOne({ material_id: `${inputMaterialId}` });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: `${inputMaterialId}` });
+
+			if (!material) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_NOT_EXIST'),
+					ephemeral: true,
+				});
+			}
 
 			const name = material.name || translations.translate('NONE');
 			const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');

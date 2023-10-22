@@ -94,13 +94,14 @@ module.exports = {
 				),
 		),
 	async execute(interaction) {
-		const inputOperationId = interaction.options.getString('operation');
-		const inputListId = interaction.options.getString('group');
-		const inputMaterialId = interaction.options.getString('material');
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, options } = interaction;
+		const inputOperationId = options.getString('operation');
+		const inputListId = options.getString('group');
+		const inputMaterialId = options.getString('material');
+		const translations = new Translate(client, guild.id);
 
 		if (inputOperationId) {
-			const operation = await Operation.findOne({ operation_id: inputOperationId });
+			const operation = await Operation.findOne({ guild_id: guild.id, operation_id: inputOperationId });
 
 			if (!operation) {
 				return interaction.reply({
@@ -109,7 +110,7 @@ module.exports = {
 				});
 			}
 
-			const groups = await Group.find({ operation_id: inputOperationId });
+			const groups = await Group.find({ guild_id: guild.id, operation_id: inputOperationId });
 
 			if (!groups.length) {
 				return interaction.reply({
@@ -119,7 +120,7 @@ module.exports = {
 			}
 
 			const promises = groups.map(async (group) => {
-				const materials = await Material.find({ group_id: group.threadId });
+				const materials = await Material.find({ guild_id: guild.id, group_id: group.threadId });
 				const numberTotal = materials.length;
 				const numberValidated = materials.filter(material => material.status === 'validated').length;
 				const numberInvalidated = numberTotal - numberValidated;
@@ -140,16 +141,16 @@ module.exports = {
 		}
 
 		else if (inputListId) {
-			const group = await Group.findOne({ threadId: inputListId });
+			const group = await Group.findOne({ guild_id: guild.id, threadId: inputListId });
 
 			if (!group) {
-				return interaction.reply({
+				return await interaction.reply({
 					content: translations.translate('GROUP_NOT_EXIST'),
 					ephemeral: true,
 				});
 			}
 
-			const materials = await Material.find({ group_id: inputListId });
+			const materials = await Material.find({ guild_id: guild.id, group_id: inputListId });
 			const content = materials.map(material => {
 				const name = material.name || translations.translate('NONE');
 				const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
@@ -168,7 +169,7 @@ module.exports = {
 		}
 
 		else if (inputMaterialId) {
-			const material = await Material.findOne({ material_id: inputMaterialId });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: inputMaterialId });
 
 			if (!material) {
 				return interaction.reply({
@@ -200,7 +201,7 @@ module.exports = {
 				.setTitle(translations.translate('LOGISTIC_LIST_COMMANDS'))
 				.setDescription(
 					'`' +
-						interaction.client.slashCommands
+						client.slashCommands
 							.filter(command => command.data.name === 'logistics')
 							.map((command) => command.data.options.map(option => option.name))
 							.join('`, `') +

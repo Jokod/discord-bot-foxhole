@@ -5,34 +5,42 @@ module.exports = {
 	id: 'button_create_operation_cancel',
 
 	async execute(interaction) {
-		const operationId = interaction.message.id;
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, message, user, channel } = interaction;
+		const operationId = message.id;
+		const translations = new Translate(client, guild.id);
 
 		try {
-			const operation = await Operation.findOne({ operation_id: `${operationId}` });
+			const operation = await Operation.findOne({ guild_id: guild.id, operation_id: `${operationId}` });
 
-			if (interaction.user.id !== operation.owner_id) {
+			if (!operation) {
+				return await interaction.reply({
+					content: translations.translate('OPERATION_NOT_EXIST'),
+					ephemeral: true,
+				});
+			}
+
+			if (user.id !== operation.owner_id) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
 					ephemeral: true,
 				});
 			}
 
-			const threads = await Group.find({ operation_id: `${operationId}` });
+			const threads = await Group.find({ guild_id: guild.id, operation_id: `${operationId}` });
 			for (const thread of threads) {
-				const result = interaction.channel.threads.cache.find(t => t.id === thread.threadId);
+				const result = channel.threads.cache.find(t => t.id === thread.threadId);
 
 				if (result) {
-					await Material.deleteMany({ group_id: `${thread.threadId}` });
-					await interaction.channel.messages.fetch(result.id).then(msg => msg.delete());
+					await Material.deleteMany({ guild_id: guild.id, group_id: `${thread.threadId}` });
+					await channel.messages.fetch(result.id).then(msg => msg.delete());
 					await result.delete();
 					await thread.deleteOne({ threadId: `${result.id}` });
 				}
 			}
 
-			await Operation.deleteOne({ operation_id: `${operationId}` });
+			await Operation.deleteOne({ guild_id: guild.id, operation_id: `${operationId}` });
 
-			await interaction.message.delete();
+			await message.delete();
 
 			await interaction.reply({
 				content: translations.translate('OPERATION_CANCELED_SUCCESS', { title: operation.title }),

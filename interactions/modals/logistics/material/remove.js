@@ -5,13 +5,13 @@ module.exports = {
 	id: 'modal_logistics_remove',
 
 	async execute(interaction) {
-		const { client, guild, channel } = interaction;
+		const { client, guild, channel, fields } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		const materialId = interaction.fields.getTextInputValue('material_id');
+		const materialId = fields.getTextInputValue('material_id');
 
 		try {
-			const material = await Material.findOne({ material_id: `${materialId}` });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: `${materialId}` });
 
 			if (!material) {
 				return await interaction.reply({
@@ -30,7 +30,7 @@ module.exports = {
 				await message.delete();
 			}
 
-			await Material.deleteOne({ material_id: material.material_id });
+			await Material.deleteOne({ guild_id: guild.id, material_id: material.material_id });
 
 			await interaction.reply({
 				content: translations.translate('MATERIAL_DELETE_SUCCESS'),
