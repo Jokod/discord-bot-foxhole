@@ -25,7 +25,7 @@ module.exports = {
 				.setDescriptionLocalizations({
 					fr: 'La commande pour obtenir de l\'aide.',
 					ru: 'Команда для получения помощи.',
-				})
+				}),
 		),
 
 	async execute(interaction) {
