@@ -181,8 +181,8 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: 'Здесь нет складов.',
 	STOCKPILE_NOT_EXIST: 'Этого склада не существует.',
 	STOCKPILE_INVALID_ID: 'Идентификатор склада недействителен.',
-	STOCKPILE_INVALIDE_NAME: 'Недопустимое имя склада.',
 	STOCKPILE_CREATE_ERROR: 'Произошла ошибка при создании склада.',
 	STOCKPILE_DELETE_ERROR: 'Произошла ошибка при удалении склада.',
+	STOCKPILE_INVALID_NAME: 'Недопустимое имя склада.',
 	STOCKPILE_INVALID_PASSWORD: 'Пароль недействителен.',
 };

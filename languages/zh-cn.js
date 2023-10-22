@@ -181,8 +181,8 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: '没有库存。',
 	STOCKPILE_NOT_EXIST: '此库存不存在。',
 	STOCKPILE_INVALID_ID: '库存ID无效。',
-	STOCKPILE_INVALIDE_NAME: '库存名称无效。',
 	STOCKPILE_CREATE_ERROR: '创建库存时发生错误。',
 	STOCKPILE_DELETE_ERROR: '删除库存时发生错误。',
+	STOCKPILE_INVALID_NAME: '库存名称无效。',
 	STOCKPILE_INVALID_PASSWORD: '密码无效。',
 };
