@@ -13,13 +13,13 @@ const categoryIcons = {
 };
 
 const names = {
-	'small_arms': 'Armes légères',
-	'heavy_arms': 'Armes lourdes',
-	'utilities': 'Utilitaires',
-	'shipables': 'Objets transportables',
-	'vehicles': 'Véhicules',
-	'uniforms': 'Uniformes',
-	'resources': 'Ressources',
+	'small_arms': 'Small Arms',
+	'heavy_arms': 'Heavy Arms',
+	'utilities': 'Utilities',
+	'shipables': 'Shipables',
+	'vehicles': 'Vehicles',
+	'uniforms': 'Uniforms',
+	'resources': 'Resources',
 };
 
 const getIcon = (itemCategory) => categoryIcons[itemCategory] || '❓';
@@ -48,7 +48,7 @@ const createMenuOption = (item) => {
 const createStringSelectMenu = (category, options, camp, uniqueNumber) => {
 	return new StringSelectMenuBuilder()
 		.setCustomId(`select_logistics_add_material-${uniqueNumber}`)
-		.setPlaceholder(`Liste #${uniqueNumber} des ${names[category]} pour ${camp}`)
+		.setPlaceholder(`List #${uniqueNumber} of ${names[category]} for ${camp}`)
 		.addOptions(options);
 };
 

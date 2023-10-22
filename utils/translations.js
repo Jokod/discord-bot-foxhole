@@ -30,6 +30,43 @@ class Translate {
 
 		return sentence;
 	}
+
+	compareTranslationKeys(client) {
+		const enKeys = Object.keys(client.languages.get('en'));
+
+		const errors = {};
+
+		client.languages.forEach((langData, lang) => {
+			if (lang === 'en') return;
+
+			const langKeys = Object.keys(langData);
+			const keysMissingInLang = enKeys.filter(key => !langKeys.includes(key));
+			const keysExtraInLang = langKeys.filter(key => !enKeys.includes(key));
+
+			if (keysMissingInLang.length > 0 || keysExtraInLang.length > 0) {
+				errors[lang] = {
+					keysMissing: keysMissingInLang,
+					keysExtra: keysExtraInLang,
+				};
+			}
+		});
+
+		if (Object.keys(errors).length === 0) {
+			console.log('Aucune erreur dans les fichiers de traduction.');
+		}
+		else {
+			console.log('Erreurs dans les fichiers de traduction :');
+			for (const lang in errors) {
+				console.log(`Pour la langue ${lang}:`);
+				if (errors[lang].keysMissing.length > 0) {
+					console.error('Clés manquantes :', errors[lang].keysMissing);
+				}
+				if (errors[lang].keysExtra.length > 0) {
+					console.error('Clés en trop :', errors[lang].keysExtra);
+				}
+			}
+		}
+	}
 }
 
 module.exports = Translate;

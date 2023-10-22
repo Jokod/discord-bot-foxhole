@@ -8,20 +8,28 @@ module.exports = {
 		.setName('stockpile')
 		.setNameLocalizations({
 			fr: 'stock',
+			ru: 'склад',
+			'zh-CN': '库存',
 		})
 		.setDescription('Commands for stockpile')
 		.setDescriptionLocalizations({
 			fr: 'Commandes pour gérer le stockage.',
+			ru: 'Команды для управления складом.',
+			'zh-CN': '管理库存的命令。',
 		})
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('help')
 				.setNameLocalizations({
 					fr: 'aide',
+					ru: 'помощь',
+					'zh-CN': '帮助',
 				})
 				.setDescription('Displays the list of commands.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des commandes.',
+					ru: 'Отображает список команд.',
+					'zh-CN': '显示命令列表。',
 				}),
 		)
 		.addSubcommand((subcommand) =>
@@ -29,20 +37,28 @@ module.exports = {
 				.setName('add')
 				.setNameLocalizations({
 					fr: 'ajouter',
+					ru: 'добавить',
+					'zh-CN': '加',
 				})
 				.setDescription('Add a stockpile.')
 				.setDescriptionLocalizations({
 					fr: 'Ajoute un stock.',
+					ru: 'Добавить склад.',
+					'zh-CN': '添加库存。',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('name')
 						.setNameLocalizations({
 							fr: 'nom',
+							ru: 'имя',
+							'zh-CN': '名称',
 						})
 						.setDescription('The name of the stockpile.')
 						.setDescriptionLocalizations({
 							fr: 'Le nom du stock.',
+							ru: 'Имя склада.',
+							'zh-CN': '库存名称。',
 						})
 						.setMinLength(3)
 						.setMaxLength(16)
@@ -53,10 +69,14 @@ module.exports = {
 						.setName('password')
 						.setNameLocalizations({
 							fr: 'password',
+							ru: 'пароль',
+							'zh-CN': '密码',
 						})
 						.setDescription('The password of the stockpile.')
 						.setDescriptionLocalizations({
 							fr: 'Le mot de passe du stock.',
+							ru: 'Пароль склада.',
+							'zh-CN': '库存密码。',
 						})
 						.setRequired(true),
 				),
@@ -66,20 +86,28 @@ module.exports = {
 				.setName('remove')
 				.setNameLocalizations({
 					fr: 'supprimer',
+					ru: 'удалить',
+					'zh-CN': '删除',
 				})
 				.setDescription('Remove a stockpile.')
 				.setDescriptionLocalizations({
 					fr: 'Supprime un stock.',
+					ru: 'Удалить склад.',
+					'zh-CN': '删除库存。',
 				})
 				.addStringOption((option) =>
 					option
 						.setName('id')
 						.setNameLocalizations({
 							fr: 'id',
+							ru: 'идентификатор',
+							'zh-CN': '鉴定',
 						})
 						.setDescription('The id of the stockpile.')
 						.setDescriptionLocalizations({
 							fr: 'L\'id du stock.',
+							ru: 'Идентификатор склада.',
+							'zh-CN': '库存的ID。',
 						})
 						.setRequired(true),
 				),
@@ -89,10 +117,14 @@ module.exports = {
 				.setName('list')
 				.setNameLocalizations({
 					fr: 'liste',
+					ru: 'список',
+					'zh-CN': '名单',
 				})
 				.setDescription('Displays the list of stockpiles.')
 				.setDescriptionLocalizations({
 					fr: 'Affiche la liste des stocks.',
+					ru: 'Отображает список складов.',
+					'zh-CN': '显示库存列表。',
 				}),
 		),
 	async execute(interaction) {

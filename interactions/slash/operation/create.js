@@ -7,20 +7,28 @@ module.exports = {
 		.setName('create_operation')
 		.setNameLocalizations({
 			fr: 'créer_opération',
+			ru: 'создать_операцию',
+			'zh-CN': '创建操作',
 		})
 		.setDescription('Create a new operation')
 		.setDescriptionLocalizations({
 			fr: 'Créer une nouvelle opération',
+			ru: 'Создать новую операцию',
+			'zh-CN': '创建新操作',
 		})
 		.addStringOption((option) =>
 			option
 				.setName('title')
 				.setNameLocalizations({
 					fr: 'titre',
+					ru: 'заглавие',
+					'zh-CN': '标题',
 				})
 				.setDescription('Title of the operation')
 				.setDescriptionLocalizations({
 					fr: 'Titre de l\'opération',
+					ru: 'Заглавие операции',
+					'zh-CN': '操作的标题',
 				})
 				.setMinLength(1)
 				.setMaxLength(10)
