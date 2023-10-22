@@ -33,6 +33,7 @@ module.exports = {
 
 		try {
 			await Material.create({
+				guild_id: interaction.guild.id,
 				material_id: interaction.id,
 				group_id: channelId,
 				owner_id: interaction.user.id,
@@ -45,7 +46,7 @@ module.exports = {
 				fetchReply: true,
 			});
 
-			await Material.updateOne({ material_id: `${interaction.id}` }, { material_id: `${message.id}` });
+			await Material.updateOne({ guild_id: guild.id, material_id: `${interaction.id}` }, { material_id: `${message.id}` });
 		}
 		catch (err) {
 			console.error(err);

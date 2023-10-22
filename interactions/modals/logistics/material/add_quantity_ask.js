@@ -21,9 +21,16 @@ module.exports = {
 		}
 
 		try {
-			await Material.updateOne({ material_id: `${message.id}` }, { quantityAsk: quantity_ask });
+			await Material.updateOne({ guild_id: guild.id, material_id: `${message.id}` }, { quantityAsk: quantity_ask });
 
-			const material = await Material.findOne({ material_id: `${message.id}` });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
+
+			if (!material) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_NOT_EXIST'),
+					ephemeral: true,
+				});
+			}
 
 			await new ResponseMaterial(interaction, material).response();
 		}

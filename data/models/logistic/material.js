@@ -5,6 +5,10 @@ const Material = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	guild_id: {
+		type: String,
+		required: true,
+	},
 	group_id: String,
 	owner_id: String,
 	person_id: String,

@@ -10,6 +10,7 @@ const {
 const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
 const { Server } = require('./data/models.js');
+const Translate = require('./utils/translations.js');
 
 /** ********************************************************************/
 // Connect to MongoDB
@@ -141,6 +142,8 @@ getFiles('./languages', (language) => {
 			});
 		});
 });
+
+Translate.prototype.compareTranslationKeys(client);
 
 /** ********************************************************************/
 

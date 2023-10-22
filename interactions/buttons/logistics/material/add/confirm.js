@@ -22,7 +22,14 @@ module.exports = {
 		const actionRow = new ActionRowBuilder().addComponents(assigneeButton, removeButton);
 
 		try {
-			const material = await Material.findOne({ material_id: `${message.id}` });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
+
+			if (!material) {
+				return await interaction.reply({
+					content: translations.translate('MATERIAL_NOT_EXIST'),
+					ephemeral: true,
+				});
+			}
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
@@ -31,7 +38,7 @@ module.exports = {
 				});
 			}
 
-			await Material.updateOne({ material_id: `${message.id}` }, { status: 'confirmed' });
+			await Material.updateOne({ guild_id: guild.id, material_id: `${message.id}` }, { status: 'confirmed' });
 
 			if (!material.name || !material.quantityAsk) {
 				return await interaction.reply({

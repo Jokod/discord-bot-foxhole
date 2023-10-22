@@ -1,22 +1,22 @@
 const mongoose = require('mongoose');
 
-const Group = mongoose.Schema({
-	threadId: {
+const Stockpile = mongoose.Schema({
+	id: {
 		type: String,
 		required: true,
 	},
-	guild_id: {
+	server_id: {
 		type: String,
 		required: true,
 	},
-	operation_id: {
+	name: {
 		type: String,
 		required: true,
 	},
-	owner_id: {
+	password: {
 		type: String,
 		required: true,
 	},
 });
 
-module.exports = mongoose.model('Group', Group);
+module.exports = mongoose.model('Stockpile', Stockpile);

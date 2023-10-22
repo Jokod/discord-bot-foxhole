@@ -7,13 +7,14 @@ module.exports = {
 	id: 'modal_create_operation',
 
 	async execute(interaction) {
-		const translations = new Translate(interaction.client, interaction.guild.id);
+		const { client, guild, user, fields } = interaction;
+		const translations = new Translate(client, guild.id);
 
-		const title = interaction.client.sessions[interaction.user.id].title;
-		const dateField = interaction.fields.getTextInputValue('date');
-		const timeField = interaction.fields.getTextInputValue('time');
-		const durationField = interaction.fields.getTextInputValue('duration');
-		const descriptionField = interaction.fields.getTextInputValue('description');
+		const title = client.sessions[user.id].title;
+		const dateField = fields.getTextInputValue('date');
+		const timeField = fields.getTextInputValue('time');
+		const durationField = fields.getTextInputValue('duration');
+		const descriptionField = fields.getTextInputValue('description');
 
 		const dateRegex = new RegExp('^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/[0-9]{4}$');
 		const timeRegex = new RegExp('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$');
@@ -98,7 +99,7 @@ module.exports = {
 				fetchReply: true,
 			});
 
-			await Operation.updateOne({ operation_id: `${interaction.id}` }, { operation_id: `${message.id}` });
+			await Operation.updateOne({ guild_id: guild.id, operation_id: `${interaction.id}` }, { operation_id: `${message.id}` });
 
 			delete interaction.client.sessions[interaction.user.id];
 

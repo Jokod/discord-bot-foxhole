@@ -11,7 +11,14 @@ module.exports = {
 		const { client, guild, message } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		const material = await Material.findOne({ material_id: `${message.id}` });
+		const material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
+
+		if (!material) {
+			return await interaction.reply({
+				content: translations.translate('MATERIAL_NOT_EXIST'),
+				ephemeral: true,
+			});
+		}
 
 		if (interaction.user.id !== material.owner_id) {
 			return await interaction.reply({
