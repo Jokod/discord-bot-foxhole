@@ -75,7 +75,7 @@ module.exports = {
 
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: '已创建操作%title%。',
-	OPERATION_LAUNCH_SUCCESS: '操作%title%已启动！@everyone。',
+	OPERATION_LAUNCH_SUCCESS: '操作%title%已启动！',
 	OPERATION_FINISHED_SUCCESS: '操作%title%已完成！',
 	OPERATION_CANCELED_SUCCESS: '操作%title%已取消！',
 

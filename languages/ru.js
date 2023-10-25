@@ -75,7 +75,7 @@ module.exports = {
 
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'Операция %title% была создана.',
-	OPERATION_LAUNCH_SUCCESS: 'Операция %title% была запущена! @everyone.',
+	OPERATION_LAUNCH_SUCCESS: 'Операция %title% была запущена!.',
 	OPERATION_FINISHED_SUCCESS: 'Операция %title% завершена!',
 	OPERATION_CANCELED_SUCCESS: 'Операция %title% отменена!',
 
