@@ -25,7 +25,7 @@ The Discord Bot for Foxhole provides the following features:
 
 Before using the Discord Bot for Foxhole, you will need to perform some configurations:
 
-1. Invite the bot to your Discord server by following [Add to my server discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=17998060588096&scope=applications.commands%20bot).
+1. Invite the bot to your Discord server by following [Add to my server discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot).
 
 2. Set up appropriate permissions for the bot's commands based on roles within your server.
 
