@@ -94,6 +94,7 @@ module.exports = {
 	// GROUP ---------------------------------------------
 	GROUP_NOT_EXIST: '此分组不存在。',
 	THREAD_NOT_EXIST: '此主题不存在。',
+	THREAD_CLOSED_OR_ARCHIVED: '此主题已关闭或已存档。',
 	GROUPS_OF_OPERATION: '操作分组%title%',
 
 	GROUP_TITLE: '操作%title%的物流#%size%',
@@ -105,6 +106,7 @@ module.exports = {
 	GROUP_CREATE_ERROR: '实施物流时发生错误！',
 	THREAD_CLOSE_ERROR: '关闭主题时发生错误！',
 	THREAD_ARE_NO_OWNER_ERROR: '您不是此主题的所有者！',
+	GROUP_NO_MATERIALS: '此组中没有材料。',
 
 	// LOGISTIC ---------------------------------------------
 

@@ -94,6 +94,7 @@ module.exports = {
 	// GROUP ---------------------------------------------
 	GROUP_NOT_EXIST: 'Эта группа не существует.',
 	THREAD_NOT_EXIST: 'Эта ветка не существует.',
+	THREAD_CLOSED_OR_ARCHIVED: 'Эта ветка закрыта или архивирована.',
 	GROUPS_OF_OPERATION: 'Группы операций %title%',
 
 	GROUP_TITLE: 'Логистика #%size% для операции %title%',
@@ -105,6 +106,7 @@ module.exports = {
 	GROUP_CREATE_ERROR: 'Произошла ошибка при создании логистики!',
 	THREAD_CLOSE_ERROR: 'Произошла ошибка при закрытии ветки!',
 	THREAD_ARE_NO_OWNER_ERROR: 'Вы не являетесь владельцем этой ветки!',
+	GROUP_NO_MATERIALS: 'В этой группе нет материалов.',
 
 	// LOGISTIC ---------------------------------------------
 

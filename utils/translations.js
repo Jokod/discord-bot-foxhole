@@ -1,13 +1,13 @@
 class Translate {
-	constructor(client, guildID) {
+	constructor(client, guildId) {
 		this.client = client;
-		this.guildID = guildID;
+		this.guildId = guildId;
 	}
 
 
 	translate(key, params = {}) {
-		let lang = this.client.traductions.get(this.guildID);
-		if (!this.client.languages.has(lang)) lang = this.client.languages.get('en');
+		let lang = this.client.traductions.get(this.guildId);
+		if (!this.client.languages.has(lang)) lang = 'en';
 
 		let sentence = key;
 		try {

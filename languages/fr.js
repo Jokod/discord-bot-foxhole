@@ -94,6 +94,7 @@ module.exports = {
 	// GROUP ---------------------------------------------
 	GROUP_NOT_EXIST: 'Ce groupe n\'existe pas.',
 	THREAD_NOT_EXIST: 'Ce thread n\'existe pas.',
+	THREAD_CLOSED_OR_ARCHIVED: 'Ce thread est fermé ou archivé.',
 	GROUPS_OF_OPERATION: 'Groupes de l\'opération %title%',
 
 	GROUP_TITLE: 'Logistique #%size% pour l\'opération %title%',
@@ -105,6 +106,7 @@ module.exports = {
 	GROUP_CREATE_ERROR: 'Une erreur s\'est produite lors de l\'implémentation de la logistique !',
 	THREAD_CLOSE_ERROR: 'Une erreur s\'est produite lors de la fermeture du thread !',
 	THREAD_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce thread !',
+	GROUP_NO_MATERIALS: 'Il n\'y a pas de matériel dans ce groupe.',
 
 	// LOGISTIC ---------------------------------------------
 
