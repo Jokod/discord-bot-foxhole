@@ -136,7 +136,7 @@ module.exports = {
 			const operation = await Operation.findOne({ guild_id: guild.id, operation_id: inputOperationId });
 
 			if (!operation) {
-				return interaction.reply({
+				return await interaction.reply({
 					content: translations.translate('OPERATION_NOT_EXIST'),
 					ephemeral: true,
 				});
@@ -145,7 +145,7 @@ module.exports = {
 			const groups = await Group.find({ guild_id: guild.id, operation_id: inputOperationId });
 
 			if (!groups.length) {
-				return interaction.reply({
+				return await interaction.reply({
 					content: translations.translate('OPERATION_NOT_HAVE_GROUPS'),
 					ephemeral: true,
 				});
@@ -153,9 +153,11 @@ module.exports = {
 
 			const promises = groups.map(async (group) => {
 				const materials = await Material.find({ guild_id: guild.id, group_id: group.threadId });
+
 				const numberTotal = materials.length;
 				const numberValidated = materials.filter(material => material.status === 'validated').length;
 				const numberInvalidated = numberTotal - numberValidated;
+
 				return `**${translations.translate('MATERIAL_NOMBER')}:** ${numberTotal}\n**${translations.translate('MATERIAL_VALIDATE')}:** ${numberValidated}\n**${translations.translate('MATERIAL_INVALIDATE')}:** ${numberInvalidated}`;
 			});
 
@@ -183,9 +185,18 @@ module.exports = {
 			}
 
 			const materials = await Material.find({ guild_id: guild.id, group_id: inputListId });
+
+			if (!materials.length) {
+				return await interaction.reply({
+					content: translations.translate('GROUP_NO_MATERIALS'),
+					ephemeral: true,
+				});
+			}
+
 			const content = materials.map(material => {
 				const name = material.name || translations.translate('NONE');
 				const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
+
 				return `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('MATERIAL_QUANTITY_ASK')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
 			});
 
