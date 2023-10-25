@@ -75,7 +75,7 @@ module.exports = {
 
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'Operation %title% has been created.',
-	OPERATION_LAUNCH_SUCCESS: 'Operation %title% has been launched! @everyone.',
+	OPERATION_LAUNCH_SUCCESS: 'Operation %title% has been launched',
 	OPERATION_FINISHED_SUCCESS: 'Operation %title% finished!',
 	OPERATION_CANCELED_SUCCESS: 'Operation %title% canceled!',
 
@@ -94,6 +94,7 @@ module.exports = {
 	// GROUP ---------------------------------------------
 	GROUP_NOT_EXIST: 'This group does not exist.',
 	THREAD_NOT_EXIST: 'This thread does not exist.',
+	THREAD_CLOSED_OR_ARCHIVED: 'This thread is closed or archived.',
 	GROUPS_OF_OPERATION: 'Operation Groups %title%',
 
 	GROUP_TITLE: 'Logistics #%size% for operation %title%',
@@ -105,6 +106,7 @@ module.exports = {
 	GROUP_CREATE_ERROR: 'An error occurred while implementing the logistics!',
 	THREAD_CLOSE_ERROR: 'An error occurred while closing the thread!',
 	THREAD_ARE_NO_OWNER_ERROR: 'You are not the owner of this thread!',
+	GROUP_NO_MATERIALS: 'There are no materials in this group.',
 
 	// LOGISTIC ---------------------------------------------
 
