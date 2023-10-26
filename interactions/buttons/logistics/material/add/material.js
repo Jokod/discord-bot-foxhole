@@ -44,12 +44,17 @@ module.exports = {
 			.setLabel(translations.translate('MATERIAL_RESOURCES'))
 			.setStyle(ButtonStyle.Primary);
 
+		const buttonMedical = new ButtonBuilder()
+			.setCustomId('logistics_select_material_medicals')
+			.setLabel(translations.translate('MATERIAL_MEDICAL'))
+			.setStyle(ButtonStyle.Primary);
+
 		const buttonBack = new ButtonBuilder()
 			.setCustomId('logistics_select_material_back')
 			.setLabel(translations.translate('BACK'))
 			.setStyle(ButtonStyle.Secondary);
 
-		const firstArrowRow = new ActionRowBuilder().addComponents(buttonSmallArms, buttonUtilities, buttonHeavyArms);
+		const firstArrowRow = new ActionRowBuilder().addComponents(buttonSmallArms, buttonUtilities, buttonHeavyArms, buttonMedical);
 		const secondArrowRow = new ActionRowBuilder().addComponents(buttonShipables, buttonVehicles, buttonUniforms, buttonResources);
 		const thirdArrowRow = new ActionRowBuilder().addComponents(buttonBack);
 
