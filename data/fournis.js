@@ -10,6 +10,7 @@ const categoryIcons = {
 	'vehicles': '🚛',
 	'uniforms': '🪖',
 	'resources': '📦',
+	'medical': '🩺',
 };
 
 const names = {
@@ -20,6 +21,7 @@ const names = {
 	'vehicles': 'Vehicles',
 	'uniforms': 'Uniforms',
 	'resources': 'Resources',
+	'medical': 'Medical',
 };
 
 const getIcon = (itemCategory) => categoryIcons[itemCategory] || '❓';
@@ -107,4 +109,5 @@ module.exports = {
 	getVehicles: getCategoryActions('vehicles'),
 	getUniforms: getCategoryActions('uniforms'),
 	getResources: getCategoryActions('resources'),
+	getMedical: getCategoryActions('medical'),
 };

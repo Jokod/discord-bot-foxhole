@@ -142,6 +142,7 @@ module.exports = {
 	MATERIAL_VEHICLES: 'Vehicles',
 	MATERIAL_UNIFORMS: 'Uniforms',
 	MATERIAL_RESOURCES: 'Resources',
+	MATERIAL_MEDICAL: 'Medical',
 
 	MATERIAL_LIST_SMALL_ARMS: 'List of available small arms',
 	MATERIAL_LIST_HEAVY_ARMS: 'List of available heavy arms',
