@@ -142,6 +142,7 @@ module.exports = {
 	MATERIAL_VEHICLES: '车辆',
 	MATERIAL_UNIFORMS: '制服',
 	MATERIAL_RESOURCES: '资源',
+	MATERIAL_MEDICAL: '医疗',
 
 	MATERIAL_LIST_SMALL_ARMS: '可用小型武器列表',
 	MATERIAL_LIST_HEAVY_ARMS: '可用重型武器列表',
