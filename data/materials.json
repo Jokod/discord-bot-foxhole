@@ -795,7 +795,7 @@
     ],
     "itemName": "Havoc Charge",
     "itemDesc": "It is deployed by hand on the ground, requires the deployment of a Havoc Charge Detonator, and must be shot by friendly small arms to detonate.The explosion deals 1850 Demolition damage in a 6m radius and quickly decreasing amounts in a 7m radius..",
-    "itemCategory": "Utility"
+    "itemCategory": "utilities"
   },
   {
     "faction": [
@@ -804,7 +804,7 @@
     ],
     "itemName": "Havoc Charge Detonator",
     "itemDesc": "The Havoc Charge Detonator is a Large Item that serves as the detonator for the Havoc Charge.",
-    "itemCategory": "Utility"
+    "itemCategory": "utilities"
   },
   {
     "faction": [
@@ -1728,7 +1728,7 @@
     ],
     "itemName": "Water Bucket",
     "itemDesc": "The Water Bucket is a faction-neutral piece equipment used to put out fires. It is equipped in your 1st equipment slot and used similarly to a grenade. It is one of two objects capable of extinguishing a fire. Similar to other weapons, it starts off without 'ammunition' (aka water), and must be 'reloaded' (aka filling it up with water at bodies of water, Water Wells, or with Water cans in your inventory) in order to be used. The Water Bucket weighs 1.8% when empty, but weighs 60% when filled (regardless of charges).",
-    "itemCategory": "Utility"
+    "itemCategory": "utilities"
   },
   {
     "faction": [
