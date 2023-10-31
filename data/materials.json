@@ -74,7 +74,7 @@
     ],
     "itemName": "AP⧸RPG",
     "itemDesc": "The AP⧸RPG is a Colonial anti-tank shell used in the Venom c.II 35 and Bane 45. It's primary use is to be used on armored vehicles in order to deal tons of damage against them. However, it can also deal moderate damage against structures if need be, though this is not recommended due to there being more effective tools to take down structures. Like other RPG shells, its trajectory is affected by gravity as represented by the slightly curved white line when aiming a RPG",
-    "itemCategory": "heavy_arm"
+    "itemCategory": "heavy_arms"
   },
   {
     "faction": [
@@ -1589,7 +1589,7 @@
     ],
     "itemName": "Tremola Grenade GPb-1",
     "itemDesc": "The Tremola Grenade GPb-1 is a HE Grenade that can only be launched from a Grenade Launcher. It cannot be thrown by hand. It has a 4s fuse. It deals decent damage against structures. Despite its description it deals Explosive damage and not High Explosive. It has a much longer range than thrown grenades allowing it to be used efficiently and safely without the help of Smoke Grenades or friendly suppressive fire (unlike the Mammon 91-b HE grenade).",
-    "itemCategory": "heavy_arm"
+    "itemCategory": "heavy_arms"
   },
   {
     "faction": [
@@ -1699,7 +1699,7 @@
     ],
     "itemName": "Velian Flak Vest",
     "itemDesc": "The Velian Flak Vest is the Colonial Armour Uniform, which reduces small arms damage by -33%, and reduces bleed chance by -75%. When equipped, the uniform adds 35% encumbrance, which reduces overall movement. The Uniform only has four (4) inventory slots, which is one of the smallest inventory slots for all uniforms. Its most distinctive feature is the light green vest that completely covers the front and back of the Colonial's green uniform.",
-    "itemCategory": "Uniform"
+    "itemCategory": "uniforms"
   },
   {
     "faction": [
