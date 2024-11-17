@@ -2031,4 +2031,111 @@
     "itemDesc": "Standard ammunition for pistols.",
     "itemCategory": "small_arms"
   }
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Booker Greyhound model 190",
+    "itemDesc": "A variant of the Booker Storm Rifle, the Greyhound boasts a larger overall receiver and barrel to accommodate the increased stopping power of anti-tank rounds. Its longer, bulkier barrel allows for increased range. As a heavier automatic rifle,.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Incendiary Mortar Shell",
+    "itemDesc": "An incendiary payload used with mortar tubes. Will ignite objects near impact..",
+    "itemCategory": "heavy_arms"
+  }
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Dawn Ve.II",
+    "itemDesc": "A three-round burst anti-tank rifle with a high-capacity magazine. Built from a modified “Dusk” assault rifle, the receiver has been altered to support top-loaded twin-drum magazines for better stability and efficient loading to account for its more cumbersome design and higher calibre rounds.",
+    "itemCategory": "heavy_arms"
+  },
+   {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Quickhatch Rt.I",
+    "itemDesc": "A deadly, long-range sniper rifle with exceptional stopping power. The “Quickhatch” is a gluttonous firearm that hungers for enemy armour and flesh alike.",
+    "itemCategory": "heavy_arms"
+  },
+   {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "228 Satterley Heavy Storm Rifle",
+    "itemDesc": "While the Satterley is designed to be operated by a single infantryman, it remains a cumbersome rifle due to its heavy kickback and burst fire configuration. This heavy burst rifle is best suited for small squads to blindside enemy armour, stripping steel with ease, but its cumbersome setup makes it less than ideal for infantry skirmishes.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "B2 Varsi Anti-Tank Grenade",
+    "itemDesc": "A compact anti-tank grenade that can be fired from rifle grenade launcher attachments or grenade turrets. Its dense payload excels at crippling armoured vehicles while being versatile and easy to transport.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Eleos Infantry Dagger",
+    "itemDesc": "Standard-issue Mesean military dagger. Its long, slender blade excels in close-quarters combat as well as a plethora of uses in everyday operations.",
+    "itemCategory": "small_arms"
+  },
+   {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Falias Raiding Club",
+    "itemDesc": "A heavy mace constructed from solid wood and dotted with lead rivets. Commonly used when raiding entrenched positions in close quarters where firearms are less effective and an old-fashioned bludgeoning is better suited for the job.",
+    "itemCategory": "small_arms"
+  },
+   {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "KRF1-750 Dragonfly",
+    "itemDesc": "A short-range firearm that has origins in both sport shooting and bird hunting. Its long stock and sturdy undercarriage give the Dragonfly stability and control that make it a worthy companion to many Kraunian soldiers deployed in urban centres.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "No.4 The Pillory Scattergun",
+    "itemDesc": "A hunting shotgun with a sawn-off barrel for higher stopping power and mobility at the expense of accuracy. This traditional civilian firearm can fire two shots in rapid succession before needing to be reloaded. It became a favourite sidearm among Caoivish Watchers and has since earned quite an ominous reputation as a result.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Crow’s Foot Mine",
+    "itemDesc": "Anti-infantry minefield that deliver a fatal payload to unsuspecting soldiers. Placed over a large area.",
+    "itemCategory": "heavy_arms"
+  }
+   {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "90T-v Nemesis",
+    "itemDesc": "With immense off-road capabilities, the 90T-v “Nemesis” is a highly versatile armoured vehicle. While it may not boast the defensive capabilities of its more heavily armoured cousins, the “Nemesis” shatters enemy formations with its deadly 68mm cannon and auxiliary grenade launcher.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Gallagher Brigand Mk. I",
+    "itemDesc": "The first of Colm Gallagher’s mid-sized tanks, the Brigand is a true brute on the battlefield. Not quite as sturdy as its younger siblings, the Brigand compensates with higher mobility, which, when paired with a mounted machine gun and 30mm repeater cannon, is a deadly force in any armour division.",
+    "itemCategory": "vehicles"
+  },
+  
 ]
