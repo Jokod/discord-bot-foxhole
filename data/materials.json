@@ -2030,7 +2030,7 @@
     "itemName": "8mm",
     "itemDesc": "Standard ammunition for pistols.",
     "itemCategory": "small_arms"
-  }
+  },
   {
     "faction": [
       "warden"
@@ -2047,7 +2047,7 @@
     "itemName": "Incendiary Mortar Shell",
     "itemDesc": "An incendiary payload used with mortar tubes. Will ignite objects near impact..",
     "itemCategory": "heavy_arms"
-  }
+  },
   {
     "faction": [
       "colonial"
@@ -2056,7 +2056,7 @@
     "itemDesc": "A three-round burst anti-tank rifle with a high-capacity magazine. Built from a modified “Dusk” assault rifle, the receiver has been altered to support top-loaded twin-drum magazines for better stability and efficient loading to account for its more cumbersome design and higher calibre rounds.",
     "itemCategory": "heavy_arms"
   },
-   {
+  {
     "faction": [
       "colonial"
     ],
@@ -2064,7 +2064,7 @@
     "itemDesc": "A deadly, long-range sniper rifle with exceptional stopping power. The “Quickhatch” is a gluttonous firearm that hungers for enemy armour and flesh alike.",
     "itemCategory": "heavy_arms"
   },
-   {
+  {
     "faction": [
       "warden"
     ],
@@ -2088,7 +2088,7 @@
     "itemDesc": "Standard-issue Mesean military dagger. Its long, slender blade excels in close-quarters combat as well as a plethora of uses in everyday operations.",
     "itemCategory": "small_arms"
   },
-   {
+  {
     "faction": [
       "warden"
     ],
@@ -2096,7 +2096,7 @@
     "itemDesc": "A heavy mace constructed from solid wood and dotted with lead rivets. Commonly used when raiding entrenched positions in close quarters where firearms are less effective and an old-fashioned bludgeoning is better suited for the job.",
     "itemCategory": "small_arms"
   },
-   {
+  {
     "faction": [
       "colonial"
     ],
@@ -2120,8 +2120,8 @@
     "itemName": "Crow’s Foot Mine",
     "itemDesc": "Anti-infantry minefield that deliver a fatal payload to unsuspecting soldiers. Placed over a large area.",
     "itemCategory": "heavy_arms"
-  }
-   {
+  },
+  {
     "faction": [
       "colonial"
     ],
@@ -2136,6 +2136,5 @@
     "itemName": "Gallagher Brigand Mk. I",
     "itemDesc": "The first of Colm Gallagher’s mid-sized tanks, the Brigand is a true brute on the battlefield. Not quite as sturdy as its younger siblings, the Brigand compensates with higher mobility, which, when paired with a mounted machine gun and 30mm repeater cannon, is a deadly force in any armour division.",
     "itemCategory": "vehicles"
-  },
-  
+  }
 ]
