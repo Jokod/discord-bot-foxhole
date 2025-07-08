@@ -56,7 +56,8 @@ module.exports = {
 					content: translations.translate('OPERATION_CANCELED_ERROR'),
 					ephemeral: true,
 				});
-			} else {
+			}
+			else {
 				return await interaction.editReply({
 					content: translations.translate('OPERATION_CANCELED_ERROR'),
 				});

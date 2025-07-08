@@ -13,7 +13,7 @@ class Translate {
 		try {
 			sentence = this.client.languages.get(lang)[key];
 		}
-		catch (e) {
+		catch {
 			console.log(`[ERROR] Translation key "${key}" not found.`);
 		}
 
