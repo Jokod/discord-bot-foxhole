@@ -26,33 +26,41 @@ module.exports = {
 				});
 			}
 
+			// Defer the reply to prevent interaction timeout
+			await interaction.deferReply({ ephemeral: true });
+
 			const threads = await Group.find({ guild_id: guild.id, operation_id: `${operationId}` });
 			for (const thread of threads) {
 				const result = channel.threads.cache.find(t => t.id === thread.threadId);
 
 				if (result) {
 					await Material.deleteMany({ guild_id: guild.id, group_id: `${thread.threadId}` });
-					await channel.messages.fetch(result.id).then(msg => msg.delete());
-					await result.delete();
+					await channel.messages.fetch(result.id).then(msg => msg.delete()).catch(console.error);
+					await result.delete().catch(console.error);
 					await thread.deleteOne({ threadId: `${result.id}` });
 				}
 			}
 
 			await Operation.deleteOne({ guild_id: guild.id, operation_id: `${operationId}` });
 
-			await message.delete();
+			await message.delete().catch(console.error);
 
-			await interaction.reply({
+			await interaction.editReply({
 				content: translations.translate('OPERATION_CANCELED_SUCCESS', { title: operation.title }),
-				ephemeral: true,
 			});
 		}
 		catch (err) {
 			console.error(err);
-			return await interaction.reply({
-				content: translations.translate('OPERATION_CANCELED_ERROR'),
-				ephemeral: true,
-			});
+			if (!interaction.replied && !interaction.deferred) {
+				return await interaction.reply({
+					content: translations.translate('OPERATION_CANCELED_ERROR'),
+					ephemeral: true,
+				});
+			} else {
+				return await interaction.editReply({
+					content: translations.translate('OPERATION_CANCELED_ERROR'),
+				});
+			}
 		}
 	},
 };

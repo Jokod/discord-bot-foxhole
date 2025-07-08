@@ -1,6 +1,7 @@
 # Custom
 /config.json
 .env
+.env.prod
 .idea/
 .node-version
 .data
