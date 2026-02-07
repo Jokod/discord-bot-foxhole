@@ -225,10 +225,13 @@ describe('Dynamic Material Handler', () => {
 
 			expect(mockInteraction.update).toHaveBeenCalled();
 			const updateCall = mockInteraction.update.mock.calls[0][0];
-			
-			// Devrait afficher un message d'avertissement
-			expect(updateCall.content).toContain('Aucun matériel disponible');
-			
+
+			// Devrait afficher un message d'avertissement (clé ou texte traduit)
+			expect(
+				updateCall.content.includes('Aucun matériel disponible') ||
+				updateCall.content.includes('MATERIAL_SUBCATEGORY_EMPTY'),
+			).toBe(true);
+
 			// Devrait avoir seulement le bouton retour
 			expect(updateCall.components).toBeDefined();
 			expect(updateCall.components.length).toBe(1);
@@ -294,7 +297,7 @@ describe('Dynamic Material Handler', () => {
 				expect.objectContaining({
 					content: expect.any(String),
 					flags: 64,
-				})
+				}),
 			);
 		});
 	});

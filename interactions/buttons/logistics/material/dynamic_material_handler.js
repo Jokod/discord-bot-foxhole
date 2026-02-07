@@ -17,10 +17,10 @@ const NAVIGATION = {
  */
 async function checkMaterialPermissions(interaction, translations) {
 	const { guild, message, user } = interaction;
-	
-	const material = await Material.findOne({ 
-		guild_id: guild.id, 
-		material_id: message.id 
+
+	const material = await Material.findOne({
+		guild_id: guild.id,
+		material_id: message.id,
 	});
 
 	if (!material) {
@@ -48,7 +48,7 @@ async function checkMaterialPermissions(interaction, translations) {
 function createButtons(items, customIdPrefix, translationKeyPrefix, translations, style = ButtonStyle.Primary) {
 	return items.map(key => {
 		const translationKey = `${translationKeyPrefix}_${key.toUpperCase()}`;
-		
+
 		return new ButtonBuilder()
 			.setCustomId(`${customIdPrefix}-${key}`)
 			.setLabel(translations.translate(translationKey))
@@ -73,8 +73,8 @@ function organizeIntoRows(buttons, maxPerRow = 5) {
  */
 function createMaterialSelectMenu(materials, translations, subcategoryKey, camp, menuNumber) {
 	const options = materials.map(material => {
-		const desc = material.itemDesc.length > 100 
-			? `${material.itemDesc.substring(0, 90)}...` 
+		const desc = material.itemDesc.length > 100
+			? `${material.itemDesc.substring(0, 90)}...`
 			: material.itemDesc;
 
 		return new StringSelectMenuOptionBuilder()
@@ -103,7 +103,7 @@ async function handleCategoriesView(interaction, translations) {
 	const categoryButtons = Object.keys(categories).map(categoryKey => {
 		const category = categories[categoryKey];
 		const translationKey = `CATEGORY_${categoryKey.toUpperCase()}`;
-		
+
 		return new ButtonBuilder()
 			.setCustomId(`${NAVIGATION.CATEGORY_PREFIX}-${categoryKey}`)
 			.setLabel(translations.translate(translationKey))
@@ -152,7 +152,7 @@ async function handleCategoryView(interaction, categoryKey, translations) {
 		subcategoryKeys,
 		`${NAVIGATION.SUBCATEGORY_PREFIX}-${categoryKey}`,
 		'SUBCATEGORY',
-		translations
+		translations,
 	);
 
 	const buttonBack = new ButtonBuilder()
@@ -209,9 +209,9 @@ async function handleSubcategoryView(interaction, categoryKey, subcategoryKey, t
 
 	// Si la sous-catégorie est vide, afficher un message
 	if (materials.length === 0) {
-		const emptyMessage = translations.translate('MATERIAL_SUBCATEGORY_EMPTY') || 
+		const emptyMessage = translations.translate('MATERIAL_SUBCATEGORY_EMPTY') ||
 			`\n\n_Aucun matériel disponible dans cette catégorie pour ${server.camp}._`;
-		
+
 		await interaction.update({
 			content: headerContent + '\n\n' + emptyMessage,
 			components: [new ActionRowBuilder().addComponents(buttonBack)],
@@ -230,7 +230,7 @@ async function handleSubcategoryView(interaction, categoryKey, subcategoryKey, t
 			translations,
 			subcategoryKey,
 			server.camp,
-			menuNumber++
+			menuNumber++,
 		);
 		menuRows.push(new ActionRowBuilder().addComponents(menu));
 	}
@@ -260,28 +260,31 @@ async function routeMaterialInteraction(interaction) {
 			if (parts.length === 1) {
 				// Retour à la liste des catégories
 				await handleCategoriesView(interaction, translations);
-			} else {
+			}
+			else {
 				// Affichage d'une catégorie spécifique
 				const categoryKey = parts[1];
 				await handleCategoryView(interaction, categoryKey, translations);
 			}
-		} 
+		}
 		else if (action === NAVIGATION.SUBCATEGORY_PREFIX) {
 			// Navigation vers une sous-catégorie
 			if (parts.length >= 3) {
 				const categoryKey = parts[1];
 				const subcategoryKey = parts[2];
 				await handleSubcategoryView(interaction, categoryKey, subcategoryKey, translations);
-			} else {
+			}
+			else {
 				throw new Error('Invalid subcategory format');
 			}
 		}
-	} catch (error) {
+	}
+	catch (error) {
 		console.error('Error in routeMaterialInteraction:', error);
 		await interaction.reply({
 			content: translations.translate('MATERIAL_SELECT_ERROR'),
 			flags: 64,
-		}).catch(() => {});
+		}).catch(() => undefined);
 	}
 }
 

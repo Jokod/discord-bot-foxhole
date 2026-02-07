@@ -9,28 +9,33 @@ const zhCn = require('../../languages/zh-cn');
 // Import des catégories
 const { categories } = require('../../data/fournis');
 
+function assertKeyInAllLanguages(key, languagesObj) {
+	const langCodes = Object.keys(languagesObj);
+	for (const langCode of langCodes) {
+		const lang = languagesObj[langCode];
+		expect(lang).toHaveProperty(key);
+		expect(typeof lang[key]).toBe('string');
+		expect(lang[key].length).toBeGreaterThan(0);
+	}
+}
+
 describe('Material Categories Translations', () => {
 	const languages = { fr, en, ru, 'zh-cn': zhCn };
-	
+
 	describe('Category Translations', () => {
 		const mainCategories = [
 			'CATEGORY_UTILITIES',
 			'CATEGORY_INFANTRY_WEAPONS',
 			'CATEGORY_AMMUNITION',
 			'CATEGORY_RESOURCES',
-			'CATEGORY_VEHICLES'
+			'CATEGORY_VEHICLES',
 		];
 
-		mainCategories.forEach(categoryKey => {
+		for (const categoryKey of mainCategories) {
 			it(`should have ${categoryKey} in all languages`, () => {
-				Object.keys(languages).forEach(langCode => {
-					const lang = languages[langCode];
-					expect(lang).toHaveProperty(categoryKey);
-					expect(typeof lang[categoryKey]).toBe('string');
-					expect(lang[categoryKey].length).toBeGreaterThan(0);
-				});
+				assertKeyInAllLanguages(categoryKey, languages);
 			});
-		});
+		}
 	});
 
 	describe('Utilities Subcategories Translations', () => {
@@ -40,19 +45,14 @@ describe('Material Categories Translations', () => {
 			'SUBCATEGORY_MOUNTED_EQUIPMENT',
 			'SUBCATEGORY_MEDICAL',
 			'SUBCATEGORY_UNIFORMS',
-			'SUBCATEGORY_OUTFITS'
+			'SUBCATEGORY_OUTFITS',
 		];
 
-		subcategories.forEach(subcategoryKey => {
+		for (const subcategoryKey of subcategories) {
 			it(`should have ${subcategoryKey} in all languages`, () => {
-				Object.keys(languages).forEach(langCode => {
-					const lang = languages[langCode];
-					expect(lang).toHaveProperty(subcategoryKey);
-					expect(typeof lang[subcategoryKey]).toBe('string');
-					expect(lang[subcategoryKey].length).toBeGreaterThan(0);
-				});
+				assertKeyInAllLanguages(subcategoryKey, languages);
 			});
-		});
+		}
 	});
 
 	describe('Infantry Weapons Subcategories Translations', () => {
@@ -63,19 +63,14 @@ describe('Material Categories Translations', () => {
 			'SUBCATEGORY_HEAVY_ARMS',
 			'SUBCATEGORY_GRENADES',
 			'SUBCATEGORY_LAUNCHERS',
-			'SUBCATEGORY_MORTAR'
+			'SUBCATEGORY_MORTAR',
 		];
 
-		subcategories.forEach(subcategoryKey => {
+		for (const subcategoryKey of subcategories) {
 			it(`should have ${subcategoryKey} in all languages`, () => {
-				Object.keys(languages).forEach(langCode => {
-					const lang = languages[langCode];
-					expect(lang).toHaveProperty(subcategoryKey);
-					expect(typeof lang[subcategoryKey]).toBe('string');
-					expect(lang[subcategoryKey].length).toBeGreaterThan(0);
-				});
+				assertKeyInAllLanguages(subcategoryKey, languages);
 			});
-		});
+		}
 	});
 
 	describe('Ammunition Subcategories Translations', () => {
@@ -85,19 +80,14 @@ describe('Material Categories Translations', () => {
 			'SUBCATEGORY_AIRCRAFT_AMMO',
 			'SUBCATEGORY_ARTILLERY_AMMO',
 			'SUBCATEGORY_MISC_AMMO',
-			'SUBCATEGORY_FLAMETHROWER_AMMO'
+			'SUBCATEGORY_FLAMETHROWER_AMMO',
 		];
 
-		subcategories.forEach(subcategoryKey => {
+		for (const subcategoryKey of subcategories) {
 			it(`should have ${subcategoryKey} in all languages`, () => {
-				Object.keys(languages).forEach(langCode => {
-					const lang = languages[langCode];
-					expect(lang).toHaveProperty(subcategoryKey);
-					expect(typeof lang[subcategoryKey]).toBe('string');
-					expect(lang[subcategoryKey].length).toBeGreaterThan(0);
-				});
+				assertKeyInAllLanguages(subcategoryKey, languages);
 			});
-		});
+		}
 	});
 
 	describe('Resources Subcategories Translations', () => {
@@ -106,97 +96,84 @@ describe('Material Categories Translations', () => {
 			'SUBCATEGORY_EMAT',
 			'SUBCATEGORY_HEMAT',
 			'SUBCATEGORY_RMAT',
-			'SUBCATEGORY_GRAVEL'
+			'SUBCATEGORY_GRAVEL',
 		];
 
-		subcategories.forEach(subcategoryKey => {
+		for (const subcategoryKey of subcategories) {
 			it(`should have ${subcategoryKey} in all languages`, () => {
-				Object.keys(languages).forEach(langCode => {
-					const lang = languages[langCode];
-					expect(lang).toHaveProperty(subcategoryKey);
-					expect(typeof lang[subcategoryKey]).toBe('string');
-					expect(lang[subcategoryKey].length).toBeGreaterThan(0);
-				});
+				assertKeyInAllLanguages(subcategoryKey, languages);
 			});
-		});
+		}
 	});
 
 	describe('Vehicles Subcategories Translations', () => {
-		const subcategories = [
-			'SUBCATEGORY_VEHICLES'
-		];
+		const subcategories = ['SUBCATEGORY_VEHICLES'];
 
-		subcategories.forEach(subcategoryKey => {
+		for (const subcategoryKey of subcategories) {
 			it(`should have ${subcategoryKey} in all languages`, () => {
-				Object.keys(languages).forEach(langCode => {
-					const lang = languages[langCode];
-					expect(lang).toHaveProperty(subcategoryKey);
-					expect(typeof lang[subcategoryKey]).toBe('string');
-					expect(lang[subcategoryKey].length).toBeGreaterThan(0);
-				});
+				assertKeyInAllLanguages(subcategoryKey, languages);
 			});
-		});
+		}
 	});
 
 	describe('Translation Consistency', () => {
 		it('should have same keys in all language files', () => {
 			const frKeys = Object.keys(fr).sort();
-			
-			Object.keys(languages).forEach(langCode => {
-				if (langCode === 'fr') return;
-				
+			const langCodes = Object.keys(languages);
+			for (const langCode of langCodes) {
+				if (langCode === 'fr') continue;
 				const lang = languages[langCode];
 				const langKeys = Object.keys(lang).sort();
-				
-				// Vérifie que toutes les clés FR sont présentes
-				frKeys.forEach(key => {
+				for (const key of frKeys) {
 					if (key.startsWith('CATEGORY_') || key.startsWith('SUBCATEGORY_')) {
 						expect(langKeys).toContain(key);
 					}
-				});
-			});
+				}
+			}
 		});
 
 		it('should not have empty translations', () => {
-			Object.keys(languages).forEach(langCode => {
+			const langCodes = Object.keys(languages);
+			for (const langCode of langCodes) {
 				const lang = languages[langCode];
-				
-				Object.keys(lang).forEach(key => {
+				const keys = Object.keys(lang);
+				for (const key of keys) {
 					if (key.startsWith('CATEGORY_') || key.startsWith('SUBCATEGORY_')) {
 						expect(lang[key].trim().length).toBeGreaterThan(0);
 					}
-				});
-			});
+				}
+			}
 		});
 	});
 
 	describe('Categories Match fournis.js Structure', () => {
 		it('should have translations for all categories defined in fournis.js', () => {
 			const categoryKeys = Object.keys(categories);
-			
-			categoryKeys.forEach(categoryKey => {
+			const langCodes = Object.keys(languages);
+			for (const categoryKey of categoryKeys) {
 				const translationKey = `CATEGORY_${categoryKey.toUpperCase()}`;
-				
-				Object.keys(languages).forEach(langCode => {
+				for (const langCode of langCodes) {
 					const lang = languages[langCode];
 					expect(lang).toHaveProperty(translationKey);
-				});
-			});
+				}
+			}
 		});
 
 		it('should have translations for all subcategories defined in fournis.js', () => {
-			Object.keys(categories).forEach(categoryKey => {
+			const subcategoryTranslationKeys = [];
+			for (const categoryKey of Object.keys(categories)) {
 				const category = categories[categoryKey];
-				
-				Object.keys(category.subcategories).forEach(subcategoryKey => {
-					const translationKey = `SUBCATEGORY_${subcategoryKey.toUpperCase()}`;
-					
-					Object.keys(languages).forEach(langCode => {
-						const lang = languages[langCode];
-						expect(lang).toHaveProperty(translationKey);
-					});
-				});
-			});
+				for (const subcategoryKey of Object.keys(category.subcategories)) {
+					subcategoryTranslationKeys.push(`SUBCATEGORY_${subcategoryKey.toUpperCase()}`);
+				}
+			}
+			const langCodes = Object.keys(languages);
+			for (const translationKey of subcategoryTranslationKeys) {
+				for (const langCode of langCodes) {
+					const lang = languages[langCode];
+					expect(lang).toHaveProperty(translationKey);
+				}
+			}
 		});
 	});
 
@@ -253,15 +230,16 @@ describe('Material Categories Translations', () => {
 				'MATERIAL_VEHICLES',
 				'MATERIAL_UNIFORMS',
 				'MATERIAL_RESOURCES',
-				'MATERIAL_MEDICAL'
+				'MATERIAL_MEDICAL',
 			];
 
-			legacyKeys.forEach(key => {
-				Object.keys(languages).forEach(langCode => {
+			const langCodes = Object.keys(languages);
+			for (const key of legacyKeys) {
+				for (const langCode of langCodes) {
 					const lang = languages[langCode];
 					expect(lang).toHaveProperty(key);
-				});
-			});
+				}
+			}
 		});
 	});
 });
