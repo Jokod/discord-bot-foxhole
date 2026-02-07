@@ -18,14 +18,14 @@ module.exports = {
 		if (isNaN(quantityGiven) || quantityGiven < 0 || !quantityRegex.test(quantityGiven)) {
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_QUANTITY_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
 		if (!localization || !localizationRegex.test(localization)) {
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_LOCALIZATION_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -53,7 +53,7 @@ module.exports = {
 			if (!material) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -74,7 +74,7 @@ module.exports = {
 			if (!material) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -94,7 +94,7 @@ module.exports = {
 			console.error(err);
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_VALIDATE_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

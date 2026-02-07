@@ -52,7 +52,7 @@ module.exports = {
 			console.error(err);
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_CREATE_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

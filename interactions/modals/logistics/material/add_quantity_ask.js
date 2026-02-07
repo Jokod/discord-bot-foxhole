@@ -16,7 +16,7 @@ module.exports = {
 		if (isNaN(quantity_ask) || quantity_ask < 0 || !quantityRegex.test(quantity_ask)) {
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_QUANTITY_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -28,7 +28,7 @@ module.exports = {
 			if (!material) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -38,7 +38,7 @@ module.exports = {
 			console.error(err);
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_SELECT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

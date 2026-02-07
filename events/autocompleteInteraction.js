@@ -36,7 +36,7 @@ module.exports = {
 		if (request.init && !server) {
 			return interaction.reply({
 				content: translations.translate('SERVER_IS_NOT_INIT'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 

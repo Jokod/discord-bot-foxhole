@@ -112,7 +112,7 @@ module.exports = {
 		if (!server) {
 			return interaction.reply({
 				content: translations.translate('SERVER_IS_NOT_INIT'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -132,7 +132,7 @@ module.exports = {
 		case 'infos':
 			return interaction.reply({
 				embeds: [embed],
-				ephemeral: true,
+				flags: 64,
 			});
 		case 'lang':
 			await Server.findOneAndUpdate(
@@ -145,7 +145,7 @@ module.exports = {
 
 			return interaction.reply({
 				content: translations.translate('SERVER_SET_LANG_REPLY', { lang: lang.toUpperCase() }),
-				ephemeral: true,
+				flags: 64,
 			});
 		case 'camp':
 			await Server.findOneAndUpdate(
@@ -156,12 +156,12 @@ module.exports = {
 
 			return interaction.reply({
 				content: translations.translate('SERVER_SET_CAMP_REPLY', { camp: camp.toUpperCase() }),
-				ephemeral: true,
+				flags: 64,
 			});
 		default:
 			return interaction.reply({
 				content: translations.translate('COMMAND_UNKNOWN'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

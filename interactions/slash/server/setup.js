@@ -61,7 +61,7 @@ module.exports = {
 		if (server) {
 			await interaction.reply({
 				content: translations.translate('SERVER_IS_ALREADY_INIT'),
-				ephemeral: true,
+				flags: 64,
 			});
 			return;
 		}
@@ -91,7 +91,7 @@ module.exports = {
 		return interaction.reply({
 			content: translations.translate('SERVER_IS_INIT'),
 			embeds: [embed],
-			ephemeral: true,
+			flags: 64,
 		});
 	},
 };

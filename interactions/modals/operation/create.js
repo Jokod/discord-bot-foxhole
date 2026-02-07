@@ -24,28 +24,28 @@ module.exports = {
 		if (!dateRegex.test(dateField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_DATE_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
 		if (!timeRegex.test(timeField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_TIME_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
 		if (!durationRegex.test(durationField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_DURATION_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
 		if (!descriptionRegex.test(descriptionField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_DESCRIPTION_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -110,7 +110,7 @@ module.exports = {
 
 			await interaction.reply({
 				content: translations.translate('OPERATION_CREATE_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

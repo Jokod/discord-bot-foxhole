@@ -16,14 +16,14 @@ module.exports = {
 			if (!material) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -37,7 +37,7 @@ module.exports = {
 			console.error(err);
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_UPDATE_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},
