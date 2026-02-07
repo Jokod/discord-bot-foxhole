@@ -12,17 +12,17 @@ module.exports = {
 
 		// Créer les boutons pour les grandes catégories
 		const categoryButtons = [];
-		
+
 		Object.keys(categories).forEach(categoryKey => {
 			const category = categories[categoryKey];
 			const translationKey = `CATEGORY_${categoryKey.toUpperCase()}`;
-			
+
 			const button = new ButtonBuilder()
 				.setCustomId(`logistics_select_category-${categoryKey}`)
 				.setLabel(translations.translate(translationKey))
 				.setEmoji(category.icon)
 				.setStyle(ButtonStyle.Primary);
-			
+
 			categoryButtons.push(button);
 		});
 
@@ -37,7 +37,7 @@ module.exports = {
 			const rowButtons = categoryButtons.slice(i, i + 5);
 			rows.push(new ActionRowBuilder().addComponents(...rowButtons));
 		}
-		
+
 		// Ajouter le bouton de retour
 		rows.push(new ActionRowBuilder().addComponents(buttonBack));
 

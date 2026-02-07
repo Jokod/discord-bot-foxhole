@@ -30,7 +30,7 @@ describe('Material Interaction Handlers', () => {
 			expect(categoryHandler).toHaveProperty('id');
 			expect(categoryHandler).toHaveProperty('init');
 			expect(categoryHandler).toHaveProperty('execute');
-			
+
 			expect(categoryHandler.id).toBe('logistics_select_category');
 			expect(categoryHandler.init).toBe(true);
 			expect(typeof categoryHandler.execute).toBe('function');
@@ -67,7 +67,7 @@ describe('Material Interaction Handlers', () => {
 			expect(subcategoryHandler).toHaveProperty('id');
 			expect(subcategoryHandler).toHaveProperty('init');
 			expect(subcategoryHandler).toHaveProperty('execute');
-			
+
 			expect(subcategoryHandler.id).toBe('logistics_select_subcategory');
 			expect(subcategoryHandler.init).toBe(true);
 			expect(typeof subcategoryHandler.execute).toBe('function');
@@ -124,7 +124,7 @@ describe('Material Interaction Handlers', () => {
 		it('should parse category key correctly', () => {
 			const testId = 'logistics_select_category-infantry_weapons';
 			const parts = testId.split('-');
-			
+
 			expect(parts[0]).toBe('logistics_select_category');
 			expect(parts[1]).toBe('infantry_weapons');
 		});
@@ -132,7 +132,7 @@ describe('Material Interaction Handlers', () => {
 		it('should parse subcategory keys correctly', () => {
 			const testId = 'logistics_select_subcategory-utilities-field_equipment';
 			const parts = testId.split('-');
-			
+
 			expect(parts[0]).toBe('logistics_select_subcategory');
 			expect(parts[1]).toBe('utilities');
 			expect(parts[2]).toBe('field_equipment');

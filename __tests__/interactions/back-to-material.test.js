@@ -49,7 +49,7 @@ describe('Back to Material Handler', () => {
 		it('should have correct module structure', () => {
 			expect(backToMaterialHandler).toHaveProperty('id');
 			expect(backToMaterialHandler).toHaveProperty('execute');
-			
+
 			expect(backToMaterialHandler.id).toBe('logistics_select_material_back');
 			expect(typeof backToMaterialHandler.execute).toBe('function');
 		});
@@ -78,7 +78,7 @@ describe('Back to Material Handler', () => {
 				mockInteraction,
 				expect.objectContaining({
 					owner_id: 'test-user-id',
-				})
+				}),
 			);
 
 			// Vérifier que la méthode response() a été appelée
@@ -154,7 +154,7 @@ describe('Back to Material Handler', () => {
 		it('should work with Discord.js button event handler', () => {
 			// Simule la résolution d'ID du buttonInteraction.js
 			const customId = 'logistics_select_material_back';
-			
+
 			// Le handler devrait être trouvé directement (pas de split nécessaire)
 			expect(backToMaterialHandler.id).toBe(customId);
 		});
