@@ -1,284 +1,58 @@
 [
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "120mm",
-    "itemDesc": "Payload for light artillery weapons.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Reduced damage against trenches"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "150mm",
-    "itemDesc": "Payload for heavy artillery weapons.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Reduced damage against trenches"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "20mm",
-    "itemDesc": "Standard ammunition for anti-tank rifles.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "250mm",
-    "itemDesc": "A shell that is launched over short distances by a spigot mortar.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "300mm",
-    "itemDesc": "Payload for the storm cannon.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "30mm",
-    "itemDesc": "Standard explosive shell for small vehicles or infantry weapons.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "3C-High Explosive Rocket",
-    "itemDesc": "The 3C-High Explosive Rocket (also known as HE Rockets) is a large artillery rocket.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "40mm",
-    "itemDesc": "Standard payload for light tanks.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "4C-Fire Rocket",
-    "itemDesc": "The 4C-Fire Rocket (also known as Fire Rockets) is a large artillery rocket.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "68mm AT",
-    "itemDesc": "An anti-tank shell that's effective against penetrating tank armor.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles.",
-    "vehiclePenChance": "High chance to penetrate armored vehicles."
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "94.5mm",
-    "itemDesc": "94.5mm is a large anti-tank Shell used by large cannons and very useful against armored vehicles.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "A.T.R.P.G Shell",
-    "itemDesc": "An anti-tank projectile fired from an R.P.G.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles.",
-    "vehiclePenChance": "High chance to penetrate armored vehicles."
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "A.T.R.P.G. Indirect Shell",
-    "itemDesc": "An anti-tank projectile fired from indirect R.P.G. weapons.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "High chance to penetrate armored vehicles."
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Anti-Tank Sticky Bomb",
-    "itemDesc": "An adherable grenade designed to penetrate heavy tank armor. The sticky bomb can only be thrown a short distance and is ineffective against structures.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "High chance of disabling Track subsystem"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "B2 Varsi Anti-Tank Grenade",
-    "itemDesc": "A compact anti-tank grenade that can be fired from rifle grenade launcher attachments or grenade turrets. Its dense payload excels at crippling armoured vehicles while being versatile and easy to transport.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Booker Greyhound model 190",
-    "itemDesc": "A variant of the Booker Storm Rifle, the Greyhound boasts a larger overall receiver and barrel to accommodate the increased stopping power of anti-tank rounds. Its longer, bulkier barrel allows for increased range. As a heavier automatic rifle,.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Daucus isg.III",
-    "itemDesc": "This heavy infantry cannon requires a tripod for stability. The Daucus is designed to give infantry a foothold against enemy vehicles and light fortifications or established fortified garrisons.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Dawn Ve.II",
-    "itemDesc": "A three-round burst anti-tank rifle with a high-capacity magazine. Built from a modified “Dusk” assault rifle, the receiver has been altered to support top-loaded twin-drum magazines for better stability and efficient loading to account for its more cumbersome design and higher calibre rounds.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Green Ash Grenade",
-    "itemDesc": "Green ash is an asphyxiating toxin. Inhaling it without protection will result in a quick death. Be sure to wear a gas mask with fresh filters when handling green ash.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Causes damage over time"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Incendiary Mortar Shell",
-    "itemDesc": "An incendiary payload used with mortar tubes. Will ignite objects near impact..",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Mammon 91-b",
-    "itemDesc": "This densely packed, high-explosive grenade is designed to damage structures and vehicles.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Model-7 “Evie",
-    "itemDesc": "The Model-7 “Evie” is a Colonial Depth Charge, which is a Large Item Explosive Charge that is primarily used against underwater naval vehicles, such as Submarines. In order to be launched, it must be primed to explode at a certain depth.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Molten Wind",
-    "itemDesc": "The “Molten Wind” v.II Flame Torch is a Colonial handheld Flamethrower. Due to its incendiary damage and AoE, it's best used against Structures and swarms of infantry. It can damage unarmored vehicles but not armored ones.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Moray Torpedo",
-    "itemDesc": "The Moray Torpedo is a Warden high explosive shell. It is a Large Item that is primarily used against naval vehicles.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Mortar Flare Shell",
-    "itemDesc": "A shell that ignites midair and illuminates a large area, revealing enemy targets.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Mortar Shell",
-    "itemDesc": "An explosive projectile fired from a mortar.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Reduced damage against trenches"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Mortar Shrapnel Shell",
-    "itemDesc": "A shell that explodes into shrapnel on impact, devastating nearby infantry.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Always causes target to bleed"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Quickhatch Rt.I",
-    "itemDesc": "A deadly, long-range sniper rifle with exceptional stopping power. The “Quickhatch” is a gluttonous firearm that hungers for enemy armour and flesh alike.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "R.P.G Shell",
-    "itemDesc": "An explosive projectile fired from an R.P.G.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Warhead",
-    "itemDesc": "The payload for ballistic rockets. A high yield bomb that delivers over 3 tons of TNT and is capable of leveling an entire village or town block.",
-    "itemCategory": "heavy_arms"
-  }
+ {
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Catara mo.II",
+  "itemDesc": "A light machine gun designed for sustained suppressive fire against infantry.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "KRN886-127 Gast",
+  "itemDesc": "A heavy machine gun optimized for defensive positions and prolonged suppression.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Lamentum mm.IV",
+  "itemDesc": "A heavy machine gun designed for high-volume, sustained fire and area denial.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Malone Ratcatcher",
+  "itemDesc": "A heavy machine gun with a high rate of fire, effective for infantry suppression and area control.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Molten Wind v.II Flame Torch",
+  "itemDesc": "A portable flamethrower used for close-range area denial and destruction of enemy structures.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Daucus isg.III",
+  "itemDesc": "An infantry support gun mounted on a tripod, effective against infantry, vehicles, and light fortifications.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Willow's Bane Model 845",
+  "itemDesc": "A heavy anti-tank launcher capable of firing powerful rockets against armored vehicles.",
+  "itemCategory": "heavy_arms"
+}
 ]
