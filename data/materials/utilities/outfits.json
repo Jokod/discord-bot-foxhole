@@ -1,1 +1,9 @@
-[]
+[{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Soldier Supplies",
+  "itemDesc": "Supplies used to equip and sustain infantry units, required for spawning and maintaining soldiers at bases.",
+  "itemCategory": "supplies"
+}]
