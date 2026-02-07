@@ -1,0 +1,20 @@
+[
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "KRN886-127 Gast Machine Gun",
+    "itemDesc": "The Gast is a deadly but cumbersome Kraunian heavy machine gun. It is best suited to holding and defending established fortifications or garrisoned structures against encroaching infantry.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Malone Ratcatcher MK.1",
+    "itemDesc": "Early iterations of this machinegun were built to be emplaced in bunkers and on the decks of lightly armed warships, the Ratcatcher is Harvey Malone’s first freely mountable infantry weapon designed for field use. Just like its predecessors, this heavy weapon suppresses enemy soldiers with unmatched efficiency.",
+    "itemCategory": "heavy_arms",
+    "highVelocityBonus": "",
+    "isMountable": true
+  }
+]

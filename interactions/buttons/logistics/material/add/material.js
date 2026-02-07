@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Material } = require('../../../../../data/models.js');
+const { categories } = require('../../../../../data/fournis.js');
 const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
@@ -9,54 +10,36 @@ module.exports = {
 		const { client, guild, message } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		const buttonSmallArms = new ButtonBuilder()
-			.setCustomId('logistics_select_material_small_arms')
-			.setLabel(translations.translate('MATERIAL_SMALL_ARMS'))
-			.setStyle(ButtonStyle.Primary);
-
-		const buttonHeavyArms = new ButtonBuilder()
-			.setCustomId('logistics_select_material_heavy_arms')
-			.setLabel(translations.translate('MATERIAL_HEAVY_ARMS'))
-			.setStyle(ButtonStyle.Primary);
-
-		const buttonUtilities = new ButtonBuilder()
-			.setCustomId('logistics_select_material_utilities')
-			.setLabel(translations.translate('MATERIAL_UTILITIES'))
-			.setStyle(ButtonStyle.Primary);
-
-		const buttonShipables = new ButtonBuilder()
-			.setCustomId('logistics_select_material_shipables')
-			.setLabel(translations.translate('MATERIAL_SHIPABLES'))
-			.setStyle(ButtonStyle.Primary);
-
-		const buttonVehicles = new ButtonBuilder()
-			.setCustomId('logistics_select_material_vehicles')
-			.setLabel(translations.translate('MATERIAL_VEHICLES'))
-			.setStyle(ButtonStyle.Primary);
-
-		const buttonUniforms = new ButtonBuilder()
-			.setCustomId('logistics_select_material_uniforms')
-			.setLabel(translations.translate('MATERIAL_UNIFORMS'))
-			.setStyle(ButtonStyle.Primary);
-
-		const buttonResources = new ButtonBuilder()
-			.setCustomId('logistics_select_material_resources')
-			.setLabel(translations.translate('MATERIAL_RESOURCES'))
-			.setStyle(ButtonStyle.Primary);
-
-		const buttonMedical = new ButtonBuilder()
-			.setCustomId('logistics_select_material_medicals')
-			.setLabel(translations.translate('MATERIAL_MEDICAL'))
-			.setStyle(ButtonStyle.Primary);
+		// Créer les boutons pour les grandes catégories
+		const categoryButtons = [];
+		
+		Object.keys(categories).forEach(categoryKey => {
+			const category = categories[categoryKey];
+			const translationKey = `CATEGORY_${categoryKey.toUpperCase()}`;
+			
+			const button = new ButtonBuilder()
+				.setCustomId(`logistics_select_category-${categoryKey}`)
+				.setLabel(translations.translate(translationKey))
+				.setEmoji(category.icon)
+				.setStyle(ButtonStyle.Primary);
+			
+			categoryButtons.push(button);
+		});
 
 		const buttonBack = new ButtonBuilder()
 			.setCustomId('logistics_select_material_back')
 			.setLabel(translations.translate('BACK'))
 			.setStyle(ButtonStyle.Secondary);
 
-		const firstArrowRow = new ActionRowBuilder().addComponents(buttonSmallArms, buttonUtilities, buttonHeavyArms, buttonMedical);
-		const secondArrowRow = new ActionRowBuilder().addComponents(buttonShipables, buttonVehicles, buttonUniforms, buttonResources);
-		const thirdArrowRow = new ActionRowBuilder().addComponents(buttonBack);
+		// Organiser les boutons en lignes (max 5 boutons par ligne)
+		const rows = [];
+		for (let i = 0; i < categoryButtons.length; i += 5) {
+			const rowButtons = categoryButtons.slice(i, i + 5);
+			rows.push(new ActionRowBuilder().addComponents(...rowButtons));
+		}
+		
+		// Ajouter le bouton de retour
+		rows.push(new ActionRowBuilder().addComponents(buttonBack));
 
 		try {
 			const material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
@@ -77,7 +60,7 @@ module.exports = {
 
 			await interaction.update({
 				content: `${translations.translate('MATERIAL_SELECT_TYPE')}`,
-				components: [firstArrowRow, secondArrowRow, thirdArrowRow],
+				components: rows,
 			});
 		}
 		catch (error) {

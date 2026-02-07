@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Heavy Explosive Materials",
+    "itemDesc": "Heavy Explosive Materials (also known as HEmats) is a mid-to-late game material used in the crafting of the heavier equipment, specifically explosives.",
+    "itemCategory": "resources"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Basic Materials",
+    "itemDesc": "Basic Materials (also known as bmats) is a very common material with numerous applications in the game. It is used in the production, construction, and repair of various equipment, structures, and vehicles.",
+    "itemCategory": "resources"
+  }
+]

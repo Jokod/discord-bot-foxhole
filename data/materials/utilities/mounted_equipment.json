@@ -1,0 +1,135 @@
+[
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "\"Typhon\" ra.XII",
+    "itemDesc": "This mounted anti-tank rifle boasts improved accuracy over its free-standing counterparts. The Typhon was specifically designed with shock absorption in mind, allowing for faster, more consistent firing patterns.",
+    "itemCategory": "heavy_arms",
+    "isMountable": true
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "12.7mm",
+    "itemDesc": "Standard ammunition for all machine guns, including vehicle mounted weapons like those on the half-track and battle tank.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "AB-11 \"Doru\"",
+    "itemDesc": "With its mounted machinegun, the Doru is the perfect addition to any shoreline assault.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Bane 45",
+    "itemDesc": "This shoulder-mounted heavy launcher is the first of its kind. It features heavy blast shielding and is capable of launching anti-tank charges over relatively large distances.",
+    "itemCategory": "heavy_arms",
+    "damageDesc": "Can penetrate armored vehicles",
+    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles.",
+    "vehiclePenChance": "High chance to penetrate armored vehicles."
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Drummond Spitfire 100d",
+    "itemDesc": "This LMG-mounted Light Utility Vehicle provides a heavy-duty weapons platform with superior speed. Perfectly suited for supporting flanking infantry or an armored assault.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Flame Ammo",
+    "itemDesc": "Flame Ammo is a large Magazine used by vehicles with mounted Flame weaponry.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Gallagher Brigand Mk. I",
+    "itemDesc": "The first of Colm Gallagher’s mid-sized tanks, the Brigand is a true brute on the battlefield. Not quite as sturdy as its younger siblings, the Brigand compensates with higher mobility, which, when paired with a mounted machine gun and 30mm repeater cannon, is a deadly force in any armour division.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "HH-a \"Javelin\"",
+    "itemDesc": "Designed for escort missions and to support infantry operations, the HH-a class \"Javelin\" Half-Track is an armored, versatile all-terrain vehicle equipped with a mounted machinegun.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Lamentum mm.IV",
+    "itemDesc": "Built on the bones of the first automatic weapons introduced to the Legion, the \"Lamentum\" mm.IV is still quite an intimidating force to encounter on the battlefield. Boasting a large magazine and impressive active range, this mounted machinegun excels at laying down consistent suppressive fire.",
+    "itemCategory": "heavy_arms",
+    "highVelocityBonus": "Equipped with a high velocity barrel that deals 50% extra damage per shot."
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Mounted Bonesaw MK.3",
+    "itemDesc": "This variant of the Bonesaw MK.3 is specially designed for use with tripod mounts. This affords it with increased stability and maximum potential range.",
+    "itemCategory": "heavy_arms",
+    "damageDesc": "Can penetrate armored vehicles",
+    "vehiclePen": "High chance to penetrate armored vehicles."
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Niska Mk. I Gun Motor Carriage",
+    "itemDesc": "Designed for escort missions and to support infantry operations, the Niska Gun Motor Carriage Half-Track is an armored, versatile all-terrain vehicle equipped with a mounted machinegun.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "R-12b - “Salva” Flame Truck",
+    "itemDesc": "The R-12b - “Salva” Flame Truck is a Colonial Fire Engine equipped with a rear-mounted Water Cannon designed to combat fires from incendiary weaponry and extinguish them.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "T20 \"Ixion\" Tankette",
+    "itemDesc": "A bombastic variant of the T12 Tankette, the \"Ixion\" provides its crew with more support and mounted Infantry Support Gun. Added weight from the armor results in reduced overall speed.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Tripod",
+    "itemDesc": "A mount point for deployable infantry weapons and equipment.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "UV-24 \"Icarus\"",
+    "itemDesc": "This RPG-mounted Light Utility Vehicle provides a heavy-duty weapon platform with suerior speed. Perfectly suited for assaulting enemy structures and vehicles, or supporting an armored assault.",
+    "itemCategory": "vehicles",
+    "damageDesc": "Can penetrate armored vehicles",
+    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
+  }
+]

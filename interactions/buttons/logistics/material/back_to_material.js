@@ -1,7 +1,11 @@
-const ResponseMaterial = require('../../../../../utils/interaction/response_material.js');
-const { Material } = require('../../../../../data/models.js');
-const Translate = require('../../../../../utils/translations.js');
+const ResponseMaterial = require('../../../../utils/interaction/response_material.js');
+const { Material } = require('../../../../data/models.js');
+const Translate = require('../../../../utils/translations.js');
 
+/**
+ * Handler pour le bouton retour depuis la sélection de catégories
+ * Retourne à l'écran principal du matériel
+ */
 module.exports = {
 	id: 'logistics_select_material_back',
 

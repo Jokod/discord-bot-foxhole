@@ -1,0 +1,271 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": ".44",
+    "itemDesc": "Standard ammunition for revolvers.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "\"Dusk\" ce.III",
+    "itemDesc": "This unique assault rifle includes a high-capacity drum magazine designed for sustained rapid fire.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "\"Lionclaw\" mc.VIII",
+    "itemDesc": "A heavier, modern variation of the Pitch Gun, the Lionclaw Performs well as a decent, all-around submachine gun designed as a primary firearm in urban and close-quarters combat operations.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "\"The Pitch Gun\" mc. V",
+    "itemDesc": "This classic submachine gun is sturdy and irreplaceable as a general tool for close-range engagements. The \"Pitch Gun\" earned its namesake from Mesean sailors who employed the weapon to successfully defend against a night raid on the Geraston docks.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "135 Neville Anti-Tank Rifle",
+    "itemDesc": "The Neville is unmatched in its versatility as a portable, magazine-based anti-armor firearm.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "228 Satterley Heavy Storm Rifle",
+    "itemDesc": "While the Satterley is designed to be operated by a single infantryman, it remains a cumbersome rifle due to its heavy kickback and burst fire configuration. This heavy burst rifle is best suited for small squads to blindside enemy armour, stripping steel with ease, but its cumbersome setup makes it less than ideal for infantry skirmishes.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Aalto Storm Rifle 24",
+    "itemDesc": "Widely considered to be the first storm rifle, the Aalto is a marvel in Caoivish engineering. With its two fire modes, it can be used as a rapid-fire assault weapon or a mid-range rifle.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Argenti r.II Rifle",
+    "itemDesc": "The primary infantry rifle of the Colonial legion. Its predecessor, the Volta repeater, was a sturdy, reliable firearm but had many limitations, namely, fire rate. The Argenti solves this limitation as well as being more compact and lightweight.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Blakerow 871",
+    "itemDesc": "The Blakerow is a carbine with a high rate of fire compared to its bolt-action predecessor. This increased fire rate does come at the cost of innate stopping power; however, its versatility and lightweight frame more than makes up for any perceived shortcomings.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Booker Storm Rifle Model 838",
+    "itemDesc": "The Booker is a high-impact three-round burst Storm Rifle for those who like to shoot first.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Brasa Shotgun",
+    "itemDesc": "This close-range firearm is an Estrellan import originally designed for hunting wild game. The Brasa is primarily used in urban operations.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Cascadier 873",
+    "itemDesc": "This unique sidearm fires in three-round bursts. The Cascadier may not have the stopping power of its cousins, but it more than makes up for it with its lightweight frame, concealability, and fire rate.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Catara mo.II",
+    "itemDesc": "A titanic light machine gun capable of scattering infantry lines with ease, the Catara is a modern weapon for the modern Colonial.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Catena rt.IV",
+    "itemDesc": "Le Catena rt.IV Auto-Rifle est un fusil automatique colonial, conçu pour permettre au joueur de tirer de manière soutenue pendant un certain temps. Contrairement à la plupart des fusils, il excelle dans les barrages soutenus, adéquats pour attaquer de grands groupes d'ennemis où la meilleure décision tactique est de ralentir l'avancée de l'ennemi grâce au volume de tirs, plutôt que de le tuer carrément",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Chevrotine",
+    "itemDesc": "Le calibre utilisé par les fusils de chasse",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Clancy Cinder M3",
+    "itemDesc": "The Clancy Cinder is a classic, high-powered long rifle designed for use in mid-to-long range encounters. First deployed with the Hands during a high-risk operation in Acrithia.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Clancy-Raca M4",
+    "itemDesc": "A heavy-duty, long-range marksman rifle. The Clancy-Raca has one hell of a kick but is fitted with a powerful scope, allowing infantry to survey the battlefield and provide support from a safe location.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Cometa T2-9",
+    "itemDesc": "The Cometa T2-9 boasts remarkable stopping power for a sidearm. This Estrellan mainstay has lived through several generations due to its fine craftsmanship design.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Eleos Infantry Dagger",
+    "itemDesc": "Standard-issue Mesean military dagger. Its long, slender blade excels in close-quarters combat as well as a plethora of uses in everyday operations.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Falias Raiding Club",
+    "itemDesc": "A heavy mace constructed from solid wood and dotted with lead rivets. Commonly used when raiding entrenched positions in close quarters where firearms are less effective and an old-fashioned bludgeoning is better suited for the job.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Fiddler Submachine Gun Model 868",
+    "itemDesc": "The Fiddler Submachine gun is a widely used urban combat weapon. Its high rate of fire and compact frame makes it ideal for close-quarters engagements.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Fuscina pi.I",
+    "itemDesc": "This unique rifle fires three rounds in rapid succession. The Fuscina is the first of its kind, designed for laying down suppressive fire during assaults on fortified enemy entrenchments.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "KRF1-750 Dragonfly",
+    "itemDesc": "A short-range firearm that has origins in both sport shooting and bird hunting. Its long stock and sturdy undercarriage give the Dragonfly stability and control that make it a worthy companion to many Kraunian soldiers deployed in urban centres.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "KRR2-790 Omen",
+    "itemDesc": "An older but reliable model of Kraunian long rifle. The Omen is a sturdy, simple weapon best used in long-distance skirmishes.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "KRR3-792 Auger",
+    "itemDesc": "A Kraunian rifle modified for long-range engagements. It doesn't have the range or stopping power of other marksman rifles but more than makes up for it with unmatched reliability in a range of environments and a superior effective rate of fire.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Malone MK.2",
+    "itemDesc": "This heavy machine gun is bulky enough to require a steady surface to maintain stability. The Malone series of machine guns are unmatched defenders on the battlefield.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "No.1 \"The Liar\" Submachinegun",
+    "itemDesc": "This unique, heavy-duty submachine gun is not very useful on the run, but with careful aim and adequate cover, becomes a razorblade in the night.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "No.2 Loughcaster",
+    "itemDesc": "Standard-issue Warden rifle. This bolt-action firearm is as robust as they come and has seen over a century of use on the battlefield.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "No.4 The Pillory Scattergun",
+    "itemDesc": "A hunting shotgun with a sawn-off barrel for higher stopping power and mobility at the expense of accuracy. This traditional civilian firearm can fire two shots in rapid succession before needing to be reloaded. It became a favourite sidearm among Caoivish Watchers and has since earned quite an ominous reputation as a result.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "PT-815 Smoke Grenade",
+    "itemDesc": "A standard smoke grenade designed for concealing allied movement or screening the enemy's vision.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Sampo Auto-Rifle 77",
+    "itemDesc": "The precursor to the storm rifle, the Sampo Auto-Rifle, is a mastercraft of its day. With a single shot and automatic fire mode, this versatile rifle may not reach the fire rates of automatic weapons but more than makes up for it with utility.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "The Hangman 757",
+    "itemDesc": "The weapon of choice for pirates and smugglers, its legend is well-earned. With incredibly high stopping power and unique revolver mechanism, the Hangman often playes judge, jury, and executioner.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Volta r.I Repeater",
+    "itemDesc": "An old war Mesean rifle. It boasts high stopping power, but not as accurate as its modern variant. A weapon of legend, the Howling Lions wielded the Volta during their raid on the beaches of Fisherman's Row.",
+    "itemCategory": "small_arms"
+  }
+]

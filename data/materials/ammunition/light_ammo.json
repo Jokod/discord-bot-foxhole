@@ -1,0 +1,64 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "7.62mm",
+    "itemDesc": "Standard ammunition for rifles.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "7.92mm",
+    "itemDesc": "Standard ammunition for storm rifles, light machine guns, and armored cars.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "8.5mm",
+    "itemDesc": "Standard ammunition for sniper rifles.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "8mm",
+    "itemDesc": "Standard ammunition for pistols.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "9mm SMG",
+    "itemDesc": "Standard ammunition for submachine guns.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Buckshot",
+    "itemDesc": "Standard ammunition for Shotguns.",
+    "itemCategory": "small_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Collins Cannon 68mm",
+    "itemDesc": "The Collins Cannon is a mobile Anti-Tank field gun firing 68mm armor-piercing rounds.",
+    "itemCategory": "vehicles"
+  }
+]

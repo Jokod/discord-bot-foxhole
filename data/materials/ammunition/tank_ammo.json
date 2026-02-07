@@ -1,0 +1,19 @@
+[
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Balfour Rampart 40mm",
+    "itemDesc": "The Rampart is a high-velocity, anti-armor field cannon capable of dealing devasting damage to all but the heaviest armored vehicles while providing its crew with comprehensive ballistic shielding.",
+    "itemCategory": "vehicles",
+    "highVelocityBonus": "Equipped with a high velocity barrel that deals 115% extra damage per shot."
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Balfour Wolfhound 40mm",
+    "itemDesc": "This destructive short-ranged cannon is designed for direct engagement with enemy fortifications. The Wolfhound is fitted with reinforced shielding and a 40mm barrel.",
+    "itemCategory": "vehicles"
+  }
+]

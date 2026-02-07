@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Gravel",
+    "itemDesc": "Gravel is a resource only used for building Provisional Roads and Foundations.",
+    "itemCategory": "resources"
+  }
+]
