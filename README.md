@@ -35,17 +35,85 @@ Before using the Discord Bot for Foxhole, you will need to perform some configur
 
 If you want to host your own instance of the Discord Bot for Foxhole, follow these steps:
 
-1. Clone this GitHub repository to your machine.
+### Prerequisites
 
-2. Install dependencies using your preferred package manager (e.g., npm or yarn) by running `npm install`.
+- Node.js v16.11.0 or higher (v20.x recommended)
+- MongoDB (local or MongoDB Atlas)
+- A Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
 
-3. Configure the necessary environment variables in a `.env` file based on the provided `.env.dist` file.
+### Setup Steps
 
-4. Start the application using `npm run start`.
+1. **Clone this GitHub repository** to your machine:
+   ```bash
+   git clone https://github.com/Jokod/discord-bot-foxhole.git
+   cd discord-bot-foxhole
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**:
+   ```bash
+   cp .env.dist .env
+   ```
+   
+   Edit `.env` and fill in the required values:
+   - `TOKEN`: Your Discord bot token
+   - `CLIENT_ID`: Your Discord application ID
+   - `MONGODB_URL`: MongoDB connection URL
+   - `MONGODB_NAME`: Database name (e.g., "foxhole-bot")
+   - `OWNER`: Your Discord user ID
+   - `TEST_GUILD_ID`: Your test server ID (for development)
+   - `APP_ENV`: Set to `dev` for development, `prod` for production
+
+4. **Invite the bot to your server**:
+   
+   Use this URL (replace `YOUR_CLIENT_ID` with your actual Client ID):
+   ```
+   https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=328565001280&scope=bot%20applications.commands
+   ```
+   
+   ⚠️ **Important**: Make sure to include both `bot` and `applications.commands` scopes!
+
+5. **Start the application**:
+   ```bash
+   npm run start      # Production
+   npm run dev        # Development (with auto-reload)
+   # or
+   make start         # Production
+   make dev           # Development
+   ```
+
+### Troubleshooting
+
+If you encounter any issues during setup or runtime, please refer to the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) file for common problems and solutions.
+
+For detailed information about recent updates and changes, see [MIGRATION.md](MIGRATION.md).
 
 ## Usage
 
 Once the bot is configured on your Discord server, you can use its commands to create operations, manage logistics, and more. Check out [the wiki](https://github.com/Jokod/discord-bot-foxhole/wiki) for more details on available commands and features.
+
+## Testing
+
+This project includes unit tests to ensure code quality and reliability.
+
+### Run tests
+
+```bash
+npm test                # Run all tests
+npm run test:watch      # Run tests in watch mode
+npm run test:coverage   # Run tests with coverage report
+
+# Or using make
+make test              # Run all tests
+make test-watch        # Run tests in watch mode
+make test-coverage     # Run tests with coverage
+```
+
+For more information about testing, see [TESTING.md](TESTING.md).
 
 ## Contribute
 

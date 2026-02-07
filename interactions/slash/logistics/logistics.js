@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { Group, Material, Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { getRandomColor } = require('../../../utils/colors.js');
 
 module.exports = {
 	init: true,
@@ -164,7 +165,7 @@ module.exports = {
 			const content = await Promise.all(promises);
 
 			const embed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(translations.translate('GROUPS_OF_OPERATION', { title: operation.title }))
 				.setDescription(content.join('\n\n'));
 
@@ -201,7 +202,7 @@ module.exports = {
 			});
 
 			const embed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(`${translations.translate('MATERIAL_LIST_OF_GROUP')} #${inputListId}`)
 				.setDescription(content.join('\n\n'));
 
@@ -228,7 +229,7 @@ module.exports = {
 			const content = `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
 
 			const embed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(`${translations.translate('MATERIAL_DETAIL')} #${material.material_id}`)
 				.setDescription(content);
 
@@ -240,7 +241,7 @@ module.exports = {
 
 		else {
 			const helpEmbed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(translations.translate('LOGISTIC_LIST_COMMANDS'))
 				.setDescription(
 					'`' +

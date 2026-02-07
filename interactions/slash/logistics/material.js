@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Group, Material } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { getRandomColor } = require('../../../utils/colors.js');
 
 module.exports = {
 	init: true,
@@ -156,7 +157,7 @@ module.exports = {
 		switch (interaction.options.getSubcommand()) {
 		case 'help':
 			const helpEmbed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(translations.translate('LOGISTIC_LIST_COMMANDS'))
 				.setDescription(
 					'`' +
@@ -244,7 +245,7 @@ module.exports = {
 			const content = `**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
 
 			const embed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(`${translations.translate('MATERIAL_DETAIL')} #${material.material_id}`)
 				.setDescription(content);
 

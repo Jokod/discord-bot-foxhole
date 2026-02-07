@@ -9,7 +9,7 @@
 NPM           = npm
 
 SSH_COMMAND := ssh -F /home/jordan/.ssh/config -p 822 nas-synology
-REMOTE_PATH := /var/services/web/foxbot
+REMOTE_PATH := /volume1/docker/foxbot
 
 # Misc
 .DEFAULT_GOAL = help
@@ -30,13 +30,22 @@ clean: # Clean
 	rm -rf yarn-error.log npm-debug.log
 
 ## —— Quality insurance ✨ ——————————————————————————————————————————————————————
-check: lint ## Run all coding standards checks
+check: lint test ## Run all coding standards checks and tests
 
-lint: ## Lint files with php-cs-fixer
-	$(NPM) run lint --dry-run
+lint: ## Lint files with eslint
+	$(NPM) run lint
 
-fix: ## Fix files with php-cs-fixer
+fix: ## Fix files with eslint
 	$(NPM) run fix
+
+test: ## Run tests
+	$(NPM) test
+
+test-watch: ## Run tests in watch mode
+	$(NPM) run test:watch
+
+test-coverage: ## Run tests with coverage
+	$(NPM) run test:coverage
 
 ## —— NPM 🐱 / JavaScript —————————————————————————————————————————————————————
 js-install:

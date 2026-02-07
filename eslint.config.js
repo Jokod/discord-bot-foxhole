@@ -59,4 +59,24 @@ module.exports = [
 			'no-case-declarations': 'off',
 		},
 	},
+	{
+		files: ['__tests__/**/*.js', 'jest.setup.js', 'jest.config.js'],
+		languageOptions: {
+			globals: {
+				// Jest globals
+				describe: 'readonly',
+				it: 'readonly',
+				test: 'readonly',
+				expect: 'readonly',
+				beforeEach: 'readonly',
+				afterEach: 'readonly',
+				beforeAll: 'readonly',
+				afterAll: 'readonly',
+				jest: 'readonly',
+			},
+		},
+		rules: {
+			'no-unused-vars': 'off',
+		},
+	},
 ];

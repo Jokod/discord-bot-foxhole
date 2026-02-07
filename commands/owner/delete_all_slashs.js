@@ -25,7 +25,6 @@ module.exports = {
 			console.log(error);
 			message.channel.send({
 				content: 'An error occured while deleting all slash commands.',
-				ephemeral: true,
 			});
 		}
 	},

@@ -31,7 +31,7 @@ module.exports = {
 				const parentChannel = client.channels.cache.get(interaction.channel.parentId);
 				await parentChannel.messages.fetch(thread.id).then(msg => msg.delete());
 
-				await thread.delete(true);
+				await thread.delete();
 
 				await group.deleteOne({ guild_id: guild.id, threadId: `${channelId}` });
 			}).catch(err => {
