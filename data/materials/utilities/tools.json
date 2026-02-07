@@ -1,92 +1,38 @@
 [
   {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Binoculars",
-    "itemDesc": "An optical instrument used for viewing distant objects.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Gas Mask",
-    "itemDesc": "Protects against poison gas.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Gas Mask Filter",
-    "itemDesc": "When attached to a gas mask, this filter provides fresh air to the wearer.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Listening Kit",
-    "itemDesc": "A device used to intercept enemy radio broadcasts transmitted from nearby sources.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Radio",
-    "itemDesc": "Receives map intelligence updates.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Radio Backpack",
-    "itemDesc": "Automatically gathers map intel periodically when equipped. The radio backpack is also used to transmit other sensitive information across long distances.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Shovel",
-    "itemDesc": "A tool for digging trenches and other entrenched structures.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Sledge Hammer",
-    "itemDesc": "A tool used to salvage components from remains of old vehicles and equipment.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Water Bucket",
-    "itemDesc": "The Water Bucket is a faction-neutral piece equipment used to put out fires. It is equipped in your 1st equipment slot and used similarly to a grenade. It is one of two objects capable of extinguishing a fire. Similar to other weapons, it starts off without 'ammunition' (aka water), and must be 'reloaded' (aka filling it up with water at bodies of water, Water Wells, or with Water cans in your inventory) in order to be used. The Water Bucket weighs 1.8% when empty, but weighs 60% when filled (regardless of charges).",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Wrench",
-    "itemDesc": "A multipurpose tool. Can be used to dismantle mines/barbed wire and unlock vehicles.",
-    "itemCategory": "utilities"
-  }
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Shovel",
+  "itemDesc": "A basic tool used to dig trenches, foxholes, and other field fortifications.",
+  "itemCategory": "utilities"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Sledge Hammer",
+  "itemDesc": "A construction tool used to build, upgrade, and repair structures and emplacements.",
+  "itemCategory": "utilities"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Water Bucket",
+  "itemDesc": "A bucket filled with water used to extinguish fires and reduce flame damage.",
+  "itemCategory": "utilities"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Wrench",
+  "itemDesc": "A tool used to dismantle structures, vehicles, and emplacements when permitted.",
+  "itemCategory": "utilities"
+}
 ]
