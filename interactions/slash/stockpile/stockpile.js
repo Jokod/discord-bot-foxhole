@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { Stockpile } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { getRandomColor } = require('../../../utils/colors.js');
 
 module.exports = {
 	init: true,
@@ -145,7 +146,7 @@ module.exports = {
 				.join(', ');
 
 			const helpEmbed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(translations.translate('STOCKPILE_LIST_COMMANDS'))
 				.setDescription(`\`${commandNames}\``);
 
@@ -228,7 +229,7 @@ module.exports = {
 			});
 
 			const embed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle(translations.translate('STOCKPILE_LIST'))
 				.setDescription(stockList.join('\n\n'));
 

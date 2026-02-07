@@ -127,7 +127,7 @@ export interface SelectInteractionCommand {
 	 * @param interaction The interaction that triggered this command.
 	 */
 	execute(
-		interaction: Discord.SelectMenuInteraction & { client: Client }
+		interaction: Discord.StringSelectMenuInteraction & { client: Client }
 	): void | Promise<void>;
 }
 

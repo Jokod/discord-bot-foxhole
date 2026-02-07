@@ -124,7 +124,15 @@ const commandJsonData = [
 		console.log(`Successfully reloaded application (/) commands in ${process.env.APP_ENV}.`);
 	}
 	catch (error) {
-		console.error(error);
+		if (error.code === 50001) {
+			console.error('❌ Erreur: Le bot n\'a pas les permissions pour enregistrer les commandes slash.');
+			console.error('📝 Solution: Réinvitez le bot avec les scopes "bot" ET "applications.commands"');
+			console.error(`🔗 URL d'invitation: https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENT_ID}&permissions=328565001280&scope=bot%20applications.commands`);
+			console.error('\n⚠️  Alternative: Changez APP_ENV=prod dans .env pour utiliser les commandes globales (prend 1h à se synchroniser)');
+		}
+		else {
+			console.error(error);
+		}
 	}
 })();
 

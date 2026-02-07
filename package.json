@@ -8,16 +8,21 @@
 		"start": "node bot.js",
 		"dev": "nodemon bot.js",
 		"lint": "eslint .",
-		"fix": "eslint --fix ."
+		"fix": "eslint --fix .",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage"
 	},
 	"dependencies": {
-		"discord.js": "^14.16.3",
-		"dotenv": "^16.4.5",
-		"mongoose": "^8.8.2"
+		"discord.js": "^14.25.1",
+		"dotenv": "^17.2.4",
+		"mongoose": "^9.1.6"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.0.0",
-		"eslint": "^9.30.1"
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.0.0",
+		"jest": "^30.2.0",
+		"undici": "^7.21.0"
 	},
 	"lint-staged": {
 		"*.js": [

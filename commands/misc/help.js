@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { EmbedBuilder, ChannelType } = require('discord.js');
+const { getRandomColor } = require('../../utils/colors.js');
 
 module.exports = {
 	name: 'help',
@@ -20,7 +21,7 @@ module.exports = {
 			 */
 
 			const helpEmbed = new EmbedBuilder()
-				.setColor('Random')
+				.setColor(getRandomColor())
 				.setTitle('List of commands')
 				.setDescription(
 					'`' + commands.map((command) => command.name).join('`, `') + '`',
@@ -45,11 +46,10 @@ module.exports = {
 
 					message.reply({
 						content: 'I\'ve sent you a DM with all my commands!',
-						ephemeral: true,
 					});
 				})
 				.catch((error) => {
-					// On failing, throw error.
+				// On failing, throw error.
 
 					console.error(
 						`I could not send help DM to ${message.author.tag}.\n`,
@@ -58,7 +58,6 @@ module.exports = {
 
 					message.reply({
 						content: 'It seems like I can\'t DM you!',
-						ephemeral: true,
 					});
 				});
 		}
@@ -81,7 +80,6 @@ module.exports = {
 		if (!command) {
 			return message.reply({
 				content: 'That\'s not a valid command!',
-				ephemeral: true,
 			});
 		}
 
@@ -91,7 +89,7 @@ module.exports = {
 		 */
 
 		const commandEmbed = new EmbedBuilder()
-			.setColor('Random')
+			.setColor(getRandomColor())
 			.setTitle('Help for the command `' + command.name + '`');
 
 		if (command.description) {commandEmbed.setDescription(`${command.description}`);}

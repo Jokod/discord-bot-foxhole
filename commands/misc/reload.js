@@ -24,7 +24,6 @@ module.exports = {
 		if (!command) {
 			return message.channel.send({
 				content: `There is no command with name or alias \`${commandName}\`, ${message.author}!`,
-				ephemeral: true,
 			});
 		}
 
@@ -62,16 +61,14 @@ module.exports = {
 			// 🎉 Confirmation sent if reloading was successful!
 			message.channel.send({
 				content: `Command \`${command.name}\` was reloaded!`,
-				ephemeral: true,
 			});
 		}
 		catch (error) {
-			// Catch block executes if there is any error in your code. It logs the error in console and also sends back in discord GUI.
+		// Catch block executes if there is any error in your code. It logs the error in console and also sends back in discord GUI.
 
 			console.error(error);
 			message.channel.send({
 				content: `There was an error while reloading a command \`${command.name}\`:\n\`${error.message}\``,
-				ephemeral: true,
 			});
 		}
 	},

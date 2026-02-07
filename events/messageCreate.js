@@ -92,7 +92,6 @@ module.exports = {
 		if (command.init && !server) {
 			return message.reply({
 				content: translations.translate('SERVER_IS_NOT_INIT'),
-				ephemeral: true,
 			});
 		}
 
@@ -101,7 +100,6 @@ module.exports = {
 		if (command.ownerOnly && message.author.id !== process.env.OWNER) {
 			return message.reply({
 				content: translations.translate('OWNER_ONLY'),
-				ephemeral: true,
 			});
 		}
 
@@ -110,7 +108,6 @@ module.exports = {
 		if (command.guildOnly && message.channel.type === ChannelType.DM) {
 			return message.reply({
 				content: translations.translate('NO_DM'),
-				ephemeral: true,
 			});
 		}
 
@@ -122,7 +119,6 @@ module.exports = {
 			if (!authorPerms || !authorPerms.has(command.permissions)) {
 				return message.reply({
 					content: translations.translate('NO_PERMS'),
-					ephemeral: true,
 				});
 			}
 		}
@@ -138,7 +134,6 @@ module.exports = {
 
 			return message.channel.send({
 				content: reply,
-				ephemeral: true,
 			});
 		}
 
@@ -161,7 +156,6 @@ module.exports = {
 				const timeLeft = (expirationTime - now) / 1000;
 				return message.reply({
 					content: translations.translate('COMMAND_COOLDOWN', { time: timeLeft.toFixed(1), command: command.name }),
-					ephemeral: true,
 				});
 			}
 		}
@@ -179,7 +173,6 @@ module.exports = {
 			console.error(error);
 			message.reply({
 				content: translations.translate('COMMAND_EXECUTE_ERROR'),
-				ephemeral: true,
 			});
 		}
 	},

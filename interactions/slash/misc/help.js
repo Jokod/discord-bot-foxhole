@@ -1,4 +1,5 @@
 const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { getRandomColor } = require('../../../utils/colors.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -36,7 +37,7 @@ module.exports = {
 
 		let name = interaction.options.getString('command');
 
-		const helpEmbed = new EmbedBuilder().setColor('Random');
+		const helpEmbed = new EmbedBuilder().setColor(getRandomColor());
 
 		if (name) {
 			name = name.toLowerCase();
@@ -55,7 +56,7 @@ module.exports = {
 			else {
 				helpEmbed
 					.setDescription(`The command \`${name}\` doesn't exist!`)
-					.setColor('Red');
+					.setColor(0xFF0000);
 			}
 		}
 		else {
