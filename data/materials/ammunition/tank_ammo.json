@@ -1,19 +1,56 @@
 [
   {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Balfour Rampart 40mm",
-    "itemDesc": "The Rampart is a high-velocity, anti-armor field cannon capable of dealing devasting damage to all but the heaviest armored vehicles while providing its crew with comprehensive ballistic shielding.",
-    "itemCategory": "vehicles",
-    "highVelocityBonus": "Equipped with a high velocity barrel that deals 115% extra damage per shot."
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Balfour Wolfhound 40mm",
-    "itemDesc": "This destructive short-ranged cannon is designed for direct engagement with enemy fortifications. The Wolfhound is fitted with reinforced shielding and a 40mm barrel.",
-    "itemCategory": "vehicles"
-  }
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "30mm Shell",
+  "itemDesc": "A 30mm cannon shell used by light vehicle-mounted weapons for anti-infantry and light vehicle engagements.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "40mm Shell",
+  "itemDesc": "A 40mm high-explosive shell commonly used by field cannons and vehicle-mounted turrets. Effective against infantry, vehicles, and structures.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "68mm Shell",
+  "itemDesc": "A 68mm armor-piercing shell designed for anti-tank field guns and heavy vehicle cannons.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "75mm Shell",
+  "itemDesc": "A powerful 75mm shell used by heavy vehicle cannons, capable of dealing significant damage to armored targets and fortified positions.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "94.5mm Shell",
+  "itemDesc": "A high-caliber 94.5mm shell designed for heavy armor engagements and destruction of reinforced structures.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "950-70b Anti-Aircraft Shell",
+  "itemDesc": "A specialized anti-aircraft shell designed to engage fast-moving aerial targets using high-explosive fragmentation.",
+  "itemCategory": "heavy_arms"
+}
 ]
