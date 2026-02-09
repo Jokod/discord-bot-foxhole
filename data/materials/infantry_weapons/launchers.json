@@ -1,62 +1,90 @@
 [
   {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "AP⧸RPG",
-    "itemDesc": "The AP⧸RPG is a Colonial anti-tank shell used in the Venom c.II 35 and Bane 45. It's primary use is to be used on armored vehicles in order to deal tons of damage against them. However, it can also deal moderate damage against structures if need be, though this is not recommended due to there being more effective tools to take down structures. Like other RPG shells, its trajectory is affected by gravity as represented by the slightly curved white line when aiming a RPG",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Bonesaw MK.3",
-    "itemDesc": "The pride of the Warden anti-armored arsenal, the Bonesaw Mk.3 has one job; to cut through heavy metal plating of Colonial tanks.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "High chance to penetrate armored vehicles."
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Cutler Foebreaker",
-    "itemDesc": "This unique duel-barrelled RPG launcher can fire two RPG shells in relatively quick succession. This increase in firepower makes it nearly impossible for a single soldier to operate without the support of a sturdy mount.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Cutler Launcher 4",
-    "itemDesc": "The Cutler Launcher is capable of firing and unguided, rocket-propelled grenade over short distances with startling efficiency. Its simple design allows for easy deployment and storage.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Ignifist 30",
-    "itemDesc": "This single-use rocket can be fired a short distance. Designed to punch holes into tanks, the ignifist is the perfect tool for infantry anticipating armored resistance.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles.",
-    "vehiclePenChance": "High chance to penetrate armored vehicles."
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Venom c.II 35",
-    "itemDesc": "The venom RPG launcher fires anti-tank charges. Its simple design makes it easy to deploy, even in high-stakes operations",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Can penetrate armored vehicles",
-    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles.",
-    "vehiclePenChance": "High chance to penetrate armored vehicles."
-  }
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Bane 45",
+  "itemDesc": "A shoulder-mounted heavy launcher capable of firing long-range anti-tank rockets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Bonesaw Mk.3",
+  "itemDesc": "A heavy anti-tank launcher designed to penetrate heavily armored vehicles.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Carnyx Anti-Tank Rocket Launcher",
+  "itemDesc": "A powerful anti-tank rocket launcher designed for infantry to engage armored targets at medium range.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Ignifist 30",
+  "itemDesc": "A disposable anti-vehicle launcher effective at close range against armored targets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Venom c.II 35",
+  "itemDesc": "A heavy infantry rocket launcher capable of firing high-damage rounds against vehicles.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "KLG901-2 Lunaire F",
+  "itemDesc": "A Colonial anti-tank rocket launcher designed to deal high damage to armored vehicles.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "The Osprey",
+  "itemDesc": "A heavy Warden rocket launcher optimized for long-range anti-armor engagements.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Mounted Bonesaw Mk.3",
+  "itemDesc": "A crew-served anti-tank launcher mounted on a tripod, capable of sustained fire against armored targets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Mounted Fissura gd.I",
+  "itemDesc": "A mounted rocket launcher designed for infantry anti-armor support and vehicle suppression.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Cutler Foebreaker",
+  "itemDesc": "A dual-barrel RPG launcher capable of firing successive rounds for high burst damage against armor.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Cutler Launcher 4",
+  "itemDesc": "A portable rocket launcher designed for infantry anti-vehicle operations.",
+  "itemCategory": "heavy_arms"
+}
 ]

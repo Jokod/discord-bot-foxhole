@@ -4,44 +4,8 @@
       "colonial",
       "warden"
     ],
-    "itemName": "12.7 Anti Infantry Flak Gun",
-    "itemDesc": "An anti-aircraft flak cannon repurposed as a defensive emplacement against infantry.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "50-500 \"Thunderbolt\" Cannon",
-    "itemDesc": "This heavy artillery cannon is designed to cripple enemy fortifcations from an entrenched position. Its long heavy barrel gives the \"Thunderbolt\" outstanding range.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "68mm Anti-Tank Cannon",
-    "itemDesc": "A defensive emplacement against heavily armored vehicles.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Abisme AT-99",
-    "itemDesc": "A simple mine that is placed under terrain and fitted with a pressure-sensitive plate to detonate under the weight of heavy vehicles. Mines are visible to friendlies and enemies on foot and deactivate after 48 in-game days.",
-    "itemCategory": "utilities",
-    "damageDesc": "Always disables the track subsystem"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Alligator Charge",
-    "itemDesc": "This heavy-duty explosive device is designed to deal significant damage to structures and stationary vehicles.",
+    "itemName": "Gas Mask",
+    "itemDesc": "Protective equipment that prevents inhalation of toxic gas when fitted with a filter.",
     "itemCategory": "utilities"
   },
   {
@@ -49,17 +13,8 @@
       "colonial",
       "warden"
     ],
-    "itemName": "Barbed Wire Pallet",
-    "itemDesc": "A pallet of Barbed Wire that's used for the construction of frontline defenses.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Buckhorn CCQ-18",
-    "itemDesc": "Attached to the barrel of a rifle, this short blade can spear enemies in close quarters encounters.",
+    "itemName": "Gas Mask Filter",
+    "itemDesc": "A replaceable filter used with a gas mask to provide clean air in toxic environments.",
     "itemCategory": "utilities"
   },
   {
@@ -67,25 +22,8 @@
       "colonial",
       "warden"
     ],
-    "itemName": "Concrete Mixer",
-    "itemDesc": "A portable device that mixes various materials to form Concrete, which are used to build heavily fortified structures.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Crow’s Foot Mine",
-    "itemDesc": "Anti-infantry minefield that deliver a fatal payload to unsuspecting soldiers. Placed over a large area.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "E680-S Rudder Lock",
-    "itemDesc": "The E680-S Rudder Lock is a Colonial Sea Mine, which is a Large Item Explosive Charge that is primarily used against underwater naval vehicles, such as Submarines. In order to be deployed, it must be primed to explode at a certain depth.",
+    "itemName": "Liaison Transmitter",
+    "itemDesc": "A portable communication device used to establish battlefield intelligence links.",
     "itemCategory": "utilities"
   },
   {
@@ -93,8 +31,8 @@
       "colonial",
       "warden"
     ],
-    "itemName": "Havoc Charge",
-    "itemDesc": "It is deployed by hand on the ground, requires the deployment of a Havoc Charge Detonator, and must be shot by friendly small arms to detonate.The explosion deals 1850 Demolition damage in a 6m radius and quickly decreasing amounts in a 7m radius..",
+    "itemName": "Radio",
+    "itemDesc": "A handheld radio used to receive intelligence updates and battlefield information.",
     "itemCategory": "utilities"
   },
   {
@@ -102,60 +40,8 @@
       "colonial",
       "warden"
     ],
-    "itemName": "Havoc Charge Detonator",
-    "itemDesc": "The Havoc Charge Detonator is a Large Item that serves as the detonator for the Havoc Charge.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Huber Exalt 150mm",
-    "itemDesc": "A heavy cannon designed to shatter the garrisons and fortifications of advancing forces. The Exalt is best utilized when placed into a defensive position to take advantage of its impressive range.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Huber Lariat 120mm",
-    "itemDesc": "A light artillery cannon designed to be a fixture in defensive fortifications. The Lariat sports a formidable long-range 120mm cannon designed to put immense pressure on the enemy infantry.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Hydra's Whisper",
-    "itemDesc": "This unique demolotion tool is a long, metal tube packed with explosives. The Hydra's Whisper is designed to destroy out-of-reach movement impairing structures and detonate any mines along the length of the tube.",
-    "itemCategory": "utilities",
-    "damageDesc": "Destroys obstacles that can otherwise only be dismantled with Wrenches"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Metal Beam Pallet",
-    "itemDesc": "A pallet of Metal Beams that's used for the construction of frontline defenses.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Resource Container",
-    "itemDesc": "A container that can carry large quantities of resources and can be transported by certain vehicles.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Rocket Booster",
-    "itemDesc": "A booster engine that provides thrust for launching ballistic rockets to long distant targets.",
+    "itemName": "Radio Backpack",
+    "itemDesc": "A backpack-mounted radio that extends intelligence range and provides continuous battlefield updates.",
     "itemCategory": "utilities"
   },
   {
@@ -163,26 +49,8 @@
       "colonial",
       "warden"
     ],
-    "itemName": "Sandbag Pallet",
-    "itemDesc": "A pallet of sandbags that's used for the construction of frontline defenses.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Shipping Container",
-    "itemDesc": "A container for shipping very large quantities of Crates using Crane loaded vehicles. This type of container can only be unloaded at Storage Depots and Seaports.",
-    "itemCategory": "shipables"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Small Shipping Container",
-    "itemDesc": "A container for shipping large quantities of Crates using Crane loaded vehicles. This type of container can be unloaded from any location.",
-    "itemCategory": "shipables"
+    "itemName": "Paratrooper’s Ruck",
+    "itemDesc": "A lightweight rucksack designed to increase carrying capacity while maintaining mobility for frontline infantry.",
+    "itemCategory": "uniforms"
   }
 ]

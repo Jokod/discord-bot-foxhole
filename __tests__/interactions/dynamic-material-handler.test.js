@@ -221,6 +221,11 @@ describe('Dynamic Material Handler', () => {
 		});
 
 		it('should handle subcategory with no materials', async () => {
+			// Forcer un camp sans matériel afin de simuler une sous-catégorie vide
+			Server.findOne.mockResolvedValue({
+				camp: 'unknown_faction',
+			});
+
 			await handleSubcategoryView(mockInteraction, 'utilities', 'outfits', mockTranslations);
 
 			expect(mockInteraction.update).toHaveBeenCalled();
@@ -243,6 +248,11 @@ describe('Dynamic Material Handler', () => {
 				if (key === 'CATEGORY_INFANTRY_WEAPONS') return 'Armes d\'infanterie';
 				if (key === 'SUBCATEGORY_MELEE_WEAPONS') return 'Armes de mêlée';
 				return key;
+			});
+
+			// Forcer un camp sans matériel afin de déclencher le message vide
+			Server.findOne.mockResolvedValue({
+				camp: 'unknown_faction',
 			});
 
 			await handleSubcategoryView(mockInteraction, 'infantry_weapons', 'melee_weapons', mockTranslations);
