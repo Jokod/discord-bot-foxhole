@@ -1,1 +1,38 @@
-[]
+[
+  {
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "AP/RPG",
+  "itemDesc": "Armor-piercing rocket-propelled grenade designed to penetrate armored vehicles. Effective against tanks and lightly fortified targets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "ARC/RPG",
+  "itemDesc": "Advanced rocket-propelled grenade with improved penetration mechanics, commonly used by emplaced and heavy anti-tank launchers.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "RPG",
+  "itemDesc": "Standard rocket-propelled grenade used by infantry anti-tank launchers. Effective against vehicles and light structures.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Shatter Missile",
+  "itemDesc": "A high-impact missile designed to shatter fortifications and heavily damage armored targets through explosive force.",
+  "itemCategory": "heavy_arms"
+}
+]
