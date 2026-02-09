@@ -4,6 +4,15 @@
       "colonial",
       "warden"
     ],
+    "itemName": "Binoculars",
+    "itemDesc": "An optical tool used to observe distant areas and spot enemy positions.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
     "itemName": "Gas Mask",
     "itemDesc": "Protective equipment that prevents inhalation of toxic gas when fitted with a filter.",
     "itemCategory": "utilities"

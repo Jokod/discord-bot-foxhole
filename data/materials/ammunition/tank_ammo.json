@@ -52,5 +52,14 @@
   "itemName": "950-70b Anti-Aircraft Shell",
   "itemDesc": "A specialized anti-aircraft shell designed to engage fast-moving aerial targets using high-explosive fragmentation.",
   "itemCategory": "heavy_arms"
+},
+  {
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Obus « Fury » de 250 mm",
+  "itemDesc": "Un obus de mortier de siège de 250 mm conçu pour infliger des dégâts dévastateurs aux structures lourdement fortifiées et aux positions retranchées.",
+  "itemCategory": "heavy_arms"
 }
 ]

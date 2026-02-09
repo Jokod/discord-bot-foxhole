@@ -274,8 +274,15 @@ describe('Fournis - Material Management System', () => {
 			expect(bmat.itemCategory).toBe('resources');
 		});
 
-		it('should have Binoculars in utilities/tools', () => {
+		it('should have Shovel in utilities/tools', () => {
 			const materials = fournis.getMaterialsBySubcategory('utilities', 'tools');
+			const shovel = materials.find(m => m.itemName === 'Shovel');
+
+			expect(shovel).toBeDefined();
+		});
+
+		it('should have Binoculars in utilities/field_equipment', () => {
+			const materials = fournis.getMaterialsBySubcategory('utilities', 'field_equipment');
 			const binoculars = materials.find(m => m.itemName === 'Binoculars');
 
 			expect(binoculars).toBeDefined();

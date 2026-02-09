@@ -4,15 +4,6 @@
     "colonial",
     "warden"
   ],
-  "itemName": "Binoculars",
-  "itemDesc": "An optical tool used to observe distant areas and spot enemy positions.",
-  "itemCategory": "utilities"
-},
-  {
-  "faction": [
-    "colonial",
-    "warden"
-  ],
   "itemName": "Shovel",
   "itemDesc": "A basic tool used to dig trenches, foxholes, and other field fortifications.",
   "itemCategory": "utilities"
