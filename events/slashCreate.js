@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const { Server } = require('../data/models.js');
+const { Server, Stats } = require('../data/models.js');
 const Translate = require('../utils/translations.js');
 
 module.exports = {
@@ -40,6 +40,39 @@ module.exports = {
 
 		try {
 			await command.execute(interaction);
+
+			// Update stats at each command (covers existing servers + keeps data current)
+			if (interaction.guild) {
+				const guild = interaction.guild;
+				const commandName = interaction.commandName;
+				const now = new Date();
+
+				// Pipeline: set first_command_at only when null/missing (MongoDB $min keeps null < Date)
+				await Stats.findOneAndUpdate(
+					{ guild_id: guildId },
+					[
+						{
+							$set: {
+								name: guild.name,
+								created_at: guild.createdAt,
+								last_command_at: now,
+								member_count: guild.memberCount ?? 0,
+								[`last_command_by_type.${commandName}`]: now,
+								first_command_at: { $ifNull: ['$first_command_at', '$$NOW'] },
+							},
+						},
+						{
+							$set: {
+								command_count: { $add: [{ $ifNull: ['$command_count', 0] }, 1] },
+								[`command_breakdown.${commandName}`]: {
+									$add: [{ $ifNull: [`$command_breakdown.${commandName}`, 0] }, 1],
+								},
+							},
+						},
+					],
+					{ upsert: true, new: true, updatePipeline: true },
+				);
+			}
 		}
 		catch (err) {
 			console.error(err);

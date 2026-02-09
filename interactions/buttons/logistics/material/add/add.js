@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Material } = require('../../../../../data/models.js');
+const { Material, Stats } = require('../../../../../data/models.js');
 const Translate = require('../../../../../utils/translations.js');
 
 module.exports = {
@@ -39,6 +39,12 @@ module.exports = {
 				owner_id: interaction.user.id,
 				status: 'pending',
 			});
+
+			await Stats.findOneAndUpdate(
+				{ guild_id: interaction.guild.id },
+				{ $inc: { material_count: 1 } },
+				{ upsert: true },
+			);
 
 			const response = await interaction.reply({
 				content: `${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,

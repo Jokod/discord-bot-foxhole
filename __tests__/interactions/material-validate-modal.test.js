@@ -1,10 +1,13 @@
 const validateModal = require('../../interactions/modals/logistics/material/validate.js');
 
-// Mock du modèle Material et des traductions
+// Mock du modèle Material, Stats et des traductions
 jest.mock('../../data/models.js', () => ({
 	Material: {
 		findOne: jest.fn(),
 		findOneAndUpdate: jest.fn(),
+	},
+	Stats: {
+		findOneAndUpdate: jest.fn().mockResolvedValue({}),
 	},
 }));
 

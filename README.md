@@ -6,6 +6,7 @@ The Discord Bot for Foxhole is an open-source project aimed at simplifying opera
 
 - [Features](#features)
 - [Configuration](#configuration)
+- [Data collected](#data-collected)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contribute](#contribute)
@@ -39,6 +40,30 @@ Before using the Discord Bot for Foxhole, you will need to perform some configur
 2. Set up appropriate permissions for the bot's commands based on roles within your server.
 
 3. Initialize the bot using the `/setup` command to specify the language and faction (colonial or warden) of the server.
+
+## Data collected
+
+When the bot is installed on a server, it stores **usage statistics** in the database (MongoDB) to improve the service and understand how the bot is used. No personal data (user IDs, messages, etc.) is collected beyond what is strictly necessary for the bot to function.
+
+### Per-server statistics (Stats)
+
+| Data | Description |
+|------|-------------|
+| **Server ID** | Discord guild identifier |
+| **Server name** | Name of the server |
+| **Server creation date** | When the Discord server was created |
+| **Bot join date** | When the bot was added to the server |
+| **Last command date** | Date of the last slash command executed |
+| **First command date** | Date of the first slash command on the server |
+| **Total command count** | Total number of slash commands executed |
+| **Command breakdown** | Number of uses per command (e.g. `/help`, `/logistics`, `/github`) |
+| **Last command per type** | Last usage date for each command |
+| **Member count** | Total number of members in the server (updated on each command) |
+| **Operations created** | Number of operations created via the bot |
+| **Materials added** | Number of materials added to logistics |
+| **Materials validated** | Number of materials marked as validated |
+
+These statistics are stored in a `Stats` collection and are used only for analytics and maintenance. They are not shared with third parties. If you self-host the bot, this data remains in your own database.
 
 ## Installation
 

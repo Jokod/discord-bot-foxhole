@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Material } = require('../../../../data/models.js');
+const { Material, Stats } = require('../../../../data/models.js');
 const Translate = require('../../../../utils/translations.js');
 
 module.exports = {
@@ -69,6 +69,14 @@ module.exports = {
 				{ material_id: `${message.id}` },
 				updateData,
 				{ new: true });
+
+			if (status === 'validated') {
+				await Stats.findOneAndUpdate(
+					{ guild_id: guild.id },
+					{ $inc: { material_validated_count: 1 } },
+					{ upsert: true },
+				);
+			}
 
 			if (!material) {
 				return await interaction.reply({
