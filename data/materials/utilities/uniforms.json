@@ -1,0 +1,86 @@
+[
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme de soldat",
+    "itemDesc": "Uniforme standard d’infanterie offrant un équilibre entre protection et capacité de transport.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme d’ingénieur",
+    "itemDesc": "Uniforme spécialisé améliorant l’efficacité de construction, réparation et logistique.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme médical",
+    "itemDesc": "Uniforme conçu pour le personnel médical, permettant de transporter davantage de fournitures de soins.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme de scout",
+    "itemDesc": "Uniforme léger favorisant la mobilité, la discrétion et la reconnaissance.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme de char",
+    "itemDesc": "Uniforme renforcé destiné aux équipages de véhicules blindés, offrant une protection accrue.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme de neige",
+    "itemDesc": "Uniforme isolant conçu pour réduire les effets du froid et améliorer la survie en environnement enneigé.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial"],
+    "itemName": "Uniforme de pluie",
+    "itemDesc": "Uniforme imperméable limitant les effets négatifs des conditions météorologiques humides.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial"],
+    "itemName": "Uniforme de grenade",
+    "itemDesc": "Uniforme spécialisé augmentant la capacité de transport des grenades et explosifs.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial"],
+    "itemName": "Uniforme de munitions lourdes",
+    "itemDesc": "Uniforme conçu pour transporter une plus grande quantité de munitions lourdes pour armes spécialisées.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme d’armure",
+    "itemDesc": "Uniforme offrant une protection renforcée contre les tirs et éclats, au détriment de la mobilité.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme d’officier",
+    "itemDesc": "Uniforme distinctif porté par les officiers pour le commandement et la coordination des troupes.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme de la marine",
+    "itemDesc": "Uniforme conçu pour les opérations navales et amphibies.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme de pilote",
+    "itemDesc": "Uniforme spécialisé pour les opérateurs de véhicules, offrant une protection adaptée et une bonne mobilité.",
+    "itemCategory": "uniforms"
+  },
+  {
+    "faction": ["colonial", "warden"],
+    "itemName": "Uniforme de parachutiste",
+    "itemDesc": "Uniforme léger conçu pour les opérations aéroportées et les déploiements rapides.",
+    "itemCategory": "uniforms"
+  }
+]

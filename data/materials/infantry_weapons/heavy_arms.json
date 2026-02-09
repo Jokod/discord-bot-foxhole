@@ -1,0 +1,42 @@
+[
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "KRN886-127 Gast",
+  "itemDesc": "A heavy machine gun optimized for defensive positions and prolonged suppression.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Malone Ratcatcher",
+  "itemDesc": "A heavy machine gun with a high rate of fire, effective for infantry suppression and area control.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Molten Wind v.II Flame Torch",
+  "itemDesc": "A portable flamethrower used for close-range area denial and destruction of enemy structures.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Daucus isg.III",
+  "itemDesc": "An infantry support gun mounted on a tripod, effective against infantry, vehicles, and light fortifications.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Willow's Bane Model 845",
+  "itemDesc": "A heavy anti-tank launcher capable of firing powerful rockets against armored vehicles.",
+  "itemCategory": "heavy_arms"
+}
+]

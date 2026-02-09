@@ -24,28 +24,28 @@ module.exports = {
 		if (!dateRegex.test(dateField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_DATE_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
 		if (!timeRegex.test(timeField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_TIME_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
 		if (!durationRegex.test(durationField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_DURATION_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
 		if (!descriptionRegex.test(descriptionField)) {
 			return await interaction.reply({
 				content: translations.translate('OPERATION_DESCRIPTION_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -93,12 +93,13 @@ module.exports = {
 
 			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
 
-			const message = await interaction.reply({
+			const response = await interaction.reply({
 				content: `${translations.translate('OPERATION_CREATE_SUCCESS', { title: title })}.\n${content}`,
 				components: [actionRow],
-				fetchReply: true,
+				withResponse: true,
 			});
 
+			const message = response.resource?.message ?? await interaction.fetchReply();
 			await Operation.updateOne({ guild_id: guild.id, operation_id: `${interaction.id}` }, { operation_id: `${message.id}` });
 
 			delete interaction.client.sessions[interaction.user.id];
@@ -110,7 +111,7 @@ module.exports = {
 
 			await interaction.reply({
 				content: translations.translate('OPERATION_CREATE_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

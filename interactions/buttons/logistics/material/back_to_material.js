@@ -1,7 +1,11 @@
-const ResponseMaterial = require('../../../../../utils/interaction/response_material.js');
-const { Material } = require('../../../../../data/models.js');
-const Translate = require('../../../../../utils/translations.js');
+const ResponseMaterial = require('../../../../utils/interaction/response_material.js');
+const { Material } = require('../../../../data/models.js');
+const Translate = require('../../../../utils/translations.js');
 
+/**
+ * Handler pour le bouton retour depuis la sélection de catégories
+ * Retourne à l'écran principal du matériel
+ */
 module.exports = {
 	id: 'logistics_select_material_back',
 
@@ -15,14 +19,14 @@ module.exports = {
 			if (!material) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
 			if (interaction.user.id !== material.owner_id) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -32,7 +36,7 @@ module.exports = {
 			console.error(error);
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_BACK_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

@@ -35,7 +35,7 @@ module.exports = {
 		if (command.init && !server) {
 			return interaction.reply({
 				content: translations.translate('SERVER_IS_NOT_INIT'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -48,7 +48,7 @@ module.exports = {
 			console.error(err);
 			await interaction.reply({
 				content: translations.translate('COMMAND_EXECUTE_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

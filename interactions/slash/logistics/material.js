@@ -138,7 +138,7 @@ module.exports = {
 			if (!group) {
 				return await interaction.reply({
 					content: translations.translate('GROUP_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 		}
@@ -149,7 +149,7 @@ module.exports = {
 			if (!material) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 		}
@@ -170,7 +170,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [helpEmbed],
-				ephemeral: true,
+				flags: 64,
 			});
 			break;
 		case 'create':
@@ -204,12 +204,13 @@ module.exports = {
 				status: 'pending',
 			});
 
-			const message = await interaction.reply({
+			const response = await interaction.reply({
 				content: `${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,
 				components: [ActionRow],
-				fetchReply: true,
+				withResponse: true,
 			});
 
+			const message = response.resource?.message ?? await interaction.fetchReply();
 			await Material.updateOne({ guild_id: guild.id, material_id: `${interaction.id}` }, { material_id: `${message.id}` });
 
 			break;
@@ -219,13 +220,13 @@ module.exports = {
 			if (rowCount.deletedCount === 0) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
 			await interaction.reply({
 				content: translations.translate('MATERIAL_DELETE_SUCCESS'),
-				ephemeral: true,
+				flags: 64,
 			});
 			break;
 		case 'info':
@@ -234,7 +235,7 @@ module.exports = {
 			if (!material) {
 				return await interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -251,7 +252,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [embed],
-				ephemeral: true,
+				flags: 64,
 			});
 			break;
 		}

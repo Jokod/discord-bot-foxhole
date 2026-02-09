@@ -144,6 +144,48 @@ module.exports = {
 	MATERIAL_RESOURCES: 'Resources',
 	MATERIAL_MEDICAL: 'Medical',
 
+	// New categories
+	CATEGORY_UTILITIES: 'Utilities',
+	CATEGORY_INFANTRY_WEAPONS: 'Infantry Weapons',
+	CATEGORY_AMMUNITION: 'Ammunition',
+	CATEGORY_RESOURCES: 'Resources',
+	CATEGORY_VEHICLES: 'Vehicles',
+
+	// Utilities subcategories
+	SUBCATEGORY_TOOLS: 'Tools',
+	SUBCATEGORY_FIELD_EQUIPMENT: 'Field Equipment',
+	SUBCATEGORY_MOUNTED_EQUIPMENT: 'Mounted Equipment',
+	SUBCATEGORY_MEDICAL: 'Medical',
+	SUBCATEGORY_UNIFORMS: 'Uniforms',
+	SUBCATEGORY_OUTFITS: 'Outfits',
+
+	// Infantry Weapons subcategories
+	SUBCATEGORY_SMALL_ARMS: 'Small Arms',
+	SUBCATEGORY_MELEE_WEAPONS: 'Melee Weapons',
+	SUBCATEGORY_MACHINE_GUNS: 'Machine Guns',
+	SUBCATEGORY_HEAVY_ARMS: 'Heavy Arms',
+	SUBCATEGORY_GRENADES: 'Grenades',
+	SUBCATEGORY_LAUNCHERS: 'Launchers',
+	SUBCATEGORY_MORTAR: 'Mortar',
+
+	// Ammunition subcategories
+	SUBCATEGORY_LIGHT_AMMO: 'Light Ammunition',
+	SUBCATEGORY_TANK_AMMO: 'Tank Ammunition',
+	SUBCATEGORY_AIRCRAFT_AMMO: 'Aircraft Ammunition',
+	SUBCATEGORY_ARTILLERY_AMMO: 'Artillery Ammunition',
+	SUBCATEGORY_MISC_AMMO: 'Misc Ammunition',
+	SUBCATEGORY_FLAMETHROWER_AMMO: 'Flamethrower Ammunition',
+
+	// Resources subcategories
+	SUBCATEGORY_BMAT: 'Basic Materials',
+	SUBCATEGORY_EMAT: 'Explosive Materials',
+	SUBCATEGORY_HEMAT: 'Heavy Explosive Materials',
+	SUBCATEGORY_RMAT: 'Refined Materials',
+	SUBCATEGORY_GRAVEL: 'Gravel',
+
+	// Vehicles subcategories
+	SUBCATEGORY_VEHICLES: 'Vehicles',
+
 	MATERIAL_LIST_SMALL_ARMS: 'List of available small arms',
 	MATERIAL_LIST_HEAVY_ARMS: 'List of available heavy arms',
 	MATERIAL_LIST_UTILITIES: 'List of available utilities',
@@ -151,6 +193,8 @@ module.exports = {
 	MATERIAL_LIST_VEHICLES: 'List of available vehicles',
 	MATERIAL_LIST_UNIFORMS: 'List of available uniforms',
 	MATERIAL_LIST_RESOURCES: 'List of available resources',
+	MATERIAL_SUBCATEGORY_EMPTY: 'No materials available in this category.',
+
 	// MATERIAL SUCCESS
 	MATERIAL_CREATE_SUCCESS: 'Material has been created.',
 	MATERIAL_DELETE_SUCCESS: 'Material has been deleted.',

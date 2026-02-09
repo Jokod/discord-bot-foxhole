@@ -6,7 +6,7 @@ module.exports = {
 
 		await interaction.reply({
 			content: translations.translate('INTERACTION_ERROR'),
-			ephemeral: true,
+			flags: 64,
 		});
 		return;
 	},

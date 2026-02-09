@@ -1,0 +1,71 @@
+[
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "A3 Harpa Fragmentation Grenade",
+    "itemDesc": "A timed fragmentation grenade designed for anti-infantry use, dispersing lethal shrapnel in a wide radius.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Bomastone Grenade",
+    "itemDesc": "A stick-style fragmentation grenade designed to be thrown over medium distances. Always causes bleeding to infantry targets.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Green Ash Grenade",
+    "itemDesc": "A chemical grenade that releases toxic gas, dealing damage over time to unprotected infantry within its area of effect.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Smoke Grenade",
+    "itemDesc": "A non-lethal grenade that produces a thick smoke cloud, used to obscure vision and provide cover for troop movements.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "BF5 White Ash Flask Grenade",
+    "itemDesc": "An incendiary anti-armor grenade designed to melt vehicle armor and disable subsystems on impact.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Anti-Tank Sticky Bomb",
+    "itemDesc": "An adhesive anti-tank grenade designed to stick to armored vehicles and penetrate heavy armor upon detonation.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Tremola Grenade",
+    "itemDesc": "A rifle-launched grenade used for indirect fire against infantry and light structures.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Mammon 91-b",
+    "itemDesc": "A heavy improvised explosive grenade designed to deal significant damage to structures and vehicles at close range.",
+    "itemCategory": "heavy_arms"
+  }
+]

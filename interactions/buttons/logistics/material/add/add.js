@@ -40,19 +40,20 @@ module.exports = {
 				status: 'pending',
 			});
 
-			const message = await interaction.reply({
+			const response = await interaction.reply({
 				content: `${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,
 				components: [ActionRow],
-				fetchReply: true,
+				withResponse: true,
 			});
 
+			const message = response.resource?.message ?? await interaction.fetchReply();
 			await Material.updateOne({ guild_id: guild.id, material_id: `${interaction.id}` }, { material_id: `${message.id}` });
 		}
 		catch (err) {
 			console.error(err);
 			return await interaction.reply({
 				content: translations.translate('MATERIAL_CREATE_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Cremari Mortar",
+    "itemDesc": "This short-range cannon is designed to bombard enemy infantry with indirect fire.",
+    "itemCategory": "heavy_arms"
+  }
+]

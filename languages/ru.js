@@ -151,6 +151,51 @@ module.exports = {
 	MATERIAL_LIST_VEHICLES: 'Список доступных транспортных средств',
 	MATERIAL_LIST_UNIFORMS: 'Список доступной униформы',
 	MATERIAL_LIST_RESOURCES: 'Список доступных ресурсов',
+
+	// Новые категории
+	CATEGORY_UTILITIES: 'Утилиты',
+	CATEGORY_INFANTRY_WEAPONS: 'Пехотное оружие',
+	CATEGORY_AMMUNITION: 'Боеприпасы',
+	CATEGORY_RESOURCES: 'Ресурсы',
+	CATEGORY_VEHICLES: 'Транспорт',
+
+	// Подкатегории Утилиты
+	SUBCATEGORY_TOOLS: 'Инструменты',
+	SUBCATEGORY_FIELD_EQUIPMENT: 'Полевое оборудование',
+	SUBCATEGORY_MOUNTED_EQUIPMENT: 'Установленное оборудование',
+	SUBCATEGORY_MEDICAL: 'Медицинское',
+	SUBCATEGORY_UNIFORMS: 'Униформа',
+	SUBCATEGORY_OUTFITS: 'Наряды',
+
+	// Подкатегории Пехотное оружие
+	SUBCATEGORY_SMALL_ARMS: 'Легкое оружие',
+	SUBCATEGORY_MELEE_WEAPONS: 'Холодное оружие',
+	SUBCATEGORY_MACHINE_GUNS: 'Пулеметы',
+	SUBCATEGORY_HEAVY_ARMS: 'Тяжелое оружие',
+	SUBCATEGORY_GRENADES: 'Гранаты',
+	SUBCATEGORY_LAUNCHERS: 'Гранатометы',
+	SUBCATEGORY_MORTAR: 'Минометы',
+
+	// Подкатегории Боеприпасы
+	SUBCATEGORY_LIGHT_AMMO: 'Легкие боеприпасы',
+	SUBCATEGORY_TANK_AMMO: 'Танковые боеприпасы',
+	SUBCATEGORY_AIRCRAFT_AMMO: 'Авиационные боеприпасы',
+	SUBCATEGORY_ARTILLERY_AMMO: 'Артиллерийские боеприпасы',
+	SUBCATEGORY_MISC_AMMO: 'Разные боеприпасы',
+	SUBCATEGORY_FLAMETHROWER_AMMO: 'Огнеметные боеприпасы',
+
+	// Подкатегории Ресурсы
+	SUBCATEGORY_BMAT: 'Базовые материалы',
+	SUBCATEGORY_EMAT: 'Взрывчатые материалы',
+	SUBCATEGORY_HEMAT: 'Тяжелые взрывчатые материалы',
+	SUBCATEGORY_RMAT: 'Очищенные материалы',
+	SUBCATEGORY_GRAVEL: 'Гравий',
+
+	// Подкатегории Транспорт
+	SUBCATEGORY_VEHICLES: 'Транспортные средства',
+
+	MATERIAL_SUBCATEGORY_EMPTY: 'В этой категории нет доступных материалов.',
+
 	// MATERIAL SUCCESS
 	MATERIAL_CREATE_SUCCESS: 'Материал был создан.',
 	MATERIAL_DELETE_SUCCESS: 'Материал был удален.',

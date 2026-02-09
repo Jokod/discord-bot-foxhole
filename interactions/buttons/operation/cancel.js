@@ -15,19 +15,19 @@ module.exports = {
 			if (!operation) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
 			if (user.id !== operation.owner_id) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
 			// Defer the reply to prevent interaction timeout
-			await interaction.deferReply({ ephemeral: true });
+			await interaction.deferReply({ flags: 64 });
 
 			const threads = await Group.find({ guild_id: guild.id, operation_id: `${operationId}` });
 			for (const thread of threads) {
@@ -54,7 +54,7 @@ module.exports = {
 			if (!interaction.replied && !interaction.deferred) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_CANCELED_ERROR'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 			else {

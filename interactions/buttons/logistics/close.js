@@ -15,14 +15,14 @@ module.exports = {
 				if (!thread) {
 					return interaction.reply({
 						content: translations.translate('THREAD_NOT_EXIST'),
-						ephemeral: true,
+						flags: 64,
 					});
 				}
 
 				if (interaction.user.id !== group.owner_id) {
 					return interaction.reply({
 						content: translations.translate('THREAD_ARE_NO_OWNER_ERROR'),
-						ephemeral: true,
+						flags: 64,
 					});
 				}
 
@@ -38,7 +38,7 @@ module.exports = {
 				console.error(err);
 				return interaction.reply({
 					content: translations.translate('THREAD_CLOSE_ERROR'),
-					ephemeral: true,
+					flags: 64,
 				});
 			});
 

@@ -1,0 +1,56 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Gas Mask",
+    "itemDesc": "Protective equipment that prevents inhalation of toxic gas when fitted with a filter.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Gas Mask Filter",
+    "itemDesc": "A replaceable filter used with a gas mask to provide clean air in toxic environments.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Liaison Transmitter",
+    "itemDesc": "A portable communication device used to establish battlefield intelligence links.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Radio",
+    "itemDesc": "A handheld radio used to receive intelligence updates and battlefield information.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Radio Backpack",
+    "itemDesc": "A backpack-mounted radio that extends intelligence range and provides continuous battlefield updates.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Paratrooper’s Ruck",
+    "itemDesc": "A lightweight rucksack designed to increase carrying capacity while maintaining mobility for frontline infantry.",
+    "itemCategory": "uniforms"
+  }
+]

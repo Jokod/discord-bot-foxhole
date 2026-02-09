@@ -44,7 +44,7 @@ module.exports = {
 			console.error(err);
 			return await interaction.update({
 				content: translations.translate('MATERIAL_ASSIGN_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

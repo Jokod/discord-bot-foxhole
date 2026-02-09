@@ -139,7 +139,7 @@ module.exports = {
 			if (!operation) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -148,7 +148,7 @@ module.exports = {
 			if (!groups.length) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_NOT_HAVE_GROUPS'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -171,7 +171,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [embed],
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -181,7 +181,7 @@ module.exports = {
 			if (!group) {
 				return await interaction.reply({
 					content: translations.translate('GROUP_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -190,7 +190,7 @@ module.exports = {
 			if (!materials.length) {
 				return await interaction.reply({
 					content: translations.translate('GROUP_NO_MATERIALS'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -208,7 +208,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [embed],
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -218,7 +218,7 @@ module.exports = {
 			if (!material) {
 				return interaction.reply({
 					content: translations.translate('MATERIAL_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -235,7 +235,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [embed],
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 
@@ -254,7 +254,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [helpEmbed],
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

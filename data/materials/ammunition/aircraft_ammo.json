@@ -1,0 +1,13 @@
+[
+   {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "20mm",
+    "itemDesc": "Being Shrapnel damage, the caliber only excels against aircraft and infantry. It is effective against unarmoured and light armoured vehicles but awful against heavy armoured vehicles and all types of ships. It does not damage to structures.",
+    "itemCategory": "heavy_arms",
+    "damageDesc": "20mm is a Magazine used by anti-aircraft machine guns on vehicles and structures.",
+    "vehiclePen": "Damage to the sides and rear of armored vehicles have a higher chance to penetrate at close range and at direct angles."
+  }
+]

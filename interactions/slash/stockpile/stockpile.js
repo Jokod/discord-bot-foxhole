@@ -152,7 +152,7 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [helpEmbed],
-				ephemeral: true,
+				flags: 64,
 			});
 			break;
 
@@ -163,14 +163,14 @@ module.exports = {
 			if (!validateName(stockName)) {
 				return await interaction.reply({
 					content: translations.translate('STOCKPILE_INVALID_NAME'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
 			if (!validatePassword(password)) {
 				return await interaction.reply({
 					content: translations.translate('STOCKPILE_INVALID_PASSWORD'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -183,7 +183,7 @@ module.exports = {
 
 			await interaction.reply({
 				content: translations.translate('STOCKPILE_CREATE_SUCCESS'),
-				ephemeral: true,
+				flags: 64,
 			});
 			break;
 
@@ -193,7 +193,7 @@ module.exports = {
 			if (!validateId(stockId)) {
 				return interaction.reply({
 					content: translations.translate('STOCKPILE_INVALID_ID'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -202,7 +202,7 @@ module.exports = {
 			if (!stock || stock.server_id !== guild.id) {
 				return interaction.reply({
 					content: translations.translate('STOCKPILE_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -210,7 +210,7 @@ module.exports = {
 
 			await interaction.reply({
 				content: translations.translate('STOCKPILE_DELETE_SUCCESS'),
-				ephemeral: true,
+				flags: 64,
 			});
 			break;
 
@@ -220,7 +220,7 @@ module.exports = {
 			if (stocks.length === 0) {
 				return interaction.reply({
 					content: translations.translate('STOCKPILE_LIST_EMPTY'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -235,14 +235,14 @@ module.exports = {
 
 			await interaction.reply({
 				embeds: [embed],
-				ephemeral: true,
+				flags: 64,
 			});
 			break;
 
 		default:
 			return interaction.reply({
 				content: translations.translate('COMMAND_UNKNOWN'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},

@@ -144,6 +144,48 @@ module.exports = {
 	MATERIAL_RESOURCES: 'Ressources',
 	MATERIAL_MEDICAL: 'Médical',
 
+	// Nouvelles catégories
+	CATEGORY_UTILITIES: 'Utilitaires',
+	CATEGORY_INFANTRY_WEAPONS: 'Armes d\'infanterie',
+	CATEGORY_AMMUNITION: 'Munition',
+	CATEGORY_RESOURCES: 'Ressources',
+	CATEGORY_VEHICLES: 'Véhicule',
+
+	// Sous-catégories Utilitaires
+	SUBCATEGORY_TOOLS: 'Outils',
+	SUBCATEGORY_FIELD_EQUIPMENT: 'Matériel de terrain',
+	SUBCATEGORY_MOUNTED_EQUIPMENT: 'Matériel monté',
+	SUBCATEGORY_MEDICAL: 'Soins',
+	SUBCATEGORY_UNIFORMS: 'Uniformes',
+	SUBCATEGORY_OUTFITS: 'Tenues',
+
+	// Sous-catégories Armes d'infanterie
+	SUBCATEGORY_SMALL_ARMS: 'Armes légères',
+	SUBCATEGORY_MELEE_WEAPONS: 'Armes de mêlée',
+	SUBCATEGORY_MACHINE_GUNS: 'Mitrailleuses',
+	SUBCATEGORY_HEAVY_ARMS: 'Armes lourdes diverses',
+	SUBCATEGORY_GRENADES: 'Grenades',
+	SUBCATEGORY_LAUNCHERS: 'Lanceurs',
+	SUBCATEGORY_MORTAR: 'Mortier',
+
+	// Sous-catégories Munition
+	SUBCATEGORY_LIGHT_AMMO: 'Munitions légères',
+	SUBCATEGORY_TANK_AMMO: 'Munitions tank',
+	SUBCATEGORY_AIRCRAFT_AMMO: 'Munitions avions',
+	SUBCATEGORY_ARTILLERY_AMMO: 'Munitions artillerie',
+	SUBCATEGORY_MISC_AMMO: 'Munitions diverses',
+	SUBCATEGORY_FLAMETHROWER_AMMO: 'Munitions lance flamme',
+
+	// Sous-catégories Ressources
+	SUBCATEGORY_BMAT: 'bmat',
+	SUBCATEGORY_EMAT: 'emat',
+	SUBCATEGORY_HEMAT: 'HEmat',
+	SUBCATEGORY_RMAT: 'Rmat',
+	SUBCATEGORY_GRAVEL: 'Gravel',
+
+	// Sous-catégories Véhicules
+	SUBCATEGORY_VEHICLES: 'Véhicules',
+
 	MATERIAL_LIST_SMALL_ARMS: 'Liste des armes légères disponibles',
 	MATERIAL_LIST_HEAVY_ARMS: 'Liste des armes lourdes disponibles',
 	MATERIAL_LIST_UTILITIES: 'Liste des utilitaires disponibles',
@@ -151,6 +193,7 @@ module.exports = {
 	MATERIAL_LIST_VEHICLES: 'Liste des véhicules disponibles',
 	MATERIAL_LIST_UNIFORMS: 'Liste des uniformes disponibles',
 	MATERIAL_LIST_RESOURCES: 'Liste des ressources disponibles',
+	MATERIAL_SUBCATEGORY_EMPTY: 'Aucun matériel disponible dans cette catégorie.',
 
 	// MATERIAL SUCCESS
 	MATERIAL_CREATE_SUCCESS: 'Le matériel a été créé.',

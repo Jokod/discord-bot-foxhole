@@ -1,0 +1,90 @@
+[
+  {
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Bane 45",
+  "itemDesc": "A shoulder-mounted heavy launcher capable of firing long-range anti-tank rockets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Bonesaw Mk.3",
+  "itemDesc": "A heavy anti-tank launcher designed to penetrate heavily armored vehicles.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Carnyx Anti-Tank Rocket Launcher",
+  "itemDesc": "A powerful anti-tank rocket launcher designed for infantry to engage armored targets at medium range.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Ignifist 30",
+  "itemDesc": "A disposable anti-vehicle launcher effective at close range against armored targets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Venom c.II 35",
+  "itemDesc": "A heavy infantry rocket launcher capable of firing high-damage rounds against vehicles.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "KLG901-2 Lunaire F",
+  "itemDesc": "A Colonial anti-tank rocket launcher designed to deal high damage to armored vehicles.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "The Osprey",
+  "itemDesc": "A heavy Warden rocket launcher optimized for long-range anti-armor engagements.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Mounted Bonesaw Mk.3",
+  "itemDesc": "A crew-served anti-tank launcher mounted on a tripod, capable of sustained fire against armored targets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Mounted Fissura gd.I",
+  "itemDesc": "A mounted rocket launcher designed for infantry anti-armor support and vehicle suppression.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Cutler Foebreaker",
+  "itemDesc": "A dual-barrel RPG launcher capable of firing successive rounds for high burst damage against armor.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Cutler Launcher 4",
+  "itemDesc": "A portable rocket launcher designed for infantry anti-vehicle operations.",
+  "itemCategory": "heavy_arms"
+}
+]

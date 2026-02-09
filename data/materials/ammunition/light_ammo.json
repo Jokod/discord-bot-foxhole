@@ -1,0 +1,65 @@
+[
+ {
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": ".44 Ammo Crate",
+  "itemDesc": "A crate containing .44 caliber ammunition used by heavy sidearms and specific firearms.",
+  "itemCategory": "small_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "12.7mm Ammo Crate",
+  "itemDesc": "A crate containing 12.7mm ammunition used by heavy infantry weapons and mounted machine guns.",
+  "itemCategory": "small_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "14.5mm Ammo Crate",
+  "itemDesc": "A crate containing 14.5mm high-caliber ammunition designed for anti-infantry and light vehicle suppression.",
+  "itemCategory": "small_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "7.62mm Ammo Crate",
+  "itemDesc": "A crate containing 7.62mm ammunition commonly used by rifles and automatic infantry weapons.",
+  "itemCategory": "small_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "7.92mm Ammo Crate",
+  "itemDesc": "A crate containing 7.92mm ammunition used by storm rifles and standard infantry firearms.",
+  "itemCategory": "small_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "9mm Ammo Crate",
+  "itemDesc": "A crate containing 9mm ammunition used by pistols and submachine guns.",
+  "itemCategory": "small_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Buckshot Ammo Crate",
+  "itemDesc": "A crate containing buckshot ammunition used by shotguns for close-quarters combat.",
+  "itemCategory": "small_arms"
+}
+]

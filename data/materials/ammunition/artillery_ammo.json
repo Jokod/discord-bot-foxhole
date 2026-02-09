@@ -1,0 +1,77 @@
+[
+  {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Balfour Falconer 250mm",
+    "itemDesc": "A heavy mobile mortar platform fitted with a thick frontal sheild for assaulting fortified locations.",
+    "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "120mm",
+    "itemDesc": "Payload for light artillery weapons.",
+    "itemCategory": "heavy_arms",
+    "damageDesc": "Reduced damage against trenches"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "150mm",
+    "itemDesc": "Payload for heavy artillery weapons.",
+    "itemCategory": "heavy_arms",
+    "damageDesc": "Reduced damage against trenches"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "300mm",
+    "itemDesc": "Payload for the storm cannon.",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Mortar Shell",
+    "itemDesc": "An explosive projectile fired from a mortar.",
+    "itemCategory": "heavy_arms",
+    "damageDesc": "Reduced damage against trenches"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Incendiary Mortar Shell",
+    "itemDesc": "An incendiary payload used with mortar tubes. Will ignite objects near impact..",
+    "itemCategory": "heavy_arms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Mortar Shrapnel Shell",
+    "itemDesc": "A shell that explodes into shrapnel on impact, devastating nearby infantry.",
+    "itemCategory": "heavy_arms",
+    "damageDesc": "Always causes target to bleed"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Mortar Flare Shell",
+    "itemDesc": "A shell that ignites midair and illuminates a large area, revealing enemy targets.",
+    "itemCategory": "heavy_arms"
+  }
+]

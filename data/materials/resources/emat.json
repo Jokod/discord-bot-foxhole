@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Explosive Materials",
+    "itemDesc": "Explosive Materials (also known as emats) are a material used in the crafting of most explosive weapons and shells.",
+    "itemCategory": "resources"
+  }
+]

@@ -43,7 +43,7 @@ module.exports = {
 		if (/^[\w\s!@#]{1,10}$/g.test(title) === false) {
 			await interaction.reply({
 				content: translations.translate('OPERATION_TITLE_FORMAT_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 			return;
 		}

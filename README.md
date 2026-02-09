@@ -19,6 +19,15 @@ The Discord Bot for Foxhole provides the following features:
 
 - **Streamlined Logistics:** Automate resource distribution, inventory management, and the creation of logistics threads.
 
+- **Advanced Material Categorization:** Materials are organized into main categories and subcategories for easy navigation:
+  - **Utilities** (Tools, Field Equipment, Mounted Equipment, Medical, Uniforms, Outfits)
+  - **Infantry Weapons** (Small Arms, Melee Weapons, Machine Guns, Heavy Arms, Grenades, Launchers, Mortar)
+  - **Ammunition** (Light Ammo, Tank Ammo, Aircraft Ammo, Artillery Ammo, Misc Ammo, Flamethrower Ammo)
+  - **Resources** (Basic Materials, Explosive Materials, Heavy Explosive Materials, Refined Materials, Gravel)
+  - **Vehicles** (All vehicle types)
+
+- **Multi-language Support:** Available in English, French, Russian, and Chinese (Simplified).
+
 - **Customization:** Configure the bot to fit the specific needs of your Discord server.
 
 ## Configuration
@@ -96,6 +105,66 @@ For detailed information about recent updates and changes, see [MIGRATION.md](MI
 
 Once the bot is configured on your Discord server, you can use its commands to create operations, manage logistics, and more. Check out [the wiki](https://github.com/Jokod/discord-bot-foxhole/wiki) for more details on available commands and features.
 
+## Project Structure
+
+### Materials Organization
+
+Materials are organized in a hierarchical structure:
+
+```
+data/materials/
+├── utilities/
+│   ├── tools.json
+│   ├── field_equipment.json
+│   ├── mounted_equipment.json
+│   ├── medical.json
+│   ├── uniforms.json
+│   └── outfits.json
+├── infantry_weapons/
+│   ├── small_arms.json
+│   ├── melee_weapons.json
+│   ├── machine_guns.json
+│   ├── heavy_arms.json
+│   ├── grenades.json
+│   ├── launchers.json
+│   └── mortar.json
+├── ammunition/
+│   ├── light_ammo.json
+│   ├── tank_ammo.json
+│   ├── aircraft_ammo.json
+│   ├── artillery_ammo.json
+│   ├── misc_ammo.json
+│   └── flamethrower_ammo.json
+├── resources/
+│   ├── bmat.json
+│   ├── emat.json
+│   ├── hemat.json
+│   ├── rmat.json
+│   └── gravel.json
+└── vehicles/
+    └── vehicles.json
+```
+
+Each JSON file contains an array of materials with the following structure:
+```json
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Item Name",
+  "itemDesc": "Item description",
+  "itemCategory": "category"
+}
+```
+
+### Adding New Materials
+
+To add new materials to the bot:
+
+1. Navigate to the appropriate category folder in `data/materials/`
+2. Open the relevant subcategory JSON file
+3. Add your material following the structure above
+4. Ensure materials are sorted alphabetically by `itemName`
+5. Run tests to validate: `npm test`
+
 ## Testing
 
 This project includes unit tests to ensure code quality and reliability.
@@ -112,6 +181,14 @@ make test              # Run all tests
 make test-watch        # Run tests in watch mode
 make test-coverage     # Run tests with coverage
 ```
+
+### Test Coverage
+
+The test suite includes:
+- **Material Structure Tests**: Validates the organization and integrity of material categories
+- **Translation Tests**: Ensures all categories and subcategories are properly translated in all supported languages
+- **Data Model Tests**: Tests database schema and validation
+- **Utility Tests**: Tests helper functions and utilities
 
 For more information about testing, see [TESTING.md](TESTING.md).
 

@@ -15,14 +15,14 @@ module.exports = {
 			if (!operation) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_NOT_EXIST'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
 			if (user.id !== operation.owner_id) {
 				return await interaction.reply({
 					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
-					ephemeral: true,
+					flags: 64,
 				});
 			}
 
@@ -48,7 +48,7 @@ module.exports = {
 			console.error(err);
 			return await interaction.reply({
 				content: translations.translate('OPERATION_FINISHED_ERROR'),
-				ephemeral: true,
+				flags: 64,
 			});
 		}
 	},
