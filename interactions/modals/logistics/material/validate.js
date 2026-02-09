@@ -29,22 +29,17 @@ module.exports = {
 			});
 		}
 
-		const revokeButton = new ButtonBuilder()
-			.setCustomId('button_logistics_revoke')
-			.setLabel(translations.translate('REVOKE'))
-			.setStyle(ButtonStyle.Danger);
-
-		const validateButton = new ButtonBuilder()
-			.setCustomId('button_logistics_material_validate')
-			.setLabel(translations.translate('VALIDATE'))
-			.setStyle(ButtonStyle.Success);
+		const assigneeButton = new ButtonBuilder()
+			.setCustomId('button_logistics_assignee')
+			.setLabel(translations.translate('ASSIGNEE'))
+			.setStyle(ButtonStyle.Primary);
 
 		const removeButton = new ButtonBuilder()
 			.setCustomId('button_logistics_material_delete')
 			.setLabel(translations.translate('DELETE'))
 			.setStyle(ButtonStyle.Danger);
 
-		const actionRow = new ActionRowBuilder().addComponents(revokeButton, validateButton, removeButton);
+		const actionRow = new ActionRowBuilder().addComponents(assigneeButton, removeButton);
 
 		try {
 			let material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
@@ -63,13 +58,17 @@ module.exports = {
 				status = 'validated';
 			}
 
+			const updateData = {
+				localization,
+				quantityGiven: quantityTotalGiven,
+				status,
+				person_id: null,
+			};
+
 			material = await Material.findOneAndUpdate(
 				{ material_id: `${message.id}` },
-				{
-					localization,
-					quantityGiven: quantityTotalGiven,
-					status,
-				}, { new: true });
+				updateData,
+				{ new: true });
 
 			if (!material) {
 				return await interaction.reply({
@@ -80,13 +79,13 @@ module.exports = {
 
 			if (material.quantityGiven >= material.quantityAsk) {
 				return await interaction.update({
-					content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${material.name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** <@${interaction.user.id}>\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
+					content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${material.name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
 					components: [new ActionRowBuilder().addComponents(removeButton)],
 				});
 			}
 
 			await interaction.update({
-				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${material.name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** <@${interaction.user.id}>\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
+				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${material.name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
 				components: [actionRow],
 			});
 		}
