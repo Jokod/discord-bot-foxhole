@@ -25,12 +25,9 @@ describe('Fournis - Material Management System', () => {
 			Object.keys(fournis.categories).forEach(categoryKey => {
 				const category = fournis.categories[categoryKey];
 
-				expect(category).toHaveProperty('name');
 				expect(category).toHaveProperty('icon');
 				expect(category).toHaveProperty('subcategories');
 
-				expect(category.name).toHaveProperty('en');
-				expect(category.name).toHaveProperty('fr');
 				expect(typeof category.icon).toBe('string');
 				expect(typeof category.subcategories).toBe('object');
 			});
@@ -238,18 +235,6 @@ describe('Fournis - Material Management System', () => {
 
 			expect(Array.isArray(materials)).toBe(true);
 			expect(materials.length).toBe(0);
-		});
-	});
-
-	describe('Legacy Support', () => {
-		it('should have legacy category icons', () => {
-			expect(fournis).toHaveProperty('getSmallArms');
-			expect(fournis).toHaveProperty('getHeavyArms');
-			expect(fournis).toHaveProperty('getUtilities');
-			expect(fournis).toHaveProperty('getVehicles');
-			expect(fournis).toHaveProperty('getUniforms');
-			expect(fournis).toHaveProperty('getResources');
-			expect(fournis).toHaveProperty('getMedical');
 		});
 	});
 

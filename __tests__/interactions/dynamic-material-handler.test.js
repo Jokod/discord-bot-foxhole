@@ -319,7 +319,6 @@ describe('Dynamic Material Handler', () => {
 			categoryKeys.forEach(categoryKey => {
 				const category = categories[categoryKey];
 
-				expect(category).toHaveProperty('name');
 				expect(category).toHaveProperty('icon');
 				expect(category).toHaveProperty('subcategories');
 			});

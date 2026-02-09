@@ -46,7 +46,14 @@ async function checkMaterialPermissions(interaction, translations) {
  * Crée des boutons à partir d'une liste de clés
  */
 function createButtons(items, customIdPrefix, translationKeyPrefix, translations, style = ButtonStyle.Primary) {
-	return items.map(key => {
+	// Trier par libellé traduit pour un affichage utilisateur cohérent
+	const sortedItems = [...items].sort((a, b) => {
+		const labelA = translations.translate(`${translationKeyPrefix}_${a.toUpperCase()}`);
+		const labelB = translations.translate(`${translationKeyPrefix}_${b.toUpperCase()}`);
+		return labelA.localeCompare(labelB);
+	});
+
+	return sortedItems.map(key => {
 		const translationKey = `${translationKeyPrefix}_${key.toUpperCase()}`;
 
 		return new ButtonBuilder()
@@ -100,16 +107,23 @@ async function handleCategoriesView(interaction, translations) {
 	if (!material) return;
 
 	// Créer les boutons de catégories avec leurs icônes
-	const categoryButtons = Object.keys(categories).map(categoryKey => {
-		const category = categories[categoryKey];
-		const translationKey = `CATEGORY_${categoryKey.toUpperCase()}`;
+	// Tri par libellé traduit (dérivé dynamiquement des clés de catégorie)
+	const categoryButtons = Object.keys(categories)
+		.sort((a, b) => {
+			const labelA = translations.translate(`CATEGORY_${a.toUpperCase()}`);
+			const labelB = translations.translate(`CATEGORY_${b.toUpperCase()}`);
+			return labelA.localeCompare(labelB);
+		})
+		.map(categoryKey => {
+			const category = categories[categoryKey];
+			const translationKey = `CATEGORY_${categoryKey.toUpperCase()}`;
 
-		return new ButtonBuilder()
-			.setCustomId(`${NAVIGATION.CATEGORY_PREFIX}-${categoryKey}`)
-			.setLabel(translations.translate(translationKey))
-			.setEmoji(category.icon)
-			.setStyle(ButtonStyle.Primary);
-	});
+			return new ButtonBuilder()
+				.setCustomId(`${NAVIGATION.CATEGORY_PREFIX}-${categoryKey}`)
+				.setLabel(translations.translate(translationKey))
+				.setEmoji(category.icon)
+				.setStyle(ButtonStyle.Primary);
+		});
 
 	const buttonBack = new ButtonBuilder()
 		.setCustomId('logistics_select_material_back')
@@ -146,7 +160,7 @@ async function handleCategoryView(interaction, categoryKey, translations) {
 		return await handleSubcategoryView(interaction, categoryKey, 'vehicles', translations);
 	}
 
-	// Créer les boutons de sous-catégories
+	// Créer les boutons de sous-catégories (triées alpha)
 	const subcategoryKeys = Object.keys(category.subcategories);
 	const subcategoryButtons = createButtons(
 		subcategoryKeys,
