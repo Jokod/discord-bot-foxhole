@@ -30,6 +30,11 @@ module.exports = {
 
 	// COMMANDS
 
+	// GITHUB
+	GITHUB_REPLY: '仓库链接：%url%',
+	GITHUB_MESSAGE: '你可以关注更新并通过 pull request 参与改进：协助更新阵营物资、提议新命令或提交 issue。',
+	GITHUB_NOT_CONFIGURED: '未配置 GitHub 链接。',
+
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
 	OWNER_ONLY: '此命令仅适用于机器人所有者。',
 	NO_DM: '我无法在私信中执行该命令！',

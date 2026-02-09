@@ -29,7 +29,7 @@ module.exports = {
 		try {
 			await Material.updateOne({ guild_id: guild.id, material_id: `${message.id}` }, { person_id: interaction.user.id });
 
-			const material = await Material.findOne({ material_id: `${message.id}` });
+			const material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
 
 			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
 			const localization = material.localization ? material.localization : translations.translate('NONE');

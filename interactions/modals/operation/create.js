@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { Operation } = require('../../../data/models.js');
+const { Operation, Stats } = require('../../../data/models.js');
 const React = require('../../../messages/react.js');
 const Translate = require('../../../utils/translations.js');
 
@@ -90,6 +90,12 @@ module.exports = {
 				description: descriptionField,
 				status: 'pending',
 			});
+
+			await Stats.findOneAndUpdate(
+				{ guild_id: interaction.guild.id },
+				{ $inc: { operation_count: 1 } },
+				{ upsert: true },
+			);
 
 			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
 

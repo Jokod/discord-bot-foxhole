@@ -30,6 +30,11 @@ module.exports = {
 
 	// COMMANDS
 
+	// GITHUB
+	GITHUB_REPLY: 'Repository link: %url%',
+	GITHUB_MESSAGE: 'You can follow updates and contribute by opening pull requests: help keep faction material up to date, suggest new commands, or report issues.',
+	GITHUB_NOT_CONFIGURED: 'GitHub link is not configured.',
+
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
 	OWNER_ONLY: 'This command is only available to the owner of the bot.',
 	NO_DM: 'I can\'t execute that command inside DMs!',
