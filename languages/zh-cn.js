@@ -35,6 +35,20 @@ module.exports = {
 	GITHUB_MESSAGE: '你可以关注更新并通过 pull request 参与改进：协助更新阵营物资、提议新命令或提交 issue。',
 	GITHUB_NOT_CONFIGURED: '未配置 GitHub 链接。',
 
+	// FOXHOLE
+	FOXHOLE_TITLE: 'Foxhole – 玩家与战争',
+	FOXHOLE_PLAYERS_CURRENT: '在线玩家',
+	FOXHOLE_WAR_TITLE: '当前战争',
+	FOXHOLE_WAR_NUMBER: '战争 #',
+	FOXHOLE_WAR_WINNER: '获胜方',
+	FOXHOLE_WAR_REQUIRED_TOWNS: '胜利所需城镇',
+	FOXHOLE_WAR_START: '征服开始',
+	FOXHOLE_WINNER_NONE: '进行中',
+	FOXHOLE_WINNER_WARDEN: 'Warden',
+	FOXHOLE_WINNER_COLONIAL: 'Colonial',
+	FOXHOLE_UNAVAILABLE: '数据不可用',
+	FOXHOLE_ALL_UNAVAILABLE: '外部服务（Steam、Foxhole）无响应，请稍后再试。',
+
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
 	OWNER_ONLY: '此命令仅适用于机器人所有者。',
 	NO_DM: '我无法在私信中执行该命令！',

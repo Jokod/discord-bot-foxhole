@@ -35,6 +35,20 @@ module.exports = {
 	GITHUB_MESSAGE: 'Вы можете следить за обновлениями и участвовать в улучшении: предлагать pull requests (обновление материала фракций, новые команды) или создавать issues.',
 	GITHUB_NOT_CONFIGURED: 'Ссылка на GitHub не настроена.',
 
+	// FOXHOLE
+	FOXHOLE_TITLE: 'Foxhole – Игроки и война',
+	FOXHOLE_PLAYERS_CURRENT: 'Игроков в сети',
+	FOXHOLE_WAR_TITLE: 'Текущая война',
+	FOXHOLE_WAR_NUMBER: 'Война №',
+	FOXHOLE_WAR_WINNER: 'Победитель',
+	FOXHOLE_WAR_REQUIRED_TOWNS: 'Городов для победы',
+	FOXHOLE_WAR_START: 'Начало завоевания',
+	FOXHOLE_WINNER_NONE: 'В процессе',
+	FOXHOLE_WINNER_WARDEN: 'Warden',
+	FOXHOLE_WINNER_COLONIAL: 'Colonial',
+	FOXHOLE_UNAVAILABLE: 'Данные недоступны',
+	FOXHOLE_ALL_UNAVAILABLE: 'Внешние сервисы (Steam, Foxhole) не отвечают. Попробуйте позже.',
+
 	COMMAND_EXECUTE_ERROR: 'Произошла ошибка при выполнении команды.',
 	OWNER_ONLY: 'Эта команда доступна только владельцу бота.',
 	NO_DM: 'Я не могу выполнить эту команду в личных сообщениях!',

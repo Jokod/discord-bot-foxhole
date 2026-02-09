@@ -35,6 +35,20 @@ module.exports = {
 	GITHUB_MESSAGE: 'Vous pouvez suivre les évolutions et participer à l\'amélioration de l\'outil en proposant des pull requests : tenir à jour le matériel pour les factions, proposer des commandes ou signaler des problèmes (issues).',
 	GITHUB_NOT_CONFIGURED: 'Le lien GitHub n\'est pas configuré.',
 
+	// FOXHOLE
+	FOXHOLE_TITLE: 'Foxhole – Joueurs & Guerre',
+	FOXHOLE_PLAYERS_CURRENT: 'Joueurs en ligne',
+	FOXHOLE_WAR_TITLE: 'Guerre en cours',
+	FOXHOLE_WAR_NUMBER: 'Guerre #',
+	FOXHOLE_WAR_WINNER: 'Vainqueur',
+	FOXHOLE_WAR_REQUIRED_TOWNS: 'Villes pour victoire',
+	FOXHOLE_WAR_START: 'Début de la conquête',
+	FOXHOLE_WINNER_NONE: 'En cours',
+	FOXHOLE_WINNER_WARDEN: 'Warden',
+	FOXHOLE_WINNER_COLONIAL: 'Colonial',
+	FOXHOLE_UNAVAILABLE: 'Données indisponibles',
+	FOXHOLE_ALL_UNAVAILABLE: 'Les services externes (Steam, Foxhole) ne répondent pas. Réessayez plus tard.',
+
 	COMMAND_EXECUTE_ERROR: 'Une erreur est survenue lors de l\'exécution de la commande.',
 	OWNER_ONLY: 'Cette commande est uniquement disponible pour le propriétaire du bot.',
 	NO_DM: 'Je ne peux pas exécuter cette commande dans les DMs !',
