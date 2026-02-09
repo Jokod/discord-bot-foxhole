@@ -77,6 +77,7 @@ module.exports = {
 
 		await interaction.reply({
 			embeds: [helpEmbed],
+			flags: 64,
 		});
 	},
 };
