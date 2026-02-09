@@ -1,122 +1,85 @@
 [
   {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Caoivish Parka",
-    "itemDesc": "Born and bred in the northern cold, this heavy parka protects Warden infantry from all but the worst blizzards.",
-    "itemCategory": "uniforms"
-  },
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme de soldat",
+  "itemDesc": "Uniforme standard d’infanterie offrant un équilibre entre protection et capacité de transport.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme d’ingénieur",
+  "itemDesc": "Uniforme spécialisé améliorant l’efficacité de construction, réparation et logistique.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme médical",
+  "itemDesc": "Uniforme conçu pour le personnel médical, permettant de transporter davantage de fournitures de soins.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme de scout",
+  "itemDesc": "Uniforme léger favorisant la mobilité, la discrétion et la reconnaissance.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme de char",
+  "itemDesc": "Uniforme renforcé destiné aux équipages de véhicules blindés, offrant une protection accrue.",
+  "itemCategory": "uniforms"
   {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Fabri Rucksack",
-    "itemDesc": "Engineers are the bones of the Mesean Republic. They are outfitted with a heavy bag and belts for easy access to tools and handheld materials.",
-    "itemCategory": "uniforms"
-  },
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme de neige",
+  "itemDesc": "Uniforme isolant conçu pour réduire les effets du froid et améliorer la survie en environnement enneigé.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial"],
+  "itemName": "Uniforme de pluie",
+  "itemDesc": "Uniforme imperméable limitant les effets négatifs des conditions météorologiques humides.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial"],
+  "itemName": "Uniforme de grenade",
+  "itemDesc": "Uniforme spécialisé augmentant la capacité de transport des grenades et explosifs.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial"],
+  "itemName": "Uniforme de munitions lourdes",
+  "itemDesc": "Uniforme conçu pour transporter une plus grande quantité de munitions lourdes pour armes spécialisées.",
+  "itemCategory": "uniforms"
+}
   {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Grenadier's Baldric",
-    "itemDesc": "Of the most distinguished divisions of the Legion are the Grenadiers. They are outfitted with specialized satchels and pockets for maximizing their capacity to hail explosives.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Heavy Topcoat",
-    "itemDesc": "Unaccustomed to the cold, Legionaries must always adapt. This heavy topcoat is designed to mitigate the effects of cold while still allowing for optimal mobility and combat effectiveness.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Legionary's Oilcoat",
-    "itemDesc": "Quite accustomed to the temperate climates of the south, Colonials wear this oilcloth jacket paired with thick boots to operate at high efficiency in all but the heaviest storms.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Medic Fatigues",
-    "itemDesc": "For medics of the Legion, this uniform has a plethora of pockets and bags designed to carry and deploy first aid gear easily.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Officialis' Attire",
-    "itemDesc": "The Officialis' Attire is the Colonial Officer Uniform. It is an equippable, roleplaying uniform that allows players of the same Regiment to teamkill each other without any repercussions. This allows any player with this on to act like a 'commissar' for their regiment. Its most distinctive features are the dark green officer's cap, the longer pauldron drapped on the soldier's left shoulder, which is bigger than the standard Colonial soldier's pauldron, and the small sword that's attached to the officer's hip (the sword is purely ceremonial/cosmetic and cannot be used in combat).",
-    "itemCategory": "Uniforms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Outrider's Mantle",
-    "itemDesc": "the Warden army relies on outriders to provide and recieve vital intelligence. Their gear is sturdy and well-suited for extended operations in rugged terrain and inclement weather.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Padded Boiler Suit",
-    "itemDesc": "Caovish armor is unmatched in its design and resilience. All crew are provided with a sturdy boilersuit and satchel belts to access essential tools required for tank maintenance and operation.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Physician's Jacket",
-    "itemDesc": "Physicians in the Warden army are unmatched and this uniform has a plethora of pockets and bags designed to carry and deploy first aid gear easily.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Recon Camo",
-    "itemDesc": "Legion scouts are deployed on the most dangerous missions. Their gear is lightweight, sturdy and well-suited for extended operations in rugged terrain.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Sapper Gear",
-    "itemDesc": "Caovish engineers are legendary in song and stature. They wear specialized uniforms, outfitted with belts and bags for easy access to tools and handheld materials.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Specialist's Overcoat",
-    "itemDesc": "Warden specialists require a uniform designed to optimize their capacity to haul a variety of heavy ammunition.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Tankman's Coveralls",
-    "itemDesc": "Nothing compares to the efficiency and destructive capabilities of the Colonial armor devision. Tank crew are provided with sturdy coveralls and satchel belts for easy access to essential tools required for tank maintenance and operation.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Velian Flak Vest",
-    "itemDesc": "The Velian Flak Vest is the Colonial Armour Uniform, which reduces small arms damage by -33%, and reduces bleed chance by -75%. When equipped, the uniform adds 35% encumbrance, which reduces overall movement. The Uniform only has four (4) inventory slots, which is one of the smallest inventory slots for all uniforms. Its most distinctive feature is the light green vest that completely covers the front and back of the Colonial's green uniform.",
-    "itemCategory": "uniforms"
-  }
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme d’armure",
+  "itemDesc": "Uniforme offrant une protection renforcée contre les tirs et éclats, au détriment de la mobilité.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme d’officier",
+  "itemDesc": "Uniforme distinctif porté par les officiers pour le commandement et la coordination des troupes.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme de la marine",
+  "itemDesc": "Uniforme conçu pour les opérations navales et amphibies.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme de pilote",
+  "itemDesc": "Uniforme spécialisé pour les opérateurs de véhicules, offrant une protection adaptée et une bonne mobilité.",
+  "itemCategory": "uniforms"
+},
+{
+  "faction": ["colonial", "warden"],
+  "itemName": "Uniforme de parachutiste",
+  "itemDesc": "Uniforme léger conçu pour les opérations aéroportées et les déploiements rapides.",
+  "itemCategory": "uniforms"
+}
 ]
