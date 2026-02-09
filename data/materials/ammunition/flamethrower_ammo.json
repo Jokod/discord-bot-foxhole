@@ -1,1 +1,28 @@
-[]
+[
+   {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "Molten Wind",
+    "itemDesc": "The “Molten Wind” v.II Flame Torch is a Colonial handheld Flamethrower. Due to its incendiary damage and AoE, it's best used against Structures and swarms of infantry. It can damage unarmored vehicles but not armored ones.",
+    "itemCategory": "heavy_arms"
+  },
+   {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Flame Ammo",
+    "itemDesc": "Flame Ammo is a large Magazine used by vehicles with mounted Flame weaponry.",
+    "itemCategory": "heavy_arms"
+  },
+     {
+    "faction": [
+      "warden"
+    ],
+    "itemName": "Willow's Bane Ammo
+",
+    "itemDesc": "The Willow's Bane Ammo is a type of Flamethrower Ammo for Flamethrowers.",
+    "itemCategory": "heavy_arms"
+  },
+]
