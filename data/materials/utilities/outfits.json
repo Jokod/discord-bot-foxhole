@@ -1,36 +1,11 @@
-[{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Shovel",
-  "itemDesc": "A basic tool used to dig trenches, foxholes, and other field fortifications.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Sledge Hammer",
-  "itemDesc": "A construction tool used to build, upgrade, and repair structures and emplacements.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Water Bucket",
-  "itemDesc": "A bucket filled with water used to extinguish fires and reduce flame damage.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Wrench",
-  "itemDesc": "A tool used to dismantle structures, vehicles, and emplacements when permitted.",
-  "itemCategory": "utilities"
-}]
+[
+  {
+    "faction": [
+        "colonial",
+        "warden"
+    ],
+    "itemName": "Soldier Supplies",
+    "itemDesc": "Supplies used to equip and sustain infantry units, required for spawning and maintaining soldiers at bases.",
+    "itemCategory": "outfits"
+  }
+]

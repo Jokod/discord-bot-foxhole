@@ -1,26 +1,10 @@
 [
- {
-  "faction": [
-    "colonial"
-  ],
-  "itemName": "Catara mo.II",
-  "itemDesc": "A light machine gun designed for sustained suppressive fire against infantry.",
-  "itemCategory": "heavy_arms"
-},
 {
   "faction": [
     "colonial"
   ],
   "itemName": "KRN886-127 Gast",
   "itemDesc": "A heavy machine gun optimized for defensive positions and prolonged suppression.",
-  "itemCategory": "heavy_arms"
-},
-{
-  "faction": [
-    "colonial"
-  ],
-  "itemName": "Lamentum mm.IV",
-  "itemDesc": "A heavy machine gun designed for high-volume, sustained fire and area denial.",
   "itemCategory": "heavy_arms"
 },
 {

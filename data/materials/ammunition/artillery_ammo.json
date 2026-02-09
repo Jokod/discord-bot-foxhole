@@ -6,7 +6,7 @@
     "itemName": "Balfour Falconer 250mm",
     "itemDesc": "A heavy mobile mortar platform fitted with a thick frontal sheild for assaulting fortified locations.",
     "itemCategory": "vehicles"
-  }
+  },
   {
     "faction": [
       "colonial",
@@ -16,6 +16,7 @@
     "itemDesc": "Payload for light artillery weapons.",
     "itemCategory": "heavy_arms",
     "damageDesc": "Reduced damage against trenches"
+  },
   {
     "faction": [
       "colonial",
@@ -26,7 +27,7 @@
     "itemCategory": "heavy_arms",
     "damageDesc": "Reduced damage against trenches"
   },
-   {
+  {
     "faction": [
       "colonial",
       "warden"
@@ -35,7 +36,7 @@
     "itemDesc": "Payload for the storm cannon.",
     "itemCategory": "heavy_arms"
   },
-   {
+  {
     "faction": [
       "colonial",
       "warden"
@@ -45,7 +46,7 @@
     "itemCategory": "heavy_arms",
     "damageDesc": "Reduced damage against trenches"
   },
-   {
+  {
     "faction": [
       "colonial",
       "warden"
@@ -54,7 +55,7 @@
     "itemDesc": "An incendiary payload used with mortar tubes. Will ignite objects near impact..",
     "itemCategory": "heavy_arms"
   },
-   {
+  {
     "faction": [
       "colonial",
       "warden"
@@ -64,7 +65,7 @@
     "itemCategory": "heavy_arms",
     "damageDesc": "Always causes target to bleed"
   },
-    {
+  {
     "faction": [
       "colonial",
       "warden"
@@ -72,5 +73,5 @@
     "itemName": "Mortar Flare Shell",
     "itemDesc": "A shell that ignites midair and illuminates a large area, revealing enemy targets.",
     "itemCategory": "heavy_arms"
-  },
+  }
 ]
