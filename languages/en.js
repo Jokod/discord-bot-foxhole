@@ -35,6 +35,20 @@ module.exports = {
 	GITHUB_MESSAGE: 'You can follow updates and contribute by opening pull requests: help keep faction material up to date, suggest new commands, or report issues.',
 	GITHUB_NOT_CONFIGURED: 'GitHub link is not configured.',
 
+	// FOXHOLE
+	FOXHOLE_TITLE: 'Foxhole – Players & War',
+	FOXHOLE_PLAYERS_CURRENT: 'Players online',
+	FOXHOLE_WAR_TITLE: 'Current war',
+	FOXHOLE_WAR_NUMBER: 'War #',
+	FOXHOLE_WAR_WINNER: 'Winner',
+	FOXHOLE_WAR_REQUIRED_TOWNS: 'Towns to win',
+	FOXHOLE_WAR_START: 'Conquest start',
+	FOXHOLE_WINNER_NONE: 'In progress',
+	FOXHOLE_WINNER_WARDEN: 'Warden',
+	FOXHOLE_WINNER_COLONIAL: 'Colonial',
+	FOXHOLE_UNAVAILABLE: 'Data unavailable',
+	FOXHOLE_ALL_UNAVAILABLE: 'External services (Steam, Foxhole) are not responding. Try again later.',
+
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
 	OWNER_ONLY: 'This command is only available to the owner of the bot.',
 	NO_DM: 'I can\'t execute that command inside DMs!',
