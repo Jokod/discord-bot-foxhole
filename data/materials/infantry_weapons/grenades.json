@@ -1,37 +1,71 @@
 [
   {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "A3 Harpa Fragmentation Grenade",
-    "itemDesc": "This anti-personnel fragmentation grenade is designed with pull-pin mechanics and a time fuse for user safety. Serrations in the casing allow for a better grip and increased fragmentation effectiveness.",
-    "itemCategory": "heavy_arms"
-  },
+  "faction": [
+    "warden"
+  ],
+  "itemName": "A3 Harpa Fragmentation Grenade",
+  "itemDesc": "A timed fragmentation grenade designed for anti-infantry use, dispersing lethal shrapnel in a wide radius.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Bomastone Grenade",
+  "itemDesc": "A stick-style fragmentation grenade designed to be thrown over medium distances. Always causes bleeding to infantry targets.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Green Ash Grenade",
+  "itemDesc": "A chemical grenade that releases toxic gas, dealing damage over time to unprotected infantry within its area of effect.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Smoke Grenade",
+  "itemDesc": "A non-lethal grenade that produces a thick smoke cloud, used to obscure vision and provide cover for troop movements.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "BF5 White Ash Flask Grenade",
+  "itemDesc": "An incendiary anti-armor grenade designed to melt vehicle armor and disable subsystems on impact.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Anti-Tank Sticky Bomb",
+  "itemDesc": "An adhesive anti-tank grenade designed to stick to armored vehicles and penetrate heavy armor upon detonation.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Tremola Grenade",
+  "itemDesc": "A rifle-launched grenade used for indirect fire against infantry and light structures.",
+  "itemCategory": "heavy_arms"
+}
   {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "BF5 White Ash Flask Grenade",
-    "itemDesc": "An explosive flask used for melting enemy armor. This carefully designed liquid bomb explodes into a dazzling flash of molten debris upon impact.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "High chance of disabling Track subsystem"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Bomastone Grenade",
-    "itemDesc": "The bomastone is a 'stick' style fragmentation grenade with a handle designed to aid in lobbing over moderate distances.",
-    "itemCategory": "heavy_arms",
-    "damageDesc": "Always causes target to bleed"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Tremola Grenade GPb-1",
-    "itemDesc": "The Tremola Grenade GPb-1 is a HE Grenade that can only be launched from a Grenade Launcher. It cannot be thrown by hand. It has a 4s fuse. It deals decent damage against structures. Despite its description it deals Explosive damage and not High Explosive. It has a much longer range than thrown grenades allowing it to be used efficiently and safely without the help of Smoke Grenades or friendly suppressive fire (unlike the Mammon 91-b HE grenade).",
-    "itemCategory": "heavy_arms"
-  }
+  "faction": [
+    "colonial",
+    "warden"
+  ],
+  "itemName": "Mammon 91-b",
+  "itemDesc": "A heavy improvised explosive grenade designed to deal significant damage to structures and vehicles at close range.",
+  "itemCategory": "heavy_arms"
+}
 ]
