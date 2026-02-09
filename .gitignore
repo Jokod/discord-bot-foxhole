@@ -2,6 +2,8 @@
 /config.json
 .env
 .env.prod
+.env.test
+.env.local
 .idea/
 .node-version
 .data
