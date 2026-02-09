@@ -22,15 +22,6 @@
       "colonial",
       "warden"
     ],
-    "itemName": "Bunker Supplies",
-    "itemDesc": "Supplies for maintaining structures. Store at bases to prevent decay on surrounding bunker/trench structures when garrison supplies are not available.",
-    "itemCategory": "supplies"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
     "itemName": "First Aid Kit",
     "itemDesc": "Used by medics to heal other soldiers.",
     "itemCategory": "medical"
@@ -43,15 +34,6 @@
     "itemName": "Garrison Supplies",
     "itemDesc": "Supplies for maintaining structures. Store at bases to prevent decay on surrounding structures.",
     "itemCategory": "supplies"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Soldier Supplies",
-    "itemDesc": "A standard issue set of supplies for foot soldiers. Bases must be stockpiled with soldier supplies in order for players to spawn.",
-    "itemCategory": "medical"
   },
   {
     "faction": [
