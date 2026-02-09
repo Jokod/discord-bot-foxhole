@@ -1,20 +1,42 @@
 [
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "KRN886-127 Gast Machine Gun",
-    "itemDesc": "The Gast is a deadly but cumbersome Kraunian heavy machine gun. It is best suited to holding and defending established fortifications or garrisoned structures against encroaching infantry.",
-    "itemCategory": "small_arms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "Malone Ratcatcher MK.1",
-    "itemDesc": "Early iterations of this machinegun were built to be emplaced in bunkers and on the decks of lightly armed warships, the Ratcatcher is Harvey Malone’s first freely mountable infantry weapon designed for field use. Just like its predecessors, this heavy weapon suppresses enemy soldiers with unmatched efficiency.",
-    "itemCategory": "heavy_arms",
-    "highVelocityBonus": "",
-    "isMountable": true
-  }
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Catara mo.II",
+  "itemDesc": "A light machine gun designed for sustained suppressive fire against infantry formations.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "KRN886-127 Gast Machine Gun",
+  "itemDesc": "A heavy machine gun optimized for prolonged defensive fire and area denial.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Malone Mk.2",
+  "itemDesc": "A general-purpose machine gun used by Warden forces for mobile infantry support.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Lamentum mm.IV",
+  "itemDesc": "A heavy machine gun designed for high-volume sustained fire and battlefield suppression.",
+  "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "warden"
+  ],
+  "itemName": "Malone Ratcatcher Mk.1",
+  "itemDesc": "A heavy machine gun variant optimized for close-range suppression and defensive positions.",
+  "itemCategory": "heavy_arms"
+}
 ]
