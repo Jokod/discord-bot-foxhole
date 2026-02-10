@@ -6,6 +6,16 @@ const STEAM_PLAYERS_URL = 'https://api.steampowered.com/ISteamUserStats/GetNumbe
 const FOXHOLE_WAR_URL = 'https://war-service-live.foxholeservices.com/api/worldconquest/war';
 const FETCH_TIMEOUT_MS = 8000;
 
+// Simple in-memory cache to avoid hitting external APIs too often
+const foxholeCache = {
+	steam: { data: null, ts: 0 },
+	war: { data: null, ts: 0 },
+};
+
+// Foxhole War API data updates every ~60s; Steam players is also poll-based
+const STEAM_TTL = 60_000;
+const WAR_TTL = 60_000;
+
 async function fetchWithTimeout(url) {
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -19,6 +29,34 @@ async function fetchWithTimeout(url) {
 		clearTimeout(timeoutId);
 		return null;
 	}
+}
+
+async function getSteamData() {
+	const now = Date.now();
+	if (foxholeCache.steam.data && now - foxholeCache.steam.ts < STEAM_TTL) {
+		return foxholeCache.steam.data;
+	}
+
+	const data = await fetchWithTimeout(STEAM_PLAYERS_URL);
+	if (data) {
+		foxholeCache.steam = { data, ts: now };
+	}
+
+	return data;
+}
+
+async function getWarData() {
+	const now = Date.now();
+	if (foxholeCache.war.data && now - foxholeCache.war.ts < WAR_TTL) {
+		return foxholeCache.war.data;
+	}
+
+	const data = await fetchWithTimeout(FOXHOLE_WAR_URL);
+	if (data) {
+		foxholeCache.war = { data, ts: now };
+	}
+
+	return data;
 }
 
 module.exports = {
@@ -49,17 +87,42 @@ module.exports = {
 					ru: 'Игроки в сети и статистика текущей войны.',
 					'zh-CN': '在线玩家数与当前战争统计。',
 				}),
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('map')
+				.setNameLocalizations({
+					fr: 'carte',
+					ru: 'карта',
+					'zh-CN': '地图',
+				})
+				.setDescription('Get the Foxhole live map & stats website.')
+				.setDescriptionLocalizations({
+					fr: 'Obtenir le site de carte & statistiques Foxhole (foxholestats.com).',
+					ru: 'Ссылка на сайт карты и статистики Foxhole (foxholestats.com).',
+					'zh-CN': '获取 Foxhole 地图与统计网站 (foxholestats.com)。',
+				}),
 		),
 
 	async execute(interaction) {
 		const guildId = interaction.guild?.id;
 		const translations = new Translate(interaction.client, guildId);
 
+		const subcommand = interaction.options.getSubcommand();
+
+		// Simple link to the community stats website (ephemeral)
+		if (subcommand === 'map') {
+			return interaction.reply({
+				content: 'https://foxholestats.com/',
+				flags: 64,
+			});
+		}
+
 		await interaction.deferReply({ flags: 64 });
 
 		const [steamData, warData] = await Promise.all([
-			fetchWithTimeout(STEAM_PLAYERS_URL),
-			fetchWithTimeout(FOXHOLE_WAR_URL),
+			getSteamData(),
+			getWarData(),
 		]);
 
 		const embed = new EmbedBuilder()

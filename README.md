@@ -130,6 +130,50 @@ For detailed information about recent updates and changes, see [MIGRATION.md](MI
 
 Once the bot is configured on your Discord server, you can use its commands to create operations, manage logistics, and more. Check out [the wiki](https://github.com/Jokod/discord-bot-foxhole/wiki) for more details on available commands and features.
 
+### Commands overview
+
+#### Slash commands – General / utilities
+
+- `/help [command]` – List all slash commands or show detailed help for a specific command (supports localized names).
+- `/github` – Get the bot GitHub repository link (ephemeral).
+
+#### Slash commands – Server configuration
+
+- `/setup lang:<en|fr|ru|zh-CN> camp:<warden|colonial>` – Initialize server configuration (must be run once per server).
+- `/server infos` – Display the current server configuration (language and camp).
+- `/server lang lang:<en|fr|ru|zh-CN>` – Change the bot language for the server.
+- `/server camp camp:<warden|colonial>` – Change the configured camp (faction) for the server.
+
+#### Slash commands – Foxhole live data
+
+- `/foxhole info` – Show current online players and current war stats (Steam API + War API).
+- `/foxhole map` – Get a link to the Foxhole live map & stats website.
+- `/war status` – Detailed current war status from the War API.
+- `/war maps` – List all active World Conquest maps from the War API.
+- `/war report map:<MapName>` – War report for a specific map (enlistments, casualties, day of war).
+
+#### Slash commands – Operations & logistics
+
+- `/create_operation title:<TITLE>` – Open a modal to create a new operation (date, time, duration, description).
+- `/logistics help` – List all `logistics` subcommands.
+- `/logistics resume operation:<OperationId>` – Show a summary of all logistics groups of an operation.
+- `/logistics list group:<GroupId>` – List all materials of a given logistics group.
+- `/logistics material material:<MaterialId>` – Show detailed information about a specific material.
+
+#### Slash commands – Materials
+
+- `/material help` – List all `material` subcommands.
+- `/material create [group:<GroupId>]` – Create a new material entry (with interactive buttons).
+- `/material delete material:<MaterialId>` – Delete a material.
+- `/material info material:<MaterialId>` – Show detailed information about a material.
+
+#### Slash commands – Stockpiles
+
+- `/stockpile help` – List all `stockpile` subcommands.
+- `/stockpile add name:<Name> password:<Password>` – Add a stockpile entry (name + password).
+- `/stockpile remove id:<Id>` – Remove a stockpile by its identifier.
+- `/stockpile list` – List all configured stockpiles for the server.
+
 ## Project Structure
 
 ### Materials Organization

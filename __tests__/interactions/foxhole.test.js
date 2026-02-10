@@ -17,6 +17,7 @@ describe('Slash command /foxhole info', () => {
 	let mockFetch;
 
 	beforeEach(() => {
+		jest.resetModules();
 		jest.clearAllMocks();
 		mockFetch = jest.fn();
 		global.fetch = mockFetch;
@@ -33,10 +34,11 @@ describe('Slash command /foxhole info', () => {
 		};
 	}
 
-	it('should have data with name foxhole and subcommand info', () => {
+	it('should have data with name foxhole and subcommands info/map', () => {
 		expect(foxholeCommand.data.name).toBe('foxhole');
-		expect(foxholeCommand.data.options).toHaveLength(1);
-		expect(foxholeCommand.data.options[0].name).toBe('info');
+		expect(foxholeCommand.data.options).toHaveLength(2);
+		expect(foxholeCommand.data.options.some((opt) => opt.name === 'info')).toBe(true);
+		expect(foxholeCommand.data.options.some((opt) => opt.name === 'map')).toBe(true);
 	});
 
 	it('should deferReply with ephemeral then editReply with embed when both APIs succeed', async () => {

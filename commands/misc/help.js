@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { EmbedBuilder, ChannelType } = require('discord.js');
 const { getRandomColor } = require('../../utils/colors.js');
+const Translate = require('../../utils/translations.js');
 
 module.exports = {
 	name: 'help',
@@ -11,6 +12,8 @@ module.exports = {
 
 	execute(message, args) {
 		const { commands } = message.client;
+		const guildId = message.guild?.id;
+		const translations = new Translate(message.client, guildId);
 
 		// If there are no args, it means it needs whole help command.
 
@@ -22,7 +25,7 @@ module.exports = {
 
 			const helpEmbed = new EmbedBuilder()
 				.setColor(getRandomColor())
-				.setTitle('List of commands')
+				.setTitle(translations.translate('HELP_TITLE_LIST'))
 				.setDescription(
 					'`' + commands.map((command) => command.name).join('`, `') + '`',
 				)
@@ -79,7 +82,7 @@ module.exports = {
 
 		if (!command) {
 			return message.reply({
-				content: 'That\'s not a valid command!',
+				content: translations.translate('COMMAND_UNKNOWN'),
 			});
 		}
 
@@ -90,7 +93,9 @@ module.exports = {
 
 		const commandEmbed = new EmbedBuilder()
 			.setColor(getRandomColor())
-			.setTitle('Help for the command `' + command.name + '`');
+			.setTitle(
+				translations.translate('HELP_TITLE_COMMAND', { command: command.name }),
+			);
 
 		if (command.description) {commandEmbed.setDescription(`${command.description}`);}
 
