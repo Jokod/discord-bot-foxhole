@@ -49,6 +49,17 @@ module.exports = {
 	FOXHOLE_UNAVAILABLE: 'Данные недоступны',
 	FOXHOLE_ALL_UNAVAILABLE: 'Внешние сервисы (Steam, Foxhole) не отвечают. Попробуйте позже.',
 
+	HELP_NO_SUBCOMMANDS: 'У этой команды нет подкоманд.',
+	HELP_NO_PARAMS: 'У этой команды нет параметров.',
+
+	HELP_TITLE_LIST: 'Список команд',
+	HELP_TITLE_COMMAND: 'Справка по команде `%command%`',
+
+	HELP_SECTION_SUBCOMMANDS: 'Подкоманды',
+	HELP_SECTION_PARAMETERS: 'Параметры',
+	HELP_COMMAND_NOT_FOUND: 'Команда `%command%` не существует!',
+	HELP_PARAM_REQUIRED_SUFFIX: ' (обязательно)',
+
 	COMMAND_EXECUTE_ERROR: 'Произошла ошибка при выполнении команды.',
 	OWNER_ONLY: 'Эта команда доступна только владельцу бота.',
 	NO_DM: 'Я не могу выполнить эту команду в личных сообщениях!',

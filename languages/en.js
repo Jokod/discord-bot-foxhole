@@ -49,6 +49,17 @@ module.exports = {
 	FOXHOLE_UNAVAILABLE: 'Data unavailable',
 	FOXHOLE_ALL_UNAVAILABLE: 'External services (Steam, Foxhole) are not responding. Try again later.',
 
+	HELP_NO_SUBCOMMANDS: 'This command has no subcommands.',
+	HELP_NO_PARAMS: 'This command has no parameters.',
+
+	HELP_TITLE_LIST: 'List of commands',
+	HELP_TITLE_COMMAND: 'Help for the command `%command%`',
+
+	HELP_SECTION_SUBCOMMANDS: 'Subcommands',
+	HELP_SECTION_PARAMETERS: 'Parameters',
+	HELP_COMMAND_NOT_FOUND: 'The command `%command%` doesn\'t exist!',
+	HELP_PARAM_REQUIRED_SUFFIX: ' (required)',
+
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
 	OWNER_ONLY: 'This command is only available to the owner of the bot.',
 	NO_DM: 'I can\'t execute that command inside DMs!',

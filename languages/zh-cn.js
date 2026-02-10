@@ -49,6 +49,17 @@ module.exports = {
 	FOXHOLE_UNAVAILABLE: '数据不可用',
 	FOXHOLE_ALL_UNAVAILABLE: '外部服务（Steam、Foxhole）无响应，请稍后再试。',
 
+	HELP_NO_SUBCOMMANDS: '此命令没有子命令。',
+	HELP_NO_PARAMS: '此命令没有参数。',
+
+	HELP_TITLE_LIST: '命令列表',
+	HELP_TITLE_COMMAND: '命令 `%command%` 的帮助',
+
+	HELP_SECTION_SUBCOMMANDS: '子命令',
+	HELP_SECTION_PARAMETERS: '参数',
+	HELP_COMMAND_NOT_FOUND: '命令 `%command%` 不存在！',
+	HELP_PARAM_REQUIRED_SUFFIX: '（必填）',
+
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
 	OWNER_ONLY: '此命令仅适用于机器人所有者。',
 	NO_DM: '我无法在私信中执行该命令！',
