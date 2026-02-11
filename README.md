@@ -177,7 +177,7 @@ Stockpile codes (seaport/depot) are scoped per server and per channel. Only the 
 - `/stockpile restore id:<Id>` – Restore a deleted stockpile (creator only).
 - `/stockpile list` – Display stockpiles by region and city (stock, code, expiry).
 - `/stockpile reset id:<Id>` – Reset a stockpile’s timer to 2 days.
-- `/stockpile cleanup` – Permanently remove deleted stockpiles in this channel.
+- `/stockpile cleanup` – Permanently remove deleted stockpiles in this channel (requires **Manage Channels**).
 - `/stockpile deleteall` – Permanently delete all stockpiles on this server (requires **Manage Server** permission).
 
 #### Slash commands – Notifications

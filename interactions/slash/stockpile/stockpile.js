@@ -435,6 +435,13 @@ module.exports = {
 		}
 
 		case 'cleanup': {
+			const canManageChannels = interaction.member?.permissions?.has(PermissionFlagsBits.ManageChannels);
+			if (!canManageChannels) {
+				return interaction.reply({
+					content: translations.translate('NO_PERMS'),
+					flags: 64,
+				});
+			}
 			const result = await Stockpile.deleteMany({
 				server_id: guild.id,
 				group_id: channelId,

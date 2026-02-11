@@ -221,10 +221,21 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 		});
 	});
 
-	describe('cleanup - isolation serveur et canal', () => {
-		it('supprime uniquement les stocks marqués supprimés du serveur et du canal', async () => {
+	describe('cleanup - permission et isolation serveur/canal', () => {
+		it('refuse si l’utilisateur n’a pas ManageChannels', async () => {
+			const interaction = createInteraction('cleanup');
+			interaction.member.permissions.has.mockReturnValue(false);
+			await stockpileCommand.execute(interaction);
+			expect(Stockpile.deleteMany).not.toHaveBeenCalled();
+			expect(interaction.reply).toHaveBeenCalledWith(
+				expect.objectContaining({ content: 'NO_PERMS', flags: 64 }),
+			);
+		});
+
+		it('supprime uniquement les stocks marqués supprimés du serveur et du canal si ManageChannels', async () => {
 			Stockpile.deleteMany.mockResolvedValue({ deletedCount: 2 });
 			const interaction = createInteraction('cleanup');
+			interaction.member.permissions.has.mockImplementation((perm) => perm === PermissionFlagsBits.ManageChannels);
 			await stockpileCommand.execute(interaction);
 			expect(Stockpile.deleteMany).toHaveBeenCalledWith({
 				server_id: 'guild-123',
