@@ -1,6 +1,6 @@
 {
 	"name": "discord-foxhole-bot",
-	"version": "0.8.6",
+	"version": "0.9.0",
 	"description": "Discord bot for Foxhole",
 	"types": "./typings.d.ts",
 	"main": "bot.js",
