@@ -249,10 +249,27 @@ module.exports = {
 	STOCKPILE: 'Stockpile',
 	STOCKPILE_LIST_COMMANDS: 'List of stock commands',
 	STOCKPILE_LIST: 'List of stocks',
+	STOCKPILE_LIST_CODES: 'List of stockpile codes',
+	STOCKPILE_TABLE_HEADER_STOCK: 'Stockpile',
+	STOCKPILE_TABLE_HEADER_CODE: 'Code',
+	STOCKPILE_TABLE_HEADER_EXPIRES: 'Date',
+	STOCKPILE_REGION: 'Region',
+	STOCKPILE_CITY: 'City',
+	STOCKPILE_PLACEHOLDER_REGION: 'Letters, numbers, spaces, hyphens (2-50)',
+	STOCKPILE_PLACEHOLDER_CITY: 'City name (2-50)',
+	STOCKPILE_PLACEHOLDER_NAME: '3-50 characters, alphanumeric',
+	STOCKPILE_PLACEHOLDER_CODE: '6 digits, e.g. 123456',
+
+	STOCKPILE_TIME_REMAINING: 'Time remaining',
+	STOCKPILE_CREATOR: 'Creator',
 
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: 'The stock has been created.',
 	STOCKPILE_DELETE_SUCCESS: 'The stock has been deleted.',
+	STOCKPILE_MARK_DELETED_SUCCESS: 'The stock has been marked as deleted.',
+	STOCKPILE_RESET_SUCCESS: 'The stock timer has been reset to 2 days.',
+	STOCKPILE_CLEANUP_SUCCESS: '%count% marked stock(s) deleted in this channel.',
+	STOCKPILE_RESET_ALL_SUCCESS: 'All stockpiles have been deleted.',
 
 	// STOCKPILE ERRORS
 	STOCKPILE_LIST_EMPTY: 'There are no stocks.',
@@ -261,5 +278,11 @@ module.exports = {
 	STOCKPILE_CREATE_ERROR: 'An error occurred while creating the stock.',
 	STOCKPILE_DELETE_ERROR: 'An error occurred while deleting the stock.',
 	STOCKPILE_INVALID_NAME: 'The stock name is invalid.',
-	STOCKPILE_INVALID_PASSWORD: 'The password is invalid.',
+	STOCKPILE_INVALID_PASSWORD: 'The code must be exactly 6 digits.',
+	STOCKPILE_INVALID_REGION: 'The region is invalid.',
+	STOCKPILE_INVALID_CITY: 'The city is invalid.',
+	STOCKPILE_ALREADY_DELETED: 'This stock is already marked as deleted.',
+	STOCKPILE_ARE_NO_OWNER_ERROR: 'You are not the creator of this stockpile.',
+	STOCKPILE_NOT_DELETED: 'This stock is not marked as deleted.',
+	STOCKPILE_RESTORE_SUCCESS: 'The stockpile has been restored.',
 };

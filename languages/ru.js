@@ -250,10 +250,27 @@ module.exports = {
 	STOCKPILE: 'Склад',
 	STOCKPILE_LIST_COMMANDS: 'Список команд склада',
 	STOCKPILE_LIST: 'Список запасов',
+	STOCKPILE_LIST_CODES: 'Список кодов складов',
+	STOCKPILE_TABLE_HEADER_STOCK: 'Склад',
+	STOCKPILE_TABLE_HEADER_CODE: 'Код',
+	STOCKPILE_TABLE_HEADER_EXPIRES: 'Дата',
+	STOCKPILE_REGION: 'Регион',
+	STOCKPILE_CITY: 'Город',
+	STOCKPILE_PLACEHOLDER_REGION: 'Буквы, цифры, пробелы, дефисы (2-50)',
+	STOCKPILE_PLACEHOLDER_CITY: 'Название города (2-50)',
+	STOCKPILE_PLACEHOLDER_NAME: '3-50 символов, буквы и цифры',
+	STOCKPILE_PLACEHOLDER_CODE: '6 цифр, напр. 123456',
+
+	STOCKPILE_TIME_REMAINING: 'Оставшееся время',
+	STOCKPILE_CREATOR: 'Создатель',
 
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: 'Склад был создан.',
 	STOCKPILE_DELETE_SUCCESS: 'Склад был удален.',
+	STOCKPILE_MARK_DELETED_SUCCESS: 'Склад был помечен как удалён.',
+	STOCKPILE_RESET_SUCCESS: 'Таймер склада сброшен на 2 дня.',
+	STOCKPILE_CLEANUP_SUCCESS: 'Удалено %count% помеченных складов в этом канале.',
+	STOCKPILE_RESET_ALL_SUCCESS: 'Все склады были удалены.',
 
 	// STOCKPILE ERRORS
 	STOCKPILE_LIST_EMPTY: 'Здесь нет складов.',
@@ -262,5 +279,11 @@ module.exports = {
 	STOCKPILE_CREATE_ERROR: 'Произошла ошибка при создании склада.',
 	STOCKPILE_DELETE_ERROR: 'Произошла ошибка при удалении склада.',
 	STOCKPILE_INVALID_NAME: 'Недопустимое имя склада.',
-	STOCKPILE_INVALID_PASSWORD: 'Пароль недействителен.',
+	STOCKPILE_INVALID_PASSWORD: 'Код должен содержать ровно 6 цифр.',
+	STOCKPILE_INVALID_REGION: 'Недопустимый регион склада.',
+	STOCKPILE_INVALID_CITY: 'Недопустимый город склада.',
+	STOCKPILE_ALREADY_DELETED: 'Этот склад уже помечен как удалён.',
+	STOCKPILE_ARE_NO_OWNER_ERROR: 'Вы не являетесь создателем этого склада.',
+	STOCKPILE_NOT_DELETED: 'Этот склад не помечен как удалённый.',
+	STOCKPILE_RESTORE_SUCCESS: 'Склад восстановлен.',
 };

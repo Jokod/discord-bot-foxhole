@@ -63,10 +63,10 @@ module.exports = {
 	COMMAND_EXECUTE_ERROR: 'Une erreur est survenue lors de l\'exécution de la commande.',
 	OWNER_ONLY: 'Cette commande est uniquement disponible pour le propriétaire du bot.',
 	NO_DM: 'Je ne peux pas exécuter cette commande dans les DMs !',
-	NO_PERMS: 'You don\'t have the permissions to use this command.',
-	ARGS_MISSING: 'You didn\'t provide any arguments, %author%!',
+	NO_PERMS: 'Vous n\'avez pas les permissions pour utiliser cette commande.',
+	ARGS_MISSING: 'Vous n\'avez fourni aucun argument, %author% !',
 	COMMAND_USAGE: 'L\'utilisation correcte serait: `%prefix%%command% %usage%`',
-	COMMAND_COOLDOWN: 'Please wait %time% more seconds before using the `%command%` command again.',
+	COMMAND_COOLDOWN: 'Veuillez attendre %time% secondes avant de réutiliser la commande `%command%`.',
 
 	// SERVER ---------------------------------------------
 
@@ -249,10 +249,27 @@ module.exports = {
 	STOCKPILE: 'Stock',
 	STOCKPILE_LIST_COMMANDS: 'Liste des commandes de stock',
 	STOCKPILE_LIST: 'Liste des stocks',
+	STOCKPILE_LIST_CODES: 'Liste des codes de stockpile',
+	STOCKPILE_TABLE_HEADER_STOCK: 'Stockpile',
+	STOCKPILE_TABLE_HEADER_CODE: 'Code',
+	STOCKPILE_TABLE_HEADER_EXPIRES: 'Date',
+	STOCKPILE_REGION: 'Région',
+	STOCKPILE_CITY: 'Ville',
+	STOCKPILE_PLACEHOLDER_REGION: 'Lettres, chiffres, espaces, tirets (2-50)',
+	STOCKPILE_PLACEHOLDER_CITY: 'Nom de la ville (2-50)',
+	STOCKPILE_PLACEHOLDER_NAME: '3-50 caractères, alphanumériques',
+	STOCKPILE_PLACEHOLDER_CODE: '6 chiffres, ex: 123456',
+
+	STOCKPILE_TIME_REMAINING: 'Temps restant',
+	STOCKPILE_CREATOR: 'Créateur',
 
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: 'Le stock a été créé.',
 	STOCKPILE_DELETE_SUCCESS: 'Le stock a été supprimé.',
+	STOCKPILE_MARK_DELETED_SUCCESS: 'Le stock a été marqué comme supprimé.',
+	STOCKPILE_RESET_SUCCESS: 'Le délai du stock a été remis à 2 jours.',
+	STOCKPILE_CLEANUP_SUCCESS: '%count% stock(s) marqué(s) supprimé(s) dans ce salon.',
+	STOCKPILE_RESET_ALL_SUCCESS: 'Tous les stocks ont été supprimés.',
 
 	// STOCKPILE ERRORS
 	STOCKPILE_LIST_EMPTY: 'Il n\'y a pas de stocks.',
@@ -261,5 +278,11 @@ module.exports = {
 	STOCKPILE_CREATE_ERROR: 'Une erreur est survenue lors de la création du stock.',
 	STOCKPILE_DELETE_ERROR: 'Une erreur est survenue lors de la suppression du stock.',
 	STOCKPILE_INVALID_NAME: 'Le nom du stock est invalide.',
-	STOCKPILE_INVALID_PASSWORD: 'Le mot de passe du stock est invalide.',
+	STOCKPILE_INVALID_PASSWORD: 'Le code doit contenir exactement 6 chiffres.',
+	STOCKPILE_INVALID_REGION: 'La région du stock est invalide.',
+	STOCKPILE_INVALID_CITY: 'La ville du stock est invalide.',
+	STOCKPILE_ALREADY_DELETED: 'Ce stock est déjà marqué comme supprimé.',
+	STOCKPILE_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le créateur de ce stock.',
+	STOCKPILE_NOT_DELETED: 'Ce stock n\'est pas marqué comme supprimé.',
+	STOCKPILE_RESTORE_SUCCESS: 'Le stock a été réactivé.',
 };

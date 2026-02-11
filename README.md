@@ -169,10 +169,16 @@ Once the bot is configured on your Discord server, you can use its commands to c
 
 #### Slash commands – Stockpiles
 
-- `/stockpile help` – List all `stockpile` subcommands.
-- `/stockpile add name:<Name> password:<Password>` – Add a stockpile entry (name + password).
-- `/stockpile remove id:<Id>` – Remove a stockpile by its identifier.
-- `/stockpile list` – List all configured stockpiles for the server.
+Stockpile codes (seaport/depot) are scoped per server and per channel. Only the creator can remove or restore a given stock; the list is grouped by region and city with a 2-day reset timer.
+
+- `/stockpile help` – Show available stockpile subcommands.
+- `/stockpile add` – Open a form to add a stockpile (region, city, name, 6-digit code).
+- `/stockpile remove id:<Id>` – Mark a stockpile as deleted (creator only).
+- `/stockpile restore id:<Id>` – Restore a deleted stockpile (creator only).
+- `/stockpile list` – Display stockpiles by region and city (stock, code, expiry).
+- `/stockpile reset id:<Id>` – Reset a stockpile’s timer to 2 days.
+- `/stockpile cleanup` – Permanently remove deleted stockpiles in this channel.
+- `/stockpile deleteall` – Permanently delete all stockpiles on this server (requires **Manage Server** permission).
 
 ## Project Structure
 
