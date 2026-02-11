@@ -1,5 +1,6 @@
 const { Events } = require('discord.js');
 const { Stats } = require('../data/models.js');
+const { start: startStockpileExpiryScheduler } = require('../utils/stockpileExpiryScheduler.js');
 
 module.exports = {
 	name: Events.ClientReady,
@@ -11,6 +12,8 @@ module.exports = {
 	 */
 	async execute(client) {
 		console.log(`Logged in as ${client.user.tag}!`);
+
+		startStockpileExpiryScheduler(client);
 
 		// Backfill stats for all guilds the bot is in
 		for (const [id, guild] of client.guilds.cache) {

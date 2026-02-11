@@ -9,6 +9,8 @@ jest.mock('../../utils/colors.js', () => ({ getRandomColor: jest.fn().mockReturn
 const mockBuildStockpileListEmbed = jest.fn();
 jest.mock('../../interactions/embeds/stockpileList.js', () => ({ buildStockpileListEmbed: mockBuildStockpileListEmbed }));
 
+jest.mock('../../utils/notifications.js', () => ({ sendToSubscribers: jest.fn().mockResolvedValue(undefined) }));
+
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
 		findOne: jest.fn(),

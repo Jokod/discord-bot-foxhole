@@ -11,6 +11,7 @@ const { Stockpile } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { getRandomColor } = require('../../../utils/colors.js');
 const { buildStockpileListEmbed } = require('../../embeds/stockpileList.js');
+const { sendToSubscribers } = require('../../../utils/notifications.js');
 
 module.exports = {
 	init: true,
@@ -317,6 +318,13 @@ module.exports = {
 				content: translations.translate('STOCKPILE_MARK_DELETED_SUCCESS'),
 				flags: 64,
 			});
+			sendToSubscribers(interaction.client, guild.id, 'stockpile_activity', (t) => ({
+				content: t.translate('NOTIFICATION_STOCKPILE_REMOVED', {
+					user: `<@${interaction.user.id}>`,
+					name: stock.name,
+					id: stock.id,
+				}),
+			})).catch(() => undefined);
 			const { embed: listEmbed, isEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
 			await interaction.followUp(
 				isEmpty ? { content: translations.translate('STOCKPILE_LIST_EMPTY'), flags: 64 } : { embeds: [listEmbed] },
@@ -359,6 +367,13 @@ module.exports = {
 				content: translations.translate('STOCKPILE_RESTORE_SUCCESS'),
 				flags: 64,
 			});
+			sendToSubscribers(interaction.client, guild.id, 'stockpile_activity', (t) => ({
+				content: t.translate('NOTIFICATION_STOCKPILE_RESTORED', {
+					user: `<@${interaction.user.id}>`,
+					name: stockToRestore.name,
+					id: stockToRestore.id,
+				}),
+			})).catch(() => undefined);
 			const { embed: restoreEmbed, isEmpty: restoreEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
 			await interaction.followUp(
 				restoreEmpty ? { content: translations.translate('STOCKPILE_LIST_EMPTY'), flags: 64 } : { embeds: [restoreEmbed] },
@@ -402,7 +417,16 @@ module.exports = {
 			const resetNow = new Date();
 			stockToReset.lastResetAt = resetNow;
 			stockToReset.expiresAt = new Date(resetNow.getTime() + 2 * 24 * 60 * 60 * 1000);
+			stockToReset.expiry_reminders_sent = [];
 			await stockToReset.save();
+
+			sendToSubscribers(interaction.client, guild.id, 'stockpile_activity', (t) => ({
+				content: t.translate('NOTIFICATION_STOCKPILE_RESET', {
+					user: `<@${interaction.user.id}>`,
+					name: stockToReset.name,
+					id: stockToReset.id,
+				}),
+			})).catch(() => undefined);
 
 			return interaction.reply({
 				content: translations.translate('STOCKPILE_RESET_SUCCESS'),

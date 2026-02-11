@@ -1,7 +1,8 @@
 const { Stockpile } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
-const { normalizeForDb } = require('../../../utils/formatLocation.js');
+const { normalizeForDb, formatForDisplay } = require('../../../utils/formatLocation.js');
 const { buildStockpileListEmbed } = require('../../embeds/stockpileList.js');
+const { sendToSubscribers } = require('../../../utils/notifications.js');
 
 module.exports = {
 	id: 'modal_stockpile_add',
@@ -64,6 +65,15 @@ module.exports = {
 				content: translations.translate('STOCKPILE_CREATE_SUCCESS'),
 				flags: 64,
 			});
+			sendToSubscribers(client, guild.id, 'stockpile_activity', (t) => ({
+				content: t.translate('NOTIFICATION_STOCKPILE_ADDED', {
+					user: `<@${user.id}>`,
+					name,
+					id: nextId,
+					region: formatForDisplay(region),
+					city: formatForDisplay(city),
+				}),
+			})).catch(() => undefined);
 			const { embed: listEmbed, isEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
 			await interaction.followUp(
 				isEmpty ? { content: translations.translate('STOCKPILE_LIST_EMPTY'), flags: 64 } : { embeds: [listEmbed] },

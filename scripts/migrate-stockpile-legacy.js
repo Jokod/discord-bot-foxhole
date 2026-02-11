@@ -39,6 +39,7 @@ async function run() {
 				lastResetAt: now,
 				expiresAt,
 				deleted: false,
+				expiry_reminders_sent: [],
 			},
 		},
 	);
@@ -47,7 +48,8 @@ async function run() {
 	if (result.matchedCount > 0) {
 		console.log(`Legacy stocks: region/city="${LEGACY_REGION}", group_id="${LEGACY_GROUP_ID}", owner_id="${LEGACY_OWNER_ID}".`);
 		console.log('Anyone can remove or restore these (no creator). To set real region/city: remove then re-add via /stockpile add.');
-	} else {
+	}
+	else {
 		console.log('No legacy documents found.');
 	}
 

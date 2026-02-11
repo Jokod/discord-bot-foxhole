@@ -180,6 +180,21 @@ Stockpile codes (seaport/depot) are scoped per server and per channel. Only the 
 - `/stockpile cleanup` – Permanently remove deleted stockpiles in this channel.
 - `/stockpile deleteall` – Permanently delete all stockpiles on this server (requires **Manage Server** permission).
 
+#### Slash commands – Notifications
+
+Subscribe channels to notifications. Requires **Manage Channels** to subscribe or unsubscribe.
+
+- `/notification subscribe type:<Type>` – Subscribe this channel.
+- `/notification unsubscribe type:<Type>` – Unsubscribe this channel.
+- `/notification list` – List channels subscribed to notifications on this server.
+
+| Type | Trigger / interval | Details |
+|------|--------------------|---------|
+| **Stockpile activity** | On each action | Sent immediately when a user **adds**, **removes**, **restores** or **resets** a stock. |
+| **Stockpile expiring soon** | Check at startup + **every 5 min** | One notification per stock for the **closest** due interval (12h, 6h, 3h, 2h, 1h, 30min).|
+
+The two types are independent: subscribing to *Stockpile activity* does not enable expiry reminders; you must also subscribe to *Stockpile expiring soon*.
+
 ## Project Structure
 
 ### Materials Organization

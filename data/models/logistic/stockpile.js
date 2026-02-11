@@ -53,6 +53,11 @@ const Stockpile = mongoose.Schema({
 	deletedAt: {
 		type: Date,
 	},
+	// Rappels d'expiration déjà envoyés : '12h', '6h', '3h', '2h', '1h', '30m'
+	expiry_reminders_sent: {
+		type: [String],
+		default: [],
+	},
 }, {
 	// Ajoute automatiquement createdAt et updatedAt
 	timestamps: true,
