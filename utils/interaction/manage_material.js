@@ -26,6 +26,12 @@ class ManageMaterial {
 			ButtonStyle.Secondary,
 		);
 
+		const priorityButton = this.createButton(
+			'button_logistics_add_priority',
+			this.translations.translate('MATERIAL_PRIORITY'),
+			ButtonStyle.Secondary,
+		);
+
 		const confirmButton = this.createButton(
 			'button_logistics_add_confirm',
 			this.translations.translate('CONFIRM'),
@@ -38,7 +44,10 @@ class ManageMaterial {
 			ButtonStyle.Danger,
 		);
 
-		return new ActionRowBuilder().addComponents(materialButton, quantityAskButton, confirmButton, deleteButton);
+		const row1 = new ActionRowBuilder().addComponents(materialButton, quantityAskButton, priorityButton);
+		const row2 = new ActionRowBuilder().addComponents(confirmButton, deleteButton);
+
+		return [row1, row2];
 	}
 }
 

@@ -94,43 +94,11 @@ module.exports = {
 						})
 						.setRequired(true),
 				),
-		)
-		.addSubcommand((subcommand) =>
-			subcommand
-				.setName('material')
-				.setNameLocalizations({
-					fr: 'matériel',
-					ru: 'материал',
-					'zh-CN': '材料',
-				})
-				.setDescription('Displays the details of a material.')
-				.setDescriptionLocalizations({
-					fr: 'Affiche les détails d\'un matériel.',
-					ru: 'Отображает подробности материала.',
-					'zh-CN': '显示材料的详细信息。',
-				})
-				.addStringOption((option) =>
-					option
-						.setName('material')
-						.setNameLocalizations({
-							fr: 'matériel',
-							ru: 'материал',
-							'zh-CN': '材料',
-						})
-						.setDescription('The id of the material.')
-						.setDescriptionLocalizations({
-							fr: 'L\'id du matériel.',
-							ru: 'Идентификатор материала.',
-							'zh-CN': '材料的ID。',
-						})
-						.setRequired(true),
-				),
 		),
 	async execute(interaction) {
 		const { client, guild, options } = interaction;
 		const inputOperationId = options.getString('operation');
 		const inputListId = options.getString('group');
-		const inputMaterialId = options.getString('material');
 		const translations = new Translate(client, guild.id);
 
 		if (inputOperationId) {
@@ -205,33 +173,6 @@ module.exports = {
 				.setColor(getRandomColor())
 				.setTitle(`${translations.translate('MATERIAL_LIST_OF_GROUP')} #${inputListId}`)
 				.setDescription(content.join('\n\n'));
-
-			await interaction.reply({
-				embeds: [embed],
-				flags: 64,
-			});
-		}
-
-		else if (inputMaterialId) {
-			const material = await Material.findOne({ guild_id: guild.id, material_id: inputMaterialId });
-
-			if (!material) {
-				return interaction.reply({
-					content: translations.translate('MATERIAL_NOT_EXIST'),
-					flags: 64,
-				});
-			}
-
-			const name = material.name || translations.translate('NONE');
-			const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
-			const localization = material.localization || translations.translate('NONE');
-
-			const content = `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
-
-			const embed = new EmbedBuilder()
-				.setColor(getRandomColor())
-				.setTitle(`${translations.translate('MATERIAL_DETAIL')} #${material.material_id}`)
-				.setDescription(content);
 
 			await interaction.reply({
 				embeds: [embed],

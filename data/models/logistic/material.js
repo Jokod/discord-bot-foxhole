@@ -32,6 +32,11 @@ const Material = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	priority: {
+		type: String,
+		enum: ['low', 'neutral', 'high'],
+		default: 'neutral',
+	},
 });
 
 module.exports = mongoose.model('Material', Material);

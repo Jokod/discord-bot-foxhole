@@ -19,6 +19,10 @@ jest.mock('../../utils/translations.js', () => {
 				MATERIAL_CREATOR: 'Créateur',
 				MATERIAL: 'Matériel',
 				QUANTITY: 'Quantité',
+				MATERIAL_PRIORITY: 'Priorité',
+				MATERIAL_PRIORITY_LOW: 'Faible',
+				MATERIAL_PRIORITY_NEUTRAL: 'Neutre',
+				MATERIAL_PRIORITY_HIGH: 'Haute',
 				MATERIAL_PERSON_IN_CHARGE: 'Responsable',
 				MATERIAL_LOCALIZATION: 'Lieu',
 				MATERIAL_QUANTITY_GIVEN: 'Quantité soumise',
@@ -74,19 +78,19 @@ describe('Modal - logistics material validate', () => {
 			name: 'fusil',
 			quantityAsk: 10,
 			quantityGiven: 5,
-			status: 'pending',
+			status: 'confirmed',
 			person_id: null,
 		});
 
 		await validateModal.execute(mockInteraction);
 
-		// Vérifie que person_id est remis à null
+		// Validation partielle : person_id à null, status à 'confirmed' (reste sur écran Assigné/Priorité/Supprimer)
 		expect(Material.findOneAndUpdate).toHaveBeenCalledWith(
 			{ material_id: 'test-message-id' },
 			expect.objectContaining({
 				localization: 'Depot A',
 				quantityGiven: 5,
-				status: 'pending',
+				status: 'confirmed',
 				person_id: null,
 			}),
 			{ new: true },
@@ -99,12 +103,13 @@ describe('Modal - logistics material validate', () => {
 		expect(updateCall.content).toContain('Responsable');
 		expect(updateCall.content).toContain('Aucun');
 
-		// Boutons : Assignee + Delete
+		// Boutons : Assignee + Priorité + Delete
 		expect(updateCall.components).toHaveLength(1);
 		const row = updateCall.components[0];
-		expect(row.components).toHaveLength(2);
+		expect(row.components).toHaveLength(3);
 		const ids = row.components.map(c => c.data.custom_id || c.customId);
 		expect(ids).toContain('button_logistics_assignee');
+		expect(ids).toContain('button_logistics_add_priority');
 		expect(ids).toContain('button_logistics_material_delete');
 	});
 
