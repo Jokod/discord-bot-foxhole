@@ -2,6 +2,8 @@ const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRow
 const { Group, Material, Stats } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { getRandomColor } = require('../../../utils/colors.js');
+const { getPriorityTranslationKey, getPriorityColoredText, getPriorityEmbedColor, DEFAULT_PRIORITY } = require('../../../utils/material-priority.js');
+const { parseMaterialId } = require('../../../utils/discord.js');
 
 module.exports = {
 	init: true,
@@ -86,11 +88,11 @@ module.exports = {
 							ru: 'материал',
 							'zh-CN': '材料',
 						})
-						.setDescription('The id of the material.')
+						.setDescription('Message ID or link to the material message.')
 						.setDescriptionLocalizations({
-							fr: 'L\'id du matériel.',
-							ru: 'Идентификатор материала.',
-							'zh-CN': '材料的ID。',
+							fr: 'ID du message ou lien vers le message du matériel.',
+							ru: 'ID сообщения или ссылка на сообщение материала.',
+							'zh-CN': '消息ID或材料消息的链接。',
 						})
 						.setRequired(true),
 				),
@@ -117,11 +119,11 @@ module.exports = {
 							ru: 'материал',
 							'zh-CN': '材料',
 						})
-						.setDescription('The id of the material.')
+						.setDescription('Message ID or link to the material message.')
 						.setDescriptionLocalizations({
-							fr: 'L\'id du matériel.',
-							ru: 'Идентификатор материала.',
-							'zh-CN': '材料的ID。',
+							fr: 'ID du message ou lien vers le message du matériel.',
+							ru: 'ID сообщения или ссылка на сообщение материала.',
+							'zh-CN': '消息ID或材料消息的链接。',
 						})
 						.setRequired(true),
 				),
@@ -129,7 +131,8 @@ module.exports = {
 	async execute(interaction) {
 		const { client, guild, options } = interaction;
 		const inputGroupId = options.getString('group') || null;
-		const inputMaterialId = options.getString('material') || null;
+		const rawMaterialId = options.getString('material') || null;
+		const inputMaterialId = rawMaterialId ? parseMaterialId(rawMaterialId) : null;
 		const translations = new Translate(client, guild.id);
 
 		if (inputGroupId) {
@@ -184,6 +187,11 @@ module.exports = {
 				.setLabel(translations.translate('QUANTITY'))
 				.setStyle(ButtonStyle.Secondary);
 
+			const priorityButton = new ButtonBuilder()
+				.setCustomId('button_logistics_add_priority')
+				.setLabel(translations.translate('MATERIAL_PRIORITY'))
+				.setStyle(ButtonStyle.Secondary);
+
 			const confirmButton = new ButtonBuilder()
 				.setCustomId('button_logistics_add_confirm')
 				.setLabel(translations.translate('CONFIRM'))
@@ -194,7 +202,8 @@ module.exports = {
 				.setLabel(translations.translate('DELETE'))
 				.setStyle(ButtonStyle.Danger);
 
-			const ActionRow = new ActionRowBuilder().addComponents(materialButton, quantityAskButton, confirmButton, deleteButton);
+			const ActionRow1 = new ActionRowBuilder().addComponents(materialButton, quantityAskButton, priorityButton);
+			const ActionRow2 = new ActionRowBuilder().addComponents(confirmButton, deleteButton);
 
 			await Material.create({
 				guild_id: guild.id,
@@ -202,6 +211,7 @@ module.exports = {
 				group_id: inputGroupId,
 				owner_id: interaction.user.id,
 				status: 'pending',
+				priority: DEFAULT_PRIORITY,
 			});
 
 			await Stats.findOneAndUpdate(
@@ -212,7 +222,7 @@ module.exports = {
 
 			const response = await interaction.reply({
 				content: `${translations.translate('MATERIAL_CREATOR')} <@${interaction.user.id}>`,
-				components: [ActionRow],
+				components: [ActionRow1, ActionRow2],
 				withResponse: true,
 			});
 
@@ -220,7 +230,7 @@ module.exports = {
 			await Material.updateOne({ guild_id: guild.id, material_id: `${interaction.id}` }, { material_id: `${message.id}` });
 
 			break;
-		case 'delete':
+		case 'delete': {
 			const rowCount = await Material.deleteOne({ guild_id: guild.id, material_id: `${inputMaterialId}` });
 
 			if (rowCount.deletedCount === 0) {
@@ -230,11 +240,21 @@ module.exports = {
 				});
 			}
 
+			const { channel } = interaction;
+			const materialMessage = await channel.messages.fetch(inputMaterialId).catch(async () => {
+				const parent = channel.parentId ? await client.channels.fetch(channel.parentId) : null;
+				return parent ? parent.messages.fetch(inputMaterialId) : null;
+			}).catch(() => null);
+			if (materialMessage) {
+				await materialMessage.delete().catch(() => undefined);
+			}
+
 			await interaction.reply({
 				content: translations.translate('MATERIAL_DELETE_SUCCESS'),
 				flags: 64,
 			});
 			break;
+		}
 		case 'info':
 			const material = await Material.findOne({ guild_id: guild.id, material_id: `${inputMaterialId}` });
 
@@ -248,11 +268,12 @@ module.exports = {
 			const name = material.name || translations.translate('NONE');
 			const owner = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
 			const localization = material.localization || translations.translate('NONE');
+			const priorityLabel = getPriorityColoredText(material.priority, translations.translate(getPriorityTranslationKey(material.priority)));
 
-			const content = `**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
+			const content = `**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
 
 			const embed = new EmbedBuilder()
-				.setColor(getRandomColor())
+				.setColor(getPriorityEmbedColor(material.priority))
 				.setTitle(`${translations.translate('MATERIAL_DETAIL')} #${material.material_id}`)
 				.setDescription(content);
 

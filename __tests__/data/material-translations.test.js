@@ -221,6 +221,59 @@ describe('Material Categories Translations', () => {
 		});
 	});
 
+	describe('Material Priority Translations', () => {
+		const priorityKeys = [
+			'MATERIAL_PRIORITY',
+			'MATERIAL_PRIORITY_LOW',
+			'MATERIAL_PRIORITY_NEUTRAL',
+			'MATERIAL_PRIORITY_HIGH',
+		];
+
+		it('should have priority translation keys in all languages', () => {
+			for (const key of priorityKeys) {
+				assertKeyInAllLanguages(key, languages);
+			}
+		});
+
+		it('should not have empty priority translations', () => {
+			const langCodes = Object.keys(languages);
+			for (const langCode of langCodes) {
+				const lang = languages[langCode];
+				for (const key of priorityKeys) {
+					expect(lang[key].trim().length).toBeGreaterThan(0);
+				}
+			}
+		});
+	});
+
+	describe('Material flow translations (errors, status, manage)', () => {
+		const materialFlowKeys = [
+			'MATERIAL_CANNOT_MANAGE_ERROR',
+			'MATERIAL_ARE_NO_OWNER_ERROR',
+			'MATERIAL_NOT_EXIST',
+			'MATERIAL_BACK_ERROR',
+			'MATERIAL_CREATE_ERROR',
+			'MATERIAL_UPDATE_ERROR',
+			'MATERIAL_DELETE_SUCCESS',
+			'MATERIAL_DELETE_ERROR',
+			'MATERIAL_CONFIRM_ERROR',
+			'MATERIAL_VALIDATE_ERROR',
+			'MATERIAL_ASSIGN_ERROR',
+			'MATERIAL_HAVE_NO_NAME_OR_QUANTITY',
+			'MATERIAL_SELECT_QUANTITY_ERROR',
+			'MATERIAL_QUANTITY_ERROR',
+			'MATERIAL_LOCALIZATION_ERROR',
+			'MATERIAL_SELECT_ERROR',
+			'CONFIRMED',
+		];
+
+		it('should have all material flow keys in all languages', () => {
+			for (const key of materialFlowKeys) {
+				assertKeyInAllLanguages(key, languages);
+			}
+		});
+	});
+
 	describe('Legacy Material Translations', () => {
 		it('should still have legacy material category translations', () => {
 			const legacyKeys = [

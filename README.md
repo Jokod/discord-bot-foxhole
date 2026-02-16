@@ -27,6 +27,8 @@ The Discord Bot for Foxhole provides the following features:
   - **Resources** (Basic Materials, Explosive Materials, Heavy Explosive Materials, Refined Materials, Gravel)
   - **Vehicles** (All vehicle types)
 
+- **Assigning a priority to materials:** You can assign each material a priority—**High**, **Neutral**, or **Low**
+
 - **Multi-language Support:** Available in English, French, Russian, and Chinese (Simplified).
 
 - **Customization:** Configure the bot to fit the specific needs of your Discord server.
@@ -158,14 +160,17 @@ Once the bot is configured on your Discord server, you can use its commands to c
 - `/logistics help` – List all `logistics` subcommands.
 - `/logistics resume operation:<OperationId>` – Show a summary of all logistics groups of an operation.
 - `/logistics list group:<GroupId>` – List all materials of a given logistics group.
-- `/logistics material material:<MaterialId>` – Show detailed information about a specific material.
 
 #### Slash commands – Materials
 
+Materials support **priority** (High / Neutral / Low) so the team can see what to prioritize.
+
 - `/material help` – List all `material` subcommands.
-- `/material create [group:<GroupId>]` – Create a new material entry (with interactive buttons).
+- `/material create [group:<GroupId>]` – Create a material: choose category, subcategory, material, quantity, then **set its priority** and confirm.
 - `/material delete material:<MaterialId>` – Delete a material.
-- `/material info material:<MaterialId>` – Show detailed information about a material.
+- `/material info material:<MaterialId>` – Show material details (including priority).
+
+On the material message, use **Priority** to change it at any time; **Assignee** and **Delete** are also available (management restricted to creator or server/channel managers).
 
 #### Slash commands – Stockpiles
 

@@ -1,6 +1,7 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Material } = require('../../../../data/models.js');
 const Translate = require('../../../../utils/translations.js');
+const { getPriorityTranslationKey, getPriorityColoredText } = require('../../../../utils/material-priority.js');
 
 module.exports = {
 	id: 'button_logistics_revoke',
@@ -14,12 +15,17 @@ module.exports = {
 			.setLabel(translations.translate('ASSIGNEE'))
 			.setStyle(ButtonStyle.Primary);
 
+		const priorityButton = new ButtonBuilder()
+			.setCustomId('button_logistics_add_priority')
+			.setLabel(translations.translate('MATERIAL_PRIORITY'))
+			.setStyle(ButtonStyle.Secondary);
+
 		const removeButton = new ButtonBuilder()
 			.setCustomId('button_logistics_material_delete')
 			.setLabel(translations.translate('DELETE'))
 			.setStyle(ButtonStyle.Danger);
 
-		const actionRow = new ActionRowBuilder().addComponents(assigneeButton, removeButton);
+		const actionRow = new ActionRowBuilder().addComponents(assigneeButton, priorityButton, removeButton);
 
 		try {
 			let material = await Material.findOne({ guild_id: guild.id, material_id: `${message.id}` });
@@ -45,9 +51,10 @@ module.exports = {
 			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
 			const localization = material.localization ? material.localization : translations.translate('NONE');
 			const person = material.person_id ? `<@${material.person_id}>` : translations.translate('NONE');
+			const priorityLabel = getPriorityColoredText(material.priority, translations.translate(getPriorityTranslationKey(material.priority)));
 
 			await interaction.update({
-				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${person}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
+				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${person}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
 				components: [actionRow],
 			});
 		}

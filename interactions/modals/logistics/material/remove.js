@@ -1,5 +1,6 @@
 const { Material } = require('../../../../data/models.js');
 const Translate = require('../../../../utils/translations.js');
+const { parseMaterialId } = require('../../../../utils/discord.js');
 
 module.exports = {
 	id: 'modal_logistics_remove',
@@ -8,7 +9,8 @@ module.exports = {
 		const { client, guild, channel, fields } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		const materialId = fields.getTextInputValue('material_id');
+		const rawId = fields.getTextInputValue('material_id');
+		const materialId = parseMaterialId(rawId);
 
 		try {
 			const material = await Material.findOne({ guild_id: guild.id, material_id: `${materialId}` });

@@ -2,6 +2,7 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, S
 const { Material, Server } = require('../../../../data/models.js');
 const { categories, getMaterialsBySubcategory } = require('../../../../data/fournis.js');
 const Translate = require('../../../../utils/translations.js');
+const { canManageMaterial } = require('../../../../utils/material-permissions.js');
 
 /**
  * Constantes pour la navigation
@@ -16,7 +17,7 @@ const NAVIGATION = {
  * Vérifie les permissions de l'utilisateur sur le matériel
  */
 async function checkMaterialPermissions(interaction, translations) {
-	const { guild, message, user } = interaction;
+	const { guild, message } = interaction;
 
 	const material = await Material.findOne({
 		guild_id: guild.id,
@@ -31,9 +32,9 @@ async function checkMaterialPermissions(interaction, translations) {
 		return null;
 	}
 
-	if (user.id !== material.owner_id) {
+	if (!canManageMaterial(interaction, material)) {
 		await interaction.reply({
-			content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+			content: translations.translate('MATERIAL_CANNOT_MANAGE_ERROR'),
 			flags: 64,
 		});
 		return null;

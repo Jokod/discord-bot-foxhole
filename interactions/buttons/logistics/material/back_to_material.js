@@ -1,6 +1,7 @@
 const ResponseMaterial = require('../../../../utils/interaction/response_material.js');
 const { Material } = require('../../../../data/models.js');
 const Translate = require('../../../../utils/translations.js');
+const { canManageMaterial } = require('../../../../utils/material-permissions.js');
 
 /**
  * Handler pour le bouton retour depuis la sélection de catégories
@@ -23,9 +24,9 @@ module.exports = {
 				});
 			}
 
-			if (interaction.user.id !== material.owner_id) {
+			if (!canManageMaterial(interaction, material)) {
 				return await interaction.reply({
-					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+					content: translations.translate('MATERIAL_CANNOT_MANAGE_ERROR'),
 					flags: 64,
 				});
 			}

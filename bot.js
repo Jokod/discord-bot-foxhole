@@ -82,7 +82,8 @@ getFiles('./interactions/slash', (command) => {
 // Registration of Button-Command Interactions.
 
 getFiles('./interactions/buttons', (command) => {
-	client.buttonCommands.set(command.id, command);
+	const ids = Array.isArray(command.id) ? command.id : [command.id];
+	ids.forEach((id) => client.buttonCommands.set(id, command));
 });
 
 /** ********************************************************************/

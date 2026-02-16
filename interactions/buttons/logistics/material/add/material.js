@@ -2,6 +2,7 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Material } = require('../../../../../data/models.js');
 const { categories } = require('../../../../../data/fournis.js');
 const Translate = require('../../../../../utils/translations.js');
+const { canManageMaterial } = require('../../../../../utils/material-permissions.js');
 
 module.exports = {
 	id: 'button_logistics_add_material',
@@ -51,9 +52,9 @@ module.exports = {
 				});
 			}
 
-			if (interaction.user.id !== material.owner_id) {
+			if (!canManageMaterial(interaction, material)) {
 				return await interaction.reply({
-					content: translations.translate('MATERIAL_ARE_NO_CREATOR_ERROR'),
+					content: translations.translate('MATERIAL_CANNOT_MANAGE_ERROR'),
 					flags: 64,
 				});
 			}
