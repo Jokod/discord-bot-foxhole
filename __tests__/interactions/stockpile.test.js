@@ -1,6 +1,6 @@
 const mockTranslate = jest.fn((key) => key);
 
-const { PermissionFlagsBits } = require('discord.js');
+const { PermissionFlagsBits, Collection } = require('discord.js');
 
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 
@@ -87,8 +87,18 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 		const userId = 'user-789';
 		const getString = jest.fn((name) => (options[name] !== undefined ? options[name] : null));
 		const getSubcommand = jest.fn(() => subcommand);
+		const slashCommands = new Collection();
+		slashCommands.set('stockpile', {
+			data: {
+				name: 'stockpile',
+				options: [
+					{ name: 'help' }, { name: 'add' }, { name: 'remove' }, { name: 'restore' },
+					{ name: 'list' }, { name: 'reset' }, { name: 'cleanup' }, { name: 'deleteall' },
+				],
+			},
+		});
 		return {
-			client: { user: { id: 'bot-123' }, traductions: new Map(), slashCommands: new Map() },
+			client: { user: { id: 'bot-123' }, traductions: new Map(), slashCommands },
 			guild,
 			channelId,
 			channel: null,
@@ -100,6 +110,7 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			deleteReply: jest.fn().mockResolvedValue(undefined),
 			followUp: jest.fn().mockResolvedValue(undefined),
 			fetchReply: jest.fn().mockResolvedValue({ id: 'msg-new' }),
+			showModal: jest.fn().mockResolvedValue(undefined),
 			member: {
 				permissions: {
 					has: jest.fn((perm) => perm === PermissionFlagsBits.ManageGuild),
@@ -108,6 +119,38 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			...overrides,
 		};
 	}
+
+	it('répond NO_DM quand guild null (DM)', async () => {
+		const interaction = createInteraction('help', {}, { guild: null });
+		await stockpileCommand.execute(interaction);
+		expect(interaction.reply).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'NO_DM', flags: 64 }),
+		);
+	});
+
+	describe('help', () => {
+		it('affiche la liste des sous-commandes stockpile', async () => {
+			const interaction = createInteraction('help');
+			await stockpileCommand.execute(interaction);
+			expect(interaction.reply).toHaveBeenCalledWith(
+				expect.objectContaining({
+					embeds: expect.arrayContaining([expect.anything()]),
+					flags: 64,
+				}),
+			);
+			expect(mockTranslate).toHaveBeenCalledWith('STOCKPILE_LIST_COMMANDS');
+		});
+	});
+
+	describe('add', () => {
+		it('affiche le modal d\'ajout', async () => {
+			const interaction = createInteraction('add');
+			await stockpileCommand.execute(interaction);
+			expect(interaction.showModal).toHaveBeenCalledTimes(1);
+			const modal = interaction.showModal.mock.calls[0][0];
+			expect(modal.data?.custom_id ?? modal.customId).toBe('modal_stockpile_add');
+		});
+	});
 
 	describe('remove - isolation serveur et propriétaire', () => {
 		it('rejette un id non numérique', async () => {
@@ -170,6 +213,45 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			await stockpileCommand.execute(interaction);
 			expect(editMock).toHaveBeenCalledWith(expect.objectContaining({ embeds: [expect.anything()] }));
 			expect(interaction.followUp).not.toHaveBeenCalled();
+		});
+
+		it('répond STOCKPILE_ALREADY_DELETED si le stock est déjà marqué supprimé', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', owner_id: 'user-789', deleted: true });
+			Stockpile.findOne.mockResolvedValue(doc);
+			const interaction = createInteraction('remove', { id: '1' });
+			await stockpileCommand.execute(interaction);
+			expect(doc.save).not.toHaveBeenCalled();
+			expect(interaction.reply).toHaveBeenCalledWith(
+				expect.objectContaining({ content: 'STOCKPILE_ALREADY_DELETED', flags: 64 }),
+			);
+		});
+
+		it('permet à tout le monde de supprimer un stock legacy (owner_id 0)', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', owner_id: '0', deleted: false });
+			Stockpile.findOne.mockResolvedValue(doc);
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: { data: {} }, isEmpty: false });
+			mockFindTrackedMessage.mockResolvedValue(null);
+			const interaction = createInteraction('remove', { id: '1' });
+			await stockpileCommand.execute(interaction);
+			expect(doc.deleted).toBe(true);
+			expect(doc.save).toHaveBeenCalled();
+		});
+
+		it('utilise editTrackedOrFallback avec STOCKPILE_LIST_EMPTY quand la liste est vide après remove', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', owner_id: 'user-789', deleted: false });
+			Stockpile.findOne.mockResolvedValue(doc);
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+			const editMock = jest.fn().mockResolvedValue(undefined);
+			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
+			const interaction = createInteraction('remove', { id: '1' });
+			await stockpileCommand.execute(interaction);
+			expect(editMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					content: 'STOCKPILE_LIST_EMPTY',
+					embeds: [],
+					components: [],
+				}),
+			);
 		});
 	});
 
@@ -245,9 +327,34 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 				expect.objectContaining({ content: 'STOCKPILE_MAX_REACHED', flags: 64 }),
 			);
 		});
+
+		it('permet à tout le monde de réactiver un stock legacy (owner_id 0)', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', owner_id: '0', deleted: true });
+			Stockpile.findOne.mockResolvedValue(doc);
+			Stockpile.countDocuments.mockResolvedValue(1);
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+			const editMock = jest.fn().mockResolvedValue(undefined);
+			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
+			const interaction = createInteraction('restore', { id: '1' });
+			await stockpileCommand.execute(interaction);
+			expect(doc.deleted).toBe(false);
+			expect(doc.save).toHaveBeenCalled();
+			expect(editMock).toHaveBeenCalledWith(
+				expect.objectContaining({ content: 'STOCKPILE_LIST_EMPTY', embeds: [], components: [] }),
+			);
+		});
 	});
 
 	describe('reset - isolation serveur', () => {
+		it('rejette un id non numérique', async () => {
+			const interaction = createInteraction('reset', { id: 'abc' });
+			await stockpileCommand.execute(interaction);
+			expect(Stockpile.findOne).not.toHaveBeenCalled();
+			expect(interaction.reply).toHaveBeenCalledWith(
+				expect.objectContaining({ content: 'STOCKPILE_INVALID_ID', flags: 64 }),
+			);
+		});
+
 		it('répond NOT_EXIST si le stock n’existe pas sur ce serveur', async () => {
 			Stockpile.findOne.mockResolvedValue(null);
 			const interaction = createInteraction('reset', { id: '1' });
@@ -278,6 +385,24 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			expect(doc.save).not.toHaveBeenCalled();
 			expect(interaction.reply).toHaveBeenCalledWith(
 				expect.objectContaining({ content: 'STOCKPILE_ALREADY_DELETED', flags: 64 }),
+			);
+		});
+
+		it('met à jour la liste tracked avec STOCKPILE_LIST_EMPTY quand isEmpty après reset', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', deleted: false });
+			Stockpile.findOne.mockResolvedValue(doc);
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+			const editMock = jest.fn().mockResolvedValue(undefined);
+			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
+			const interaction = createInteraction('reset', { id: '1' });
+			await stockpileCommand.execute(interaction);
+			expect(doc.save).toHaveBeenCalled();
+			expect(editMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					content: 'STOCKPILE_LIST_EMPTY',
+					embeds: [],
+					components: [],
+				}),
 			);
 		});
 	});
@@ -379,5 +504,13 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 				expect.objectContaining({ content: 'STOCKPILE_RESET_ALL_SUCCESS', flags: 64 }),
 			);
 		});
+	});
+
+	it('répond COMMAND_UNKNOWN pour une sous-commande inconnue', async () => {
+		const interaction = createInteraction('unknown_subcommand');
+		await stockpileCommand.execute(interaction);
+		expect(interaction.reply).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'COMMAND_UNKNOWN', flags: 64 }),
+		);
 	});
 });
