@@ -1,6 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { getRandomColor } = require('../../utils/colors.js');
 const { formatForDisplay } = require('../../utils/formatLocation.js');
+const { safeEscapeMarkdown } = require('../../utils/markdown.js');
 
 /**
  * Construit l'embed de la liste des stockpiles pour un serveur.
@@ -24,7 +25,7 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 	});
 
 	if (sortedStocks.length === 0) {
-		return { embed: null, isEmpty: true };
+		return { embed: null, isEmpty: true, stocks: [] };
 	}
 
 	const byRegion = new Map();
@@ -39,22 +40,21 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 	const headerCode = translations.translate('STOCKPILE_TABLE_HEADER_CODE');
 	const headerDate = translations.translate('STOCKPILE_TABLE_HEADER_EXPIRES');
 	const sep = '  |  ';
-
 	const lines = [];
 	let firstRegion = true;
 	for (const [region, byCity] of byRegion) {
 		if (!firstRegion) lines.push('');
 		firstRegion = false;
-		lines.push(`📍 **${formatForDisplay(region)}**`);
+		lines.push(`📍 **${safeEscapeMarkdown(formatForDisplay(region))}**`);
 		for (const [city, list] of byCity) {
-			lines.push(`🏭 **${formatForDisplay(city)}**`);
+			lines.push(`🏭 **${safeEscapeMarkdown(formatForDisplay(city))}**`);
 			lines.push(`**${headerStock}**${sep}**${headerCode}**${sep}**${headerDate}**`);
 			for (const s of list) {
 				const expiresAt = s.expiresAt instanceof Date ? s.expiresAt : new Date(s.expiresAt);
 				const expiresTs = Math.floor(expiresAt.getTime() / 1000);
 				const creator = s.owner_id ? `<@${s.owner_id}>` : translations.translate('NONE');
 				const idDisplay = s.deleted ? `${s.id} ❌` : s.id;
-				const row = `${idDisplay} • **${s.name}**${sep}\`${s.password}\`${sep}<t:${expiresTs}:R> • ${creator}`;
+				const row = `${idDisplay} • **${safeEscapeMarkdown(s.name)}**${sep}\`${safeEscapeMarkdown(s.password)}\`${sep}<t:${expiresTs}:R> • ${creator}`;
 				lines.push(s.deleted ? `~~${row}~~` : row);
 			}
 			lines.push('');
@@ -66,7 +66,7 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 		.setTitle(`🔑 ${translations.translate('STOCKPILE_LIST_CODES')}`)
 		.setDescription(lines.join('\n'));
 
-	return { embed, isEmpty: false };
+	return { embed, isEmpty: false, stocks: sortedStocks };
 }
 
 module.exports = { buildStockpileListEmbed };

@@ -5,6 +5,7 @@ const Translate = require('../../../../../utils/translations.js');
 const { canManageMaterial } = require('../../../../../utils/material-permissions.js');
 const { PRIORITY_LOW, PRIORITY_NEUTRAL, PRIORITY_HIGH } = require('../../../../../utils/material-priority.js');
 const { getPriorityTranslationKey, getPriorityColoredText } = require('../../../../../utils/material-priority.js');
+const { safeEscapeMarkdown } = require('../../../../../utils/markdown.js');
 
 module.exports = {
 	id: ['button_logistics_priority_low', 'button_logistics_priority_neutral', 'button_logistics_priority_high'],
@@ -50,7 +51,8 @@ module.exports = {
 			}
 
 			if (materialUpdated.status === 'confirmed') {
-				const name = materialUpdated.name.charAt(0).toUpperCase() + materialUpdated.name.slice(1);
+				const baseName = materialUpdated.name || '';
+				const name = baseName ? baseName.charAt(0).toUpperCase() + baseName.slice(1) : translations.translate('NONE');
 				const priorityLabel = getPriorityColoredText(materialUpdated.priority, translations.translate(getPriorityTranslationKey(materialUpdated.priority)));
 				const person = materialUpdated.person_id ? `<@${materialUpdated.person_id}>` : translations.translate('NONE');
 
@@ -69,7 +71,9 @@ module.exports = {
 
 				const actionRow = new ActionRowBuilder().addComponents(assigneeButton, priorityButton, removeButton);
 
-				const content = `**${translations.translate('MATERIAL_CREATOR')}:** <@${materialUpdated.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${materialUpdated.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${person}`;
+				const content = `**${translations.translate('MATERIAL_CREATOR')}:** <@${materialUpdated.owner_id}>\n**${translations.translate('MATERIAL')}:** ${safeEscapeMarkdown(
+					name,
+				)}\n**${translations.translate('QUANTITY')}:** ${materialUpdated.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${person}`;
 
 				return await interaction.update({
 					content,

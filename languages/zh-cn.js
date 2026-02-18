@@ -271,10 +271,10 @@ module.exports = {
 	STOCKPILE_CREATOR: '创建者',
 
 	// STOCKPILE SUCCESS
-	STOCKPILE_CREATE_SUCCESS: '库存已创建。',
-	STOCKPILE_DELETE_SUCCESS: '库存已删除。',
-	STOCKPILE_MARK_DELETED_SUCCESS: '库存已标记为删除。',
-	STOCKPILE_RESET_SUCCESS: '库存计时已重置为 2 天。',
+	STOCKPILE_CREATE_SUCCESS: '库存 #%id% 已创建。',
+	STOCKPILE_DELETE_SUCCESS: '库存 #%id% 已删除。',
+	STOCKPILE_MARK_DELETED_SUCCESS: '库存 #%id% 已标记为删除。',
+	STOCKPILE_RESET_SUCCESS: '库存 #%id% 的计时已重置为 2 天。',
 	STOCKPILE_CLEANUP_SUCCESS: '已在此频道永久删除 %count% 个已标记库存。',
 	STOCKPILE_RESET_ALL_SUCCESS: '所有库存已删除。',
 
@@ -282,6 +282,7 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: '没有库存。',
 	STOCKPILE_NOT_EXIST: '此库存不存在。',
 	STOCKPILE_INVALID_ID: '库存ID无效。',
+	STOCKPILE_MAX_REACHED: '已达到允许的最大活动库存数量。',
 	STOCKPILE_CREATE_ERROR: '创建库存时发生错误。',
 	STOCKPILE_DELETE_ERROR: '删除库存时发生错误。',
 	STOCKPILE_INVALID_NAME: '库存名称无效。',

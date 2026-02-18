@@ -270,10 +270,10 @@ module.exports = {
 	STOCKPILE_CREATOR: 'Créateur',
 
 	// STOCKPILE SUCCESS
-	STOCKPILE_CREATE_SUCCESS: 'Le stock a été créé.',
-	STOCKPILE_DELETE_SUCCESS: 'Le stock a été supprimé.',
-	STOCKPILE_MARK_DELETED_SUCCESS: 'Le stock a été marqué comme supprimé.',
-	STOCKPILE_RESET_SUCCESS: 'Le délai du stock a été remis à 2 jours.',
+	STOCKPILE_CREATE_SUCCESS: 'Le stock #%id% a été créé.',
+	STOCKPILE_DELETE_SUCCESS: 'Le stock #%id% a été supprimé.',
+	STOCKPILE_MARK_DELETED_SUCCESS: 'Le stock #%id% a été marqué comme supprimé.',
+	STOCKPILE_RESET_SUCCESS: 'Le délai du stock #%id% a été remis à 2 jours.',
 	STOCKPILE_CLEANUP_SUCCESS: '%count% stock(s) marqué(s) supprimé(s) dans ce salon.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'Tous les stocks ont été supprimés.',
 
@@ -281,6 +281,7 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: 'Il n\'y a pas de stocks.',
 	STOCKPILE_NOT_EXIST: 'Ce stock n\'existe pas.',
 	STOCKPILE_INVALID_ID: 'L\'ID du stock est invalide.',
+	STOCKPILE_MAX_REACHED: 'Vous avez atteint le nombre maximal de stocks actifs autorisés.',
 	STOCKPILE_CREATE_ERROR: 'Une erreur est survenue lors de la création du stock.',
 	STOCKPILE_DELETE_ERROR: 'Une erreur est survenue lors de la suppression du stock.',
 	STOCKPILE_INVALID_NAME: 'Le nom du stock est invalide.',

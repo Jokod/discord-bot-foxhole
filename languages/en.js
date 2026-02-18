@@ -270,10 +270,10 @@ module.exports = {
 	STOCKPILE_CREATOR: 'Creator',
 
 	// STOCKPILE SUCCESS
-	STOCKPILE_CREATE_SUCCESS: 'The stock has been created.',
-	STOCKPILE_DELETE_SUCCESS: 'The stock has been deleted.',
-	STOCKPILE_MARK_DELETED_SUCCESS: 'The stock has been marked as deleted.',
-	STOCKPILE_RESET_SUCCESS: 'The stock timer has been reset to 2 days.',
+	STOCKPILE_CREATE_SUCCESS: 'Stock #%id% has been created.',
+	STOCKPILE_DELETE_SUCCESS: 'Stock #%id% has been deleted.',
+	STOCKPILE_MARK_DELETED_SUCCESS: 'Stock #%id% has been marked as deleted.',
+	STOCKPILE_RESET_SUCCESS: 'The timer for stock #%id% has been reset to 2 days.',
 	STOCKPILE_CLEANUP_SUCCESS: '%count% marked stock(s) deleted in this channel.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'All stockpiles have been deleted.',
 
@@ -281,6 +281,7 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: 'There are no stocks.',
 	STOCKPILE_NOT_EXIST: 'This stock does not exist.',
 	STOCKPILE_INVALID_ID: 'The stock ID is invalid.',
+	STOCKPILE_MAX_REACHED: 'You have reached the maximum number of active stockpiles allowed.',
 	STOCKPILE_CREATE_ERROR: 'An error occurred while creating the stock.',
 	STOCKPILE_DELETE_ERROR: 'An error occurred while deleting the stock.',
 	STOCKPILE_INVALID_NAME: 'The stock name is invalid.',

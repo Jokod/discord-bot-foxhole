@@ -2,6 +2,7 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Operation, Stats } = require('../../../data/models.js');
 const React = require('../../../messages/react.js');
 const Translate = require('../../../utils/translations.js');
+const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
 	id: 'modal_create_operation',
@@ -97,10 +98,10 @@ module.exports = {
 				{ upsert: true },
 			);
 
-			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${descriptionField}`;
+			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${safeEscapeMarkdown(descriptionField)}`;
 
 			const response = await interaction.reply({
-				content: `${translations.translate('OPERATION_CREATE_SUCCESS', { title: title })}.\n${content}`,
+				content: `${translations.translate('OPERATION_CREATE_SUCCESS', { title: safeEscapeMarkdown(title) })}.\n${content}`,
 				components: [actionRow],
 				withResponse: true,
 			});

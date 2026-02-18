@@ -1,5 +1,6 @@
 const { Operation, Group } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
 	id: 'button_create_operation_finished',
@@ -26,7 +27,9 @@ module.exports = {
 				});
 			}
 
-			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${operation.description}`;
+			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${safeEscapeMarkdown(
+				operation.description,
+			)}`;
 
 			Group.find({ guild_id: guild.id, operation_id: `${operationId}` }).exec()
 				.then(threads => {
@@ -40,7 +43,7 @@ module.exports = {
 			await Operation.updateOne({ guild_id: guild.id, operation_id: `${operationId}` }, { status: 'finished' });
 
 			await interaction.update({
-				content: `${translations.translate('OPERATION_FINISHED_SUCCESS', { title: operation.title })}\n${content}`,
+				content: `${translations.translate('OPERATION_FINISHED_SUCCESS', { title: safeEscapeMarkdown(operation.title) })}\n${content}`,
 				components: [],
 			});
 		}

@@ -2,6 +2,7 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Material, Stats } = require('../../../../data/models.js');
 const Translate = require('../../../../utils/translations.js');
 const { getPriorityTranslationKey, getPriorityColoredText } = require('../../../../utils/material-priority.js');
+const { safeEscapeMarkdown } = require('../../../../utils/markdown.js');
 
 module.exports = {
 	id: 'modal_logistics_material_validate',
@@ -98,13 +99,25 @@ module.exports = {
 
 			if (material.quantityGiven >= material.quantityAsk) {
 				return await interaction.update({
-					content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${material.name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
+					content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${safeEscapeMarkdown(
+						material.name,
+					)}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate(
+						'NONE',
+					)}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${safeEscapeMarkdown(
+						localization,
+					)}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
 					components: [new ActionRowBuilder().addComponents(removeButton)],
 				});
 			}
 
 			await interaction.update({
-				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${material.name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
+				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${safeEscapeMarkdown(
+					material.name,
+				)}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate(
+					'NONE',
+				)}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${safeEscapeMarkdown(
+					localization,
+				)}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven} / ${material.quantityAsk}`,
 				components: [actionRow],
 			});
 		}
