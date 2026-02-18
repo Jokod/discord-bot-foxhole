@@ -477,9 +477,11 @@ module.exports = {
 		}
 
 		case 'list': {
+			await interaction.deferReply();
 			const { embed, isEmpty: listEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
+			let result;
 			if (listEmpty) {
-				await editTrackedOrFallback({
+				result = await editTrackedOrFallback({
 					channel: interaction.channel,
 					serverId: guild.id,
 					messageType: MESSAGE_TYPE,
@@ -490,24 +492,29 @@ module.exports = {
 						embeds: [],
 						components: [],
 					},
-					fallbackSend: () => interaction.reply({
+					fallbackSend: () => interaction.editReply({
 						content: translations.translate('STOCKPILE_LIST_EMPTY'),
-						fetchReply: true,
+						embeds: [],
+						components: [],
 					}),
 				});
-				break;
 			}
-			const components = await buildResetButtonsForGuild();
-			const payload = { embeds: [embed], components };
-			await editTrackedOrFallback({
-				channel: interaction.channel,
-				serverId: guild.id,
-				messageType: MESSAGE_TYPE,
-				model: TrackedMessage,
-				fallbackMatcher,
-				editPayload: payload,
-				fallbackSend: () => interaction.reply({ ...payload, fetchReply: true }),
-			});
+			else {
+				const components = await buildResetButtonsForGuild();
+				const payload = { embeds: [embed], components };
+				result = await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: payload,
+					fallbackSend: () => interaction.editReply(payload),
+				});
+			}
+			if (!result.usedFallback) {
+				await interaction.deleteReply().catch(() => undefined);
+			}
 			break;
 		}
 

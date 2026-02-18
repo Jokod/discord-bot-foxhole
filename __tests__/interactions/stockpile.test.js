@@ -23,7 +23,7 @@ jest.mock('../../utils/trackedMessage.js', () => {
 			if (message) {
 				try {
 					await message.edit(opts.editPayload);
-					return;
+					return { usedFallback: false };
 				}
 				catch {
 					// edit failed, fallback will send
@@ -33,6 +33,7 @@ jest.mock('../../utils/trackedMessage.js', () => {
 			if (sent?.id) {
 				await mockSaveTrackedMessage(opts.serverId, opts.channel?.id, sent.id, opts.messageType, opts.model);
 			}
+			return { usedFallback: true };
 		},
 	};
 });
@@ -90,7 +91,11 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			user: { id: userId },
 			options: { getSubcommand, getString },
 			reply: jest.fn().mockResolvedValue(undefined),
+			deferReply: jest.fn().mockResolvedValue(undefined),
+			editReply: jest.fn().mockResolvedValue({ id: 'msg-new' }),
+			deleteReply: jest.fn().mockResolvedValue(undefined),
 			followUp: jest.fn().mockResolvedValue(undefined),
+			fetchReply: jest.fn().mockResolvedValue({ id: 'msg-new' }),
 			member: {
 				permissions: {
 					has: jest.fn((perm) => perm === PermissionFlagsBits.ManageGuild),
@@ -278,12 +283,13 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
+			expect(interaction.deferReply).toHaveBeenCalledWith();
 			expect(mockBuildStockpileListEmbed).toHaveBeenCalledWith(
 				expect.anything(),
 				'guild-123',
 				expect.anything(),
 			);
-			expect(interaction.reply).toHaveBeenCalledWith(
+			expect(interaction.editReply).toHaveBeenCalledWith(
 				expect.objectContaining({ content: 'STOCKPILE_LIST_EMPTY' }),
 			);
 		});
@@ -296,9 +302,10 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 				sort: jest.fn().mockResolvedValue([{ id: '1' }]),
 			});
 			const interaction = createInteraction('list');
-			interaction.reply.mockResolvedValue({ id: 'msg-new' });
+			interaction.followUp.mockResolvedValue({ id: 'msg-new' });
 			await stockpileCommand.execute(interaction);
-			expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
+			expect(interaction.deferReply).toHaveBeenCalledWith();
+			expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
 			expect(mockSaveTrackedMessage).toHaveBeenCalled();
 		});
 
@@ -313,7 +320,8 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
 			expect(editMock).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
-			expect(interaction.reply).not.toHaveBeenCalled();
+			expect(interaction.editReply).not.toHaveBeenCalled();
+			expect(interaction.deleteReply).toHaveBeenCalled();
 		});
 	});
 

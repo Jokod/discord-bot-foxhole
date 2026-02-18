@@ -72,6 +72,7 @@ async function saveTrackedMessage(serverId, channelId, messageId, messageType, m
  * @param {Function} [options.fallbackMatcher] - pour findTrackedMessage
  * @param {Object} options.editPayload - { content?, embeds?, components? }
  * @param {Function} options.fallbackSend - async () => Message | undefined - envoie le contenu et retourne le message
+ * @returns {Promise<{ usedFallback: boolean }>}
  */
 async function editTrackedOrFallback({
 	channel,
@@ -86,7 +87,7 @@ async function editTrackedOrFallback({
 	if (message) {
 		try {
 			await message.edit(editPayload);
-			return;
+			return { usedFallback: false };
 		}
 		catch {
 			// edit failed, fallback will send
@@ -96,6 +97,7 @@ async function editTrackedOrFallback({
 	if (sent?.id) {
 		await saveTrackedMessage(serverId, channel?.id, sent.id, messageType, model);
 	}
+	return { usedFallback: true };
 }
 
 module.exports = { findTrackedMessage, saveTrackedMessage, editTrackedOrFallback };
