@@ -5,15 +5,13 @@ const {
 	ModalBuilder,
 	TextInputBuilder,
 	TextInputStyle,
-	ButtonBuilder,
-	ButtonStyle,
 	PermissionFlagsBits,
 } = require('discord.js');
 const { Stockpile, TrackedMessage } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { editTrackedOrFallback } = require('../../../utils/trackedMessage.js');
 const { getRandomColor } = require('../../../utils/colors.js');
-const { buildStockpileListEmbed } = require('../../embeds/stockpileList.js');
+const { buildStockpileListEmbed, buildStockpileListComponents } = require('../../embeds/stockpileList.js');
 const { sendToSubscribers } = require('../../../utils/notifications.js');
 const { DISCORD_MAX_BUTTONS_PER_MESSAGE, STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
@@ -218,25 +216,6 @@ module.exports = {
 		const fallbackMatcher = (msgs) =>
 			msgs.find((m) => m.author?.id === client.user.id && m.embeds?.[0]?.title === expectedListTitle) ?? null;
 
-		const buildResetButtonsForGuild = async () => {
-			const stocks = await Stockpile.find({ server_id: guild.id, deleted: false }).sort({ id: 1 });
-			if (!stocks || stocks.length === 0) return [];
-
-			const buttons = stocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
-				new ButtonBuilder()
-					.setCustomId(`stockpile_reset-${stock.id}`)
-					.setLabel(`#${stock.id}`)
-					.setStyle(ButtonStyle.Primary),
-			);
-
-			const rows = [];
-			for (let i = 0; i < buttons.length; i += 5) {
-				const slice = buttons.slice(i, i + 5);
-				rows.push(new ActionRowBuilder().addComponents(...slice));
-			}
-			return rows;
-		};
-
 		switch (subcommand) {
 		case 'help':
 			const commandNames = client.slashCommands
@@ -378,7 +357,7 @@ module.exports = {
 				});
 			}
 			else {
-				const components = await buildResetButtonsForGuild();
+				const components = await buildStockpileListComponents(Stockpile, guild.id);
 				await editTrackedOrFallback({
 					channel: interaction.channel,
 					serverId: guild.id,
@@ -461,7 +440,7 @@ module.exports = {
 				});
 			}
 			else {
-				const components = await buildResetButtonsForGuild();
+				const components = await buildStockpileListComponents(Stockpile, guild.id);
 				const payload = { embeds: [restoreEmbed], components };
 				await editTrackedOrFallback({
 					channel: interaction.channel,
@@ -500,7 +479,7 @@ module.exports = {
 				});
 			}
 			else {
-				const components = await buildResetButtonsForGuild();
+				const components = await buildStockpileListComponents(Stockpile, guild.id);
 				const payload = { embeds: [embed], components };
 				result = await editTrackedOrFallback({
 					channel: interaction.channel,
@@ -581,7 +560,7 @@ module.exports = {
 				});
 			}
 			else {
-				const components = await buildResetButtonsForGuild();
+				const components = await buildStockpileListComponents(Stockpile, guild.id);
 				const payload = { embeds: [resetEmbed], components };
 				await editTrackedOrFallback({
 					channel: interaction.channel,

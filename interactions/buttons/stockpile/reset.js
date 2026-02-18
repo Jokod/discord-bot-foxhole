@@ -1,27 +1,7 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { Stockpile } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
-const { buildStockpileListEmbed } = require('../../embeds/stockpileList.js');
-const { DISCORD_MAX_BUTTONS_PER_MESSAGE, STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
-
-async function buildResetButtonsForGuild(guildId) {
-	const stocks = await Stockpile.find({ server_id: guildId, deleted: false }).sort({ id: 1 });
-	if (!stocks || stocks.length === 0) return [];
-
-	const buttons = stocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
-		new ButtonBuilder()
-			.setCustomId(`stockpile_reset-${stock.id}`)
-			.setLabel(`#${stock.id}`)
-			.setStyle(ButtonStyle.Primary),
-	);
-
-	const rows = [];
-	for (let i = 0; i < buttons.length; i += 5) {
-		const slice = buttons.slice(i, i + 5);
-		rows.push(new ActionRowBuilder().addComponents(...slice));
-	}
-	return rows;
-}
+const { buildStockpileListEmbed, buildStockpileListComponents } = require('../../embeds/stockpileList.js');
+const { STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
 
 module.exports = {
 	id: 'stockpile_reset',
@@ -71,7 +51,7 @@ module.exports = {
 			});
 		}
 		else {
-			const components = await buildResetButtonsForGuild(guild.id);
+			const components = await buildStockpileListComponents(Stockpile, guild.id);
 			await interaction.update({
 				embeds: [embed],
 				components,

@@ -1,5 +1,6 @@
-const { Stockpile, NotificationSubscription } = require('../data/models.js');
+const { Stockpile, NotificationSubscription, TrackedMessage } = require('../data/models.js');
 const Translate = require('./translations.js');
+const { buildStockpileListEmbed, buildStockpileListComponents } = require('../interactions/embeds/stockpileList.js');
 const { formatForDisplay } = require('./formatLocation.js');
 const { safeEscapeMarkdown } = require('./markdown.js');
 
@@ -118,6 +119,44 @@ async function checkExpiringStockpiles(client) {
 		}
 		catch {
 			// Skip on error
+		}
+	}
+
+	// Mettre à jour les messages de liste des stocks pour chaque serveur concerné
+	const guildIds = Array.from(byGuild.keys());
+	const trackedLists = await TrackedMessage.find({
+		server_id: { $in: guildIds },
+		message_type: 'stockpile_list',
+	}).lean();
+
+	for (const tracked of trackedLists) {
+		try {
+			const channel = await client.channels.fetch(tracked.channel_id).catch(() => null);
+			if (!channel?.isTextBased?.()) continue;
+
+			const translations = new Translate(client, tracked.server_id);
+			const { embed, isEmpty } = await buildStockpileListEmbed(Stockpile, tracked.server_id, translations);
+
+			if (isEmpty) {
+				const msg = await channel.messages.fetch(tracked.message_id).catch(() => null);
+				if (msg) {
+					await msg.edit({
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+						embeds: [],
+						components: [],
+					});
+				}
+			}
+			else {
+				const components = await buildStockpileListComponents(Stockpile, tracked.server_id);
+				const msg = await channel.messages.fetch(tracked.message_id).catch(() => null);
+				if (msg) {
+					await msg.edit({ embeds: [embed], components });
+				}
+			}
+		}
+		catch {
+			// Skip on error (message supprimé, permissions, etc.)
 		}
 	}
 

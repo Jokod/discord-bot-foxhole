@@ -1,5 +1,6 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getRandomColor } = require('../../utils/colors.js');
+const { DISCORD_MAX_BUTTONS_PER_MESSAGE } = require('../../utils/constants.js');
 const { formatForDisplay } = require('../../utils/formatLocation.js');
 const { safeEscapeMarkdown } = require('../../utils/markdown.js');
 
@@ -69,4 +70,28 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 	return { embed, isEmpty: false, stocks: sortedStocks };
 }
 
-module.exports = { buildStockpileListEmbed };
+/**
+ * Construit les boutons de reset pour la liste des stockpiles d'un serveur.
+ * @param {import('mongoose').Model} Stockpile - Modèle Stockpile
+ * @param {string} guildId - ID du serveur
+ * @returns {Promise<import('discord.js').ActionRowBuilder[]>}
+ */
+async function buildStockpileListComponents(Stockpile, guildId) {
+	const stocks = await Stockpile.find({ server_id: guildId, deleted: false }).sort({ id: 1 }).lean();
+	if (!stocks || stocks.length === 0) return [];
+
+	const buttons = stocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
+		new ButtonBuilder()
+			.setCustomId(`stockpile_reset-${stock.id}`)
+			.setLabel(`#${stock.id}`)
+			.setStyle(ButtonStyle.Primary),
+	);
+
+	const rows = [];
+	for (let i = 0; i < buttons.length; i += 5) {
+		rows.push(new ActionRowBuilder().addComponents(...buttons.slice(i, i + 5)));
+	}
+	return rows;
+}
+
+module.exports = { buildStockpileListEmbed, buildStockpileListComponents };

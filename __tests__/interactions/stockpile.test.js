@@ -7,7 +7,11 @@ jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() =
 jest.mock('../../utils/colors.js', () => ({ getRandomColor: jest.fn().mockReturnValue(0xabcdef) }));
 
 const mockBuildStockpileListEmbed = jest.fn();
-jest.mock('../../interactions/embeds/stockpileList.js', () => ({ buildStockpileListEmbed: mockBuildStockpileListEmbed }));
+const mockBuildStockpileListComponents = jest.fn().mockResolvedValue([]);
+jest.mock('../../interactions/embeds/stockpileList.js', () => ({
+	buildStockpileListEmbed: mockBuildStockpileListEmbed,
+	buildStockpileListComponents: mockBuildStockpileListComponents,
+}));
 
 jest.mock('../../utils/notifications.js', () => ({ sendToSubscribers: jest.fn().mockResolvedValue(undefined) }));
 
