@@ -1,6 +1,7 @@
 const { Stockpile, NotificationSubscription } = require('../data/models.js');
 const Translate = require('./translations.js');
 const { formatForDisplay } = require('./formatLocation.js');
+const { safeEscapeMarkdown } = require('./markdown.js');
 
 /** Run every 5 minutes. */
 const CHECK_INTERVAL_MS = 5 * 60 * 1000;
@@ -94,14 +95,14 @@ async function checkExpiringStockpiles(client) {
 			'30m': 'NOTIFICATION_EXPIRING_IN_30M',
 		};
 		const lines = items.map(({ stock: s, window }) => {
-			const region = formatForDisplay(s.region || '');
-			const city = formatForDisplay(s.city || '');
+			const region = safeEscapeMarkdown(formatForDisplay(s.region || ''));
+			const city = safeEscapeMarkdown(formatForDisplay(s.city || ''));
 			const windowLabel = windowLabelKey[window] ? translations.translate(windowLabelKey[window]) : window;
 			const creator = s.owner_id && s.owner_id !== '0' ? `<@${s.owner_id}> ` : '';
 			return translations.translate('NOTIFICATION_STOCKPILE_EXPIRING_LINE', {
 				creator,
 				id: s.id,
-				name: s.name,
+				name: safeEscapeMarkdown(s.name),
 				region,
 				city,
 				window: windowLabel,

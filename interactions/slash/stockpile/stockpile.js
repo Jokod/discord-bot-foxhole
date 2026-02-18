@@ -5,13 +5,18 @@ const {
 	ModalBuilder,
 	TextInputBuilder,
 	TextInputStyle,
+	ButtonBuilder,
+	ButtonStyle,
 	PermissionFlagsBits,
 } = require('discord.js');
-const { Stockpile } = require('../../../data/models.js');
+const { Stockpile, TrackedMessage } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { editTrackedOrFallback } = require('../../../utils/trackedMessage.js');
 const { getRandomColor } = require('../../../utils/colors.js');
 const { buildStockpileListEmbed } = require('../../embeds/stockpileList.js');
 const { sendToSubscribers } = require('../../../utils/notifications.js');
+const { DISCORD_MAX_BUTTONS_PER_MESSAGE, STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
+const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
 	init: true,
@@ -198,10 +203,39 @@ module.exports = {
 		),
 	async execute(interaction) {
 		const { client, guild, options, channelId } = interaction;
-		const translations = new Translate(client, guild.id);
+		const translations = new Translate(client, guild?.id);
+		if (!guild) {
+			return interaction.reply({
+				content: translations.translate('NO_DM'),
+				flags: 64,
+			});
+		}
 		const subcommand = options.getSubcommand();
 
 		const validateId = (id) => /^\d+$/.test(id);
+		const MESSAGE_TYPE = 'stockpile_list';
+		const expectedListTitle = `🔑 ${translations.translate('STOCKPILE_LIST_CODES')}`;
+		const fallbackMatcher = (msgs) =>
+			msgs.find((m) => m.author?.id === client.user.id && m.embeds?.[0]?.title === expectedListTitle) ?? null;
+
+		const buildResetButtonsForGuild = async () => {
+			const stocks = await Stockpile.find({ server_id: guild.id, deleted: false }).sort({ id: 1 });
+			if (!stocks || stocks.length === 0) return [];
+
+			const buttons = stocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
+				new ButtonBuilder()
+					.setCustomId(`stockpile_reset-${stock.id}`)
+					.setLabel(`#${stock.id}`)
+					.setStyle(ButtonStyle.Primary),
+			);
+
+			const rows = [];
+			for (let i = 0; i < buttons.length; i += 5) {
+				const slice = buttons.slice(i, i + 5);
+				rows.push(new ActionRowBuilder().addComponents(...slice));
+			}
+			return rows;
+		};
 
 		switch (subcommand) {
 		case 'help':
@@ -315,20 +349,46 @@ module.exports = {
 			await stock.save();
 
 			await interaction.reply({
-				content: translations.translate('STOCKPILE_MARK_DELETED_SUCCESS'),
+				content: translations.translate('STOCKPILE_MARK_DELETED_SUCCESS', { id: stock.id }),
 				flags: 64,
 			});
 			sendToSubscribers(interaction.client, guild.id, 'stockpile_activity', (t) => ({
 				content: t.translate('NOTIFICATION_STOCKPILE_REMOVED', {
 					user: `<@${interaction.user.id}>`,
-					name: stock.name,
+					name: safeEscapeMarkdown(stock.name),
 					id: stock.id,
 				}),
 			})).catch(() => undefined);
 			const { embed: listEmbed, isEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
-			await interaction.followUp(
-				isEmpty ? { content: translations.translate('STOCKPILE_LIST_EMPTY'), flags: 64 } : { embeds: [listEmbed] },
-			);
+			if (isEmpty) {
+				await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: {
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+						embeds: [],
+						components: [],
+					},
+					fallbackSend: () => interaction.followUp({
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+					}),
+				});
+			}
+			else {
+				const components = await buildResetButtonsForGuild();
+				await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: { embeds: [listEmbed], components },
+					fallbackSend: () => interaction.followUp({ embeds: [listEmbed], components }),
+				});
+			}
 			break;
 
 		case 'restore': {
@@ -359,6 +419,14 @@ module.exports = {
 					flags: 64,
 				});
 			}
+			// Limite de stocks actifs (liée au nombre max de boutons).
+			const activeCount = await Stockpile.countDocuments({ server_id: guild.id, deleted: false });
+			if (activeCount >= DISCORD_MAX_BUTTONS_PER_MESSAGE) {
+				return interaction.reply({
+					content: translations.translate('STOCKPILE_MAX_REACHED'),
+					flags: 64,
+				});
+			}
 			stockToRestore.deleted = false;
 			stockToRestore.deletedAt = null;
 			await stockToRestore.save();
@@ -370,27 +438,75 @@ module.exports = {
 			sendToSubscribers(interaction.client, guild.id, 'stockpile_activity', (t) => ({
 				content: t.translate('NOTIFICATION_STOCKPILE_RESTORED', {
 					user: `<@${interaction.user.id}>`,
-					name: stockToRestore.name,
+					name: safeEscapeMarkdown(stockToRestore.name),
 					id: stockToRestore.id,
 				}),
 			})).catch(() => undefined);
 			const { embed: restoreEmbed, isEmpty: restoreEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
-			await interaction.followUp(
-				restoreEmpty ? { content: translations.translate('STOCKPILE_LIST_EMPTY'), flags: 64 } : { embeds: [restoreEmbed] },
-			);
+			if (restoreEmpty) {
+				await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: {
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+						embeds: [],
+						components: [],
+					},
+					fallbackSend: () => interaction.followUp({
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+					}),
+				});
+			}
+			else {
+				const components = await buildResetButtonsForGuild();
+				const payload = { embeds: [restoreEmbed], components };
+				await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: payload,
+					fallbackSend: () => interaction.followUp(payload),
+				});
+			}
 			break;
 		}
 
 		case 'list': {
 			const { embed, isEmpty: listEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
 			if (listEmpty) {
-				return interaction.reply({
-					content: translations.translate('STOCKPILE_LIST_EMPTY'),
-					flags: 64,
+				await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: {
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+						embeds: [],
+						components: [],
+					},
+					fallbackSend: () => interaction.reply({
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+						fetchReply: true,
+					}),
 				});
+				break;
 			}
-			await interaction.reply({
-				embeds: [embed],
+			const components = await buildResetButtonsForGuild();
+			const payload = { embeds: [embed], components };
+			await editTrackedOrFallback({
+				channel: interaction.channel,
+				serverId: guild.id,
+				messageType: MESSAGE_TYPE,
+				model: TrackedMessage,
+				fallbackMatcher,
+				editPayload: payload,
+				fallbackSend: () => interaction.reply({ ...payload, fetchReply: true }),
 			});
 			break;
 		}
@@ -413,25 +529,64 @@ module.exports = {
 					flags: 64,
 				});
 			}
+			if (stockToReset.deleted) {
+				return interaction.reply({
+					content: translations.translate('STOCKPILE_ALREADY_DELETED'),
+					flags: 64,
+				});
+			}
 
 			const resetNow = new Date();
 			stockToReset.lastResetAt = resetNow;
-			stockToReset.expiresAt = new Date(resetNow.getTime() + 2 * 24 * 60 * 60 * 1000);
+			stockToReset.expiresAt = new Date(resetNow.getTime() + STOCKPILE_RESET_DURATION_MS);
 			stockToReset.expiry_reminders_sent = [];
 			await stockToReset.save();
 
 			sendToSubscribers(interaction.client, guild.id, 'stockpile_activity', (t) => ({
 				content: t.translate('NOTIFICATION_STOCKPILE_RESET', {
 					user: `<@${interaction.user.id}>`,
-					name: stockToReset.name,
+					name: safeEscapeMarkdown(stockToReset.name),
 					id: stockToReset.id,
 				}),
 			})).catch(() => undefined);
 
-			return interaction.reply({
-				content: translations.translate('STOCKPILE_RESET_SUCCESS'),
+			await interaction.reply({
+				content: translations.translate('STOCKPILE_RESET_SUCCESS', { id: stockToReset.id }),
 				flags: 64,
 			});
+
+			const { embed: resetEmbed, isEmpty: resetEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
+			if (resetEmpty) {
+				await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: {
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+						embeds: [],
+						components: [],
+					},
+					fallbackSend: () => interaction.followUp({
+						content: translations.translate('STOCKPILE_LIST_EMPTY'),
+					}),
+				});
+			}
+			else {
+				const components = await buildResetButtonsForGuild();
+				const payload = { embeds: [resetEmbed], components };
+				await editTrackedOrFallback({
+					channel: interaction.channel,
+					serverId: guild.id,
+					messageType: MESSAGE_TYPE,
+					model: TrackedMessage,
+					fallbackMatcher,
+					editPayload: payload,
+					fallbackSend: () => interaction.followUp(payload),
+				});
+			}
+			break;
 		}
 
 		case 'cleanup': {
@@ -464,6 +619,7 @@ module.exports = {
 				});
 			}
 			await Stockpile.deleteMany({ server_id: guild.id });
+			await TrackedMessage.deleteMany({ server_id: guild.id }).catch(() => undefined);
 			return interaction.reply({
 				content: translations.translate('STOCKPILE_RESET_ALL_SUCCESS'),
 				flags: 64,

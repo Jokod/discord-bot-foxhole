@@ -3,6 +3,7 @@ const { Material } = require('../../../../../data/models.js');
 const Translate = require('../../../../../utils/translations.js');
 const { canManageMaterial } = require('../../../../../utils/material-permissions.js');
 const { getPriorityTranslationKey, getPriorityColoredText } = require('../../../../../utils/material-priority.js');
+const { safeEscapeMarkdown } = require('../../../../../utils/markdown.js');
 
 module.exports = {
 	id: 'button_logistics_add_confirm',
@@ -54,11 +55,16 @@ module.exports = {
 				});
 			}
 
-			const name = material.name.charAt(0).toUpperCase() + material.name.slice(1);
+			const baseName = material.name || '';
+			const name = baseName ? baseName.charAt(0).toUpperCase() + baseName.slice(1) : translations.translate('NONE');
 			const priorityLabel = getPriorityColoredText(material.priority, translations.translate(getPriorityTranslationKey(material.priority)));
 
 			await interaction.update({
-				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate('NONE')}`,
+				content: `**${translations.translate('MATERIAL_CREATOR')}:** <@${material.owner_id}>\n**${translations.translate('MATERIAL')}:** ${safeEscapeMarkdown(
+					name,
+				)}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${translations.translate(
+					'NONE',
+				)}`,
 				components: [actionRow],
 			});
 		}

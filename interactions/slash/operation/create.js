@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const Translate = require('../../../utils/translations.js');
+const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
 	init: true,
@@ -52,7 +53,7 @@ module.exports = {
 
 		const modal = new ModalBuilder()
 			.setCustomId('modal_create_operation')
-			.setTitle(translations.translate('OPERATION_CREATE_TITLE', { title: title }));
+			.setTitle(translations.translate('OPERATION_CREATE_TITLE', { title: safeEscapeMarkdown(title) }));
 
 		const dateField = new TextInputBuilder()
 			.setCustomId('date')

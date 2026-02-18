@@ -1,6 +1,7 @@
 const { EmbedBuilder, SlashCommandBuilder, ApplicationCommandOptionType } = require('discord.js');
 const { getRandomColor } = require('../../../utils/colors.js');
 const Translate = require('../../../utils/translations.js');
+const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -59,7 +60,7 @@ module.exports = {
 			const subPath = parts.slice(1);
 
 			helpEmbed.setTitle(
-				translations.translate('HELP_TITLE_COMMAND', { command: rawName }),
+				translations.translate('HELP_TITLE_COMMAND', { command: safeEscapeMarkdown(rawName) }),
 			);
 
 			// Résolution de la commande :
@@ -127,7 +128,7 @@ module.exports = {
 						helpEmbed
 							.setDescription(
 								translations.translate('HELP_COMMAND_NOT_FOUND', {
-									command: rawName,
+									command: safeEscapeMarkdown(rawName),
 								}),
 							)
 							.setColor(0xFF0000);
@@ -310,7 +311,7 @@ module.exports = {
 				helpEmbed
 					.setDescription(
 						translations.translate('HELP_COMMAND_NOT_FOUND', {
-							command: rawName,
+							command: safeEscapeMarkdown(rawName),
 						}),
 					)
 					.setColor(0xFF0000);

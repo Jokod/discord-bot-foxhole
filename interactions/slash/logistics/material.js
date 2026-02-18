@@ -4,6 +4,7 @@ const Translate = require('../../../utils/translations.js');
 const { getRandomColor } = require('../../../utils/colors.js');
 const { getPriorityTranslationKey, getPriorityColoredText, getPriorityEmbedColor, DEFAULT_PRIORITY } = require('../../../utils/material-priority.js');
 const { parseMaterialId } = require('../../../utils/discord.js');
+const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
 	init: true,
@@ -270,7 +271,13 @@ module.exports = {
 			const localization = material.localization || translations.translate('NONE');
 			const priorityLabel = getPriorityColoredText(material.priority, translations.translate(getPriorityTranslationKey(material.priority)));
 
-			const content = `**${translations.translate('MATERIAL')}:** ${name}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${localization}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate((material.status).toUpperCase())}`;
+			const content = `**${translations.translate('MATERIAL')}:** ${safeEscapeMarkdown(
+				name,
+			)}\n**${translations.translate('QUANTITY')}:** ${material.quantityAsk}\n**${translations.translate('MATERIAL_PRIORITY')}:** ${priorityLabel}\n**${translations.translate('MATERIAL_PERSON_IN_CHARGE')}:** ${owner}\n\n**${translations.translate('MATERIAL_LOCALIZATION')}:** ${safeEscapeMarkdown(
+				localization,
+			)}\n**${translations.translate('MATERIAL_QUANTITY_GIVEN')}:** ${material.quantityGiven}\n**${translations.translate('STATUS')}:** ${translations.translate(
+				(material.status).toUpperCase(),
+			)}`;
 
 			const embed = new EmbedBuilder()
 				.setColor(getPriorityEmbedColor(material.priority))

@@ -271,10 +271,10 @@ module.exports = {
 	STOCKPILE_CREATOR: 'Создатель',
 
 	// STOCKPILE SUCCESS
-	STOCKPILE_CREATE_SUCCESS: 'Склад был создан.',
-	STOCKPILE_DELETE_SUCCESS: 'Склад был удален.',
-	STOCKPILE_MARK_DELETED_SUCCESS: 'Склад был помечен как удалён.',
-	STOCKPILE_RESET_SUCCESS: 'Таймер склада сброшен на 2 дня.',
+	STOCKPILE_CREATE_SUCCESS: 'Склад #%id% был создан.',
+	STOCKPILE_DELETE_SUCCESS: 'Склад #%id% был удален.',
+	STOCKPILE_MARK_DELETED_SUCCESS: 'Склад #%id% был помечен как удалён.',
+	STOCKPILE_RESET_SUCCESS: 'Таймер склада #%id% сброшен на 2 дня.',
 	STOCKPILE_CLEANUP_SUCCESS: 'Удалено %count% помеченных складов в этом канале.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'Все склады были удалены.',
 
@@ -282,6 +282,7 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: 'Здесь нет складов.',
 	STOCKPILE_NOT_EXIST: 'Этого склада не существует.',
 	STOCKPILE_INVALID_ID: 'Идентификатор склада недействителен.',
+	STOCKPILE_MAX_REACHED: 'Достигнуто максимальное количество активных складов.',
 	STOCKPILE_CREATE_ERROR: 'Произошла ошибка при создании склада.',
 	STOCKPILE_DELETE_ERROR: 'Произошла ошибка при удалении склада.',
 	STOCKPILE_INVALID_NAME: 'Недопустимое имя склада.',

@@ -11,6 +11,32 @@ jest.mock('../../interactions/embeds/stockpileList.js', () => ({ buildStockpileL
 
 jest.mock('../../utils/notifications.js', () => ({ sendToSubscribers: jest.fn().mockResolvedValue(undefined) }));
 
+const mockFindTrackedMessage = jest.fn();
+const mockSaveTrackedMessage = jest.fn().mockResolvedValue(undefined);
+jest.mock('../../utils/trackedMessage.js', () => {
+	const find = (...args) => mockFindTrackedMessage(...args);
+	return {
+		findTrackedMessage: find,
+		saveTrackedMessage: (...args) => mockSaveTrackedMessage(...args),
+		editTrackedOrFallback: async (opts) => {
+			const message = await find(opts.channel, opts.serverId, opts.messageType, { model: opts.model, fallbackMatcher: opts.fallbackMatcher });
+			if (message) {
+				try {
+					await message.edit(opts.editPayload);
+					return;
+				}
+				catch {
+					// edit failed, fallback will send
+				}
+			}
+			const sent = await opts.fallbackSend();
+			if (sent?.id) {
+				await mockSaveTrackedMessage(opts.serverId, opts.channel?.id, sent.id, opts.messageType, opts.model);
+			}
+		},
+	};
+});
+
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
 		findOne: jest.fn(),
@@ -21,9 +47,15 @@ jest.mock('../../data/models.js', () => ({
 		countDocuments: jest.fn(),
 		create: jest.fn(),
 	},
+	TrackedMessage: {
+		findOne: jest.fn().mockResolvedValue(null),
+		findOneAndUpdate: jest.fn().mockResolvedValue(undefined),
+		deleteOne: jest.fn().mockResolvedValue(undefined),
+		deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+	},
 }));
 
-const { Stockpile } = require('../../data/models.js');
+const { Stockpile, TrackedMessage } = require('../../data/models.js');
 
 // Stockpile documents need a save method when findOne returns one
 const createDoc = (overrides = {}) => ({
@@ -40,6 +72,7 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockFindTrackedMessage.mockResolvedValue(null);
 		stockpileCommand = require('../../interactions/slash/stockpile/stockpile.js');
 	});
 
@@ -50,9 +83,10 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 		const getString = jest.fn((name) => (options[name] !== undefined ? options[name] : null));
 		const getSubcommand = jest.fn(() => subcommand);
 		return {
-			client: { traductions: new Map(), slashCommands: new Map() },
+			client: { user: { id: 'bot-123' }, traductions: new Map(), slashCommands: new Map() },
 			guild,
 			channelId,
+			channel: null,
 			user: { id: userId },
 			options: { getSubcommand, getString },
 			reply: jest.fn().mockResolvedValue(undefined),
@@ -101,6 +135,7 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			const doc = createDoc({ server_id: 'guild-123', id: '1', owner_id: 'user-789', deleted: false });
 			Stockpile.findOne.mockResolvedValue(doc);
 			mockBuildStockpileListEmbed.mockResolvedValue({ embed: { data: {} }, isEmpty: false });
+			mockFindTrackedMessage.mockResolvedValue(null);
 			const interaction = createInteraction('remove', { id: '1' });
 			await stockpileCommand.execute(interaction);
 			expect(doc.deleted).toBe(true);
@@ -111,6 +146,21 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 				expect.anything(),
 			);
 			expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ embeds: [expect.anything()] }));
+		});
+
+		it('édite le message existant au lieu de followUp quand la liste est trouvée', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', owner_id: 'user-789', deleted: false });
+			Stockpile.findOne.mockResolvedValue(doc);
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: { data: {} }, isEmpty: false });
+			Stockpile.find.mockReturnValue({
+				sort: jest.fn().mockResolvedValue([{ id: '1', server_id: 'guild-123' }]),
+			});
+			const editMock = jest.fn().mockResolvedValue(undefined);
+			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
+			const interaction = createInteraction('remove', { id: '1' });
+			await stockpileCommand.execute(interaction);
+			expect(editMock).toHaveBeenCalledWith(expect.objectContaining({ embeds: [expect.anything()] }));
+			expect(interaction.followUp).not.toHaveBeenCalled();
 		});
 	});
 
@@ -171,6 +221,21 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 				expect.anything(),
 			);
 		});
+
+		it('renvoie une erreur si la limite de stocks actifs est atteinte', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', owner_id: 'user-789', deleted: true });
+			Stockpile.findOne.mockResolvedValue(doc);
+			Stockpile.countDocuments.mockResolvedValue(25);
+
+			const interaction = createInteraction('restore', { id: '1' });
+			await stockpileCommand.execute(interaction);
+
+			expect(Stockpile.countDocuments).toHaveBeenCalledWith({ server_id: 'guild-123', deleted: false });
+			expect(doc.save).not.toHaveBeenCalled();
+			expect(interaction.reply).toHaveBeenCalledWith(
+				expect.objectContaining({ content: 'STOCKPILE_MAX_REACHED', flags: 64 }),
+			);
+		});
 	});
 
 	describe('reset - isolation serveur', () => {
@@ -195,6 +260,17 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 				expect.objectContaining({ content: 'STOCKPILE_RESET_SUCCESS', flags: 64 }),
 			);
 		});
+
+		it('refuse le reset si le stock est marqué supprimé', async () => {
+			const doc = createDoc({ server_id: 'guild-123', id: '1', deleted: true });
+			Stockpile.findOne.mockResolvedValue(doc);
+			const interaction = createInteraction('reset', { id: '1' });
+			await stockpileCommand.execute(interaction);
+			expect(doc.save).not.toHaveBeenCalled();
+			expect(interaction.reply).toHaveBeenCalledWith(
+				expect.objectContaining({ content: 'STOCKPILE_ALREADY_DELETED', flags: 64 }),
+			);
+		});
 	});
 
 	describe('list - isolation serveur', () => {
@@ -208,16 +284,36 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 				expect.anything(),
 			);
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'STOCKPILE_LIST_EMPTY', flags: 64 }),
+				expect.objectContaining({ content: 'STOCKPILE_LIST_EMPTY' }),
 			);
 		});
 
 		it('affiche l’embed quand la liste n’est pas vide', async () => {
 			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
 			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			mockFindTrackedMessage.mockResolvedValue(null);
+			Stockpile.find.mockReturnValue({
+				sort: jest.fn().mockResolvedValue([{ id: '1' }]),
+			});
 			const interaction = createInteraction('list');
+			interaction.reply.mockResolvedValue({ id: 'msg-new' });
 			await stockpileCommand.execute(interaction);
 			expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
+			expect(mockSaveTrackedMessage).toHaveBeenCalled();
+		});
+
+		it('édite le message existant pour list au lieu de reply quand trouvé', async () => {
+			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			Stockpile.find.mockReturnValue({
+				sort: jest.fn().mockResolvedValue([{ id: '1' }]),
+			});
+			const editMock = jest.fn().mockResolvedValue(undefined);
+			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
+			const interaction = createInteraction('list');
+			await stockpileCommand.execute(interaction);
+			expect(editMock).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
+			expect(interaction.reply).not.toHaveBeenCalled();
 		});
 	});
 
@@ -266,6 +362,7 @@ describe('Slash command /stockpile - sécurité et comportement', () => {
 			interaction.member.permissions.has.mockImplementation((perm) => perm === PermissionFlagsBits.ManageGuild);
 			await stockpileCommand.execute(interaction);
 			expect(Stockpile.deleteMany).toHaveBeenCalledWith({ server_id: 'guild-123' });
+			expect(TrackedMessage.deleteMany).toHaveBeenCalledWith({ server_id: 'guild-123' });
 			expect(interaction.reply).toHaveBeenCalledWith(
 				expect.objectContaining({ content: 'STOCKPILE_RESET_ALL_SUCCESS', flags: 64 }),
 			);

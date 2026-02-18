@@ -1,5 +1,6 @@
 const { Operation, Group, Material } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
 	id: 'button_create_operation_cancel',
@@ -46,7 +47,7 @@ module.exports = {
 			await message.delete().catch(console.error);
 
 			await interaction.editReply({
-				content: translations.translate('OPERATION_CANCELED_SUCCESS', { title: operation.title }),
+				content: translations.translate('OPERATION_CANCELED_SUCCESS', { title: safeEscapeMarkdown(operation.title) }),
 			});
 		}
 		catch (err) {
