@@ -13,9 +13,13 @@ jest.mock('../../data/models.js', () => ({
 	Stockpile: {
 		find: jest.fn().mockReturnValue({ lean: jest.fn() }),
 		findByIdAndUpdate: mockFindByIdAndUpdate,
+		deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 }),
 	},
 	NotificationSubscription: {
 		find: jest.fn().mockReturnValue({ lean: jest.fn() }),
+	},
+	TrackedMessage: {
+		find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
 	},
 }));
 
