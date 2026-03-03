@@ -18,6 +18,10 @@ const Stats = mongoose.Schema({
 		type: Date,
 		default: null,
 	},
+	left_at: {
+		type: Date,
+		default: null,
+	},
 	member_count: {
 		type: Number,
 		default: 0,

@@ -29,6 +29,7 @@ describe('Stats Model', () => {
 				name: 'Test Server',
 				created_at: now,
 				joined_at: now,
+				left_at: now,
 				last_command_at: now,
 				member_count: 42,
 				first_command_at: now,
@@ -67,6 +68,7 @@ describe('Stats Model', () => {
 			expect(schema.path('name').instance).toBe('String');
 			expect(schema.path('created_at').instance).toBe('Date');
 			expect(schema.path('joined_at').instance).toBe('Date');
+			expect(schema.path('left_at').instance).toBe('Date');
 			expect(schema.path('last_command_at').instance).toBe('Date');
 			expect(schema.path('member_count').instance).toBe('Number');
 			expect(schema.path('first_command_at').instance).toBe('Date');
@@ -87,6 +89,7 @@ describe('Stats Model', () => {
 			expect(stats.material_validated_count).toBe(0);
 			expect(stats.created_at).toBeNull();
 			expect(stats.joined_at).toBeNull();
+			expect(stats.left_at).toBeNull();
 			expect(stats.last_command_at).toBeNull();
 			expect(stats.first_command_at).toBeNull();
 		});

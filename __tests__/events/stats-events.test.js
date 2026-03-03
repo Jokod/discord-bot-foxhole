@@ -1,8 +1,14 @@
 const mockStatsFindOneAndUpdate = jest.fn().mockResolvedValue({});
+const mockStatsFind = jest.fn().mockResolvedValue([]);
+const mockStatsUpdateOne = jest.fn().mockResolvedValue({});
 
 jest.mock('../../data/models.js', () => ({
 	Server: { findOne: jest.fn().mockResolvedValue({}) },
-	Stats: { findOneAndUpdate: mockStatsFindOneAndUpdate },
+	Stats: {
+		findOneAndUpdate: mockStatsFindOneAndUpdate,
+		find: mockStatsFind,
+		updateOne: mockStatsUpdateOne,
+	},
 }));
 
 jest.mock('../../utils/translations.js', () => {
@@ -133,11 +139,37 @@ describe('Stats events', () => {
 						name: 'New Server',
 						created_at: guildCreatedAt,
 						joined_at: joinedAt,
+						left_at: null,
 						member_count: 120,
 					},
 				},
 				{ upsert: true, returnDocument: 'after' },
 			);
+		});
+
+		it('should leave guild and not update Stats when guild is in BLOCKED_GUILD_IDS', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+
+			const guildCreate = require('../../events/guildCreate.js');
+			const leave = jest.fn().mockResolvedValue(undefined);
+			const guild = {
+				id: 'blocked-guild-789',
+				name: 'Blocked Server',
+				createdAt: new Date(),
+				memberCount: 10,
+				members: { me: { joinedAt: new Date() } },
+				leave,
+			};
+
+			const prev = process.env.BLOCKED_GUILD_IDS;
+			process.env.BLOCKED_GUILD_IDS = 'blocked-guild-789';
+			await guildCreate.execute(guild);
+			process.env.BLOCKED_GUILD_IDS = prev;
+
+			expect(leave).toHaveBeenCalledTimes(1);
+			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
 		});
 	});
 
@@ -220,6 +252,87 @@ describe('Stats events', () => {
 			// guild-b has no joinedAt so $set should not include joined_at
 			const call2 = mockStatsFindOneAndUpdate.mock.calls[1];
 			expect(call2[1].$set).not.toHaveProperty('joined_at');
+		});
+
+		it('should set left_at for guilds in Stats that are no longer in cache', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.updateOne = mockStatsUpdateOne;
+			mockStatsFind.mockResolvedValueOnce([{ guild_id: 'old-guild-123' }]);
+
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						[
+							'guild-a',
+							{
+								id: 'guild-a',
+								name: 'Server A',
+								createdAt: new Date(),
+								memberCount: 1,
+								members: { me: null },
+							},
+						],
+					]),
+				},
+			};
+
+			await onReady.execute(client);
+
+			expect(mockStatsUpdateOne).toHaveBeenCalledTimes(1);
+			expect(mockStatsUpdateOne).toHaveBeenCalledWith(
+				{ guild_id: 'old-guild-123' },
+				{ $set: { left_at: expect.any(Date) } },
+			);
+		});
+
+		it('should leave blacklisted guilds on ready', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.updateOne = mockStatsUpdateOne;
+
+			const leaveA = jest.fn().mockResolvedValue(undefined);
+			const guildA = {
+				id: 'guild-a',
+				name: 'Server A',
+				createdAt: new Date(),
+				memberCount: 1,
+				members: { me: null },
+				leave: leaveA,
+			};
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						['guild-a', guildA],
+						[
+							'guild-b',
+							{
+								id: 'guild-b',
+								name: 'Server B',
+								createdAt: new Date(),
+								memberCount: 1,
+								members: { me: null },
+								leave: jest.fn().mockResolvedValue(undefined),
+							},
+						],
+					]),
+				},
+			};
+
+			const prev = process.env.BLOCKED_GUILD_IDS;
+			process.env.BLOCKED_GUILD_IDS = 'guild-a';
+			const onReady = require('../../events/onReady.js');
+			await onReady.execute(client);
+			process.env.BLOCKED_GUILD_IDS = prev;
+
+			expect(leaveA).toHaveBeenCalledTimes(1);
 		});
 	});
 });
