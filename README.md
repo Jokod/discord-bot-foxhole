@@ -55,6 +55,7 @@ When the bot is installed on a server, it stores **usage statistics** in the dat
 | **Server name** | Name of the server |
 | **Server creation date** | When the Discord server was created |
 | **Bot join date** | When the bot was added to the server |
+| **Bot leave date** | When the bot was removed from the server (detected at each bot restart) |
 | **Last command date** | Date of the last slash command executed |
 | **First command date** | Date of the first slash command on the server |
 | **Total command count** | Total number of slash commands executed |
@@ -103,6 +104,7 @@ If you want to host your own instance of the Discord Bot for Foxhole, follow the
    - `OWNER`: Your Discord user ID
    - `TEST_GUILD_ID`: Your test server ID (for development)
    - `APP_ENV`: Set to `dev` for development, `prod` for production
+   - `BLOCKED_GUILD_IDS` (optionnel) : IDs de serveurs où le bot ne doit pas rester (séparés par des virgules). Si le bot est déjà sur un de ces serveurs, il s’en retire au démarrage ou à l’invitation.
 
 4. **Invite the bot to your server**:
    
