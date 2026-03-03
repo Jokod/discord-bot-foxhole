@@ -70,7 +70,7 @@ module.exports = {
 							},
 						},
 					],
-					{ upsert: true, new: true, updatePipeline: true },
+					{ upsert: true, returnDocument: 'after', updatePipeline: true },
 				);
 			}
 		}

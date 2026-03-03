@@ -78,7 +78,7 @@ module.exports = {
 			material = await Material.findOneAndUpdate(
 				{ material_id: `${message.id}` },
 				updateData,
-				{ new: true });
+				{ returnDocument: 'after' });
 
 			if (status === 'validated') {
 				await Stats.findOneAndUpdate(

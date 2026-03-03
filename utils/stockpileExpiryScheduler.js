@@ -151,7 +151,7 @@ async function checkExpiringStockpiles(client) {
 				const components = await buildStockpileListComponents(Stockpile, tracked.server_id);
 				const msg = await channel.messages.fetch(tracked.message_id).catch(() => null);
 				if (msg) {
-					await msg.edit({ embeds: [embed], components });
+					await msg.edit({ content: '', embeds: [embed], components });
 				}
 			}
 		}

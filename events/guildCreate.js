@@ -22,7 +22,7 @@ module.exports = {
 					member_count: guild.memberCount ?? 0,
 				},
 			},
-			{ upsert: true, new: true },
+			{ upsert: true, returnDocument: 'after' },
 		);
 	},
 };

@@ -93,7 +93,7 @@ describe('Modal - logistics material validate', () => {
 				status: 'confirmed',
 				person_id: null,
 			}),
-			{ new: true },
+			{ returnDocument: 'after' },
 		);
 
 		// Vérifie que le message affiche Responsable: Aucun
@@ -143,7 +143,7 @@ describe('Modal - logistics material validate', () => {
 				status: 'validated',
 				person_id: null,
 			}),
-			{ new: true },
+			{ returnDocument: 'after' },
 		);
 
 		// Ici, on est dans la branche "entièrement validé" -> retour direct

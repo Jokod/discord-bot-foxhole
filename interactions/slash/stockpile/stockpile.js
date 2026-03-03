@@ -364,8 +364,8 @@ module.exports = {
 					messageType: MESSAGE_TYPE,
 					model: TrackedMessage,
 					fallbackMatcher,
-					editPayload: { embeds: [listEmbed], components },
-					fallbackSend: () => interaction.followUp({ embeds: [listEmbed], components }),
+					editPayload: { content: '', embeds: [listEmbed], components },
+					fallbackSend: () => interaction.followUp({ content: '', embeds: [listEmbed], components }),
 				});
 			}
 			break;
@@ -441,7 +441,7 @@ module.exports = {
 			}
 			else {
 				const components = await buildStockpileListComponents(Stockpile, guild.id);
-				const payload = { embeds: [restoreEmbed], components };
+				const payload = { content: '', embeds: [restoreEmbed], components };
 				await editTrackedOrFallback({
 					channel: interaction.channel,
 					serverId: guild.id,
@@ -480,7 +480,7 @@ module.exports = {
 			}
 			else {
 				const components = await buildStockpileListComponents(Stockpile, guild.id);
-				const payload = { embeds: [embed], components };
+				const payload = { content: '', embeds: [embed], components };
 				result = await editTrackedOrFallback({
 					channel: interaction.channel,
 					serverId: guild.id,
@@ -561,7 +561,7 @@ module.exports = {
 			}
 			else {
 				const components = await buildStockpileListComponents(Stockpile, guild.id);
-				const payload = { embeds: [resetEmbed], components };
+				const payload = { content: '', embeds: [resetEmbed], components };
 				await editTrackedOrFallback({
 					channel: interaction.channel,
 					serverId: guild.id,

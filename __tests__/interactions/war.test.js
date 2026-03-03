@@ -244,5 +244,104 @@ describe('Slash command /war', () => {
 			content: 'COMMAND_UNKNOWN',
 		});
 	});
+
+	it('status: utilise le cache 304 Not Modified quand l\'ETag est valide', async () => {
+		const warPayload = {
+			warNumber: 133,
+			winner: 'NONE',
+			requiredVictoryTowns: 32,
+			conquestStartTime: 1_770_663_602_746,
+			conquestEndTime: 1_770_663_702_746,
+		};
+		let callCount = 0;
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				callCount++;
+				if (callCount === 1) {
+					return Promise.resolve({
+						ok: true,
+						status: 200,
+						json: () => Promise.resolve(warPayload),
+						headers: createHeaders('max-age=0', '"first-etag"'),
+					});
+				}
+				return Promise.resolve({
+					ok: true,
+					status: 304,
+					headers: createHeaders('max-age=60', '"first-etag"'),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		await warCommand.execute(createInteraction('status'));
+		await warCommand.execute(createInteraction('status'));
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(mockFetch).toHaveBeenNthCalledWith(2, WARAPI_WAR_URL, expect.objectContaining({
+			headers: expect.objectContaining({ 'If-None-Match': '"first-etag"' }),
+		}));
+	});
+
+	it('maps: utilise le cache 304 Not Modified', async () => {
+		const mapsPayload = ['HexA', 'HexB'];
+		let callCount = 0;
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_MAPS_URL) {
+				callCount++;
+				if (callCount === 1) {
+					return Promise.resolve({
+						ok: true,
+						status: 200,
+						json: () => Promise.resolve(mapsPayload),
+						headers: createHeaders('max-age=0', '"maps-etag"'),
+					});
+				}
+				return Promise.resolve({
+					ok: true,
+					status: 304,
+					headers: createHeaders('max-age=600', '"maps-etag"'),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		await warCommand.execute(createInteraction('maps'));
+		await warCommand.execute(createInteraction('maps'));
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+		expect(mockFetch).toHaveBeenNthCalledWith(2, WARAPI_MAPS_URL, expect.objectContaining({
+			headers: expect.objectContaining({ 'If-None-Match': '"maps-etag"' }),
+		}));
+	});
+
+	it('report: utilise le cache 304 Not Modified', async () => {
+		const reportPayload = { totalEnlistments: 500, colonialCasualties: 10, wardenCasualties: 20 };
+		let callCount = 0;
+		mockFetch.mockImplementation((url) => {
+			if (url.includes('/warReport/')) {
+				callCount++;
+				if (callCount === 1) {
+					return Promise.resolve({
+						ok: true,
+						status: 200,
+						json: () => Promise.resolve(reportPayload),
+						headers: createHeaders('max-age=0', '"report-etag"'),
+					});
+				}
+				return Promise.resolve({
+					ok: true,
+					status: 304,
+					headers: createHeaders('max-age=5', '"report-etag"'),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		await warCommand.execute(createInteraction('report', 'DeadLandsHex'));
+		await warCommand.execute(createInteraction('report', 'DeadLandsHex'));
+
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+	});
 });
 
