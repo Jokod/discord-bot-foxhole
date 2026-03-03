@@ -53,6 +53,7 @@ module.exports = {
 		else {
 			const components = await buildStockpileListComponents(Stockpile, guild.id);
 			await interaction.update({
+				content: '',
 				embeds: [embed],
 				components,
 			});

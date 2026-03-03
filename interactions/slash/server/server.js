@@ -138,7 +138,7 @@ module.exports = {
 			await Server.findOneAndUpdate(
 				{ guild_id: guild.id },
 				{ lang: lang },
-				{ new: true },
+				{ returnDocument: 'after' },
 			);
 
 			interaction.client.traductions.set(guild.id, lang);
@@ -151,7 +151,7 @@ module.exports = {
 			await Server.findOneAndUpdate(
 				{ guild_id: guild.id },
 				{ camp: camp },
-				{ new: true },
+				{ returnDocument: 'after' },
 			);
 
 			return interaction.reply({

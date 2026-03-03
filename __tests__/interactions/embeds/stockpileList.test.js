@@ -32,7 +32,7 @@ describe('stockpileList embed', () => {
 			expect(result).toEqual({ embed: null, isEmpty: true, stocks: [] });
 		});
 
-		it('construit l\'embed avec les stocks triés par région, ville, id', async () => {
+		it('construit l\'embed groupé par région/ville avec stocks triés par id croissant', async () => {
 			const stocks = [
 				{
 					id: '2',

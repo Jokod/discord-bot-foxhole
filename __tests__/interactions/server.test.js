@@ -76,7 +76,7 @@ describe('Slash command /server', () => {
 		expect(mockServerFindOneAndUpdate).toHaveBeenCalledWith(
 			{ guild_id: 'guild-123' },
 			{ lang: 'fr' },
-			{ new: true },
+			{ returnDocument: 'after' },
 		);
 		expect(interaction.client.traductions.get('guild-123')).toBe('fr');
 		expect(interaction.reply).toHaveBeenCalledWith({
@@ -95,7 +95,7 @@ describe('Slash command /server', () => {
 		expect(mockServerFindOneAndUpdate).toHaveBeenCalledWith(
 			{ guild_id: 'guild-123' },
 			{ camp: 'colonial' },
-			{ new: true },
+			{ returnDocument: 'after' },
 		);
 		expect(interaction.reply).toHaveBeenCalledWith({
 			content: expect.stringContaining('SERVER_SET_CAMP_REPLY'),

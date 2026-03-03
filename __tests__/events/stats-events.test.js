@@ -70,7 +70,7 @@ describe('Stats events', () => {
 			expect(mockStatsFindOneAndUpdate).toHaveBeenCalledWith(
 				{ guild_id: 'guild-123' },
 				expect.any(Array),
-				{ upsert: true, new: true, updatePipeline: true },
+				{ upsert: true, returnDocument: 'after', updatePipeline: true },
 			);
 		});
 
@@ -136,7 +136,7 @@ describe('Stats events', () => {
 						member_count: 120,
 					},
 				},
-				{ upsert: true, new: true },
+				{ upsert: true, returnDocument: 'after' },
 			);
 		});
 	});
@@ -202,7 +202,7 @@ describe('Stats events', () => {
 						joined_at: guild1Joined,
 					}),
 				}),
-				{ upsert: true, new: true },
+				{ upsert: true, returnDocument: 'after' },
 			);
 
 			expect(mockStatsFindOneAndUpdate).toHaveBeenNthCalledWith(
@@ -215,7 +215,7 @@ describe('Stats events', () => {
 						member_count: 50,
 					}),
 				}),
-				{ upsert: true, new: true },
+				{ upsert: true, returnDocument: 'after' },
 			);
 			// guild-b has no joinedAt so $set should not include joined_at
 			const call2 = mockStatsFindOneAndUpdate.mock.calls[1];

@@ -13,13 +13,7 @@ const { Server } = require('./data/models.js');
 const Translate = require('./utils/translations.js');
 
 /** ********************************************************************/
-// Connect to MongoDB
-
-mongoose.connect(process.env.MONGODB_URL, { dbName: process.env.MONGODB_NAME })
-	.then(() => console.log('Connected to MongoDB'))
-	.catch((err) => console.log('Failed to connect to MongoDB', err));
-
-
+// Connect to MongoDB, then load languages/traductions and login
 /** ********************************************************************/
 
 const client = new Client({
@@ -139,20 +133,11 @@ const commandJsonData = [
 
 /** ********************************************************************/
 
-// Load all languages
+// Load all languages (sans DB)
 
 getFiles('./languages', (language) => {
 	client.languages.set(language.code, language);
-
-	Server.find()
-		.then((servers) => {
-			servers.forEach((server) => {
-				client.traductions.set(server.guild_id, server.lang || 'en');
-			});
-		});
 });
-
-Translate.prototype.compareTranslationKeys(client);
 
 /** ********************************************************************/
 
@@ -163,4 +148,22 @@ getFiles('./var/logs', (log) => {
 	client.logs.set(logName);
 });
 
-client.login(process.env.TOKEN);
+/** ********************************************************************/
+// Connexion MongoDB puis démarrage du client Discord
+
+mongoose.connect(process.env.MONGODB_URL, { dbName: process.env.MONGODB_NAME })
+	.then(() => {
+		console.log('Connected to MongoDB');
+		return Server.find();
+	})
+	.then((servers) => {
+		servers.forEach((server) => {
+			client.traductions.set(server.guild_id, server.lang || 'en');
+		});
+		Translate.prototype.compareTranslationKeys(client);
+		client.login(process.env.TOKEN);
+	})
+	.catch((err) => {
+		console.error('Failed to connect to MongoDB', err);
+		process.exit(1);
+	});

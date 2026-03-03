@@ -19,47 +19,57 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 	});
 
 	const allStocks = await Stockpile.find({ server_id: guildId });
-	const sortedStocks = allStocks.sort((a, b) => {
-		if (a.region !== b.region) return a.region.localeCompare(b.region);
-		if (a.city !== b.city) return a.city.localeCompare(b.city);
-		return Number(a.id) - Number(b.id);
-	});
+	const sortedById = allStocks.slice().sort((a, b) => Number(a.id) - Number(b.id));
 
-	if (sortedStocks.length === 0) {
+	if (sortedById.length === 0) {
 		return { embed: null, isEmpty: true, stocks: [] };
 	}
 
+	// Grouper par région puis ville ; chaque liste est déjà triée par id (ordre de sortedById)
 	const byRegion = new Map();
-	for (const s of sortedStocks) {
+	for (const s of sortedById) {
 		if (!byRegion.has(s.region)) byRegion.set(s.region, new Map());
 		const byCity = byRegion.get(s.region);
 		if (!byCity.has(s.city)) byCity.set(s.city, []);
 		byCity.get(s.city).push(s);
 	}
 
+	// Afficher les blocs (region, city) dans l’ordre du plus petit id (ordre de première apparition dans sortedById)
+	const seenBlocks = new Map();
+	const blockOrder = [];
+	for (const s of sortedById) {
+		const key = `${s.region}\0${s.city}`;
+		if (!seenBlocks.has(key)) {
+			seenBlocks.set(key, Number(s.id));
+			blockOrder.push({ region: s.region, city: s.city });
+		}
+	}
+	blockOrder.sort((a, b) => seenBlocks.get(`${a.region}\0${a.city}`) - seenBlocks.get(`${b.region}\0${b.city}`));
+
 	const headerStock = translations.translate('STOCKPILE_TABLE_HEADER_STOCK');
 	const headerCode = translations.translate('STOCKPILE_TABLE_HEADER_CODE');
 	const headerDate = translations.translate('STOCKPILE_TABLE_HEADER_EXPIRES');
 	const sep = '  |  ';
 	const lines = [];
-	let firstRegion = true;
-	for (const [region, byCity] of byRegion) {
-		if (!firstRegion) lines.push('');
-		firstRegion = false;
-		lines.push(`📍 **${safeEscapeMarkdown(formatForDisplay(region))}**`);
-		for (const [city, list] of byCity) {
-			lines.push(`🏭 **${safeEscapeMarkdown(formatForDisplay(city))}**`);
-			lines.push(`**${headerStock}**${sep}**${headerCode}**${sep}**${headerDate}**`);
-			for (const s of list) {
-				const expiresAt = s.expiresAt instanceof Date ? s.expiresAt : new Date(s.expiresAt);
-				const expiresTs = Math.floor(expiresAt.getTime() / 1000);
-				const creator = s.owner_id ? `<@${s.owner_id}>` : translations.translate('NONE');
-				const idDisplay = s.deleted ? `${s.id} ❌` : s.id;
-				const row = `${idDisplay} • **${safeEscapeMarkdown(s.name)}**${sep}\`${safeEscapeMarkdown(s.password)}\`${sep}<t:${expiresTs}:R> • ${creator}`;
-				lines.push(s.deleted ? `~~${row}~~` : row);
-			}
-			lines.push('');
+	let lastRegion = null;
+	for (const { region, city } of blockOrder) {
+		if (lastRegion !== region) {
+			if (lastRegion !== null) lines.push('');
+			lines.push(`📍 **${safeEscapeMarkdown(formatForDisplay(region))}**`);
+			lastRegion = region;
 		}
+		lines.push(`🏭 **${safeEscapeMarkdown(formatForDisplay(city))}**`);
+		lines.push(`**${headerStock}**${sep}**${headerCode}**${sep}**${headerDate}**`);
+		const list = byRegion.get(region).get(city);
+		for (const s of list) {
+			const expiresAt = s.expiresAt instanceof Date ? s.expiresAt : new Date(s.expiresAt);
+			const expiresTs = Math.floor(expiresAt.getTime() / 1000);
+			const creator = s.owner_id ? `<@${s.owner_id}>` : translations.translate('NONE');
+			const idDisplay = s.deleted ? `${s.id} ❌` : s.id;
+			const row = `${idDisplay} • **${safeEscapeMarkdown(s.name)}**${sep}\`${safeEscapeMarkdown(s.password)}\`${sep}<t:${expiresTs}:R> • ${creator}`;
+			lines.push(s.deleted ? `~~${row}~~` : row);
+		}
+		lines.push('');
 	}
 
 	const embed = new EmbedBuilder()
@@ -67,7 +77,7 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 		.setTitle(`🔑 ${translations.translate('STOCKPILE_LIST_CODES')}`)
 		.setDescription(lines.join('\n'));
 
-	return { embed, isEmpty: false, stocks: sortedStocks };
+	return { embed, isEmpty: false, stocks: sortedById };
 }
 
 /**

@@ -131,7 +131,7 @@ module.exports = {
 					rows.push(new ActionRowBuilder().addComponents(...slice));
 				}
 
-				const payload = { embeds: [listEmbed], components: rows };
+				const payload = { content: '', embeds: [listEmbed], components: rows };
 				await editTrackedOrFallback({
 					channel: interaction.channel,
 					serverId: guild.id,
