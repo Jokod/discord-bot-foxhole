@@ -171,6 +171,127 @@ describe('Stats events', () => {
 			expect(leave).toHaveBeenCalledTimes(1);
 			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
 		});
+
+		it('should fallback joined_at and member_count when data is missing', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+
+			const guildCreatedAt = new Date('2022-01-01');
+
+			const guildCreate = require('../../events/guildCreate.js');
+			const guild = {
+				id: 'new-guild-789',
+				name: 'Fallback Server',
+				createdAt: guildCreatedAt,
+				memberCount: undefined,
+				members: {
+					me: null,
+				},
+			};
+
+			await guildCreate.execute(guild);
+
+			expect(mockStatsFindOneAndUpdate).toHaveBeenCalledTimes(1);
+			const callArgs = mockStatsFindOneAndUpdate.mock.calls[0];
+			const set = callArgs[1].$set;
+			expect(set.guild_id).toBe('new-guild-789');
+			expect(set.name).toBe('Fallback Server');
+			expect(set.created_at).toBe(guildCreatedAt);
+			expect(set.joined_at).toBeInstanceOf(Date);
+			expect(set.member_count).toBe(0);
+		});
+
+		it('should log error if leaving blocked guild fails', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+
+			const guildCreate = require('../../events/guildCreate.js');
+			const leaveError = new Error('leave failed');
+			const leave = jest.fn().mockRejectedValueOnce(leaveError);
+			const guild = {
+				id: 'blocked-guild-error',
+				name: 'Blocked Error Server',
+				createdAt: new Date(),
+				memberCount: 5,
+				members: { me: { joinedAt: new Date() } },
+				leave,
+			};
+
+			const prev = process.env.BLOCKED_GUILD_IDS;
+			process.env.BLOCKED_GUILD_IDS = 'blocked-guild-error';
+			const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			await guildCreate.execute(guild);
+
+			process.env.BLOCKED_GUILD_IDS = prev;
+			consoleErrorSpy.mockRestore();
+
+			expect(leave).toHaveBeenCalledTimes(1);
+			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('guildDelete', () => {
+		beforeEach(() => {
+			jest.clearAllMocks();
+			mockStatsUpdateOne.mockResolvedValue({});
+		});
+
+		it('should set left_at when bot is removed from a guild', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			Stats.updateOne = mockStatsUpdateOne;
+
+			const guildDelete = require('../../events/guildDelete.js');
+			const guild = {
+				id: 'removed-guild-999',
+				name: 'Removed Server',
+			};
+
+			await guildDelete.execute(guild);
+
+			expect(mockStatsUpdateOne).toHaveBeenCalledTimes(1);
+			expect(mockStatsUpdateOne).toHaveBeenCalledWith(
+				{ guild_id: 'removed-guild-999' },
+				{
+					$set: {
+						left_at: expect.any(Date),
+					},
+				},
+			);
+		});
+
+		it('should log error when updating left_at fails', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			const updateError = new Error('update failed');
+			const failingUpdate = jest.fn().mockRejectedValueOnce(updateError);
+			Stats.updateOne = failingUpdate;
+
+			const guildDelete = require('../../events/guildDelete.js');
+			const guild = {
+				id: 'removed-guild-error',
+				name: 'Removed Error Server',
+			};
+
+			const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			await guildDelete.execute(guild);
+
+			consoleErrorSpy.mockRestore();
+
+			expect(failingUpdate).toHaveBeenCalledTimes(1);
+			expect(failingUpdate).toHaveBeenCalledWith(
+				{ guild_id: 'removed-guild-error' },
+				{
+					$set: {
+						left_at: expect.any(Date),
+					},
+				},
+			);
+		});
 	});
 
 	describe('onReady – backfill stats', () => {
