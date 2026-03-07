@@ -225,6 +225,10 @@ module.exports = {
 	SUBCATEGORY_HEMAT: 'Тяжелые взрывчатые материалы',
 	SUBCATEGORY_RMAT: 'Очищенные материалы',
 	SUBCATEGORY_GRAVEL: 'Гравий',
+	SUBCATEGORY_SALVAGE: 'Утиль',
+	SUBCATEGORY_COMPONENTS: 'Компоненты',
+	SUBCATEGORY_SULFUR: 'Сера',
+	SUBCATEGORY_COAL: 'Уголь',
 
 	// Подкатегории Транспорт
 	SUBCATEGORY_VEHICLES: 'Транспортные средства',

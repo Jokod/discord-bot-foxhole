@@ -217,6 +217,10 @@ module.exports = {
 	SUBCATEGORY_HEMAT: 'Heavy Explosive Materials',
 	SUBCATEGORY_RMAT: 'Refined Materials',
 	SUBCATEGORY_GRAVEL: 'Gravel',
+	SUBCATEGORY_SALVAGE: 'Salvage',
+	SUBCATEGORY_COMPONENTS: 'Components',
+	SUBCATEGORY_SULFUR: 'Sulfur',
+	SUBCATEGORY_COAL: 'Coal',
 
 	// Vehicles subcategories
 	SUBCATEGORY_VEHICLES: 'Vehicles',
