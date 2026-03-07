@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Salvage",
+    "itemDesc": "Salvage (also known as Scrap) is one of the primary raw resources in Foxhole. It can be recycled into other resources at a Refinery: Basic Materials, Diesel, Explosive Powder, or used at Materials Factories for Construction Materials, Metal Beams, Assembly Materials, and more.",
+    "itemCategory": "resources"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Sulfur",
+    "itemDesc": "Sulfur is a type of rare raw resource that can be refined into Heavy Explosive Powder at a Refinery. It is used in the production of explosives, Assembly Materials III, Steel Construction Materials, Enriched Oil, and can also be obtained as a byproduct from Coal Refineries.",
+    "itemCategory": "resources"
+  }
+]
