@@ -217,6 +217,10 @@ module.exports = {
 	SUBCATEGORY_HEMAT: 'HEmat',
 	SUBCATEGORY_RMAT: 'Rmat',
 	SUBCATEGORY_GRAVEL: 'Gravel',
+	SUBCATEGORY_SALVAGE: 'Salvage',
+	SUBCATEGORY_COMPONENTS: 'Compos',
+	SUBCATEGORY_SULFUR: 'Soufre',
+	SUBCATEGORY_COAL: 'Charbon',
 
 	// Sous-catégories Véhicules
 	SUBCATEGORY_VEHICLES: 'Véhicules',

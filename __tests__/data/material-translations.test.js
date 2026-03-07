@@ -93,10 +93,14 @@ describe('Material Categories Translations', () => {
 	describe('Resources Subcategories Translations', () => {
 		const subcategories = [
 			'SUBCATEGORY_BMAT',
+			'SUBCATEGORY_COAL',
+			'SUBCATEGORY_COMPONENTS',
 			'SUBCATEGORY_EMAT',
+			'SUBCATEGORY_GRAVEL',
 			'SUBCATEGORY_HEMAT',
 			'SUBCATEGORY_RMAT',
-			'SUBCATEGORY_GRAVEL',
+			'SUBCATEGORY_SALVAGE',
+			'SUBCATEGORY_SULFUR',
 		];
 
 		for (const subcategoryKey of subcategories) {
@@ -218,6 +222,10 @@ describe('Material Categories Translations', () => {
 			expect(fr.SUBCATEGORY_HEMAT).toBe('HEmat');
 			expect(fr.SUBCATEGORY_RMAT).toBe('Rmat');
 			expect(fr.SUBCATEGORY_GRAVEL).toBe('Gravel');
+			expect(fr.SUBCATEGORY_SALVAGE).toBe('Salvage');
+			expect(fr.SUBCATEGORY_COMPONENTS).toBe('Compos');
+			expect(fr.SUBCATEGORY_SULFUR).toBe('Soufre');
+			expect(fr.SUBCATEGORY_COAL).toBe('Charbon');
 		});
 	});
 

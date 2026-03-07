@@ -47,19 +47,20 @@ async function checkMaterialPermissions(interaction, translations) {
  * Crée des boutons à partir d'une liste de clés
  */
 function createButtons(items, customIdPrefix, translationKeyPrefix, translations, style = ButtonStyle.Primary) {
-	// Trier par libellé traduit pour un affichage utilisateur cohérent
+	// Trier par libellé traduit pour un affichage utilisateur cohérent (fallback sur la clé si traduction absente)
 	const sortedItems = [...items].sort((a, b) => {
-		const labelA = translations.translate(`${translationKeyPrefix}_${a.toUpperCase()}`);
-		const labelB = translations.translate(`${translationKeyPrefix}_${b.toUpperCase()}`);
-		return labelA.localeCompare(labelB);
+		const labelA = translations.translate(`${translationKeyPrefix}_${a.toUpperCase()}`) ?? a;
+		const labelB = translations.translate(`${translationKeyPrefix}_${b.toUpperCase()}`) ?? b;
+		return String(labelA).localeCompare(String(labelB));
 	});
 
 	return sortedItems.map(key => {
 		const translationKey = `${translationKeyPrefix}_${key.toUpperCase()}`;
+		const label = translations.translate(translationKey) ?? key;
 
 		return new ButtonBuilder()
 			.setCustomId(`${customIdPrefix}-${key}`)
-			.setLabel(translations.translate(translationKey))
+			.setLabel(String(label))
 			.setStyle(style);
 	});
 }
@@ -111,9 +112,9 @@ async function handleCategoriesView(interaction, translations) {
 	// Tri par libellé traduit (dérivé dynamiquement des clés de catégorie)
 	const categoryButtons = Object.keys(categories)
 		.sort((a, b) => {
-			const labelA = translations.translate(`CATEGORY_${a.toUpperCase()}`);
-			const labelB = translations.translate(`CATEGORY_${b.toUpperCase()}`);
-			return labelA.localeCompare(labelB);
+			const labelA = translations.translate(`CATEGORY_${a.toUpperCase()}`) ?? a;
+			const labelB = translations.translate(`CATEGORY_${b.toUpperCase()}`) ?? b;
+			return String(labelA).localeCompare(String(labelB));
 		})
 		.map(categoryKey => {
 			const category = categories[categoryKey];
@@ -207,7 +208,7 @@ async function handleSubcategoryView(interaction, categoryKey, subcategoryKey, t
 	const allMaterials = getMaterialsBySubcategory(categoryKey, subcategoryKey);
 	const materials = allMaterials
 		.filter(mat => mat.faction.includes(server.camp))
-		.sort((a, b) => a.itemName.localeCompare(b.itemName));
+		.sort((a, b) => String(a.itemName ?? '').localeCompare(String(b.itemName ?? '')));
 
 	// Bouton retour vers la catégorie
 	const buttonBack = new ButtonBuilder()
