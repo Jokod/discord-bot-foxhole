@@ -33,8 +33,8 @@ describe('Stockpile reset button', () => {
 			client: { traductions: new Map() },
 			guild: { id: 'guild-123' },
 			customId: 'stockpile_reset-1',
-			reply: jest.fn().mockResolvedValue(undefined),
-			update: jest.fn().mockResolvedValue(undefined),
+			deferUpdate: jest.fn().mockResolvedValue(undefined),
+			editReply: jest.fn().mockResolvedValue(undefined),
 			followUp: jest.fn().mockResolvedValue(undefined),
 		};
 	});
@@ -48,18 +48,18 @@ describe('Stockpile reset button', () => {
 		interaction.customId = 'stockpile_reset-';
 		await resetHandler.execute(interaction);
 		expect(mockStockpileFindOne).not.toHaveBeenCalled();
-		expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_INVALID_ID', flags: 64 }));
+		expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_INVALID_ID', flags: 64 }));
 
 		interaction.customId = 'stockpile_reset-abc';
 		await resetHandler.execute(interaction);
-		expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_INVALID_ID', flags: 64 }));
+		expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_INVALID_ID', flags: 64 }));
 	});
 
 	it('répond STOCKPILE_NOT_EXIST si le stock n\'existe pas', async () => {
 		mockStockpileFindOne.mockResolvedValue(null);
 		await resetHandler.execute(interaction);
 		expect(mockStockpileFindOne).toHaveBeenCalledWith({ server_id: 'guild-123', id: '1' });
-		expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_NOT_EXIST', flags: 64 }));
+		expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_NOT_EXIST', flags: 64 }));
 	});
 
 	it('répond STOCKPILE_ALREADY_DELETED si le stock est marqué supprimé', async () => {
@@ -67,7 +67,7 @@ describe('Stockpile reset button', () => {
 		mockStockpileFindOne.mockResolvedValue(doc);
 		await resetHandler.execute(interaction);
 		expect(doc.save).not.toHaveBeenCalled();
-		expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_ALREADY_DELETED', flags: 64 }));
+		expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_ALREADY_DELETED', flags: 64 }));
 	});
 
 	it('reset le stock, met à jour la liste et envoie STOCKPILE_RESET_SUCCESS', async () => {
@@ -95,7 +95,7 @@ describe('Stockpile reset button', () => {
 		expect(doc.save).toHaveBeenCalled();
 		expect(mockBuildStockpileListEmbed).toHaveBeenCalledWith(Stockpile, 'guild-123', expect.anything());
 		expect(mockBuildStockpileListComponents).toHaveBeenCalledWith(Stockpile, 'guild-123');
-		expect(interaction.update).toHaveBeenCalledWith(expect.objectContaining({ embeds: [expect.anything()] }));
+		expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({ embeds: [expect.anything()] }));
 		expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_RESET_SUCCESS#1', flags: 64 }));
 	});
 
@@ -111,7 +111,7 @@ describe('Stockpile reset button', () => {
 
 		await resetHandler.execute(interaction);
 
-		expect(interaction.update).toHaveBeenCalledWith({
+		expect(interaction.editReply).toHaveBeenCalledWith({
 			content: 'STOCKPILE_LIST_EMPTY',
 			embeds: [],
 			components: [],
