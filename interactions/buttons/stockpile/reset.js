@@ -13,8 +13,10 @@ module.exports = {
 		const parts = customId.split('-');
 		const stockId = parts[1];
 
+		await interaction.deferUpdate();
+
 		if (!stockId || !/^\d+$/.test(stockId)) {
-			return interaction.reply({
+			return interaction.followUp({
 				content: translations.translate('STOCKPILE_INVALID_ID'),
 				flags: 64,
 			});
@@ -23,13 +25,13 @@ module.exports = {
 		const stockToReset = await Stockpile.findOne({ server_id: guild.id, id: stockId });
 
 		if (!stockToReset || stockToReset.server_id !== guild.id) {
-			return interaction.reply({
+			return interaction.followUp({
 				content: translations.translate('STOCKPILE_NOT_EXIST'),
 				flags: 64,
 			});
 		}
 		if (stockToReset.deleted) {
-			return interaction.reply({
+			return interaction.followUp({
 				content: translations.translate('STOCKPILE_ALREADY_DELETED'),
 				flags: 64,
 			});
@@ -44,7 +46,7 @@ module.exports = {
 		const { embed, isEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
 
 		if (isEmpty) {
-			await interaction.update({
+			await interaction.editReply({
 				content: translations.translate('STOCKPILE_LIST_EMPTY'),
 				embeds: [],
 				components: [],
@@ -52,7 +54,7 @@ module.exports = {
 		}
 		else {
 			const components = await buildStockpileListComponents(Stockpile, guild.id);
-			await interaction.update({
+			await interaction.editReply({
 				content: '',
 				embeds: [embed],
 				components,
