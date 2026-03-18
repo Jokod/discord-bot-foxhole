@@ -157,13 +157,14 @@ async function handleCategoryView(interaction, categoryKey, translations) {
 		});
 	}
 
-	// Cas spécial pour les véhicules (afficher directement la liste)
-	if (categoryKey === 'vehicles' && Object.keys(category.subcategories).length === 1) {
-		return await handleSubcategoryView(interaction, categoryKey, 'vehicles', translations);
+	// Cas spécial générique : si la catégorie n'a qu'une seule sous-catégorie,
+	// on affiche directement la liste des matériels de cette sous-catégorie.
+	const subcategoryKeys = Object.keys(category.subcategories || {});
+	if (subcategoryKeys.length === 1) {
+		return await handleSubcategoryView(interaction, categoryKey, subcategoryKeys[0], translations);
 	}
 
 	// Créer les boutons de sous-catégories (triées alpha)
-	const subcategoryKeys = Object.keys(category.subcategories);
 	const subcategoryButtons = createButtons(
 		subcategoryKeys,
 		`${NAVIGATION.SUBCATEGORY_PREFIX}-${categoryKey}`,
@@ -210,9 +211,19 @@ async function handleSubcategoryView(interaction, categoryKey, subcategoryKey, t
 		.filter(mat => mat.faction.includes(server.camp))
 		.sort((a, b) => String(a.itemName ?? '').localeCompare(String(b.itemName ?? '')));
 
-	// Bouton retour vers la catégorie
+	// Bouton retour
+	// Cas particulier générique : si la catégorie n'a qu'une seule sous-catégorie,
+	// on revient à la liste des catégories principales (comportement logique pour un "saut" direct).
+	const isSingleSubcategoryCategory =
+		categories[categoryKey] &&
+		Object.keys(categories[categoryKey].subcategories || {}).length === 1;
+
+	const backCustomId = isSingleSubcategoryCategory
+		? NAVIGATION.BACK_TO_CATEGORIES
+		: `${NAVIGATION.CATEGORY_PREFIX}-${categoryKey}`;
+
 	const buttonBack = new ButtonBuilder()
-		.setCustomId(`${NAVIGATION.CATEGORY_PREFIX}-${categoryKey}`)
+		.setCustomId(backCustomId)
 		.setLabel(translations.translate('BACK'))
 		.setStyle(ButtonStyle.Secondary);
 
