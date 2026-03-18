@@ -595,5 +595,13 @@
     "itemName": "UV-5c \"Odyssey\"",
     "itemDesc": "This simple, modified Utility Vehicle is fitted with a reinforced hatch to provide one crew member with increased visibility for intense recon operations.",
     "itemCategory": "vehicles"
+  },
+  {
+    "faction": [
+      "colonial"
+    ],
+    "itemName": "DAE 5b “Zeal”",
+    "itemDesc": "A sturdy, stationary cannon for bombarding high-flying enemy aircraft with explosive shrapnel shells. The DAE 5b anti-aircraft emplacement has become infamous for walls of black smoke its payload leaves behind.",
+    "itemCategory": "vehicles"
   }
 ]
