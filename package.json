@@ -11,7 +11,13 @@
 		"fix": "eslint --fix .",
 		"test": "jest",
 		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage"
+		"test:coverage": "jest --coverage",
+		"wiki:sync-materials": "node scripts/sync-wiki-materials.js",
+		"wiki:sync-materials:dry": "node scripts/sync-wiki-materials.js --dry-run",
+		"wiki:sync-materials:add-missing": "node scripts/sync-wiki-materials.js --add-missing-only",
+		"wiki:sync-materials:add-missing:dry": "node scripts/sync-wiki-materials.js --add-missing-only --dry-run",
+		"wiki:sync-materials:add-missing:and-sync": "node scripts/sync-wiki-materials.js --add-missing",
+		"wiki:sync-materials:add-missing:and-sync:dry": "node scripts/sync-wiki-materials.js --add-missing --dry-run"
 	},
 	"dependencies": {
 		"discord.js": "^14.25.1",

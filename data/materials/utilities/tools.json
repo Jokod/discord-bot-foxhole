@@ -1,38 +1,38 @@
 [
-  {
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Shovel",
-  "itemDesc": "A basic tool used to dig trenches, foxholes, and other field fortifications.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Sledge Hammer",
-  "itemDesc": "A construction tool used to build, upgrade, and repair structures and emplacements.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Water Bucket",
-  "itemDesc": "A bucket filled with water used to extinguish fires and reduce flame damage.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Wrench",
-  "itemDesc": "A tool used to dismantle structures, vehicles, and emplacements when permitted.",
-  "itemCategory": "utilities"
-}
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Shovel",
+		"itemDesc": "A tool for digging Trenches and other entrenched structures.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Sledge Hammer",
+		"itemDesc": "A tool used to salvage components from remains of old vehicles and equipment.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Water Bucket",
+		"itemDesc": "The Water Bucket is a utility item used to move water from one location to another: to put out fires and remove water from flooded Large Ships or Puddles.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Wrench",
+		"itemDesc": "A multipurpose tool. Can be used to dismantle mines/barbed wire and unlock vehicles.",
+		"itemCategory": "utilities"
+	}
 ]

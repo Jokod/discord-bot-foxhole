@@ -1,20 +1,20 @@
 [
-  {
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Listening Kit",
-  "itemDesc": "A deployable intelligence device used to detect nearby enemy activity and movements.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Tripod",
-  "itemDesc": "A support mount used to deploy heavy infantry weapons such as machine guns and launchers.",
-  "itemCategory": "utilities"
-}
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Listening Kit",
+		"itemDesc": "A device used to intercept enemy radio broadcasts transmitted from nearby sources.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Tripod",
+		"itemDesc": "A mount point for deployable infantry weapons and equipment.",
+		"itemCategory": "utilities"
+	}
 ]

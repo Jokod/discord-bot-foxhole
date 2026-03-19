@@ -1,92 +1,92 @@
 [
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Binoculars",
-    "itemDesc": "An optical tool used to observe distant areas and spot enemy positions.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Gas Mask",
-    "itemDesc": "Protective equipment that prevents inhalation of toxic gas when fitted with a filter.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Gas Mask Filter",
-    "itemDesc": "A replaceable filter used with a gas mask to provide clean air in toxic environments.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Liaison Transmitter",
-    "itemDesc": "A portable communication device used to establish battlefield intelligence links.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Radio",
-    "itemDesc": "A handheld radio used to receive intelligence updates and battlefield information.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Radio Backpack",
-    "itemDesc": "A backpack-mounted radio that extends intelligence range and provides continuous battlefield updates.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Paratrooper’s Ruck",
-    "itemDesc": "A lightweight rucksack designed to increase carrying capacity while maintaining mobility for frontline infantry.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Sandbag",
-    "itemDesc": "Used to construct Sandbag defenses.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Barbed Wire",
-    "itemDesc": "Used to construct Barbed Wire defenses.",
-    "itemCategory": "utilities"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Metal Beam",
-    "itemDesc": "Used to construct Metal Beam defenses.",
-    "itemCategory": "utilities"
-  }
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Barbed Wire",
+		"itemDesc": "Used to construct Barbed Wire defenses.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Binoculars",
+		"itemDesc": "The Binoculars (also known as \"Binos\") is a utility item used to increase the player's viewing distance.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Gas Mask",
+		"itemDesc": "Protects against poison gas.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Gas Mask Filter",
+		"itemDesc": "When attached to a Gas Mask, this filter provides fresh air to the wearer.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Liaison Transmitter",
+		"itemDesc": "Allows receiving map intelligence reports on detected airborne targets.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Metal Beam",
+		"itemDesc": "Used to construct Metal Beam defenses.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Paratrooper’s Ruck",
+		"itemDesc": "A paratrooper's basic kit. Includes minimal survival gear to improve weight distribution and account for parachutes.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Radio",
+		"itemDesc": "Allows receiving map intelligence reports on detected ground and naval targets.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Radio Backpack",
+		"itemDesc": "Automatically gathers map intel periodically when equipped.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Sandbag",
+		"itemDesc": "The Sandbag is a Large Material used to build sandbags structures. Due to being a large item, players can only carry one at a time.",
+		"itemCategory": "utilities"
+	}
 ]

@@ -1,42 +1,90 @@
 [
-{
-  "faction": [
-    "colonial"
-  ],
-  "itemName": "KRN886-127 Gast",
-  "itemDesc": "A heavy machine gun optimized for defensive positions and prolonged suppression.",
-  "itemCategory": "heavy_arms"
-},
-{
-  "faction": [
-    "warden"
-  ],
-  "itemName": "Malone Ratcatcher",
-  "itemDesc": "A heavy machine gun with a high rate of fire, effective for infantry suppression and area control.",
-  "itemCategory": "heavy_arms"
-},
-{
-  "faction": [
-    "colonial"
-  ],
-  "itemName": "Molten Wind v.II Flame Torch",
-  "itemDesc": "A portable flamethrower used for close-range area denial and destruction of enemy structures.",
-  "itemCategory": "heavy_arms"
-},
-{
-  "faction": [
-    "colonial"
-  ],
-  "itemName": "Daucus isg.III",
-  "itemDesc": "An infantry support gun mounted on a tripod, effective against infantry, vehicles, and light fortifications.",
-  "itemCategory": "heavy_arms"
-},
-{
-  "faction": [
-    "warden"
-  ],
-  "itemName": "Willow's Bane Model 845",
-  "itemDesc": "A heavy anti-tank launcher capable of firing powerful rockets against armored vehicles.",
-  "itemCategory": "heavy_arms"
-}
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "“Dawn” Ve.II",
+		"itemDesc": "A three-round burst anti-tank rifle with a high-capacity magazine. Built from a modified “Dusk” assault rifle, the receiver has been altered to support top-loaded drum magazines for better stability and efficient loading to account for its more cumbersome design and higher calibre rounds.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "“Molten Wind” v.II Flame Torch",
+		"itemDesc": "Using a deadly mix of flammable gasses and chemical compounds, the “Molten Wind” is the Colonial Legion’s most devastating infantry weapon. Employing ancient techniques, Mesean chemists developed a technique to stabilize and weaponize liquid flames, which quickly transform any flammable structure into a raging inferno.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "“Quickhatch” Rt.I",
+		"itemDesc": "A deadly, long-range sniper rifle with exceptional stopping power. The “Quickhatch” is a gluttonous firearm that hungers for enemy armour and flesh alike.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "“Typhon” ra.XII",
+		"itemDesc": "This mounted anti-tank rifle boasts improved accuracy over its free-standing counterparts. The Typhon was specifically designed with shock absorption in mind, allowing for faster, more consistent firing patterns.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "228 Satterley Heavy Storm Rifle",
+		"itemDesc": "While the Satterley is designed to be operated by a single infantryman, it remains a cumbersome rifle due to its heavy kickback and burst fire configuration. This heavy burst rifle is best suited for small squads to blindside enemy armour, stripping steel with ease, but its cumbersome setup makes it less than ideal for infantry skirmishes.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Booker Greyhound Model 910",
+		"itemDesc": "A variant of the Booker Storm Rifle, the Greyhound boasts a larger overall receiver and barrel to accommodate the increased stopping power of anti-tank rounds. Its longer, bulkier barrel allows for increased range. As a heavier automatic rifle, the Greyhound remains an excellent tool for those who’d prefer to shoot before asking questions.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Daucus isg.III",
+		"itemDesc": "This heavy infantry cannon requires a tripod for stability. The Daucus is designed to give infantry a foothold against enemy vehicles and light fortifications or established fortified garrisons.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "KRN886-127 Gast",
+		"itemDesc": "The Gast is a deadly but cumbersome Kraunian heavy machine gun. It is best suited to holding and defending established fortifications or garrisoned structures against encroaching infantry.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Malone Ratcatcher",
+		"itemDesc": "Early iterations of this machinegun were built to be emplaced in bunkers and on the decks of lightly armed warships, the Ratcatcher is Harvey Malone’s first freely mountable infantry weapon designed for field use. Just like its predecessors, this heavy weapon suppresses enemy soldiers with unmatched efficiency.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Neville Anti-Tank Rifle",
+		"itemDesc": "The Neville is unmatched in its versatility as a portable, magazine-based anti-armour firearm.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Willow's Bane Model 845",
+		"itemDesc": "Named for the unfortunate trees harmed in the development of this highly destructive weapon, the Willow’s Bane utilizes flammable chemicals and fires them into a concentrated stream through an open flame. This liquid flame ignites Colonial emplacements and garrisons to route infantry while reducing their defenses to a pile of ash.",
+		"itemCategory": "heavy_arms"
+	}
 ]
