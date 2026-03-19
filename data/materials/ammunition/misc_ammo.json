@@ -34,5 +34,13 @@
   "itemName": "Shatter Missile",
   "itemDesc": "A high-impact missile designed to shatter fortifications and heavily damage armored targets through explosive force.",
   "itemCategory": "heavy_arms"
+},
+{
+  "faction": [
+    "colonial"
+  ],
+  "itemName": "Moray Torpedo",
+  "itemDesc": "Fired from submersible vessels, the Moray Torpedo is a self-propelled underwater missile that functions well at a variety of ranges and depths. It’s designed to bore into the hulls of large ships, leaving them vulnerable to leaks.",
+  "itemCategory": "heavy_arms"
 }
 ]
