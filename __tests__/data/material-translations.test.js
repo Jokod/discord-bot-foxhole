@@ -95,6 +95,7 @@ describe('Material Categories Translations', () => {
 			'SUBCATEGORY_BMAT',
 			'SUBCATEGORY_COAL',
 			'SUBCATEGORY_COMPONENTS',
+			'SUBCATEGORY_FUEL',
 			'SUBCATEGORY_EMAT',
 			'SUBCATEGORY_GRAVEL',
 			'SUBCATEGORY_HEMAT',
@@ -226,6 +227,7 @@ describe('Material Categories Translations', () => {
 			expect(fr.SUBCATEGORY_COMPONENTS).toBe('Compos');
 			expect(fr.SUBCATEGORY_SULFUR).toBe('Soufre');
 			expect(fr.SUBCATEGORY_COAL).toBe('Charbon');
+			expect(fr.SUBCATEGORY_FUEL).toBe('Carburants');
 		});
 	});
 

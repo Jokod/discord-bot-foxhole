@@ -1,0 +1,11 @@
+[
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Diesel",
+    "itemDesc": "Common fuel used to power all vehicles and resource mines.",
+    "itemCategory": "resources"
+  }
+]

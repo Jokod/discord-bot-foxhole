@@ -221,6 +221,7 @@ module.exports = {
 	SUBCATEGORY_COMPONENTS: 'Compos',
 	SUBCATEGORY_SULFUR: 'Soufre',
 	SUBCATEGORY_COAL: 'Charbon',
+	SUBCATEGORY_FUEL: 'Carburants',
 
 	// Sous-catégories Véhicules
 	SUBCATEGORY_VEHICLES: 'Véhicules',

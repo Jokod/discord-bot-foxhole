@@ -61,5 +61,32 @@
     "itemName": "Paratrooper’s Ruck",
     "itemDesc": "A lightweight rucksack designed to increase carrying capacity while maintaining mobility for frontline infantry.",
     "itemCategory": "uniforms"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Sandbag",
+    "itemDesc": "Used to construct Sandbag defenses.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Barbed Wire",
+    "itemDesc": "Used to construct Barbed Wire defenses.",
+    "itemCategory": "utilities"
+  },
+  {
+    "faction": [
+      "colonial",
+      "warden"
+    ],
+    "itemName": "Metal Beam",
+    "itemDesc": "Used to construct Metal Beam defenses.",
+    "itemCategory": "utilities"
   }
 ]
