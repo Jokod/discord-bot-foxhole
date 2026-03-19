@@ -229,6 +229,7 @@ module.exports = {
 	SUBCATEGORY_COMPONENTS: 'Компоненты',
 	SUBCATEGORY_SULFUR: 'Сера',
 	SUBCATEGORY_COAL: 'Уголь',
+	SUBCATEGORY_FUEL: 'Топливо',
 
 	// Подкатегории Транспорт
 	SUBCATEGORY_VEHICLES: 'Транспортные средства',

@@ -221,6 +221,7 @@ module.exports = {
 	SUBCATEGORY_COMPONENTS: 'Components',
 	SUBCATEGORY_SULFUR: 'Sulfur',
 	SUBCATEGORY_COAL: 'Coal',
+	SUBCATEGORY_FUEL: 'Fuel',
 
 	// Vehicles subcategories
 	SUBCATEGORY_VEHICLES: 'Vehicles',

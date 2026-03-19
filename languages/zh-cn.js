@@ -229,6 +229,7 @@ module.exports = {
 	SUBCATEGORY_COMPONENTS: '零件',
 	SUBCATEGORY_SULFUR: '硫磺',
 	SUBCATEGORY_COAL: '煤炭',
+	SUBCATEGORY_FUEL: '燃料',
 
 	// 车辆子类别
 	SUBCATEGORY_VEHICLES: '车辆',
