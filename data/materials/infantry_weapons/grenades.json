@@ -1,71 +1,71 @@
 [
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "A3 Harpa Fragmentation Grenade",
-    "itemDesc": "A timed fragmentation grenade designed for anti-infantry use, dispersing lethal shrapnel in a wide radius.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial"
-    ],
-    "itemName": "Bomastone Grenade",
-    "itemDesc": "A stick-style fragmentation grenade designed to be thrown over medium distances. Always causes bleeding to infantry targets.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Green Ash Grenade",
-    "itemDesc": "A chemical grenade that releases toxic gas, dealing damage over time to unprotected infantry within its area of effect.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Smoke Grenade",
-    "itemDesc": "A non-lethal grenade that produces a thick smoke cloud, used to obscure vision and provide cover for troop movements.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "warden"
-    ],
-    "itemName": "BF5 White Ash Flask Grenade",
-    "itemDesc": "An incendiary anti-armor grenade designed to melt vehicle armor and disable subsystems on impact.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Anti-Tank Sticky Bomb",
-    "itemDesc": "An adhesive anti-tank grenade designed to stick to armored vehicles and penetrate heavy armor upon detonation.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Tremola Grenade",
-    "itemDesc": "A rifle-launched grenade used for indirect fire against infantry and light structures.",
-    "itemCategory": "heavy_arms"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Mammon 91-b",
-    "itemDesc": "A heavy improvised explosive grenade designed to deal significant damage to structures and vehicles at close range.",
-    "itemCategory": "heavy_arms"
-  }
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "A3 Harpa Fragmentation Grenade",
+		"itemDesc": "This anti-personnel fragmentation grenade is designed with pull-pin mechanics and a timed fuse for user safety. Serrations in the casing allow for a better grip and increased fragmentation effectiveness.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Anti-Tank Sticky Bomb",
+		"itemDesc": "An adherable grenade designed to penetrate heavy tank armor. The Sticky Bomb can only be thrown a short distance and is ineffective against structures.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "BF5 White Ash Flask Grenade",
+		"itemDesc": "An explosive flask used for melting enemy armour. This carefully designed liquid bomb explodes into a dazzling flash of molten debris upon impact.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Bomastone Grenade",
+		"itemDesc": "The Bomastone is a ‘stick’ style fragmentation grenade with a handle designed to aid in lobbing over moderate distances.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Green Ash Grenade",
+		"itemDesc": "Green Ash is an asphyxiating toxin. Inhaling it without protection will result in a quick death. Be sure to wear a gas mask with fresh filters when handling Green Ash.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Mammon 91-b",
+		"itemDesc": "This densely packed, high-explosive grenade is designed to damage structures and vehicles.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Smoke Grenade",
+		"itemDesc": "A standard smoke grenade designed for concealing allied movement or screening the enemy’s vision.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Tremola Grenade",
+		"itemDesc": "An explosive Estrellan grenade specially designed for use with handheld grenade launchers. This modern grenade boasts a larger payload and is deadly to lingering infantry and structural supports.",
+		"itemCategory": "heavy_arms"
+	}
 ]

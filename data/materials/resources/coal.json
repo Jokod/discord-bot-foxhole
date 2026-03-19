@@ -1,11 +1,11 @@
 [
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Coal",
-    "itemDesc": "Coal is a raw resource that can be refined into materials needed for production and power generation at Facilities. It is used as fuel by Locomotives, refined into Coke at Coal Refineries, converted to Gravel at a Refinery or Concrete Mixer, and powers Diesel Power Plants and Power Stations.",
-    "itemCategory": "resources"
-  }
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Coal",
+		"itemDesc": "Chunks of raw Coal that can be refined into materials needed for production and power generation at Facilities.",
+		"itemCategory": "resources"
+	}
 ]

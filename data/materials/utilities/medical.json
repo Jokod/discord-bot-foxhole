@@ -1,47 +1,65 @@
 [
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Bandages",
-    "itemDesc": "Used to stem bleeding.",
-    "itemCategory": "medical"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Blood Plasma",
-    "itemDesc": "A blood component used to treat wounded soldiers on the battlefield.",
-    "itemCategory": "medical"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "First Aid Kit",
-    "itemDesc": "Used by medics to heal other soldiers.",
-    "itemCategory": "medical"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Garrison Supplies",
-    "itemDesc": "Supplies for maintaining structures. Store at bases to prevent decay on surrounding structures.",
-    "itemCategory": "supplies"
-  },
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Trauma Kit",
-    "itemDesc": "Used by medics to revive wounded soldiers.",
-    "itemCategory": "medical"
-  }
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Bandages",
+		"itemDesc": "Used to stem bleeding.",
+		"itemCategory": "medical"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Blood Plasma",
+		"itemDesc": "A blood component used to treat wounded soldiers on the battlefield.",
+		"itemCategory": "medical"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Critically Wounded Soldier",
+		"itemDesc": "A soldier that has been critically wounded on the battlefield. Deliver this soldier to a Hospital to recover Soldier Supplies.",
+		"itemCategory": "medical"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "First Aid Kit",
+		"itemDesc": "Used by medics to heal other soldiers.",
+		"itemCategory": "medical"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Garrison Supplies",
+		"itemDesc": "Supplies for maintaining structures. Store at Bases or Maintenance Tunnels to prevent decay on surrounding structures.",
+		"itemCategory": "supplies"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Trauma Kit",
+		"itemDesc": "Used by medics to revive wounded soldiers.",
+		"itemCategory": "medical"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Wounded Player",
+		"itemDesc": "A wounded player, [PlayerNameHere]. Drop this soldier off at a safe location for medical aid.",
+		"itemCategory": "medical"
+	}
 ]

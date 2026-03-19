@@ -1,27 +1,27 @@
 [
-  {
-  "faction": [
-    "colonial",
-    "warden"
-  ],
-  "itemName": "Buckhorn CCQ-18",
-  "itemDesc": "A short combat blade mounted to a rifle, designed for close-quarters melee engagements.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "colonial"
-  ],
-  "itemName": "Eleos Infantry Dagger",
-  "itemDesc": "A lightweight dagger issued to Colonial infantry for silent close-range combat.",
-  "itemCategory": "utilities"
-},
-{
-  "faction": [
-    "warden"
-  ],
-  "itemName": "Falias Raiding Club",
-  "itemDesc": "A heavy blunt melee weapon used by Warden raiders for brutal close-quarters fighting.",
-  "itemCategory": "utilities"
-}
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Buckhorn CCQ-18",
+		"itemDesc": "Attached to the barrel of a rifle, this short blade can spear enemies in close-quarters encounters.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Eleos Infantry Dagger",
+		"itemDesc": "Standard-issue Mesean military dagger. Its long, slender blade excels in close-quarters combat as well as a plethora of uses in everyday operations.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Falias Raiding Club",
+		"itemDesc": "A heavy mace constructed from solid wood and dotted with lead rivets. Commonly used when raiding entrenched positions in close quarters where firearms are less effective and an old-fashioned bludgeoning is better suited for the job.",
+		"itemCategory": "utilities"
+	}
 ]

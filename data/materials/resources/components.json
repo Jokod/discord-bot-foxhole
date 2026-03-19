@@ -1,11 +1,11 @@
 [
-  {
-    "faction": [
-      "colonial",
-      "warden"
-    ],
-    "itemName": "Components",
-    "itemDesc": "Components (also known as Comps) are a type of rare raw resource that can be salvaged into Refined Materials at a Refinery. They are used in the production of Processed Construction Materials, Concrete Materials, and other higher tier materials.",
-    "itemCategory": "resources"
-  }
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Components",
+		"itemDesc": "Components that can be salvaged into Refined Materials at a Refinery",
+		"itemCategory": "resources"
+	}
 ]

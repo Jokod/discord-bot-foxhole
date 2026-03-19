@@ -9,6 +9,7 @@ The Discord Bot for Foxhole is an open-source project aimed at simplifying opera
 - [Data collected](#data-collected)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Wiki sync (materials)](#wiki-sync-materials)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -254,13 +255,48 @@ Each JSON file contains an array of materials with the following structure:
 
 ### Adding New Materials
 
-To add new materials to the bot:
+To add or refresh materials for the bot:
 
-1. Navigate to the appropriate category folder in `data/materials/`
-2. Open the relevant subcategory JSON file
-3. Add your material following the structure above
-4. Ensure materials are sorted alphabetically by `itemName`
-5. Run tests to validate: `npm test`
+1. **Do not edit `data/materials/*.json` by hand** — they are generated/maintained by the wiki sync script so descriptions and factions stay aligned with [foxhole.wiki.gg](https://foxhole.wiki.gg).
+2. Adjust routing or overrides in `scripts/lib/wiki-sync/` (`config.js`, `wiki-route.js`, etc.) if needed (see **Wiki sync** below).
+3. Run `npm run wiki:sync-materials:add-missing:dry` then `npm run wiki:sync-materials:add-missing:and-sync` (or the individual npm scripts) to import new wiki pages and refresh the whole catalog.
+4. Run `npm test` to validate.
+
+## Wiki sync (materials)
+
+Maintainers who **self-host** the bot refresh `data/materials/` from the [official Foxhole wiki](https://foxhole.wiki.gg) using `scripts/sync-wiki-materials.js`. The script talks to the **MediaWiki API** (with a dedicated User-Agent and rate-friendly batching). On each run it can also **prune** known duplicate `itemName`s and **rehome** rows to the correct JSON file (see `PRUNE_CATALOG_ITEM_NAMES` and `ITEM_REHOME_TO_REL` in `scripts/lib/wiki-sync/config.js`) so you rarely need to touch JSON manually.
+
+The sync targets **items players typically request from logistics** (weapons, ammo, vehicles, utilities, medical, etc.). It does **not** bulk-import factory-only resource chains from the wiki’s resource category.
+
+### npm scripts
+
+| Command | What it does |
+|--------|----------------|
+| `npm run wiki:sync-materials` | Updates **every** material already in JSON: `itemDesc` from wiki (in-game quote when available) and **faction** from the infobox. **Writes** files. |
+| `npm run wiki:sync-materials:dry` | Same logic, **dry run** — prints diffs, **does not** change files. |
+| `npm run wiki:sync-materials:add-missing` | **Adds** wiki pages that are still missing from the JSON lists (per configured wiki categories). Stops **after** the import (no full-catalog description pass). |
+| `npm run wiki:sync-materials:add-missing:dry` | Dry run for **add-missing** only. |
+| `npm run wiki:sync-materials:add-missing:and-sync` | **Add missing** entries, **then** run a full wiki sync on the **entire** catalog (same as `wiki:sync-materials` for all rows). |
+| `npm run wiki:sync-materials:add-missing:and-sync:dry` | Dry run for that combined pipeline. |
+
+### Suggested workflow
+
+1. See what would change: `npm run wiki:sync-materials:dry`  
+2. Apply: `npm run wiki:sync-materials`  
+3. After a game/wiki update with **new** equipment:  
+   - `npm run wiki:sync-materials:add-missing:dry` → review  
+   - `npm run wiki:sync-materials:add-missing` → import new rows  
+   - `npm run wiki:sync-materials` → refresh descriptions (and factions) for **all** materials, including the new ones  
+
+(Or use `wiki:sync-materials:add-missing:and-sync` once if you want add + full refresh in a single command.)
+
+### Behaviour notes
+
+- **`data/materials/*.json` are script output** — prefer changing `scripts/lib/wiki-sync/` (e.g. `config.js`, `wiki-route.js`) and re-running the npm commands above instead of editing JSON directly.
+- Entries whose `itemName` starts with **`Uniforme `** (French uniform labels) are **skipped** for description sync so localized copy is preserved.
+- Wiki infobox names for some RPG rounds use a Unicode slash (**`AP⧸RPG`**, **`ARC⧸RPG`**). On `--add-missing`, ASCII spellings (`AP/RPG`) are normalized to that form so you do not get duplicate catalogue rows.
+- Infantry **flamethrower fuel** (`LiquidAmmo` / `Flamethrower Ammo` in the infobox, e.g. **“Molten Wind” v.II Ammo**) is routed to **`ammunition/flamethrower_ammo.json`** (not field utilities).
+- Extra flags (e.g. `--desc-only`) are documented in the header comment of `scripts/sync-wiki-materials.js` (point d’entrée CLI).
 
 ## Testing
 
@@ -286,6 +322,7 @@ The test suite includes:
 - **Translation Tests**: Ensures all categories and subcategories are properly translated in all supported languages
 - **Data Model Tests**: Tests database schema and validation
 - **Utility Tests**: Tests helper functions and utilities
+- **Wiki sync tests** (`__tests__/scripts/wiki-sync/`): parsing infobox, routage JSON, titres wiki, client API mocké (`fetch`), maintenance prune/rehome sur répertoire temporaire — **aucun appel réseau** vers le wiki en CI
 
 For more information about testing, see [TESTING.md](TESTING.md).
 

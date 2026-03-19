@@ -7,6 +7,7 @@ module.exports = {
 		'commands/**/*.js',
 		'events/**/*.js',
 		'data/models/**/*.js',
+		'scripts/lib/wiki-sync/**/*.js',
 		'!**/node_modules/**',
 		'!**/coverage/**',
 		'!**/__tests__/**',
