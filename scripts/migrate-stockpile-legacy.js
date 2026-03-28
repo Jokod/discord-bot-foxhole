@@ -10,6 +10,7 @@
 
 require('dotenv').config();
 const mongoose = require('mongoose');
+const { STOCKPILE_RESET_DURATION_MS } = require('../utils/constants.js');
 
 const MONGODB_URL = process.env.MONGODB_URL || 'mongodb://localhost:27017';
 const MONGODB_NAME = process.env.MONGODB_NAME || 'foxhole-bot';
@@ -25,8 +26,7 @@ async function run() {
 	const collection = db.collection('stockpiles');
 
 	const now = new Date();
-	const twoDaysMs = 2 * 24 * 60 * 60 * 1000;
-	const expiresAt = new Date(now.getTime() + twoDaysMs);
+	const expiresAt = new Date(now.getTime() + STOCKPILE_RESET_DURATION_MS);
 
 	const result = await collection.updateMany(
 		{ region: { $exists: false } },

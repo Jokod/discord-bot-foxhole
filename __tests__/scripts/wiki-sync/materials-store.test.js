@@ -42,7 +42,7 @@ describe('wiki-sync / materials-store', () => {
 		let stderrSpy;
 
 		beforeEach(() => {
-			tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cmr-wiki-sync-'));
+			tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'foxbot-wiki-sync-'));
 			materialsRoot = path.join(tmpRoot, 'materials');
 			fs.mkdirSync(path.join(materialsRoot, 'ammunition'), { recursive: true });
 			fs.mkdirSync(path.join(materialsRoot, 'utilities'), { recursive: true });

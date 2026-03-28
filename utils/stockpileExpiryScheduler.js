@@ -11,8 +11,6 @@ const CHECK_INTERVAL_MS = 5 * 60 * 1000;
 const REMINDER_WINDOWS = [
 	{ label: '12h', minutes: 12 * 60 },
 	{ label: '6h', minutes: 6 * 60 },
-	{ label: '3h', minutes: 3 * 60 },
-	{ label: '2h', minutes: 2 * 60 },
 	{ label: '1h', minutes: 1 * 60 },
 	{ label: '30m', minutes: 30 },
 ];
@@ -90,8 +88,6 @@ async function checkExpiringStockpiles(client) {
 		const windowLabelKey = {
 			'12h': 'NOTIFICATION_EXPIRING_IN_12H',
 			'6h': 'NOTIFICATION_EXPIRING_IN_6H',
-			'3h': 'NOTIFICATION_EXPIRING_IN_3H',
-			'2h': 'NOTIFICATION_EXPIRING_IN_2H',
 			'1h': 'NOTIFICATION_EXPIRING_IN_1H',
 			'30m': 'NOTIFICATION_EXPIRING_IN_30M',
 		};
@@ -160,7 +156,7 @@ async function checkExpiringStockpiles(client) {
 		}
 	}
 
-	// Mark all due intervals as sent (not just the one we notified), so we don't send 12h/6h/3h/2h/1h on next run.
+	// Mark all due intervals as sent (not just the one we notified), so we don't send 12h/6h/1h on next run.
 	const toUpdate = new Map();
 	for (const { stock } of toNotify) {
 		const id = stock._id.toString();
@@ -186,7 +182,7 @@ async function checkExpiringStockpiles(client) {
  * @param {import('discord.js').Client} client
  */
 function start(client) {
-	console.log('Stockpile expiry reminders: running at', new Date().toISOString(), '(check every 5 min, reminders at 12h, 6h, 3h, 2h, 1h, 30min).');
+	console.log('Stockpile expiry reminders: running at', new Date().toISOString(), '(check every 5 min, reminders at 12h, 6h, 1h, 30min).');
 
 	const timeoutId = setTimeout(() => {
 		checkExpiringStockpiles(client).catch((err) => console.error('[stockpileExpiryScheduler]', new Date().toISOString(), err));

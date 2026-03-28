@@ -278,7 +278,7 @@ module.exports = {
 	STOCKPILE_CREATE_SUCCESS: 'Stock #%id% has been created.',
 	STOCKPILE_DELETE_SUCCESS: 'Stock #%id% has been deleted.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Stock #%id% has been marked as deleted.',
-	STOCKPILE_RESET_SUCCESS: 'The timer for stock #%id% has been reset to 2 days.',
+	STOCKPILE_RESET_SUCCESS: 'The timer for stock #%id% has been reset to 2 days and 2 hours.',
 	STOCKPILE_CLEANUP_SUCCESS: '%count% marked stock(s) deleted in this channel.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'All stockpiles have been deleted.',
 

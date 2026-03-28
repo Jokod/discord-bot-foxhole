@@ -279,7 +279,7 @@ module.exports = {
 	STOCKPILE_CREATE_SUCCESS: 'Склад #%id% был создан.',
 	STOCKPILE_DELETE_SUCCESS: 'Склад #%id% был удален.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Склад #%id% был помечен как удалён.',
-	STOCKPILE_RESET_SUCCESS: 'Таймер склада #%id% сброшен на 2 дня.',
+	STOCKPILE_RESET_SUCCESS: 'Таймер склада #%id% сброшен на 2 дня и 2 часа.',
 	STOCKPILE_CLEANUP_SUCCESS: 'Удалено %count% помеченных складов в этом канале.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'Все склады были удалены.',
 

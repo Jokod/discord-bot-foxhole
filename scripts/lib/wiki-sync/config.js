@@ -3,7 +3,7 @@
 /** @see scripts/sync-wiki-materials.js (en-tête) pour l’usage npm et la politique wiki.gg */
 
 const WIKI_API = 'https://foxhole.wiki.gg/api.php';
-const USER_AGENT = 'CMR_Bot/1.0 (Discord bot; github; Foxhole materials sync; non-commercial)';
+const USER_AGENT = 'FoxBot/1.0 (Discord bot; github; Foxhole materials sync; non-commercial)';
 const BATCH_SIZE = 40;
 const BATCH_DELAY_MS = 2000;
 

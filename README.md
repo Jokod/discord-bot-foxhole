@@ -177,14 +177,14 @@ On the material message, use **Priority** to change it at any time; **Assignee**
 
 #### Slash commands – Stockpiles
 
-Stockpile codes (seaport/depot) are scoped per server and per channel. Only the creator can remove or restore a given stock; the list is grouped by region and city with a 2-day reset timer.
+Stockpile codes (seaport/depot) are scoped per server and per channel. Only the creator can remove or restore a given stock; the list is grouped by region and city with a 2-day-and-2-hour reset timer.
 
 - `/stockpile help` – Show available stockpile subcommands.
 - `/stockpile add` – Open a form to add a stockpile (region, city, name, 6-digit code).
 - `/stockpile remove id:<Id>` – Mark a stockpile as deleted (creator only).
 - `/stockpile restore id:<Id>` – Restore a deleted stockpile (creator only).
 - `/stockpile list` – Display stockpiles by region and city (stock, code, expiry).
-- `/stockpile reset id:<Id>` – Reset a stockpile’s timer to 2 days.
+- `/stockpile reset id:<Id>` – Reset a stockpile’s timer to 2 days and 2 hours.
 - `/stockpile cleanup` – Permanently remove deleted stockpiles in this channel (requires **Manage Channels**).
 - `/stockpile deleteall` – Permanently delete all stockpiles on this server (requires **Manage Server** permission).
 
@@ -199,7 +199,7 @@ Subscribe channels to notifications. Requires **Manage Channels** to subscribe o
 | Type | Trigger / interval | Details |
 |------|--------------------|---------|
 | **Stockpile activity** | On each action | Sent immediately when a user **adds**, **removes**, **restores** or **resets** a stock. |
-| **Stockpile expiring soon** | Check at startup + **every 5 min** | One notification per stock for the **closest** due interval (12h, 6h, 3h, 2h, 1h, 30min).|
+| **Stockpile expiring soon** | Check at startup + **every 5 min** | One notification per stock for the **closest** due interval (12h, 6h, 1h, 30min).|
 
 The two types are independent: subscribing to *Stockpile activity* does not enable expiry reminders; you must also subscribe to *Stockpile expiring soon*.
 
