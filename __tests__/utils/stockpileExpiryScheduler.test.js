@@ -187,11 +187,11 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 
 		// Only one message sent (30m)
 		expect(channelSend).toHaveBeenCalledTimes(1);
-		// But all due intervals (20 min left => 30m, 1h, 2h, 3h, 6h, 12h) are marked sent
+		// But all due intervals (20 min left => 30m, 1h, 6h, 12h) are marked sent
 		expect(Stockpile.findByIdAndUpdate).toHaveBeenCalledWith(
 			'stock-id-1',
 			expect.objectContaining({
-				$addToSet: { expiry_reminders_sent: { $each: ['30m', '1h', '2h', '3h', '6h', '12h'] } },
+				$addToSet: { expiry_reminders_sent: { $each: ['30m', '1h', '6h', '12h'] } },
 			}),
 		);
 	});
@@ -234,7 +234,7 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 			region: 'R',
 			city: 'C',
 			expiresAt,
-			expiry_reminders_sent: ['30m', '1h', '2h', '3h', '6h', '12h'],
+			expiry_reminders_sent: ['30m', '1h', '6h', '12h'],
 		};
 		Stockpile.find.mockReturnValue({
 			lean: jest.fn().mockResolvedValue([stock]),

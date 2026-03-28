@@ -279,7 +279,7 @@ module.exports = {
 	STOCKPILE_CREATE_SUCCESS: '库存 #%id% 已创建。',
 	STOCKPILE_DELETE_SUCCESS: '库存 #%id% 已删除。',
 	STOCKPILE_MARK_DELETED_SUCCESS: '库存 #%id% 已标记为删除。',
-	STOCKPILE_RESET_SUCCESS: '库存 #%id% 的计时已重置为 2 天。',
+	STOCKPILE_RESET_SUCCESS: '库存 #%id% 的计时已重置为 2 天 2 小时。',
 	STOCKPILE_CLEANUP_SUCCESS: '已在此频道永久删除 %count% 个已标记库存。',
 	STOCKPILE_RESET_ALL_SUCCESS: '所有库存已删除。',
 

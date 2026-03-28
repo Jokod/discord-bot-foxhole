@@ -278,7 +278,7 @@ module.exports = {
 	STOCKPILE_CREATE_SUCCESS: 'Le stock #%id% a été créé.',
 	STOCKPILE_DELETE_SUCCESS: 'Le stock #%id% a été supprimé.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Le stock #%id% a été marqué comme supprimé.',
-	STOCKPILE_RESET_SUCCESS: 'Le délai du stock #%id% a été remis à 2 jours.',
+	STOCKPILE_RESET_SUCCESS: 'Le délai du stock #%id% a été remis à 2 jours et 2 heures.',
 	STOCKPILE_CLEANUP_SUCCESS: '%count% stock(s) marqué(s) supprimé(s) dans ce salon.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'Tous les stocks ont été supprimés.',
 

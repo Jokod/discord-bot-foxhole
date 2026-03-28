@@ -36,7 +36,7 @@ const Stockpile = mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	// Gestion du "timer" de 2 jours
+	// Gestion du "timer" (2 j + 2 h)
 	lastResetAt: {
 		type: Date,
 		required: true,
@@ -53,7 +53,7 @@ const Stockpile = mongoose.Schema({
 	deletedAt: {
 		type: Date,
 	},
-	// Rappels d'expiration déjà envoyés : '12h', '6h', '3h', '2h', '1h', '30m'
+	// Rappels d'expiration déjà envoyés : '12h', '6h', '1h', '30m'
 	expiry_reminders_sent: {
 		type: [String],
 		default: [],

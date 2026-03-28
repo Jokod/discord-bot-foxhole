@@ -146,11 +146,11 @@ module.exports = {
 					ru: 'сброс',
 					'zh-CN': '重置',
 				})
-				.setDescription('Reset a stockpile timer to 2 days.')
+				.setDescription('Reset a stockpile timer to 2 days and 2 hours.')
 				.setDescriptionLocalizations({
-					fr: 'Remet le délai d\'un stock à 2 jours.',
-					ru: 'Сбросить таймер склада на 2 дня.',
-					'zh-CN': '将库存计时重置为 2 天。',
+					fr: 'Remet le délai d\'un stock à 2 jours et 2 heures.',
+					ru: 'Сбросить таймер склада на 2 дня и 2 часа.',
+					'zh-CN': '将库存计时重置为 2 天 2 小时。',
 				})
 				.addStringOption((option) =>
 					option
