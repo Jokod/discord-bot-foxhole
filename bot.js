@@ -1,4 +1,5 @@
 require('dotenv').config();
+const dns = require('node:dns');
 const {
 	Client,
 	Collection,
@@ -11,6 +12,14 @@ const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
 const { Server } = require('./data/models.js');
 const Translate = require('./utils/translations.js');
+
+try {
+	// Atlas peut échouer en résolution DNS IPv6 dans certains environnements.
+	dns.setDefaultResultOrder('ipv4first');
+}
+catch {
+	console.warn('Unable to set DNS result order, continuing with default behavior.');
+}
 
 /** ********************************************************************/
 // Connect to MongoDB, then load languages/traductions and login
@@ -151,19 +160,44 @@ getFiles('./var/logs', (log) => {
 /** ********************************************************************/
 // Connexion MongoDB puis démarrage du client Discord
 
-mongoose.connect(process.env.MONGODB_URL, { dbName: process.env.MONGODB_NAME })
-	.then(() => {
-		console.log('Connected to MongoDB');
-		return Server.find();
-	})
-	.then((servers) => {
+const connectToMongoWithRetry = async () => {
+	let attempt = 0;
+
+	while (true) {
+		attempt += 1;
+		try {
+			await mongoose.connect(process.env.MONGODB_URL, {
+				dbName: process.env.MONGODB_NAME,
+				serverSelectionTimeoutMS: 15000,
+			});
+			console.log('Connected to MongoDB');
+			return;
+		}
+		catch (error) {
+			const retryDelayMs = Math.min(60000, 5000 * attempt);
+			console.error(
+				`Failed to connect to MongoDB (attempt ${attempt}). Retrying in ${Math.floor(retryDelayMs / 1000)}s...`,
+				error.message,
+			);
+			await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+		}
+	}
+};
+
+const startBot = async () => {
+	try {
+		await connectToMongoWithRetry();
+		const servers = await Server.find();
 		servers.forEach((server) => {
 			client.traductions.set(server.guild_id, server.lang || 'en');
 		});
 		Translate.prototype.compareTranslationKeys(client);
-		client.login(process.env.TOKEN);
-	})
-	.catch((err) => {
-		console.error('Failed to connect to MongoDB', err);
+		await client.login(process.env.TOKEN);
+	}
+	catch (error) {
+		console.error('Fatal startup error', error);
 		process.exit(1);
-	});
+	}
+};
+
+startBot();
