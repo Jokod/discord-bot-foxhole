@@ -65,7 +65,10 @@ module.exports = {
 			);
 		}
 		if (stillInDb.length > 0) {
-			console.log(`[Stats] ${stillInDb.length} serveur(s) marqué(s) comme quittés (left_at).`);
+			const leftGuildNames = stillInDb
+				.map((stat) => stat.name || stat.guild_id)
+				.join(', ');
+			console.log(`[Stats] ${stillInDb.length} serveur(s) marqué(s) comme quittés: ${leftGuildNames}.`);
 		}
 	},
 };
