@@ -1,6 +1,7 @@
 const mockStatsFindOneAndUpdate = jest.fn().mockResolvedValue({});
 const mockStatsFind = jest.fn().mockResolvedValue([]);
 const mockStatsUpdateOne = jest.fn().mockResolvedValue({});
+const mockCleanupGuildData = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../data/models.js', () => ({
 	Server: { findOne: jest.fn().mockResolvedValue({}) },
@@ -9,6 +10,10 @@ jest.mock('../../data/models.js', () => ({
 		find: mockStatsFind,
 		updateOne: mockStatsUpdateOne,
 	},
+}));
+
+jest.mock('../../utils/guildCleanup.js', () => ({
+	cleanupGuildData: mockCleanupGuildData,
 }));
 
 jest.mock('../../utils/translations.js', () => {
@@ -107,6 +112,7 @@ describe('Stats events', () => {
 		beforeEach(() => {
 			jest.clearAllMocks();
 			mockStatsFindOneAndUpdate.mockResolvedValue({});
+			mockCleanupGuildData.mockResolvedValue(undefined);
 		});
 
 		it('should upsert Stats with guild info and joined_at when bot joins a guild', async () => {
@@ -169,6 +175,10 @@ describe('Stats events', () => {
 			process.env.BLOCKED_GUILD_IDS = prev;
 
 			expect(leave).toHaveBeenCalledTimes(1);
+			expect(mockCleanupGuildData).toHaveBeenCalledWith(
+				'blocked-guild-789',
+				{ reason: 'blocked_guild_join', markLeftAt: true },
+			);
 			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
 		});
 
@@ -236,14 +246,11 @@ describe('Stats events', () => {
 	describe('guildDelete', () => {
 		beforeEach(() => {
 			jest.clearAllMocks();
-			mockStatsUpdateOne.mockResolvedValue({});
+			mockCleanupGuildData.mockResolvedValue(undefined);
 		});
 
-		it('should set left_at when bot is removed from a guild', async () => {
+		it('should clean guild data when bot is removed from a guild', async () => {
 			jest.resetModules();
-			const { Stats } = require('../../data/models.js');
-			Stats.updateOne = mockStatsUpdateOne;
-
 			const guildDelete = require('../../events/guildDelete.js');
 			const guild = {
 				id: 'removed-guild-999',
@@ -252,23 +259,17 @@ describe('Stats events', () => {
 
 			await guildDelete.execute(guild);
 
-			expect(mockStatsUpdateOne).toHaveBeenCalledTimes(1);
-			expect(mockStatsUpdateOne).toHaveBeenCalledWith(
-				{ guild_id: 'removed-guild-999' },
-				{
-					$set: {
-						left_at: expect.any(Date),
-					},
-				},
+			expect(mockCleanupGuildData).toHaveBeenCalledTimes(1);
+			expect(mockCleanupGuildData).toHaveBeenCalledWith(
+				'removed-guild-999',
+				{ reason: 'guild_delete', markLeftAt: true },
 			);
 		});
 
-		it('should log error when updating left_at fails', async () => {
+		it('should log error when cleanup fails', async () => {
 			jest.resetModules();
-			const { Stats } = require('../../data/models.js');
-			const updateError = new Error('update failed');
-			const failingUpdate = jest.fn().mockRejectedValueOnce(updateError);
-			Stats.updateOne = failingUpdate;
+			const cleanupError = new Error('cleanup failed');
+			mockCleanupGuildData.mockRejectedValueOnce(cleanupError);
 
 			const guildDelete = require('../../events/guildDelete.js');
 			const guild = {
@@ -282,14 +283,10 @@ describe('Stats events', () => {
 
 			consoleErrorSpy.mockRestore();
 
-			expect(failingUpdate).toHaveBeenCalledTimes(1);
-			expect(failingUpdate).toHaveBeenCalledWith(
-				{ guild_id: 'removed-guild-error' },
-				{
-					$set: {
-						left_at: expect.any(Date),
-					},
-				},
+			expect(mockCleanupGuildData).toHaveBeenCalledTimes(1);
+			expect(mockCleanupGuildData).toHaveBeenCalledWith(
+				'removed-guild-error',
+				{ reason: 'guild_delete', markLeftAt: true },
 			);
 		});
 	});
@@ -298,6 +295,7 @@ describe('Stats events', () => {
 		beforeEach(() => {
 			jest.clearAllMocks();
 			mockStatsFindOneAndUpdate.mockResolvedValue({});
+			mockCleanupGuildData.mockResolvedValue(undefined);
 		});
 
 		it('should upsert Stats for each guild in cache on ready', async () => {
@@ -380,7 +378,6 @@ describe('Stats events', () => {
 			const { Stats } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
-			Stats.updateOne = mockStatsUpdateOne;
 			mockStatsFind.mockResolvedValueOnce([{ guild_id: 'old-guild-123' }]);
 
 			const onReady = require('../../events/onReady.js');
@@ -404,10 +401,9 @@ describe('Stats events', () => {
 
 			await onReady.execute(client);
 
-			expect(mockStatsUpdateOne).toHaveBeenCalledTimes(1);
-			expect(mockStatsUpdateOne).toHaveBeenCalledWith(
-				{ guild_id: 'old-guild-123' },
-				{ $set: { left_at: expect.any(Date) } },
+			expect(mockCleanupGuildData).toHaveBeenCalledWith(
+				'old-guild-123',
+				{ reason: 'missing_from_cache_on_ready', markLeftAt: true },
 			);
 		});
 
@@ -416,7 +412,6 @@ describe('Stats events', () => {
 			const { Stats } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
-			Stats.updateOne = mockStatsUpdateOne;
 
 			const leaveA = jest.fn().mockResolvedValue(undefined);
 			const guildA = {
@@ -454,6 +449,10 @@ describe('Stats events', () => {
 			process.env.BLOCKED_GUILD_IDS = prev;
 
 			expect(leaveA).toHaveBeenCalledTimes(1);
+			expect(mockCleanupGuildData).toHaveBeenCalledWith(
+				'guild-a',
+				{ reason: 'blocked_guild_on_ready', markLeftAt: true },
+			);
 		});
 	});
 });

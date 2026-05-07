@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const { Stats } = require('../data/models.js');
+const { cleanupGuildData } = require('../utils/guildCleanup.js');
 
 module.exports = {
 	name: Events.GuildDelete,
@@ -10,19 +10,11 @@ module.exports = {
 	 */
 	async execute(guild) {
 		try {
-			await Stats.updateOne(
-				{ guild_id: guild.id },
-				{
-					$set: {
-						left_at: new Date(),
-					},
-				},
-			);
-
-			console.log(`[Stats] Bot retiré du serveur ${guild.name ?? guild.id}, left_at mis à jour.`);
+			await cleanupGuildData(guild.id, { reason: 'guild_delete', markLeftAt: true });
+			console.log(`[Stats] Bot retiré du serveur ${guild.name ?? guild.id}, nettoyage effectué.`);
 		}
 		catch (err) {
-			console.error(`[Stats] Impossible de mettre à jour left_at pour ${guild.id}:`, err.message);
+			console.error(`[Stats] Impossible de nettoyer les données pour ${guild.id}:`, err.message);
 		}
 	},
 };

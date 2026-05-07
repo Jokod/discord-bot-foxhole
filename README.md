@@ -56,7 +56,7 @@ When the bot is installed on a server, it stores **usage statistics** in the dat
 | **Server name** | Name of the server |
 | **Server creation date** | When the Discord server was created |
 | **Bot join date** | When the bot was added to the server |
-| **Bot leave date** | When the bot was removed from the server (detected at each bot restart) |
+| **Bot leave date** | When the bot was removed from the server (kick, leave, blacklist, or detected at bot restart) |
 | **Last command date** | Date of the last slash command executed |
 | **First command date** | Date of the first slash command on the server |
 | **Total command count** | Total number of slash commands executed |
@@ -68,6 +68,26 @@ When the bot is installed on a server, it stores **usage statistics** in the dat
 | **Materials validated** | Number of materials marked as validated |
 
 These statistics are stored in a `Stats` collection and are used only for analytics and maintenance. They are not shared with third parties. If you self-host the bot, this data remains in your own database.
+
+### Automatic server data cleanup
+
+When the bot is no longer active on a server, it automatically cleans server-scoped data in MongoDB.
+
+This cleanup is triggered when:
+- the bot is kicked / removed from a server (`guildDelete`);
+- the server is in `BLOCKED_GUILD_IDS` (on invite or at startup);
+- the bot detects at startup that it is no longer present on a previously known server.
+
+Collections cleaned for that server include:
+- `Material`
+- `Group`
+- `Operation`
+- `NotificationSubscription`
+- `TrackedMessage`
+- `Stockpile`
+- `Server`
+
+`Stats.left_at` is also set to keep a leave timestamp for analytics.
 
 ## Installation
 
@@ -105,7 +125,7 @@ If you want to host your own instance of the Discord Bot for Foxhole, follow the
    - `OWNER`: Your Discord user ID
    - `TEST_GUILD_ID`: Your test server ID (for development)
    - `APP_ENV`: Set to `dev` for development, `prod` for production
-   - `BLOCKED_GUILD_IDS` (optionnel) : IDs de serveurs où le bot ne doit pas rester (séparés par des virgules). Si le bot est déjà sur un de ces serveurs, il s’en retire au démarrage ou à l’invitation.
+  - `BLOCKED_GUILD_IDS` (optional): Comma-separated server IDs where the bot must not stay. If the bot is in one of these servers (or invited there), it leaves automatically and server-scoped data is cleaned from MongoDB.
 
 4. **Invite the bot to your server**:
    
@@ -296,7 +316,7 @@ The sync targets **items players typically request from logistics** (weapons, am
 - Entries whose `itemName` starts with **`Uniforme `** (French uniform labels) are **skipped** for description sync so localized copy is preserved.
 - Wiki infobox names for some RPG rounds use a Unicode slash (**`AP⧸RPG`**, **`ARC⧸RPG`**). On `--add-missing`, ASCII spellings (`AP/RPG`) are normalized to that form so you do not get duplicate catalogue rows.
 - Infantry **flamethrower fuel** (`LiquidAmmo` / `Flamethrower Ammo` in the infobox, e.g. **“Molten Wind” v.II Ammo**) is routed to **`ammunition/flamethrower_ammo.json`** (not field utilities).
-- Extra flags (e.g. `--desc-only`) are documented in the header comment of `scripts/sync-wiki-materials.js` (point d’entrée CLI).
+- Extra flags (e.g. `--desc-only`) are documented in the header comment of `scripts/sync-wiki-materials.js` (CLI entry point).
 
 ## Testing
 
@@ -322,7 +342,7 @@ The test suite includes:
 - **Translation Tests**: Ensures all categories and subcategories are properly translated in all supported languages
 - **Data Model Tests**: Tests database schema and validation
 - **Utility Tests**: Tests helper functions and utilities
-- **Wiki sync tests** (`__tests__/scripts/wiki-sync/`): parsing infobox, routage JSON, titres wiki, client API mocké (`fetch`), maintenance prune/rehome sur répertoire temporaire — **aucun appel réseau** vers le wiki en CI
+- **Wiki sync tests** (`__tests__/scripts/wiki-sync/`): infobox parsing, JSON routing, wiki titles, mocked API client (`fetch`), prune/rehome maintenance on a temporary directory — **no network calls** to the wiki in CI
 
 For more information about testing, see [TESTING.md](TESTING.md).
 
