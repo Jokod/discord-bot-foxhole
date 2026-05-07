@@ -19,7 +19,15 @@ async function cleanupGuildData(guildId, options = {}) {
 	const { reason = 'unknown', markLeftAt = true, guildName } = options;
 	const now = new Date();
 
-	await Promise.all([
+	const [
+		materialsRes,
+		groupsRes,
+		operationsRes,
+		notificationsRes,
+		trackedMessagesRes,
+		stockpilesRes,
+		serversRes,
+	] = await Promise.all([
 		Material.deleteMany({ guild_id: guildId }),
 		Group.deleteMany({ guild_id: guildId }),
 		Operation.deleteMany({ guild_id: guildId }),
@@ -27,17 +35,24 @@ async function cleanupGuildData(guildId, options = {}) {
 		TrackedMessage.deleteMany({ server_id: guildId }),
 		Stockpile.deleteMany({ server_id: guildId }),
 		Server.deleteMany({ guild_id: guildId }),
-		markLeftAt
-			? Stats.updateOne(
-				{ guild_id: guildId },
-				{ $set: { left_at: now } },
-				{ upsert: true },
-			)
-			: Promise.resolve(),
 	]);
 
+	if (markLeftAt) {
+		await Stats.updateOne(
+			{ guild_id: guildId },
+			{ $set: { left_at: now } },
+			{ upsert: true },
+		);
+	}
+
 	const displayName = guildName || guildId;
-	console.log(`[Cleanup] Données supprimées pour le serveur ${displayName} (reason=${reason}, markLeftAt=${markLeftAt}).`);
+	console.log(
+		`[Cleanup] Données supprimées pour le serveur ${displayName} (reason=${reason}, markLeftAt=${markLeftAt}) ` +
+		`materials=${materialsRes.deletedCount ?? 0}, groups=${groupsRes.deletedCount ?? 0}, ` +
+		`operations=${operationsRes.deletedCount ?? 0}, notifications=${notificationsRes.deletedCount ?? 0}, ` +
+		`trackedMessages=${trackedMessagesRes.deletedCount ?? 0}, stockpiles=${stockpilesRes.deletedCount ?? 0}, ` +
+		`servers=${serversRes.deletedCount ?? 0}.`,
+	);
 }
 
 module.exports = { cleanupGuildData };
