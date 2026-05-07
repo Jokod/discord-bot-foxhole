@@ -378,7 +378,7 @@ describe('Stats events', () => {
 			const { Stats } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
-			mockStatsFind.mockResolvedValueOnce([{ guild_id: 'old-guild-123' }]);
+			mockStatsFind.mockResolvedValueOnce([{ guild_id: 'old-guild-123', left_at: new Date('2024-01-01') }]);
 
 			const onReady = require('../../events/onReady.js');
 			const client = {
