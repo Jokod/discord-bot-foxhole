@@ -13,7 +13,11 @@ module.exports = {
 	async execute(guild) {
 		if (getBlockedGuildIds().has(guild.id)) {
 			try {
-				await cleanupGuildData(guild.id, { reason: 'blocked_guild_join', markLeftAt: true });
+				await cleanupGuildData(guild.id, {
+					reason: 'blocked_guild_join',
+					markLeftAt: true,
+					guildName: guild.name ?? guild.id,
+				});
 				await guild.leave();
 				console.log(`[Blocked] Bot retiré du serveur ${guild.name} (${guild.id}) juste après l'invitation.`);
 			}

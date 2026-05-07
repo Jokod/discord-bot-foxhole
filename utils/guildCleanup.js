@@ -12,11 +12,11 @@ const {
 /**
  * Nettoie toutes les données applicatives liées à un serveur.
  * @param {string} guildId
- * @param {{ reason?: string, markLeftAt?: boolean }} [options]
+ * @param {{ reason?: string, markLeftAt?: boolean, guildName?: string }} [options]
  * @returns {Promise<void>}
  */
 async function cleanupGuildData(guildId, options = {}) {
-	const { reason = 'unknown', markLeftAt = true } = options;
+	const { reason = 'unknown', markLeftAt = true, guildName } = options;
 	const now = new Date();
 
 	await Promise.all([
@@ -36,7 +36,8 @@ async function cleanupGuildData(guildId, options = {}) {
 			: Promise.resolve(),
 	]);
 
-	console.log(`[Cleanup] Données supprimées pour le serveur ${guildId} (reason=${reason}, markLeftAt=${markLeftAt}).`);
+	const displayName = guildName || guildId;
+	console.log(`[Cleanup] Données supprimées pour le serveur ${displayName} (reason=${reason}, markLeftAt=${markLeftAt}).`);
 }
 
 module.exports = { cleanupGuildData };

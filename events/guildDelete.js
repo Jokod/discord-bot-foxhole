@@ -10,7 +10,11 @@ module.exports = {
 	 */
 	async execute(guild) {
 		try {
-			await cleanupGuildData(guild.id, { reason: 'guild_delete', markLeftAt: true });
+			await cleanupGuildData(guild.id, {
+				reason: 'guild_delete',
+				markLeftAt: true,
+				guildName: guild.name ?? guild.id,
+			});
 			console.log(`[Stats] Bot retiré du serveur ${guild.name ?? guild.id}, nettoyage effectué.`);
 		}
 		catch (err) {

@@ -177,7 +177,11 @@ describe('Stats events', () => {
 			expect(leave).toHaveBeenCalledTimes(1);
 			expect(mockCleanupGuildData).toHaveBeenCalledWith(
 				'blocked-guild-789',
-				{ reason: 'blocked_guild_join', markLeftAt: true },
+				expect.objectContaining({
+					reason: 'blocked_guild_join',
+					markLeftAt: true,
+					guildName: 'Blocked Server',
+				}),
 			);
 			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
 		});
@@ -262,7 +266,7 @@ describe('Stats events', () => {
 			expect(mockCleanupGuildData).toHaveBeenCalledTimes(1);
 			expect(mockCleanupGuildData).toHaveBeenCalledWith(
 				'removed-guild-999',
-				{ reason: 'guild_delete', markLeftAt: true },
+				expect.objectContaining({ reason: 'guild_delete', markLeftAt: true, guildName: 'Removed Server' }),
 			);
 		});
 
@@ -286,7 +290,7 @@ describe('Stats events', () => {
 			expect(mockCleanupGuildData).toHaveBeenCalledTimes(1);
 			expect(mockCleanupGuildData).toHaveBeenCalledWith(
 				'removed-guild-error',
-				{ reason: 'guild_delete', markLeftAt: true },
+				expect.objectContaining({ reason: 'guild_delete', markLeftAt: true, guildName: 'Removed Error Server' }),
 			);
 		});
 	});
@@ -378,7 +382,11 @@ describe('Stats events', () => {
 			const { Stats } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
-			mockStatsFind.mockResolvedValueOnce([{ guild_id: 'old-guild-123', left_at: new Date('2024-01-01') }]);
+			mockStatsFind.mockResolvedValueOnce([{
+				guild_id: 'old-guild-123',
+				name: 'Old Guild 123',
+				left_at: new Date('2024-01-01'),
+			}]);
 
 			const onReady = require('../../events/onReady.js');
 			const client = {
@@ -403,7 +411,11 @@ describe('Stats events', () => {
 
 			expect(mockCleanupGuildData).toHaveBeenCalledWith(
 				'old-guild-123',
-				{ reason: 'missing_from_cache_on_ready', markLeftAt: true },
+				expect.objectContaining({
+					reason: 'missing_from_cache_on_ready',
+					markLeftAt: true,
+					guildName: 'Old Guild 123',
+				}),
 			);
 		});
 
@@ -451,7 +463,7 @@ describe('Stats events', () => {
 			expect(leaveA).toHaveBeenCalledTimes(1);
 			expect(mockCleanupGuildData).toHaveBeenCalledWith(
 				'guild-a',
-				{ reason: 'blocked_guild_on_ready', markLeftAt: true },
+				expect.objectContaining({ reason: 'blocked_guild_on_ready', markLeftAt: true, guildName: 'Server A' }),
 			);
 		});
 	});
