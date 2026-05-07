@@ -23,7 +23,11 @@ module.exports = {
 		for (const [id, guild] of client.guilds.cache) {
 			if (blockedGuildIds.has(id)) {
 				try {
-					await cleanupGuildData(id, { reason: 'blocked_guild_on_ready', markLeftAt: true });
+					await cleanupGuildData(id, {
+						reason: 'blocked_guild_on_ready',
+						markLeftAt: true,
+						guildName: guild.name ?? id,
+					});
 					await guild.leave();
 					console.log(`[Blocked] Bot retiré du serveur ${guild.name} (${id}).`);
 				}
@@ -61,7 +65,11 @@ module.exports = {
 			left_at: { $ne: null },
 		});
 		for (const stat of stillInDb) {
-			await cleanupGuildData(stat.guild_id, { reason: 'missing_from_cache_on_ready', markLeftAt: true });
+			await cleanupGuildData(stat.guild_id, {
+				reason: 'missing_from_cache_on_ready',
+				markLeftAt: true,
+				guildName: stat.name || stat.guild_id,
+			});
 		}
 		if (stillInDb.length > 0) {
 			const leftGuildNames = stillInDb
