@@ -53,11 +53,12 @@ module.exports = {
 			);
 		}
 
-		// Nettoyer les serveurs en base dont le bot n’est plus membre (recheck au redémarrage)
+		// Nettoyer les serveurs en base dont le bot n’est plus membre (recheck au redémarrage).
+		// On ne touche PAS aux serveurs avec left_at === null (considérés comme actifs).
 		const currentGuildIds = Array.from(client.guilds.cache.keys());
 		const stillInDb = await Stats.find({
 			guild_id: { $nin: currentGuildIds },
-			$or: [{ left_at: null }, { left_at: { $exists: false } }],
+			left_at: { $ne: null },
 		});
 		for (const stat of stillInDb) {
 			await cleanupGuildData(stat.guild_id, { reason: 'missing_from_cache_on_ready', markLeftAt: true });
