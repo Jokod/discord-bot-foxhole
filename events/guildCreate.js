@@ -1,6 +1,7 @@
 const { Events } = require('discord.js');
 const { Stats } = require('../data/models.js');
 const { getBlockedGuildIds } = require('../utils/blockedGuilds.js');
+const { cleanupGuildData } = require('../utils/guildCleanup.js');
 
 module.exports = {
 	name: Events.GuildCreate,
@@ -12,6 +13,7 @@ module.exports = {
 	async execute(guild) {
 		if (getBlockedGuildIds().has(guild.id)) {
 			try {
+				await cleanupGuildData(guild.id, { reason: 'blocked_guild_join', markLeftAt: true });
 				await guild.leave();
 				console.log(`[Blocked] Bot retiré du serveur ${guild.name} (${guild.id}) juste après l'invitation.`);
 			}

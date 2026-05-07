@@ -2,6 +2,7 @@ const { Events } = require('discord.js');
 const { Stats } = require('../data/models.js');
 const { start: startStockpileExpiryScheduler } = require('../utils/stockpileExpiryScheduler.js');
 const { getBlockedGuildIds } = require('../utils/blockedGuilds.js');
+const { cleanupGuildData } = require('../utils/guildCleanup.js');
 
 module.exports = {
 	name: Events.ClientReady,
@@ -22,6 +23,7 @@ module.exports = {
 		for (const [id, guild] of client.guilds.cache) {
 			if (blockedGuildIds.has(id)) {
 				try {
+					await cleanupGuildData(id, { reason: 'blocked_guild_on_ready', markLeftAt: true });
 					await guild.leave();
 					console.log(`[Blocked] Bot retiré du serveur ${guild.name} (${id}).`);
 				}
@@ -51,21 +53,20 @@ module.exports = {
 			);
 		}
 
-		// Marquer left_at pour les serveurs en base dont le bot n’est plus membre (recheck au redémarrage)
+		// Nettoyer les serveurs en base dont le bot n’est plus membre (recheck au redémarrage)
 		const currentGuildIds = Array.from(client.guilds.cache.keys());
 		const stillInDb = await Stats.find({
 			guild_id: { $nin: currentGuildIds },
 			$or: [{ left_at: null }, { left_at: { $exists: false } }],
 		});
-		const now = new Date();
 		for (const stat of stillInDb) {
-			await Stats.updateOne(
-				{ guild_id: stat.guild_id },
-				{ $set: { left_at: now } },
-			);
+			await cleanupGuildData(stat.guild_id, { reason: 'missing_from_cache_on_ready', markLeftAt: true });
 		}
 		if (stillInDb.length > 0) {
-			console.log(`[Stats] ${stillInDb.length} serveur(s) marqué(s) comme quittés (left_at).`);
+			const leftGuildNames = stillInDb
+				.map((stat) => stat.name || stat.guild_id)
+				.join(', ');
+			console.log(`[Stats] ${stillInDb.length} serveur(s) marqué(s) comme quittés: ${leftGuildNames}.`);
 		}
 	},
 };

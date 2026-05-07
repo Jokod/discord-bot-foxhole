@@ -13,13 +13,15 @@ const getFiles = require('./utils/getFiles');
 const { Server } = require('./data/models.js');
 const Translate = require('./utils/translations.js');
 
-try {
-	// Atlas peut échouer en résolution DNS IPv6 dans certains environnements.
-	dns.setDefaultResultOrder('ipv4first');
-}
-catch {
-	console.warn('Unable to set DNS result order, continuing with default behavior.');
-}
+const configureDns = () => {
+	try {
+		// Atlas peut échouer en résolution DNS IPv6 dans certains environnements.
+		dns.setDefaultResultOrder('ipv4first');
+	}
+	catch {
+		console.warn('Unable to set DNS result order, continuing with default behavior.');
+	}
+};
 
 /** ********************************************************************/
 // Connect to MongoDB, then load languages/traductions and login
@@ -106,13 +108,12 @@ getFiles('./interactions/select-menus', (command) => {
 /** ********************************************************************/
 // Registration of Slash-Commands in Discord API
 
-const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+const registerSlashCommands = async () => {
+	const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+	const commandJsonData = [
+		...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
+	];
 
-const commandJsonData = [
-	...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
-];
-
-(async () => {
 	try {
 		console.log(`Started refreshing application (/) commands in ${process.env.APP_ENV}...`);
 
@@ -138,7 +139,7 @@ const commandJsonData = [
 			console.error(error);
 		}
 	}
-})();
+};
 
 /** ********************************************************************/
 
@@ -200,4 +201,21 @@ const startBot = async () => {
 	}
 };
 
-startBot();
+const boot = async () => {
+	configureDns();
+	void registerSlashCommands();
+	await startBot();
+};
+
+if (require.main === module) {
+	boot();
+}
+
+module.exports = {
+	client,
+	configureDns,
+	registerSlashCommands,
+	connectToMongoWithRetry,
+	startBot,
+	boot,
+};
