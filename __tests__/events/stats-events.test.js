@@ -1,13 +1,22 @@
 const mockStatsFindOneAndUpdate = jest.fn().mockResolvedValue({});
 const mockStatsFind = jest.fn().mockResolvedValue([]);
 const mockStatsUpdateOne = jest.fn().mockResolvedValue({});
+const mockStatsDistinct = jest.fn().mockResolvedValue([]);
+const mockDistinctEmpty = jest.fn().mockResolvedValue([]);
 const mockCleanupGuildData = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('../../data/models.js', () => ({
-	Server: { findOne: jest.fn().mockResolvedValue({}) },
+	Server: { findOne: jest.fn().mockResolvedValue({}), distinct: mockDistinctEmpty },
+	Material: { distinct: mockDistinctEmpty },
+	Group: { distinct: mockDistinctEmpty },
+	Operation: { distinct: mockDistinctEmpty },
+	NotificationSubscription: { distinct: mockDistinctEmpty },
+	TrackedMessage: { distinct: mockDistinctEmpty },
+	Stockpile: { distinct: mockDistinctEmpty },
 	Stats: {
 		findOneAndUpdate: mockStatsFindOneAndUpdate,
 		find: mockStatsFind,
+		distinct: mockStatsDistinct,
 		updateOne: mockStatsUpdateOne,
 	},
 }));
@@ -377,16 +386,22 @@ describe('Stats events', () => {
 			expect(call2[1].$set).not.toHaveProperty('joined_at');
 		});
 
-		it('should set left_at for guilds in Stats that are no longer in cache', async () => {
+		it('should clean orphaned guild found via Server.distinct', async () => {
 			jest.resetModules();
-			const { Stats } = require('../../data/models.js');
+			const { Stats, Server, Material, Group, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
-			mockStatsFind.mockResolvedValueOnce([{
-				guild_id: 'old-guild-123',
-				name: 'Old Guild 123',
-				left_at: new Date('2024-01-01'),
-			}]);
+			Stats.distinct = mockStatsDistinct;
+			// Server.distinct returns an orphaned guild_id
+			Server.distinct = jest.fn().mockResolvedValue(['old-guild-123']);
+			Material.distinct = jest.fn().mockResolvedValue([]);
+			Group.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
+			mockStatsDistinct.mockResolvedValue([]);
+			mockStatsFind.mockResolvedValueOnce([{ guild_id: 'old-guild-123', name: 'Old Guild 123' }]);
 
 			const onReady = require('../../events/onReady.js');
 			const client = {
@@ -412,18 +427,60 @@ describe('Stats events', () => {
 			expect(mockCleanupGuildData).toHaveBeenCalledWith(
 				'old-guild-123',
 				expect.objectContaining({
-					reason: 'missing_from_cache_on_ready',
+					reason: 'orphaned_on_ready',
 					markLeftAt: true,
 					guildName: 'Old Guild 123',
 				}),
 			);
 		});
 
-		it('should leave blacklisted guilds on ready', async () => {
+		it('should not re-clean guilds already marked left with no app data', async () => {
 			jest.resetModules();
-			const { Stats } = require('../../data/models.js');
+			const { Stats, Server, Material, Group, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
+			Stats.distinct = mockStatsDistinct;
+			Server.distinct = jest.fn().mockResolvedValue([]);
+			Material.distinct = jest.fn().mockResolvedValue([]);
+			Group.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
+			mockStatsDistinct.mockResolvedValue([]);
+
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						['guild-a', { id: 'guild-a', name: 'Server A', createdAt: new Date(), memberCount: 1, members: { me: null } }],
+					]),
+				},
+			};
+
+			await onReady.execute(client);
+
+			expect(mockCleanupGuildData).not.toHaveBeenCalled();
+			expect(Stats.distinct).toHaveBeenCalledWith(
+				'guild_id',
+				expect.objectContaining({ left_at: null }),
+			);
+		});
+
+		it('should leave blacklisted guilds on ready', async () => {
+			jest.resetModules();
+			const { Stats, Server, Material, Group, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.distinct = mockStatsDistinct;
+			Server.distinct = jest.fn().mockResolvedValue([]);
+			Material.distinct = jest.fn().mockResolvedValue([]);
+			Group.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
 
 			const leaveA = jest.fn().mockResolvedValue(undefined);
 			const guildA = {

@@ -116,10 +116,16 @@ module.exports = {
 		catch (error) {
 			console.error(error);
 
-			await interaction.reply({
+			const payload = {
 				content: translations.translate('OPERATION_CREATE_ERROR'),
 				flags: 64,
-			});
+			};
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp(payload).catch(console.error);
+			}
+			else {
+				await interaction.reply(payload);
+			}
 		}
 	},
 };
