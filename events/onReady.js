@@ -11,7 +11,7 @@ const {
 } = require('../data/models.js');
 const { start: startStockpileExpiryScheduler } = require('../utils/stockpileExpiryScheduler.js');
 const { getBlockedGuildIds } = require('../utils/blockedGuilds.js');
-const { cleanupGuildData } = require('../utils/guildCleanup.js');
+const { cleanupGuildData, purgeEmptyStatsRecords } = require('../utils/guildCleanup.js');
 
 module.exports = {
 	name: Events.ClientReady,
@@ -25,6 +25,11 @@ module.exports = {
 		console.log(`Logged in as ${client.user.tag}!`);
 
 		startStockpileExpiryScheduler(client);
+
+		const purgedStats = await purgeEmptyStatsRecords();
+		if (purgedStats > 0) {
+			console.log(`[Stats] ${purgedStats} fiche(s) Stats sans nom supprimée(s).`);
+		}
 
 		const blockedGuildIds = getBlockedGuildIds();
 		const currentGuildIds = Array.from(client.guilds.cache.keys());
@@ -105,7 +110,7 @@ module.exports = {
 				await cleanupGuildData(guildId, {
 					reason: 'orphaned_on_ready',
 					markLeftAt: true,
-					guildName: nameMap.get(guildId) || guildId,
+					guildName: nameMap.get(guildId),
 				});
 			}
 

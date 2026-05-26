@@ -9,6 +9,11 @@ const {
 	Stats,
 } = require('../data/models.js');
 
+/** @param {{ name?: string } | null | undefined} stat */
+function hasEmptyStatsName(stat) {
+	return !stat?.name;
+}
+
 /**
  * Nettoie toutes les données applicatives liées à un serveur.
  * @param {string} guildId
@@ -38,11 +43,17 @@ async function cleanupGuildData(guildId, options = {}) {
 	]);
 
 	if (markLeftAt) {
-		await Stats.updateOne(
-			{ guild_id: guildId },
-			{ $set: { left_at: now } },
-			{ upsert: true },
-		);
+		const existing = await Stats.findOne({ guild_id: guildId });
+		if (existing) {
+			if (hasEmptyStatsName(existing)) {
+				await Stats.deleteOne({ guild_id: guildId });
+			}
+			else {
+				const $set = { left_at: now };
+				if (guildName) $set.name = guildName;
+				await Stats.updateOne({ guild_id: guildId }, { $set });
+			}
+		}
 	}
 
 	const displayName = guildName ? `${guildName} (id=${guildId})` : guildId;
@@ -55,4 +66,15 @@ async function cleanupGuildData(guildId, options = {}) {
 	);
 }
 
-module.exports = { cleanupGuildData };
+/**
+ * Supprime les documents Stats sans nom (coquilles créées par d'anciens upserts).
+ * @returns {Promise<number>} Nombre de documents supprimés
+ */
+async function purgeEmptyStatsRecords() {
+	const result = await Stats.deleteMany({
+		$or: [{ name: '' }, { name: null }],
+	});
+	return result.deletedCount ?? 0;
+}
+
+module.exports = { cleanupGuildData, purgeEmptyStatsRecords, hasEmptyStatsName };
