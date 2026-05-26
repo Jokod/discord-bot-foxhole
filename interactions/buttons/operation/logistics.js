@@ -68,10 +68,14 @@ module.exports = {
 		}
 		catch (err) {
 			console.error(err);
-			return await interaction.reply({
+			const payload = {
 				content: translations.translate('GROUP_CREATE_ERROR'),
 				flags: 64,
-			});
+			};
+			if (interaction.replied || interaction.deferred) {
+				return interaction.followUp(payload);
+			}
+			return interaction.reply(payload);
 		}
 	},
 };

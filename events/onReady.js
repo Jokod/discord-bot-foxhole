@@ -1,5 +1,14 @@
 const { Events } = require('discord.js');
-const { Stats } = require('../data/models.js');
+const {
+	Stats,
+	Server,
+	Material,
+	Group,
+	Operation,
+	NotificationSubscription,
+	TrackedMessage,
+	Stockpile,
+} = require('../data/models.js');
 const { start: startStockpileExpiryScheduler } = require('../utils/stockpileExpiryScheduler.js');
 const { getBlockedGuildIds } = require('../utils/blockedGuilds.js');
 const { cleanupGuildData } = require('../utils/guildCleanup.js');
@@ -18,6 +27,7 @@ module.exports = {
 		startStockpileExpiryScheduler(client);
 
 		const blockedGuildIds = getBlockedGuildIds();
+		const currentGuildIds = Array.from(client.guilds.cache.keys());
 
 		// Quitter les serveurs blacklistés
 		for (const [id, guild] of client.guilds.cache) {
@@ -37,7 +47,7 @@ module.exports = {
 			}
 		}
 
-		// Backfill stats pour les serveurs où le bot est présent (et réinitialiser left_at si rejoint)
+		// Backfill stats pour les serveurs actifs (et réinitialiser left_at)
 		for (const [id, guild] of client.guilds.cache) {
 			const joinedAt = guild.joinedAt ?? guild.members.me?.joinedAt ?? null;
 
@@ -57,25 +67,49 @@ module.exports = {
 			);
 		}
 
-		// Nettoyer les serveurs en base dont le bot n’est plus membre (recheck au redémarrage).
-		// On ne touche PAS aux serveurs avec left_at === null (considérés comme actifs).
-		const currentGuildIds = Array.from(client.guilds.cache.keys());
-		const stillInDb = await Stats.find({
-			guild_id: { $nin: currentGuildIds },
-			left_at: { $ne: null },
-		});
-		for (const stat of stillInDb) {
-			await cleanupGuildData(stat.guild_id, {
-				reason: 'missing_from_cache_on_ready',
-				markLeftAt: true,
-				guildName: stat.name || stat.guild_id,
-			});
-		}
-		if (stillInDb.length > 0) {
-			const leftGuildNames = stillInDb
-				.map((stat) => stat.name || stat.guild_id)
-				.join(', ');
-			console.log(`[Stats] ${stillInDb.length} serveur(s) marqué(s) comme quittés: ${leftGuildNames}.`);
+		// Chercher tous les guild_ids orphelins directement dans chaque collection de données.
+		// Ne pas s'appuyer uniquement sur Stats : un serveur peut avoir des données sans doc Stats
+		// ou avec Stats.left_at=null (guildDelete manqué quand le bot était offline).
+		const [
+			serverIds,
+			materialIds,
+			groupIds,
+			operationIds,
+			notifIds,
+			trackedIds,
+			stockpileIds,
+			statsLeftIds,
+		] = await Promise.all([
+			Server.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
+			Material.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
+			Group.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
+			Operation.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
+			NotificationSubscription.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
+			TrackedMessage.distinct('server_id', { server_id: { $nin: currentGuildIds } }),
+			Stockpile.distinct('server_id', { server_id: { $nin: currentGuildIds } }),
+			// Stats actifs (left_at null) alors que le bot n'est plus sur le serveur (guildDelete manqué)
+			Stats.distinct('guild_id', { guild_id: { $nin: currentGuildIds }, left_at: null }),
+		]);
+
+		const orphanedIds = new Set([
+			...serverIds, ...materialIds, ...groupIds, ...operationIds,
+			...notifIds, ...trackedIds, ...stockpileIds, ...statsLeftIds,
+		]);
+
+		if (orphanedIds.size > 0) {
+			// Récupérer les noms depuis Stats en un seul appel
+			const statsForOrphans = await Stats.find({ guild_id: { $in: Array.from(orphanedIds) } });
+			const nameMap = new Map(statsForOrphans.map((s) => [s.guild_id, s.name]));
+
+			for (const guildId of orphanedIds) {
+				await cleanupGuildData(guildId, {
+					reason: 'orphaned_on_ready',
+					markLeftAt: true,
+					guildName: nameMap.get(guildId) || guildId,
+				});
+			}
+
+			console.log(`[Stats] ${orphanedIds.size} serveur(s) orphelin(s) nettoyé(s) au démarrage.`);
 		}
 	},
 };

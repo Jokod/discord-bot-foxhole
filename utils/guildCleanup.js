@@ -45,9 +45,9 @@ async function cleanupGuildData(guildId, options = {}) {
 		);
 	}
 
-	const displayName = guildName || guildId;
+	const displayName = guildName ? `${guildName} (id=${guildId})` : guildId;
 	console.log(
-		`[Cleanup] Données supprimées pour le serveur ${displayName} (reason=${reason}, markLeftAt=${markLeftAt}) ` +
+		`[Cleanup] ${displayName} reason=${reason} — ` +
 		`materials=${materialsRes.deletedCount ?? 0}, groups=${groupsRes.deletedCount ?? 0}, ` +
 		`operations=${operationsRes.deletedCount ?? 0}, notifications=${notificationsRes.deletedCount ?? 0}, ` +
 		`trackedMessages=${trackedMessagesRes.deletedCount ?? 0}, stockpiles=${stockpilesRes.deletedCount ?? 0}, ` +

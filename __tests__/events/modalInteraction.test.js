@@ -21,7 +21,10 @@ describe('modalInteraction event', () => {
 			guild: { id: 'guild-123' },
 			customId: 'test_modal',
 			isModalSubmit: () => true,
+			replied: false,
+			deferred: false,
 			reply: jest.fn().mockResolvedValue(undefined),
+			followUp: jest.fn().mockResolvedValue(undefined),
 			...overrides,
 		};
 	}
@@ -68,6 +71,19 @@ describe('modalInteraction event', () => {
 		await modalInteraction.execute(interaction);
 
 		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		consoleSpy.mockRestore();
+	});
+
+	it('utilise followUp si la commande a déjà répondu avant l\'erreur', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const interaction = createInteraction({ replied: true });
+		interaction.client.modalCommands.set('test_modal', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await modalInteraction.execute(interaction);
+
+		expect(interaction.followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.reply).not.toHaveBeenCalled();
 		consoleSpy.mockRestore();
 	});
 });
