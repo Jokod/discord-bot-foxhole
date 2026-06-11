@@ -76,10 +76,21 @@ module.exports = {
 		}
 		catch (err) {
 			console.error(err);
-			await interaction.reply({
-				content: translations.translate('COMMAND_EXECUTE_ERROR'),
-				flags: 64,
-			});
+			try {
+				const payload = {
+					content: translations.translate('COMMAND_EXECUTE_ERROR'),
+					flags: 64,
+				};
+				if (interaction.replied || interaction.deferred) {
+					await interaction.followUp(payload);
+				}
+				else {
+					await interaction.reply(payload);
+				}
+			}
+			catch (replyErr) {
+				console.error('Failed to send error message to interaction:', replyErr);
+			}
 		}
 	},
 };
