@@ -12,7 +12,7 @@ const {
 const { start: startStockpileExpiryScheduler } = require('../utils/stockpileExpiryScheduler.js');
 const { syncAllStockpileLists } = require('../utils/stockpileListSync.js');
 const { getBlockedGuildIds } = require('../utils/blockedGuilds.js');
-const { cleanupGuildData } = require('../utils/guildCleanup.js');
+const { cleanupGuildData, purgeEmptyStatsRecords } = require('../utils/guildCleanup.js');
 
 module.exports = {
 	name: Events.ClientReady,
@@ -29,6 +29,11 @@ module.exports = {
 		void syncAllStockpileLists(client).catch((err) => {
 			console.error('[StockpileList] Échec de la synchronisation au démarrage:', err);
 		});
+
+		const purgedStats = await purgeEmptyStatsRecords();
+		if (purgedStats > 0) {
+			console.log(`[Stats] ${purgedStats} fiche(s) Stats sans nom supprimée(s).`);
+		}
 
 		const blockedGuildIds = getBlockedGuildIds();
 		const currentGuildIds = Array.from(client.guilds.cache.keys());
@@ -109,7 +114,7 @@ module.exports = {
 				await cleanupGuildData(guildId, {
 					reason: 'orphaned_on_ready',
 					markLeftAt: true,
-					guildName: nameMap.get(guildId) || guildId,
+					guildName: nameMap.get(guildId),
 				});
 			}
 

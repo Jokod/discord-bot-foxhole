@@ -4,6 +4,7 @@ const mockStatsUpdateOne = jest.fn().mockResolvedValue({});
 const mockStatsDistinct = jest.fn().mockResolvedValue([]);
 const mockDistinctEmpty = jest.fn().mockResolvedValue([]);
 const mockCleanupGuildData = jest.fn().mockResolvedValue(undefined);
+const mockPurgeEmptyStatsRecords = jest.fn().mockResolvedValue(0);
 
 jest.mock('../../data/models.js', () => ({
 	Server: { findOne: jest.fn().mockResolvedValue({}), distinct: mockDistinctEmpty },
@@ -23,6 +24,7 @@ jest.mock('../../data/models.js', () => ({
 
 jest.mock('../../utils/guildCleanup.js', () => ({
 	cleanupGuildData: mockCleanupGuildData,
+	purgeEmptyStatsRecords: mockPurgeEmptyStatsRecords,
 }));
 
 jest.mock('../../utils/stockpileListSync.js', () => ({
@@ -313,6 +315,22 @@ describe('Stats events', () => {
 			jest.clearAllMocks();
 			mockStatsFindOneAndUpdate.mockResolvedValue({});
 			mockCleanupGuildData.mockResolvedValue(undefined);
+			mockPurgeEmptyStatsRecords.mockResolvedValue(0);
+		});
+
+		it('should purge empty Stats records on ready', async () => {
+			jest.resetModules();
+			mockPurgeEmptyStatsRecords.mockResolvedValue(7);
+
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: { cache: new Map() },
+			};
+
+			await onReady.execute(client);
+
+			expect(mockPurgeEmptyStatsRecords).toHaveBeenCalled();
 		});
 
 		it('should upsert Stats for each guild in cache on ready', async () => {

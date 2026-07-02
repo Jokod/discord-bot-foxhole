@@ -56,9 +56,11 @@ module.exports = {
 				});
 			}
 
-			// Numéro incrémental par serveur (tous les stocks confondus).
-			const count = await Stockpile.countDocuments({ server_id: guild.id });
-			const nextId = (count + 1).toString();
+			// Numéro incrémental par serveur : on prend le max des IDs existants + 1
+			// pour éviter les doublons en cas de suppressions ou de créations simultanées.
+			const allIds = await Stockpile.find({ server_id: guild.id }, { id: 1, _id: 0 }).lean();
+			const maxId = allIds.reduce((max, s) => Math.max(max, parseInt(s.id, 10) || 0), 0);
+			const nextId = (maxId + 1).toString();
 
 			const now = new Date();
 			const expiresAt = new Date(now.getTime() + STOCKPILE_RESET_DURATION_MS);
@@ -131,10 +133,16 @@ module.exports = {
 		}
 		catch (err) {
 			console.error(err);
-			return await interaction.reply({
+			const payload = {
 				content: translations.translate('STOCKPILE_CREATE_ERROR'),
 				flags: 64,
-			});
+			};
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp(payload).catch(console.error);
+			}
+			else {
+				await interaction.reply(payload).catch(console.error);
+			}
 		}
 	},
 };
