@@ -60,6 +60,7 @@ module.exports = {
 	HELP_SECTION_PARAMETERS: 'Параметры',
 	HELP_COMMAND_NOT_FOUND: 'Команда `%command%` не существует!',
 	HELP_PARAM_REQUIRED_SUFFIX: ' (обязательно)',
+	HELP_PARAM_HELP_COMMAND_VALUES: 'Доступные значения: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Произошла ошибка при выполнении команды.',
 	OWNER_ONLY: 'Эта команда доступна только владельцу бота.',

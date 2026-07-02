@@ -10,6 +10,7 @@ const {
 	Stockpile,
 } = require('../data/models.js');
 const { start: startStockpileExpiryScheduler } = require('../utils/stockpileExpiryScheduler.js');
+const { syncAllStockpileLists } = require('../utils/stockpileListSync.js');
 const { getBlockedGuildIds } = require('../utils/blockedGuilds.js');
 const { cleanupGuildData, purgeEmptyStatsRecords } = require('../utils/guildCleanup.js');
 
@@ -25,6 +26,9 @@ module.exports = {
 		console.log(`Logged in as ${client.user.tag}!`);
 
 		startStockpileExpiryScheduler(client);
+		void syncAllStockpileLists(client).catch((err) => {
+			console.error('[StockpileList] Échec de la synchronisation au démarrage:', err);
+		});
 
 		const purgedStats = await purgeEmptyStatsRecords();
 		if (purgedStats > 0) {

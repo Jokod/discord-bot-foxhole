@@ -2,7 +2,7 @@ const { Stockpile, TrackedMessage } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { editTrackedOrFallback } = require('../../../utils/trackedMessage.js');
 const { normalizeForDb, formatForDisplay } = require('../../../utils/formatLocation.js');
-const { buildStockpileListEmbed } = require('../../embeds/stockpileList.js');
+const { buildStockpileListEmbed, buildStockpileListComponents } = require('../../embeds/stockpileList.js');
 const { sendToSubscribers } = require('../../../utils/notifications.js');
 const { DISCORD_MAX_BUTTONS_PER_MESSAGE, STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
@@ -94,7 +94,6 @@ module.exports = {
 					city: safeEscapeMarkdown(formatForDisplay(city)),
 				}),
 			})).catch(() => undefined);
-			const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 			const { embed: listEmbed, isEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
 			const MESSAGE_TYPE = 'stockpile_list';
 			const expectedListTitle = `🔑 ${translations.translate('STOCKPILE_LIST_CODES')}`;
@@ -119,21 +118,8 @@ module.exports = {
 				});
 			}
 			else {
-				const stocks = await Stockpile.find({ server_id: guild.id, deleted: false }).sort({ id: 1 });
-				const buttons = stocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
-					new ButtonBuilder()
-						.setCustomId(`stockpile_reset-${stock.id}`)
-						.setLabel(`#${stock.id}`)
-						.setStyle(ButtonStyle.Primary),
-				);
-
-				const rows = [];
-				for (let i = 0; i < buttons.length; i += 5) {
-					const slice = buttons.slice(i, i + 5);
-					rows.push(new ActionRowBuilder().addComponents(...slice));
-				}
-
-				const payload = { content: '', embeds: [listEmbed], components: rows };
+				const components = await buildStockpileListComponents(Stockpile, guild.id);
+				const payload = { content: '', embeds: [listEmbed], components };
 				await editTrackedOrFallback({
 					channel: interaction.channel,
 					serverId: guild.id,

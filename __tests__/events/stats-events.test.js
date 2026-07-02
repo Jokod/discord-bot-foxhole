@@ -27,6 +27,10 @@ jest.mock('../../utils/guildCleanup.js', () => ({
 	purgeEmptyStatsRecords: mockPurgeEmptyStatsRecords,
 }));
 
+jest.mock('../../utils/stockpileListSync.js', () => ({
+	syncAllStockpileLists: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../../utils/translations.js', () => {
 	const fn = jest.fn();
 	fn.mockImplementation(() => ({ translate: jest.fn((k) => k) }));

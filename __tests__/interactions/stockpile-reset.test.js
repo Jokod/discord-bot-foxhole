@@ -12,10 +12,12 @@ jest.mock('../../interactions/embeds/stockpileList.js', () => ({
 }));
 
 const mockStockpileFindOne = jest.fn();
+const mockStockpileFindById = jest.fn();
 const mockStockpileFind = jest.fn();
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
 		findOne: (...args) => mockStockpileFindOne(...args),
+		findById: (...args) => mockStockpileFindById(...args),
 		find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn() }), lean: jest.fn() }),
 		deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 }),
 	},
@@ -60,6 +62,28 @@ describe('Stockpile reset button', () => {
 		await resetHandler.execute(interaction);
 		expect(mockStockpileFindOne).toHaveBeenCalledWith({ server_id: 'guild-123', id: '1' });
 		expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_NOT_EXIST', flags: 64 }));
+	});
+
+	it('résout un stock via son ObjectId MongoDB', async () => {
+		interaction.customId = 'stockpile_reset-507f1f77bcf86cd799439011';
+		const doc = {
+			server_id: 'guild-123',
+			id: '1',
+			deleted: false,
+			lastResetAt: null,
+			expiresAt: null,
+			expiry_reminders_sent: [],
+			save: jest.fn().mockResolvedValue(undefined),
+		};
+		mockStockpileFindById.mockResolvedValue(doc);
+		mockBuildStockpileListEmbed.mockResolvedValue({ embed: { toJSON: () => ({}) }, isEmpty: false });
+		mockBuildStockpileListComponents.mockResolvedValue([{ components: [] }]);
+
+		await resetHandler.execute(interaction);
+
+		expect(mockStockpileFindById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
+		expect(mockStockpileFindOne).not.toHaveBeenCalled();
+		expect(doc.save).toHaveBeenCalled();
 	});
 
 	it('répond STOCKPILE_ALREADY_DELETED si le stock est marqué supprimé', async () => {

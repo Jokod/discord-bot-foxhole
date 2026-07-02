@@ -9,18 +9,17 @@ class Translate {
 		let lang = this.client.traductions.get(this.guildId);
 		if (!this.client.languages.has(lang)) lang = 'en';
 
-		let sentence = key;
-		try {
-			sentence = this.client.languages.get(lang)[key];
-		}
-		catch {
+		const sentence = this.client.languages.get(lang)?.[key];
+		if (sentence === undefined) {
 			console.log(`[ERROR] Translation key "${key}" not found.`);
+			return undefined;
 		}
 
 		return this.replaceVariables(sentence, params);
 	}
 
 	replaceVariables(sentence, params) {
+		if (sentence == null) return sentence;
 		if (Object.keys(params).length === 0) return sentence;
 
 		Object.keys(params).forEach(param => {

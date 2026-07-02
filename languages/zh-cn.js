@@ -60,6 +60,7 @@ module.exports = {
 	HELP_SECTION_PARAMETERS: '参数',
 	HELP_COMMAND_NOT_FOUND: '命令 `%command%` 不存在！',
 	HELP_PARAM_REQUIRED_SUFFIX: '（必填）',
+	HELP_PARAM_HELP_COMMAND_VALUES: '可用值：%commands%',
 
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
 	OWNER_ONLY: '此命令仅适用于机器人所有者。',

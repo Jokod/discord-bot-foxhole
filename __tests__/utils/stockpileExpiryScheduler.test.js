@@ -8,8 +8,7 @@ jest.mock('../../utils/formatLocation.js', () => ({ formatForDisplay: (x) => x |
 
 const mockFind = jest.fn();
 const mockFindByIdAndUpdate = jest.fn();
-const mockBuildStockpileListEmbed = jest.fn();
-const mockBuildStockpileListComponents = jest.fn();
+const mockRefreshTrackedStockpileLists = jest.fn().mockResolvedValue(0);
 
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
@@ -20,17 +19,13 @@ jest.mock('../../data/models.js', () => ({
 	NotificationSubscription: {
 		find: jest.fn().mockReturnValue({ lean: jest.fn() }),
 	},
-	TrackedMessage: {
-		find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
-	},
 }));
 
-jest.mock('../../interactions/embeds/stockpileList.js', () => ({
-	buildStockpileListEmbed: (...args) => mockBuildStockpileListEmbed(...args),
-	buildStockpileListComponents: (...args) => mockBuildStockpileListComponents(...args),
+jest.mock('../../utils/stockpileListSync.js', () => ({
+	refreshTrackedStockpileLists: (...args) => mockRefreshTrackedStockpileLists(...args),
 }));
 
-const { Stockpile, NotificationSubscription, TrackedMessage } = require('../../data/models.js');
+const { Stockpile, NotificationSubscription } = require('../../data/models.js');
 const { checkExpiringStockpiles, start } = require('../../utils/stockpileExpiryScheduler.js');
 
 describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
@@ -43,9 +38,7 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 		jest.clearAllMocks();
 		Stockpile.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
 		NotificationSubscription.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
-		TrackedMessage.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
-		mockBuildStockpileListEmbed.mockResolvedValue({ embed: { data: {} }, isEmpty: false });
-		mockBuildStockpileListComponents.mockResolvedValue([]);
+		mockRefreshTrackedStockpileLists.mockResolvedValue(0);
 		client = {
 			traductions: new Map(),
 			channels: { fetch: jest.fn().mockResolvedValue(mockChannel) },
@@ -298,7 +291,7 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 		expect(channelSend).not.toHaveBeenCalled();
 	});
 
-	it('updates tracked stockpile list messages when there are reminders to send', async () => {
+	it('rafraîchit les listes stockpile trackées quand des rappels sont envoyés', async () => {
 		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
 		const stock = {
 			_id: 'stock-id-1',
@@ -311,14 +304,6 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 			expiresAt,
 			expiry_reminders_sent: [],
 		};
-		const mockMsgEdit = jest.fn().mockResolvedValue(undefined);
-		const mockMessagesFetch = jest.fn().mockResolvedValue({ edit: mockMsgEdit });
-		const textChannel = {
-			isSendable: () => true,
-			send: channelSend,
-			isTextBased: () => true,
-			messages: { fetch: mockMessagesFetch },
-		};
 
 		Stockpile.find.mockReturnValue({
 			lean: jest.fn().mockResolvedValue([stock]),
@@ -326,71 +311,11 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 		NotificationSubscription.find.mockReturnValue({
 			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
 		});
-		TrackedMessage.find.mockReturnValue({
-			lean: jest.fn().mockResolvedValue([
-				{ server_id: 'guild-1', channel_id: 'ch-tracked', message_id: 'msg-1', message_type: 'stockpile_list' },
-			]),
-		});
-		mockBuildStockpileListEmbed.mockResolvedValue({ embed: { data: {} }, isEmpty: false });
-		client.channels.fetch.mockImplementation((id) =>
-			Promise.resolve(id === 'ch-1' ? { ...mockChannel, send: channelSend } : textChannel),
-		);
+		client.channels.fetch.mockResolvedValue({ ...mockChannel, send: channelSend });
 
 		await checkExpiringStockpiles(client);
 
-		expect(mockBuildStockpileListEmbed).toHaveBeenCalledWith(Stockpile, 'guild-1', expect.anything());
-		expect(mockBuildStockpileListComponents).toHaveBeenCalledWith(Stockpile, 'guild-1');
-		expect(mockMessagesFetch).toHaveBeenCalledWith('msg-1');
-		expect(mockMsgEdit).toHaveBeenCalledWith(expect.objectContaining({ embeds: expect.any(Array), components: expect.any(Array) }));
-	});
-
-	it('edits tracked list with STOCKPILE_LIST_EMPTY when isEmpty', async () => {
-		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
-		const stock = {
-			_id: 'stock-id-1',
-			id: '1',
-			name: 'Test',
-			server_id: 'guild-1',
-			owner_id: 'user-1',
-			region: 'R',
-			city: 'C',
-			expiresAt,
-			expiry_reminders_sent: [],
-		};
-		const mockMsgEdit = jest.fn().mockResolvedValue(undefined);
-		const mockMessagesFetch = jest.fn().mockResolvedValue({ edit: mockMsgEdit });
-		const textChannel = {
-			isSendable: () => true,
-			send: channelSend,
-			isTextBased: () => true,
-			messages: { fetch: mockMessagesFetch },
-		};
-
-		Stockpile.find.mockReturnValue({
-			lean: jest.fn().mockResolvedValue([stock]),
-		});
-		NotificationSubscription.find.mockReturnValue({
-			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
-		});
-		TrackedMessage.find.mockReturnValue({
-			lean: jest.fn().mockResolvedValue([
-				{ server_id: 'guild-1', channel_id: 'ch-tracked', message_id: 'msg-1', message_type: 'stockpile_list' },
-			]),
-		});
-		mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
-		client.channels.fetch.mockImplementation((id) =>
-			Promise.resolve(id === 'ch-1' ? { ...mockChannel, send: channelSend } : textChannel),
-		);
-
-		await checkExpiringStockpiles(client);
-
-		expect(mockMsgEdit).toHaveBeenCalledWith(
-			expect.objectContaining({
-				content: 'STOCKPILE_LIST_EMPTY',
-				embeds: [],
-				components: [],
-			}),
-		);
+		expect(mockRefreshTrackedStockpileLists).toHaveBeenCalledWith(client, { guildIds: ['guild-1'] });
 	});
 
 	it('continues when channel.send throws', async () => {

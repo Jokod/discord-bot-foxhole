@@ -60,6 +60,7 @@ module.exports = {
 	HELP_SECTION_PARAMETERS: 'Parameters',
 	HELP_COMMAND_NOT_FOUND: 'The command `%command%` doesn\'t exist!',
 	HELP_PARAM_REQUIRED_SUFFIX: ' (required)',
+	HELP_PARAM_HELP_COMMAND_VALUES: 'Available values: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
 	OWNER_ONLY: 'This command is only available to the owner of the bot.',

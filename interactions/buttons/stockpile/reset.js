@@ -10,19 +10,22 @@ module.exports = {
 		const { client, guild, customId } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		const parts = customId.split('-');
-		const stockId = parts[1];
+		const stockRef = customId.slice('stockpile_reset-'.length);
 
 		await interaction.deferUpdate();
 
-		if (!stockId || !/^\d+$/.test(stockId)) {
+		const isNumericId = /^\d+$/.test(stockRef) && stockRef.length < 24;
+		const isObjectId = /^[a-f0-9]{24}$/i.test(stockRef);
+		if (!stockRef || (!isNumericId && !isObjectId)) {
 			return interaction.followUp({
 				content: translations.translate('STOCKPILE_INVALID_ID'),
 				flags: 64,
 			});
 		}
 
-		const stockToReset = await Stockpile.findOne({ server_id: guild.id, id: stockId });
+		const stockToReset = isObjectId
+			? await Stockpile.findById(stockRef)
+			: await Stockpile.findOne({ server_id: guild.id, id: stockRef });
 
 		if (!stockToReset || stockToReset.server_id !== guild.id) {
 			return interaction.followUp({
