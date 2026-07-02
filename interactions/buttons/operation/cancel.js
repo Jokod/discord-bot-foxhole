@@ -31,14 +31,16 @@ module.exports = {
 			await interaction.deferReply({ flags: 64 });
 
 			const threads = await Group.find({ guild_id: guild.id, operation_id: `${operationId}` });
-			for (const thread of threads) {
-				const result = channel.threads.cache.find(t => t.id === thread.threadId);
+			for (const group of threads) {
+				let threadChannel = channel.threads.cache.get(group.threadId);
+				if (!threadChannel) {
+					threadChannel = await channel.threads.fetch(group.threadId).catch(() => null);
+				}
 
-				if (result) {
-					await Material.deleteMany({ guild_id: guild.id, group_id: `${thread.threadId}` });
-					await channel.messages.fetch(result.id).then(msg => msg.delete()).catch(console.error);
-					await result.delete().catch(console.error);
-					await thread.deleteOne({ threadId: `${result.id}` });
+				if (threadChannel) {
+					await Material.deleteMany({ guild_id: guild.id, group_id: `${group.threadId}` });
+					await threadChannel.delete().catch(console.error);
+					await group.deleteOne();
 				}
 			}
 

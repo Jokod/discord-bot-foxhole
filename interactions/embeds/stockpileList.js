@@ -80,6 +80,39 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 	return { embed, isEmpty: false, stocks: sortedById };
 }
 
+/** Discord limite les labels de bouton à 80 caractères. */
+const DISCORD_MAX_BUTTON_LABEL_LENGTH = 80;
+
+/**
+ * @param {Array<{ id: string, _id: unknown, name?: string }>} stocks
+ * @returns {Map<string, number>}
+ */
+function countStockIds(stocks) {
+	const counts = new Map();
+	for (const stock of stocks) {
+		counts.set(stock.id, (counts.get(stock.id) || 0) + 1);
+	}
+	return counts;
+}
+
+/**
+ * @param {{ id: string, _id: unknown, name?: string }} stock
+ * @param {Map<string, number>} idCounts
+ */
+function buildStockpileButtonLabel(stock, idCounts) {
+	const base = `#${stock.id}`;
+	if ((idCounts.get(stock.id) || 0) <= 1) {
+		return base.slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH);
+	}
+
+	const namePart = (stock.name || '').trim().slice(0, 12);
+	const disambiguated = namePart
+		? `${base} ${namePart}`
+		: `${base}…${String(stock._id).slice(-4)}`;
+
+	return disambiguated.slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH);
+}
+
 /**
  * Construit les boutons de reset pour la liste des stockpiles d'un serveur.
  * @param {import('mongoose').Model} Stockpile - Modèle Stockpile
@@ -90,10 +123,20 @@ async function buildStockpileListComponents(Stockpile, guildId) {
 	const stocks = await Stockpile.find({ server_id: guildId, deleted: false }).sort({ id: 1 }).lean();
 	if (!stocks || stocks.length === 0) return [];
 
-	const buttons = stocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
+	const seen = new Set();
+	const uniqueStocks = stocks.filter((stock) => {
+		const ref = String(stock._id);
+		if (seen.has(ref)) return false;
+		seen.add(ref);
+		return true;
+	});
+
+	const idCounts = countStockIds(uniqueStocks);
+
+	const buttons = uniqueStocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
 		new ButtonBuilder()
-			.setCustomId(`stockpile_reset-${stock.id}`)
-			.setLabel(`#${stock.id}`)
+			.setCustomId(`stockpile_reset-${stock._id}`)
+			.setLabel(buildStockpileButtonLabel(stock, idCounts))
 			.setStyle(ButtonStyle.Primary),
 	);
 
@@ -104,4 +147,9 @@ async function buildStockpileListComponents(Stockpile, guildId) {
 	return rows;
 }
 
-module.exports = { buildStockpileListEmbed, buildStockpileListComponents };
+module.exports = {
+	buildStockpileListEmbed,
+	buildStockpileListComponents,
+	buildStockpileButtonLabel,
+	countStockIds,
+};

@@ -82,8 +82,8 @@ describe('stockpileList embed', () => {
 
 		it('retourne des ActionRows avec boutons pour chaque stock', async () => {
 			const stocks = [
-				{ id: '1', server_id: 'guild-1', deleted: false },
-				{ id: '2', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439011', id: '1', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439012', id: '2', server_id: 'guild-1', deleted: false },
 			];
 			const Stockpile = {
 				find: jest.fn().mockReturnValue({
@@ -95,8 +95,42 @@ describe('stockpileList embed', () => {
 
 			expect(result.length).toBe(1);
 			expect(result[0].components.length).toBe(2);
-			expect(result[0].components[0].data.custom_id).toBe('stockpile_reset-1');
-			expect(result[0].components[1].data.custom_id).toBe('stockpile_reset-2');
+			expect(result[0].components[0].data.custom_id).toBe('stockpile_reset-507f1f77bcf86cd799439011');
+			expect(result[0].components[1].data.custom_id).toBe('stockpile_reset-507f1f77bcf86cd799439012');
+		});
+
+		it('ignore les doublons de _id pour éviter des custom_id dupliqués', async () => {
+			const stocks = [
+				{ _id: '507f1f77bcf86cd799439011', id: '1', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439011', id: '1', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439012', id: '2', server_id: 'guild-1', deleted: false },
+			];
+			const Stockpile = {
+				find: jest.fn().mockReturnValue({
+					sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(stocks) }),
+				}),
+			};
+
+			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+
+			expect(result[0].components.length).toBe(2);
+		});
+
+		it('désambiguïse les labels quand plusieurs stocks partagent le même id', async () => {
+			const stocks = [
+				{ _id: '507f1f77bcf86cd799439011', id: '5', name: 'Alpha', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439012', id: '5', name: 'Bravo', server_id: 'guild-1', deleted: false },
+			];
+			const Stockpile = {
+				find: jest.fn().mockReturnValue({
+					sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(stocks) }),
+				}),
+			};
+
+			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+
+			expect(result[0].components[0].data.label).toBe('#5 Alpha');
+			expect(result[0].components[1].data.label).toBe('#5 Bravo');
 		});
 	});
 });
