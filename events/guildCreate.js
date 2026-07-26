@@ -43,5 +43,6 @@ module.exports = {
 			},
 			{ upsert: true, returnDocument: 'after' },
 		);
+		console.log(`[Stats] Bot a rejoint le serveur ${guild.name ?? guild.id}.`);
 	},
 };
