@@ -110,4 +110,40 @@ describe('notifications utility', () => {
 			expect(mockSend).toHaveBeenCalledTimes(1);
 		});
 	});
+
+	describe('broadcastToSubscribers', () => {
+		it('retourne sent:0 total:0 si aucun abonnement', async () => {
+			mockFind.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
+			const client = { channels: { fetch: jest.fn() } };
+
+			const result = await notifications.broadcastToSubscribers(client, 'newsletter', { content: 'Hello' });
+
+			expect(result).toEqual({ sent: 0, total: 0 });
+			expect(client.channels.fetch).not.toHaveBeenCalled();
+		});
+
+		it('envoie à tous les salons abonnés sur tous les serveurs', async () => {
+			mockFind.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([
+					{ channel_id: 'ch1', guild_id: 'g1' },
+					{ channel_id: 'ch2', guild_id: 'g2' },
+				]),
+			});
+			const mockSend = jest.fn().mockResolvedValue(undefined);
+			const client = {
+				channels: {
+					fetch: jest.fn()
+						.mockResolvedValueOnce({ isSendable: () => true, send: mockSend })
+						.mockResolvedValueOnce({ isSendable: () => true, send: mockSend }),
+				},
+			};
+
+			const result = await notifications.broadcastToSubscribers(client, 'newsletter', { content: '**News**' });
+
+			expect(mockFind).toHaveBeenCalledWith({ notification_type: 'newsletter' });
+			expect(mockSend).toHaveBeenCalledTimes(2);
+			expect(mockSend).toHaveBeenCalledWith({ content: '**News**' });
+			expect(result).toEqual({ sent: 2, total: 2 });
+		});
+	});
 });

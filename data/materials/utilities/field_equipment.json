@@ -5,7 +5,7 @@
 			"warden"
 		],
 		"itemName": "Barbed Wire",
-		"itemDesc": "Used to construct Barbed Wire defenses.",
+		"itemDesc": "Barbed Wire may refer to:",
 		"itemCategory": "utilities"
 	},
 	{
@@ -68,7 +68,7 @@
 			"warden"
 		],
 		"itemName": "Radio",
-		"itemDesc": "Allows receiving map intelligence reports on detected ground and naval targets.",
+		"itemDesc": "Allows receiving map intelligence reports on detected ground, naval, and air targets.",
 		"itemCategory": "utilities"
 	},
 	{

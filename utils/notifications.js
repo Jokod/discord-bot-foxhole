@@ -44,4 +44,37 @@ async function sendToSubscribers(client, guildId, notificationType, buildPayload
 	}
 }
 
-module.exports = { getSubscriptions, sendToSubscribers };
+/**
+ * Send a message to all channels subscribed to a notification type across every guild.
+ * @param {import('discord.js').Client} client
+ * @param {string} notificationType
+ * @param {{ content?: string, embeds?: import('discord.js').EmbedBuilder[] }} payload
+ * @returns {Promise<{ sent: number, total: number }>}
+ */
+async function broadcastToSubscribers(client, notificationType, payload) {
+	const subscriptions = await NotificationSubscription.find({
+		notification_type: notificationType,
+	}).lean();
+
+	if (subscriptions.length === 0) {
+		return { sent: 0, total: 0 };
+	}
+
+	let sent = 0;
+	for (const { channel_id } of subscriptions) {
+		try {
+			const channel = await client.channels.fetch(channel_id).catch(() => null);
+			if (channel && channel.isSendable()) {
+				await channel.send(payload);
+				sent += 1;
+			}
+		}
+		catch {
+			// Channel deleted, no permission, etc. — skip
+		}
+	}
+
+	return { sent, total: subscriptions.length };
+}
+
+module.exports = { getSubscriptions, sendToSubscribers, broadcastToSubscribers };

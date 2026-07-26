@@ -31,6 +31,15 @@ describe('NotificationSubscription Model', () => {
 			expect(doc.validateSync()).toBeUndefined();
 		});
 
+		it('should accept newsletter as notification_type', () => {
+			const doc = new NotificationSubscription({
+				guild_id: 'g1',
+				channel_id: 'c1',
+				notification_type: 'newsletter',
+			});
+			expect(doc.validateSync()).toBeUndefined();
+		});
+
 		it('should reject invalid notification_type', () => {
 			const doc = new NotificationSubscription({
 				guild_id: 'g1',

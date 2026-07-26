@@ -13,6 +13,15 @@
 			"colonial",
 			"warden"
 		],
+		"itemName": ".44 Mag",
+		"itemDesc": "Standard ammunition for revolvers.",
+		"itemCategory": "small_arms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
 		"itemName": "12.7mm Ammo Crate",
 		"itemDesc": "Standard ammunition for machine guns.",
 		"itemCategory": "small_arms"
