@@ -9,6 +9,15 @@ jest.mock('../../data/models.js', () => ({
 	},
 }));
 
+function pickMessageById(msgs, id, fallback) {
+	if (Array.isArray(msgs)) {
+		for (const message of msgs) {
+			if (message.id === id) return message;
+		}
+	}
+	return fallback;
+}
+
 describe('utils/trackedMessage', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -59,7 +68,7 @@ describe('utils/trackedMessage', () => {
 				},
 			};
 			TrackedMessage.findOne.mockResolvedValue({ message_id: 'msg-deleted', _id: 'doc-1' });
-			const fallbackMatcher = jest.fn((msgs) => msgs.find?.((m) => m.id === 'msg-456') ?? fakeMessage);
+			const fallbackMatcher = jest.fn((msgs) => pickMessageById(msgs, 'msg-456', fakeMessage));
 
 			const result = await findTrackedMessage(channel, 'guild-1', 'stockpile_list', {
 				model: TrackedMessage,
@@ -85,7 +94,7 @@ describe('utils/trackedMessage', () => {
 				messages: { fetch: jest.fn().mockResolvedValue(messagesArr) },
 			};
 			TrackedMessage.findOne.mockResolvedValue(null);
-			const fallbackMatcher = jest.fn((msgs) => msgs.find?.((m) => m.id === 'msg-789') ?? fakeMessage);
+			const fallbackMatcher = jest.fn((msgs) => pickMessageById(msgs, 'msg-789', fakeMessage));
 
 			const result = await findTrackedMessage(channel, 'guild-1', 'stockpile_list', {
 				model: TrackedMessage,
