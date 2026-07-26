@@ -328,9 +328,4 @@ module.exports = {
 	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'This channel is no longer subscribed to the bot newsletter.',
 	NEWSLETTER_ALREADY_SUBSCRIBED: 'This channel is already subscribed to the bot newsletter.',
 	NEWSLETTER_NOT_SUBSCRIBED: 'This channel is not subscribed to the bot newsletter.',
-	NEWSLETTER_PUBLISH_SUCCESS: 'Newsletter sent to %sent%/%total% subscribed channel(s).',
-	NEWSLETTER_PUBLISH_EMPTY: 'No channels are subscribed to the newsletter.',
-	NEWSLETTER_FILE_MISSING: 'The file data/newsletter.md was not found on the bot host.',
-	NEWSLETTER_FILE_EMPTY: 'The file data/newsletter.md is empty. Edit it, then run /newsletter publish again.',
-	NEWSLETTER_FILE_TOO_LONG: 'data/newsletter.md is too long (%length% characters, max %limit%).',
 };

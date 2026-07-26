@@ -227,13 +227,18 @@ Bot newsletters are **not** part of `/notification` — use `/newsletter` instea
 
 #### Slash commands – Newsletter
 
-Subscribe a channel to bot newsletters (announcements from the bot owner). Requires **Manage Server** to subscribe or unsubscribe. Publishing is restricted to the bot owner (`OWNER` in `.env`).
+Subscribe a channel to bot newsletters (announcements from the bot maintainer). Requires **Manage Server**.
 
 - `/newsletter subscribe` – Subscribe this channel to the bot newsletter.
 - `/newsletter unsubscribe` – Unsubscribe this channel from the bot newsletter.
-- `/newsletter publish` – Send the content of `data/newsletter.md` to **all** subscribed channels across every server (bot owner only).
 
-Edit `data/newsletter.md` on the bot host (Discord markdown: bold, italic, lists, links, etc.), then run `/newsletter publish`. Max 2000 characters.
+To **publish**, edit `data/newsletter.md` on the host, then run:
+
+```bash
+make newsletter publish
+```
+
+(or `make newsletter-publish`). This sends the Discord markdown content to **all** subscribed channels across every server. Max 2000 characters.
 
 ## Project Structure
 

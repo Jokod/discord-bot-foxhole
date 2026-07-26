@@ -328,9 +328,4 @@ module.exports = {
 	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'Ce salon n\'est plus abonné à la newsletter du bot.',
 	NEWSLETTER_ALREADY_SUBSCRIBED: 'Ce salon est déjà abonné à la newsletter du bot.',
 	NEWSLETTER_NOT_SUBSCRIBED: 'Ce salon n\'est pas abonné à la newsletter du bot.',
-	NEWSLETTER_PUBLISH_SUCCESS: 'Newsletter envoyée à %sent%/%total% salon(s) abonné(s).',
-	NEWSLETTER_PUBLISH_EMPTY: 'Aucun salon n\'est abonné à la newsletter.',
-	NEWSLETTER_FILE_MISSING: 'Le fichier data/newsletter.md est introuvable sur l\'hôte du bot.',
-	NEWSLETTER_FILE_EMPTY: 'Le fichier data/newsletter.md est vide. Modifie-le, puis relance /newsletter publish.',
-	NEWSLETTER_FILE_TOO_LONG: 'data/newsletter.md est trop long (%length% caractères, max %limit%).',
 };

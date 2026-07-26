@@ -329,9 +329,4 @@ module.exports = {
 	NEWSLETTER_UNSUBSCRIBE_SUCCESS: '此频道已取消订阅机器人通讯。',
 	NEWSLETTER_ALREADY_SUBSCRIBED: '此频道已订阅机器人通讯。',
 	NEWSLETTER_NOT_SUBSCRIBED: '此频道未订阅机器人通讯。',
-	NEWSLETTER_PUBLISH_SUCCESS: '通讯已发送至 %sent%/%total% 个已订阅频道。',
-	NEWSLETTER_PUBLISH_EMPTY: '没有频道订阅通讯。',
-	NEWSLETTER_FILE_MISSING: '在机器人主机上未找到 data/newsletter.md 文件。',
-	NEWSLETTER_FILE_EMPTY: 'data/newsletter.md 为空。请编辑后再运行 /newsletter publish。',
-	NEWSLETTER_FILE_TOO_LONG: 'data/newsletter.md 过长（%length% 个字符，最多 %limit%）。',
 };

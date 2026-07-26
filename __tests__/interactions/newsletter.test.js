@@ -1,8 +1,4 @@
-const mockTranslate = jest.fn((key, params = {}) => {
-	if (params.sent !== undefined) return `${key}:${params.sent}/${params.total}`;
-	if (params.length !== undefined) return `${key}:${params.length}/${params.limit}`;
-	return key;
-});
+const mockTranslate = jest.fn((key) => key);
 
 const { PermissionFlagsBits } = require('discord.js');
 
@@ -16,33 +12,14 @@ jest.mock('../../data/models.js', () => ({
 	},
 }));
 
-jest.mock('../../utils/notifications.js', () => ({
-	broadcastToSubscribers: jest.fn(),
-}));
-
-jest.mock('fs', () => ({
-	existsSync: jest.fn(),
-	readFileSync: jest.fn(),
-}));
-
-const fs = require('fs');
 const { NotificationSubscription } = require('../../data/models.js');
-const { broadcastToSubscribers } = require('../../utils/notifications.js');
 
 describe('Slash command /newsletter', () => {
 	let newsletterCommand;
-	const originalOwner = process.env.OWNER;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		process.env.OWNER = 'owner-123';
-		jest.isolateModules(() => {
-			newsletterCommand = require('../../interactions/slash/misc/newsletter.js');
-		});
-	});
-
-	afterAll(() => {
-		process.env.OWNER = originalOwner;
+		newsletterCommand = require('../../interactions/slash/misc/newsletter.js');
 	});
 
 	function createInteraction(subcommand, overrides = {}) {
@@ -64,6 +41,12 @@ describe('Slash command /newsletter', () => {
 			...overrides,
 		};
 	}
+
+	it('n’expose pas de sous-commande publish', () => {
+		const json = newsletterCommand.data.toJSON();
+		const names = json.options.map((opt) => opt.name);
+		expect(names).toEqual(['subscribe', 'unsubscribe']);
+	});
 
 	describe('subscribe', () => {
 		it('refuse si l’utilisateur n’a pas ManageGuild', async () => {
@@ -138,82 +121,6 @@ describe('Slash command /newsletter', () => {
 			await newsletterCommand.execute(interaction);
 			expect(interaction.reply).toHaveBeenCalledWith(
 				expect.objectContaining({ content: 'NEWSLETTER_UNSUBSCRIBE_SUCCESS', flags: 64 }),
-			);
-		});
-	});
-
-	describe('publish', () => {
-		it('refuse si l’utilisateur n’est pas le propriétaire du bot', async () => {
-			const interaction = createInteraction('publish');
-			await newsletterCommand.execute(interaction);
-			expect(broadcastToSubscribers).not.toHaveBeenCalled();
-			expect(fs.existsSync).not.toHaveBeenCalled();
-			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'OWNER_ONLY', flags: 64 }),
-			);
-		});
-
-		it('répond FILE_MISSING si data/newsletter.md n’existe pas', async () => {
-			fs.existsSync.mockReturnValue(false);
-			const interaction = createInteraction('publish', { user: { id: 'owner-123' } });
-			await newsletterCommand.execute(interaction);
-			expect(broadcastToSubscribers).not.toHaveBeenCalled();
-			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NEWSLETTER_FILE_MISSING', flags: 64 }),
-			);
-		});
-
-		it('répond FILE_EMPTY si le fichier est vide', async () => {
-			fs.existsSync.mockReturnValue(true);
-			fs.readFileSync.mockReturnValue('   \n  ');
-			const interaction = createInteraction('publish', { user: { id: 'owner-123' } });
-			await newsletterCommand.execute(interaction);
-			expect(broadcastToSubscribers).not.toHaveBeenCalled();
-			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NEWSLETTER_FILE_EMPTY', flags: 64 }),
-			);
-		});
-
-		it('répond FILE_TOO_LONG si le fichier dépasse 2000 caractères', async () => {
-			fs.existsSync.mockReturnValue(true);
-			fs.readFileSync.mockReturnValue('x'.repeat(2001));
-			const interaction = createInteraction('publish', { user: { id: 'owner-123' } });
-			await newsletterCommand.execute(interaction);
-			expect(broadcastToSubscribers).not.toHaveBeenCalled();
-			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NEWSLETTER_FILE_TOO_LONG:2001/2000', flags: 64 }),
-			);
-		});
-
-		it('répond PUBLISH_EMPTY si aucun salon abonné', async () => {
-			fs.existsSync.mockReturnValue(true);
-			fs.readFileSync.mockReturnValue('**News**\n\n- item');
-			broadcastToSubscribers.mockResolvedValue({ sent: 0, total: 0 });
-			const interaction = createInteraction('publish', { user: { id: 'owner-123' } });
-			await newsletterCommand.execute(interaction);
-			expect(broadcastToSubscribers).toHaveBeenCalledWith(
-				interaction.client,
-				'newsletter',
-				{ content: '**News**\n\n- item' },
-			);
-			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NEWSLETTER_PUBLISH_EMPTY', flags: 64 }),
-			);
-		});
-
-		it('publie le contenu du fichier et répond PUBLISH_SUCCESS', async () => {
-			fs.existsSync.mockReturnValue(true);
-			fs.readFileSync.mockReturnValue('**Mise à jour**\n\n- Correction');
-			broadcastToSubscribers.mockResolvedValue({ sent: 3, total: 4 });
-			const interaction = createInteraction('publish', { user: { id: 'owner-123' } });
-			await newsletterCommand.execute(interaction);
-			expect(broadcastToSubscribers).toHaveBeenCalledWith(
-				interaction.client,
-				'newsletter',
-				{ content: '**Mise à jour**\n\n- Correction' },
-			);
-			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NEWSLETTER_PUBLISH_SUCCESS:3/4', flags: 64 }),
 			);
 		});
 	});
