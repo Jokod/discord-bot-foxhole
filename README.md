@@ -223,6 +223,18 @@ Subscribe channels to notifications. Requires **Manage Channels** to subscribe o
 
 The two types are independent: subscribing to *Stockpile activity* does not enable expiry reminders; you must also subscribe to *Stockpile expiring soon*.
 
+Bot newsletters are **not** part of `/notification` — use `/newsletter` instead (see below).
+
+#### Slash commands – Newsletter
+
+Subscribe a channel to bot newsletters (announcements from the bot owner). Requires **Manage Server** to subscribe or unsubscribe. Publishing is restricted to the bot owner (`OWNER` in `.env`).
+
+- `/newsletter subscribe` – Subscribe this channel to the bot newsletter.
+- `/newsletter unsubscribe` – Unsubscribe this channel from the bot newsletter.
+- `/newsletter publish` – Send the content of `data/newsletter.md` to **all** subscribed channels across every server (bot owner only).
+
+Edit `data/newsletter.md` on the bot host (Discord markdown: bold, italic, lists, links, etc.), then run `/newsletter publish`. Max 2000 characters.
+
 ## Project Structure
 
 ### Materials Organization

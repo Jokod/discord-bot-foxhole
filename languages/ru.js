@@ -322,4 +322,16 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_2H: 'через 2 ч',
 	NOTIFICATION_EXPIRING_IN_1H: 'через 1 ч',
 	NOTIFICATION_EXPIRING_IN_30M: 'через 30 мин',
+
+	// NEWSLETTER
+	NEWSLETTER_NO_PERMS: 'Нужно право « Управление сервером » для подписки или отписки.',
+	NEWSLETTER_SUBSCRIBE_SUCCESS: 'Этот канал подписан на рассылку бота.',
+	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'Этот канал больше не подписан на рассылку бота.',
+	NEWSLETTER_ALREADY_SUBSCRIBED: 'Этот канал уже подписан на рассылку бота.',
+	NEWSLETTER_NOT_SUBSCRIBED: 'Этот канал не подписан на рассылку бота.',
+	NEWSLETTER_PUBLISH_SUCCESS: 'Рассылка отправлена в %sent%/%total% подписанных канал(ов).',
+	NEWSLETTER_PUBLISH_EMPTY: 'Нет каналов, подписанных на рассылку.',
+	NEWSLETTER_FILE_MISSING: 'Файл data/newsletter.md не найден на хосте бота.',
+	NEWSLETTER_FILE_EMPTY: 'Файл data/newsletter.md пуст. Отредактируйте его и снова выполните /newsletter publish.',
+	NEWSLETTER_FILE_TOO_LONG: 'data/newsletter.md слишком длинный (%length% символов, макс. %limit%).',
 };

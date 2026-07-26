@@ -156,5 +156,33 @@ describe('Slash command /notification', () => {
 			expect(interaction.reply.mock.calls[0][0].content).toContain('<#ch-1>');
 			expect(interaction.reply.mock.calls[0][0].content).toContain('<#ch-2>');
 		});
+
+		it('ignore les abonnements newsletter (gérés via /newsletter)', async () => {
+			NotificationSubscription.find.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([
+					{ notification_type: 'newsletter', channel_id: 'ch-news' },
+					{ notification_type: 'stockpile_activity', channel_id: 'ch-1' },
+				]),
+			});
+			const interaction = createInteraction('list');
+			await notificationCommand.execute(interaction);
+			const content = interaction.reply.mock.calls[0][0].content;
+			expect(content).toContain('<#ch-1>');
+			expect(content).not.toContain('newsletter');
+			expect(content).not.toContain('<#ch-news>');
+		});
+
+		it('répond LIST_EMPTY si seuls des abonnements newsletter existent', async () => {
+			NotificationSubscription.find.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([
+					{ notification_type: 'newsletter', channel_id: 'ch-news' },
+				]),
+			});
+			const interaction = createInteraction('list');
+			await notificationCommand.execute(interaction);
+			expect(interaction.reply).toHaveBeenCalledWith(
+				expect.objectContaining({ content: 'NOTIFICATION_LIST_EMPTY', flags: 64 }),
+			);
+		});
 	});
 });

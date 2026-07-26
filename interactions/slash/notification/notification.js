@@ -176,15 +176,18 @@ module.exports = {
 		}
 
 		if (subcommand === 'list') {
+			const knownTypes = new Set(NOTIFICATION_TYPES.map((t) => t.value));
 			const all = await NotificationSubscription.find({ guild_id: guild.id }).lean();
-			if (all.length === 0) {
+			// Newsletter subscriptions are managed via /newsletter — exclude them here.
+			const listed = all.filter((sub) => knownTypes.has(sub.notification_type));
+			if (listed.length === 0) {
 				return interaction.reply({
 					content: translations.translate('NOTIFICATION_LIST_EMPTY'),
 					flags: 64,
 				});
 			}
 			const byType = new Map();
-			for (const sub of all) {
+			for (const sub of listed) {
 				if (!byType.has(sub.notification_type)) byType.set(sub.notification_type, []);
 				byType.get(sub.notification_type).push(`<#${sub.channel_id}>`);
 			}
