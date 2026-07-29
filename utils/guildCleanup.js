@@ -17,11 +17,11 @@ function hasEmptyStatsName(stat) {
 /**
  * Nettoie toutes les données applicatives liées à un serveur.
  * @param {string} guildId
- * @param {{ reason?: string, markLeftAt?: boolean, guildName?: string }} [options]
+ * @param {{ reason?: string, markLeftAt?: boolean, guildName?: string, ownerId?: string | null }} [options]
  * @returns {Promise<void>}
  */
 async function cleanupGuildData(guildId, options = {}) {
-	const { reason = 'unknown', markLeftAt = true, guildName } = options;
+	const { reason = 'unknown', markLeftAt = true, guildName, ownerId } = options;
 	const now = new Date();
 
 	const [
@@ -51,6 +51,7 @@ async function cleanupGuildData(guildId, options = {}) {
 			else {
 				const $set = { left_at: now };
 				if (guildName) $set.name = guildName;
+				if (ownerId) $set.owner_id = ownerId;
 				await Stats.updateOne({ guild_id: guildId }, { $set });
 			}
 		}

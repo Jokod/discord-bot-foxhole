@@ -75,3 +75,66 @@ publish:
 	@:
 endif
 endif
+
+## —— Dashboard 📊 —————————————————————————————————————————————————————————————
+
+DASHBOARD_PORT     ?= 3847
+DASHBOARD_ENV_FILE ?= .env.prod
+DASHBOARD_PID      := .dashboard/dashboard.pid
+DASHBOARD_LOG      := .dashboard/dashboard.log
+DASHBOARD_URL      := http://127.0.0.1:$(DASHBOARD_PORT)
+
+dashboard-start: ## Start stats dashboard on prod Mongo (.env.prod) — override: ENV_FILE=.env
+	@if [ -f "$(DASHBOARD_PID)" ] && kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
+		echo "Dashboard déjà démarré → $(DASHBOARD_URL) (pid $$(cat $(DASHBOARD_PID)))"; \
+	else \
+		DASHBOARD_PORT=$(DASHBOARD_PORT) DASHBOARD_ENV_FILE=$(DASHBOARD_ENV_FILE) \
+			nohup node .dashboard/server.js > "$(DASHBOARD_LOG)" 2>&1 & echo $$! > "$(DASHBOARD_PID)"; \
+		i=0; \
+		while [ $$i -lt 40 ]; do \
+			if curl -sf "$(DASHBOARD_URL)/api/summary" >/dev/null 2>&1; then \
+				echo "Dashboard démarré → $(DASHBOARD_URL) (env $(DASHBOARD_ENV_FILE), pid $$(cat $(DASHBOARD_PID)))"; \
+				exit 0; \
+			fi; \
+			if ! kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
+				echo "Échec du démarrage — voir $(DASHBOARD_LOG)"; \
+				rm -f "$(DASHBOARD_PID)"; \
+				exit 1; \
+			fi; \
+			i=$$((i+1)); \
+			sleep 0.25; \
+		done; \
+		echo "Dashboard démarré (encore en connexion) → $(DASHBOARD_URL) (pid $$(cat $(DASHBOARD_PID)))"; \
+	fi
+
+dashboard-stop: ## Stop the local stats dashboard
+	@if [ -f "$(DASHBOARD_PID)" ]; then \
+		pid=$$(cat "$(DASHBOARD_PID)"); \
+		if kill -0 $$pid 2>/dev/null; then \
+			kill $$pid && echo "Dashboard arrêté (pid $$pid)"; \
+		else \
+			echo "Processus déjà mort (pid $$pid)"; \
+		fi; \
+		rm -f "$(DASHBOARD_PID)"; \
+	else \
+		echo "Dashboard non démarré"; \
+	fi
+
+dashboard-restart: dashboard-stop dashboard-start ## Restart the local stats dashboard
+
+dashboard-status: ## Show dashboard status
+	@if [ -f "$(DASHBOARD_PID)" ] && kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
+		echo "running  pid=$$(cat $(DASHBOARD_PID))  $(DASHBOARD_URL)"; \
+	else \
+		echo "stopped"; \
+		rm -f "$(DASHBOARD_PID)"; \
+	fi
+
+dashboard-open: ## Open the dashboard in the browser (starts it if needed)
+	@$(MAKE) --no-print-directory dashboard-start
+	@xdg-open "$(DASHBOARD_URL)" >/dev/null 2>&1 || open "$(DASHBOARD_URL)" >/dev/null 2>&1 || echo "Ouvre $(DASHBOARD_URL)"
+
+dashboard-logs: ## Tail dashboard logs
+	@touch "$(DASHBOARD_LOG)"
+	@tail -n 50 -f "$(DASHBOARD_LOG)"
+

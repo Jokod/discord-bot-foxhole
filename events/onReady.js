@@ -78,6 +78,7 @@ module.exports = {
 						member_count: guild.memberCount ?? 0,
 						left_at: null,
 						...(joinedAt && { joined_at: joinedAt }),
+						...(guild.ownerId && { owner_id: guild.ownerId }),
 					},
 				},
 				{ upsert: true, returnDocument: 'after' },

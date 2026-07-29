@@ -22,6 +22,10 @@ const Stats = mongoose.Schema({
 		type: Date,
 		default: null,
 	},
+	owner_id: {
+		type: String,
+		default: null,
+	},
 	member_count: {
 		type: Number,
 		default: 0,

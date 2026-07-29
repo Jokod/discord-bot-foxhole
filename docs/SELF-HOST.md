@@ -116,10 +116,59 @@ Exemple **→ 1.0.0** : `node scripts/migrate-v2.js --dry-run` puis `node script
 | Threads Logs order | `/setup logs` ou `/server logs` |
 | Publier newsletter bot | Éditer `data/newsletter.md` → `npm run newsletter:publish` (abonnés `/newsletter`) |
 | Owner | `!reload <commande>` |
+| Dashboard stats (local) | Voir [Dashboard](#dashboard-stats-local) |
 
 ### Annonces GitHub → Discord (optionnel)
 
 Pour poster les **releases** dans un salon Annonces : webhook Discord + suffixe **`/github`** sur l’URL, event GitHub **Releases**. Dans un salon Annonces, **Publier** le message pour les serveurs qui **Suivent**.
+
+---
+
+## Dashboard stats (local)
+
+Petit tableau de bord **local** (KPIs, graphiques, liste des serveurs, contacts Discord) qui lit **ta** MongoDB. Utile pour l’ops self-host — **pas** exposé publiquement.
+
+| | |
+|--|--|
+| Code | [`.dashboard/`](../.dashboard/) |
+| URL | `http://127.0.0.1:3847` (écoute **localhost uniquement**) |
+| Env | Même fichier que le bot (`TOKEN`, `MONGODB_*`) |
+
+### Démarrage
+
+```bash
+# avec ton .env (défaut Makefile = .env.prod)
+make dashboard-start DASHBOARD_ENV_FILE=.env
+
+# ou
+DASHBOARD_ENV_FILE=.env npm run dashboard
+```
+
+| Commande Make | Effet |
+|---------------|--------|
+| `make dashboard-start` | Démarre en arrière-plan |
+| `make dashboard-stop` | Arrête |
+| `make dashboard-restart` | Restart |
+| `make dashboard-status` | Statut / pid |
+| `make dashboard-open` | Ouvre le navigateur |
+| `make dashboard-logs` | Tail des logs |
+
+Overrides optionnels : `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`.
+
+### Contenu
+
+- Vue d’ensemble : activité, joins/leaves, tailles, top commandes / serveurs  
+- Commandes : répartition globale, filtre vers les serveurs  
+- Serveurs : recherche, filtres, tri, fiche (langue, camp, stats)  
+- Contacts : owners Discord + créateurs d’ops / stockpiles (résolution via `TOKEN`)  
+- Produit : order boards, langues, camps, notifs, ops  
+
+L’onglet Contacts appelle l’API Discord (`TOKEN`) : owners des guilds **où le bot est encore**, et résolution des pseudos. Les `owner_id` sont aussi persistés dans `Stats` au join / ready / leave pour rester visibles après un départ.
+
+### Sécurité
+
+- Bind **127.0.0.1** seulement — ne pas reverse-proxyer sans auth.  
+- Même secrets que le bot : ne pas committer `.env` / `.env.*` (hors `.env.dist`).
 
 ---
 
@@ -159,5 +208,7 @@ CI : [`.github/workflows/integration.yaml`](../.github/workflows/integration.yam
 | Mongo error | `MONGODB_URL` / `MONGODB_NAME`, réseau Atlas |
 | Threads Logs absents | `logs:true` + permissions threads |
 | `/about` vide | Renseigner `GITHUB_URL` / `DISCORD_INVITE_URL` |
+| Dashboard ne démarre pas | Vérifier `DASHBOARD_ENV_FILE` (souvent `.env`), `TOKEN` / Mongo ; logs : `make dashboard-logs` |
+| Contacts sans pseudo | `TOKEN` invalide ou expiré dans le fichier d’env du dashboard |
 
 Support communauté (pas ta prod clan) : [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5).

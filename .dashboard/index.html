@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>FoxBot — Stats prod</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+	<style>
+		:root {
+			--bg0: #f2efe8; --bg1: #e7e2d6; --ink: #1c1914; --muted: #5c564c;
+			--line: #c9c1b2; --card: rgba(255,252,246,.92); --accent: #b4451a;
+			--ok: #2f6b4f; --warn: #9a6b12; --info: #3d5a80;
+			--shadow: 0 14px 34px rgba(40,28,12,.07); --radius: 14px;
+		}
+		* { box-sizing: border-box; }
+		html, body { margin: 0; min-height: 100%; }
+		body {
+			font-family: "Source Sans 3", system-ui, sans-serif; color: var(--ink);
+			background:
+				radial-gradient(1100px 520px at 8% -8%, #f7e7d4 0%, transparent 55%),
+				radial-gradient(900px 480px at 100% 0%, #d9e4df 0%, transparent 48%),
+				linear-gradient(180deg, var(--bg0), var(--bg1));
+		}
+		.wrap { width: min(1320px, calc(100% - 1.5rem)); margin: 0 auto; padding: 1.5rem 0 3rem; }
+		header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: 1.1rem; }
+		.brand { font-family: Fraunces, Georgia, serif; font-size: clamp(1.7rem, 3vw, 2.25rem); font-weight: 700; margin: 0; letter-spacing: -.02em; }
+		.brand span { color: var(--accent); }
+		.meta { color: var(--muted); font-size: .92rem; display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; }
+		.pill { display: inline-block; padding: .12rem .5rem; border-radius: 999px; border: 1px solid var(--line); background: #efe8db; font-family: "JetBrains Mono", monospace; font-size: .75rem; }
+		.pill.prod { background: #d7ebe0; color: var(--ok); border-color: #b7d4c4; }
+		.actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+		button, .btn {
+			appearance: none; border: 1px solid var(--line); background: #fffaf2; color: var(--ink);
+			border-radius: 999px; padding: .42rem .85rem; font: inherit; font-weight: 600; cursor: pointer;
+		}
+		button:hover, .btn:hover { border-color: var(--accent); color: var(--accent); }
+		button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+		.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: .65rem; margin-bottom: .9rem; }
+		.kpi { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: .8rem .9rem; cursor: default; }
+		.kpi .label { display: block; color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+		.kpi .value { font-family: "JetBrains Mono", monospace; font-size: 1.28rem; margin-top: .2rem; display: block; }
+		.kpi .hint { color: var(--muted); font-size: .75rem; }
+		.tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .85rem; }
+		.tab { border-radius: 10px; }
+		.tab.active { background: #1c1914; color: #fffaf2; border-color: #1c1914; }
+		.view { display: none; }
+		.view.active { display: block; }
+		.grid { display: grid; gap: .85rem; margin-bottom: .85rem; }
+		.grid-2 { grid-template-columns: 1.2fr 1fr; }
+		.grid-3 { grid-template-columns: repeat(3, 1fr); }
+		.grid-21 { grid-template-columns: 1.4fr 1fr; }
+		@media (max-width: 980px) { .grid-2, .grid-3, .grid-21 { grid-template-columns: 1fr; } }
+		.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.05rem 1.1rem; min-width: 0; }
+		.panel h2 { font-family: Fraunces, Georgia, serif; font-size: 1.08rem; margin: 0 0 .2rem; }
+		.panel .sub { color: var(--muted); font-size: .82rem; margin: 0 0 .7rem; }
+		.chart-box { position: relative; height: 280px; }
+		.chart-box.sm { height: 230px; }
+		.chart-box.lg { height: 360px; }
+		.chart-empty {
+			position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+			color: var(--muted); font-size: .92rem; background: rgba(255,250,242,.55); border-radius: 10px;
+		}
+		.chart-empty[hidden] { display: none !important; }
+		.filters {
+			display: grid; grid-template-columns: 1.4fr repeat(4, minmax(110px, 1fr)) auto;
+			gap: .55rem; margin-bottom: .75rem; align-items: end;
+		}
+		@media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
+		label.field { display: flex; flex-direction: column; gap: .25rem; font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+		input, select {
+			border: 1px solid var(--line); border-radius: 10px; padding: .5rem .65rem; font: inherit;
+			background: #fffaf2; color: var(--ink); min-width: 0;
+		}
+		.table-wrap { overflow: auto; max-height: 540px; }
+		table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+		th, td { text-align: left; padding: .48rem .4rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+		th {
+			color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: .04em;
+			font-weight: 700; position: sticky; top: 0; background: #fffaf2; cursor: pointer; user-select: none; white-space: nowrap;
+		}
+		th:hover { color: var(--accent); }
+		th.sorted { color: var(--accent); }
+		th .arrow { font-size: .65rem; margin-left: .2rem; }
+		.mono { font-family: "JetBrains Mono", monospace; font-size: .78rem; }
+		.badge { display: inline-block; padding: .08rem .42rem; border-radius: 999px; font-size: .7rem; font-weight: 700; }
+		.badge.ok { background: #d7ebe0; color: var(--ok); }
+		.badge.warn { background: #f3e5c1; color: var(--warn); }
+		.badge.info { background: #d9e4ef; color: var(--info); }
+		.chips { display: flex; flex-wrap: wrap; gap: .25rem; }
+		.chip, .chip-btn {
+			background: #efe8db; border: 1px solid var(--line); border-radius: 999px; padding: .08rem .42rem;
+			font-size: .72rem; font-family: "JetBrains Mono", monospace; cursor: pointer;
+		}
+		.chip-btn.active, .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+		.row-click { cursor: pointer; }
+		.row-click:hover { background: rgba(180,69,26,.05); }
+		.drawer {
+			position: fixed; top: 0; right: 0; width: min(420px, 100%); height: 100%; background: #fffaf2;
+			border-left: 1px solid var(--line); box-shadow: -18px 0 40px rgba(0,0,0,.08);
+			transform: translateX(100%); transition: transform .2s ease; z-index: 40; padding: 1.1rem 1.15rem; overflow: auto;
+		}
+		.drawer.open { transform: translateX(0); }
+		.drawer h3 { font-family: Fraunces, Georgia, serif; margin: 0 0 .35rem; }
+		.backdrop { position: fixed; inset: 0; background: rgba(28,25,20,.28); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+		.backdrop.open { opacity: 1; pointer-events: auto; }
+		.stat-list { display: grid; gap: .45rem; margin: .8rem 0; }
+		.stat-list div { display: flex; justify-content: space-between; gap: .5rem; border-bottom: 1px dashed var(--line); padding-bottom: .35rem; }
+		.cmd-cloud { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem; }
+		.summary-bar { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; margin-bottom: .55rem; color: var(--muted); font-size: .86rem; }
+		.error { color: var(--accent); }
+		.muted { color: var(--muted); }
+		.person {
+			display: inline-flex; align-items: center; gap: .45rem; max-width: 100%;
+		}
+		.person img {
+			width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); background: #efe8db; flex: 0 0 auto;
+		}
+		.person .who { min-width: 0; }
+		.person .who strong { display: block; line-height: 1.15; }
+		.person a { color: var(--info); text-decoration: none; }
+		.person a:hover { text-decoration: underline; }
+		.contact-roles { display: flex; flex-wrap: wrap; gap: .25rem; }
+		.copy-id {
+			appearance: none; border: 1px solid var(--line); background: #fffaf2; border-radius: 8px;
+			padding: .15rem .4rem; font: inherit; font-family: "JetBrains Mono", monospace; font-size: .72rem; cursor: pointer;
+		}
+		.copy-id:hover { border-color: var(--accent); color: var(--accent); }
+		footer { margin-top: .4rem; color: var(--muted); font-size: .82rem; }
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<header>
+			<div>
+				<p class="brand">Fox<span>Bot</span> stats</p>
+				<p class="meta" id="meta">Chargement…</p>
+			</div>
+			<div class="actions">
+				<button type="button" id="autoBtn" class="active" title="Auto-refresh 60s">Auto</button>
+				<button type="button" id="refresh">Actualiser</button>
+			</div>
+		</header>
+
+		<section class="kpis" id="kpis"></section>
+
+		<nav class="tabs" id="tabs">
+			<button type="button" class="tab active" data-view="overview">Vue d’ensemble</button>
+			<button type="button" class="tab" data-view="commands">Commandes</button>
+			<button type="button" class="tab" data-view="guilds">Serveurs</button>
+			<button type="button" class="tab" data-view="contacts">Contacts</button>
+			<button type="button" class="tab" data-view="product">Produit</button>
+		</nav>
+
+		<section class="view active" id="view-overview">
+			<div class="grid grid-2">
+				<article class="panel">
+					<h2>Activité récente</h2>
+					<p class="sub">Dernière commande par serveur actif</p>
+					<div class="chart-box"><canvas id="chartActivity"></canvas><div class="chart-empty" hidden id="empty-chartActivity">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Joins / leaves</h2>
+					<p class="sub">12 derniers mois</p>
+					<div class="chart-box"><canvas id="chartJoins"></canvas><div class="chart-empty" hidden id="empty-chartJoins">Pas de données</div></div>
+				</article>
+			</div>
+			<div class="grid grid-3">
+				<article class="panel">
+					<h2>Taille des serveurs</h2>
+					<p class="sub">Répartition des membres</p>
+					<div class="chart-box sm"><canvas id="chartMembers"></canvas><div class="chart-empty" hidden id="empty-chartMembers">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Top commandes</h2>
+					<p class="sub">Clique une barre pour filtrer les serveurs</p>
+					<div class="chart-box sm"><canvas id="chartTopCmdsMini"></canvas><div class="chart-empty" hidden id="empty-chartTopCmdsMini">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Setup / engagement</h2>
+					<p class="sub">Actifs configurés vs engagés 7j</p>
+					<div class="chart-box sm"><canvas id="chartSetup"></canvas><div class="chart-empty" hidden id="empty-chartSetup">Pas de données</div></div>
+				</article>
+			</div>
+			<div class="grid grid-2">
+				<article class="panel">
+					<h2>Top serveurs (commandes)</h2>
+					<div class="chart-box"><canvas id="chartTopCmds"></canvas><div class="chart-empty" hidden id="empty-chartTopCmds">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Top serveurs (membres)</h2>
+					<div class="chart-box"><canvas id="chartTopMembers"></canvas><div class="chart-empty" hidden id="empty-chartTopMembers">Pas de données</div></div>
+				</article>
+			</div>
+		</section>
+
+		<section class="view" id="view-commands">
+			<article class="panel" style="margin-bottom:.85rem">
+				<h2>Toutes les commandes</h2>
+				<p class="sub">Clique pour filtrer les serveurs qui utilisent cette commande</p>
+				<div class="cmd-cloud" id="cmdCloud"></div>
+				<div class="chart-box lg"><canvas id="chartCommands"></canvas><div class="chart-empty" hidden id="empty-chartCommands">Pas de données</div></div>
+			</article>
+			<div class="grid grid-2">
+				<article class="panel">
+					<h2>Part relative</h2>
+					<div class="chart-box"><canvas id="chartCommandsPie"></canvas><div class="chart-empty" hidden id="empty-chartCommandsPie">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Détail</h2>
+					<div class="table-wrap" style="max-height:320px">
+						<table>
+							<thead><tr><th data-sort-cmd="name">Commande</th><th data-sort-cmd="total">Total</th><th data-sort-cmd="pct">%</th></tr></thead>
+							<tbody id="cmdTable"></tbody>
+						</table>
+					</div>
+				</article>
+			</div>
+		</section>
+
+		<section class="view" id="view-guilds">
+			<article class="panel">
+				<h2>Serveurs actifs</h2>
+				<p class="sub">Recherche, filtres, tri colonnes — clic ligne pour le détail</p>
+				<div class="filters">
+					<label class="field">Recherche
+						<input type="search" id="fSearch" placeholder="nom ou guild id" />
+					</label>
+					<label class="field">Setup
+						<select id="fSetup">
+							<option value="all">Tous</option>
+							<option value="yes">Oui</option>
+							<option value="no">Non</option>
+						</select>
+					</label>
+					<label class="field">Récence
+						<select id="fActivity">
+							<option value="all">Toutes</option>
+							<option value="24h">24h</option>
+							<option value="7d">7j</option>
+							<option value="30d">30j</option>
+							<option value="90d">90j</option>
+							<option value="older">&gt;90j</option>
+							<option value="never">Jamais</option>
+						</select>
+					</label>
+					<label class="field">Min cmds
+						<input type="number" id="fMinCmds" min="0" value="0" />
+					</label>
+					<label class="field">Commande
+						<select id="fCommand"><option value="">Toutes</option></select>
+					</label>
+					<button type="button" id="fReset">Reset</button>
+				</div>
+				<div class="summary-bar">
+					<span id="guildCount"></span>
+					<span id="activeFilter" class="pill" hidden></span>
+				</div>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th data-sort="name">Serveur</th>
+								<th data-sort="setup">Setup</th>
+								<th data-sort="lang">Langue</th>
+								<th data-sort="command_count" class="sorted">Cmds <span class="arrow">▼</span></th>
+								<th data-sort="member_count">Membres</th>
+								<th data-sort="operation_count">Ops</th>
+								<th data-sort="stock_board_count">Stocks</th>
+								<th data-sort="last_command_at">Récence</th>
+								<th>Top</th>
+							</tr>
+						</thead>
+						<tbody id="guilds"></tbody>
+					</table>
+				</div>
+			</article>
+			<article class="panel" style="margin-top:.85rem">
+				<h2>Derniers départs</h2>
+				<div class="filters" style="grid-template-columns:1fr auto">
+					<label class="field">Recherche
+						<input type="search" id="fLeftSearch" placeholder="nom ou guild id" />
+					</label>
+					<label class="field">Tri
+						<select id="fLeftSort">
+							<option value="left_at">Départ récent</option>
+							<option value="command_count">Commandes</option>
+							<option value="name">Nom</option>
+						</select>
+					</label>
+				</div>
+				<div class="table-wrap" style="max-height:280px">
+					<table>
+						<thead><tr><th>Serveur</th><th>Cmds</th><th>Left at</th></tr></thead>
+						<tbody id="left"></tbody>
+					</table>
+				</div>
+			</article>
+		</section>
+
+		<section class="view" id="view-contacts">
+			<article class="panel" style="margin-bottom:.85rem">
+				<h2>Contacts Discord</h2>
+				<p class="sub">Owners et créateurs d’ops / stockpiles — actifs en premier, retirés en bas</p>
+				<div class="filters" style="grid-template-columns:1.5fr auto auto">
+					<label class="field">Recherche
+						<input type="search" id="fContactSearch" placeholder="nom, username, user id, serveur…" />
+					</label>
+					<label class="field">Vue
+						<select id="fContactView">
+							<option value="guilds">Par serveur</option>
+							<option value="people">Par personne</option>
+						</select>
+					</label>
+					<button type="button" id="contactsRefresh">Recharger Discord</button>
+				</div>
+				<div class="summary-bar">
+					<span id="contactsMeta">Ouvre cet onglet pour charger les contacts…</span>
+				</div>
+			</article>
+			<article class="panel" id="contactsGuildsPanel">
+				<h2>Par serveur</h2>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th>Serveur</th>
+								<th>Statut</th>
+								<th>Owner</th>
+								<th>Créateurs actifs</th>
+								<th>Cmds</th>
+							</tr>
+						</thead>
+						<tbody id="contactsGuilds"></tbody>
+					</table>
+				</div>
+			</article>
+			<article class="panel" id="contactsPeoplePanel" hidden>
+				<h2>Par personne</h2>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th>Personne</th>
+								<th>Rôles</th>
+								<th>Serveurs</th>
+								<th>User ID</th>
+							</tr>
+						</thead>
+						<tbody id="contactsPeople"></tbody>
+					</table>
+				</div>
+			</article>
+		</section>
+
+		<section class="view" id="view-product">
+			<div class="grid grid-3">
+				<article class="panel">
+					<h2>Order boards (kind)</h2>
+					<div class="chart-box sm"><canvas id="chartBoardKind"></canvas><div class="chart-empty" hidden id="empty-chartBoardKind">Aucun order board</div></div>
+				</article>
+				<article class="panel">
+					<h2>Order boards (status)</h2>
+					<div class="chart-box sm"><canvas id="chartBoardStatus"></canvas><div class="chart-empty" hidden id="empty-chartBoardStatus">Aucun order board</div></div>
+				</article>
+				<article class="panel">
+					<h2>Lines par priorité</h2>
+					<div class="chart-box sm"><canvas id="chartLinePrio"></canvas><div class="chart-empty" hidden id="empty-chartLinePrio">Aucune order line</div></div>
+				</article>
+			</div>
+			<div class="grid grid-3">
+				<article class="panel">
+					<h2>Progression lines</h2>
+					<p class="sub" id="lineProgressHint">—</p>
+					<div class="chart-box sm"><canvas id="chartLineProgress"></canvas><div class="chart-empty" hidden id="empty-chartLineProgress">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Langues</h2>
+					<div class="chart-box sm"><canvas id="chartLang"></canvas><div class="chart-empty" hidden id="empty-chartLang">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Camps</h2>
+					<div class="chart-box sm"><canvas id="chartCamp"></canvas><div class="chart-empty" hidden id="empty-chartCamp">Pas de données</div></div>
+				</article>
+			</div>
+			<div class="grid grid-2">
+				<article class="panel">
+					<h2>Notifications</h2>
+					<div class="chart-box"><canvas id="chartNotif"></canvas><div class="chart-empty" hidden id="empty-chartNotif">Pas de données</div></div>
+				</article>
+				<article class="panel">
+					<h2>Opérations (docs)</h2>
+					<div class="chart-box"><canvas id="chartOps"></canvas><div class="chart-empty" hidden id="empty-chartOps">Pas de données</div></div>
+				</article>
+			</div>
+		</section>
+
+		<footer id="footer">Données live MongoDB · 127.0.0.1</footer>
+	</div>
+
+	<div class="backdrop" id="backdrop"></div>
+	<aside class="drawer" id="drawer" aria-hidden="true">
+		<div class="actions" style="justify-content:space-between;margin-bottom:.7rem">
+			<strong>Détail serveur</strong>
+			<button type="button" id="drawerClose">Fermer</button>
+		</div>
+		<div id="drawerBody"></div>
+	</aside>
+
+	<script>
+		const palette = ['#b4451a','#2f6b4f','#3d5a80','#9a6b12','#6b4f2f','#8f3412','#4a7c6f','#c47a3a','#5c564c','#2c3e50','#7a5c3a','#1f6f8b'];
+		const charts = {};
+		let raw = null;
+		let contactsData = null;
+		let contactsLoading = false;
+		let autoRefresh = true;
+		let timer = null;
+		let sortKey = 'command_count';
+		let sortDir = 'desc';
+		let cmdSortKey = 'total';
+		let cmdSortDir = 'desc';
+		let selectedGuildId = null;
+
+		const state = {
+			search: '',
+			setup: 'all',
+			activity: 'all',
+			minCmds: 0,
+			command: '',
+			leftSearch: '',
+			leftSort: 'left_at',
+			contactSearch: '',
+			contactView: 'guilds',
+		};
+
+		const fmt = {
+			n: (v) => new Intl.NumberFormat('fr-FR').format(v ?? 0),
+			pct: (v) => `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(v ?? 0)} %`,
+			dt: (v) => {
+				if (!v) return '—';
+				const d = new Date(v);
+				return Number.isNaN(d.getTime()) ? '—' : new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(d);
+			},
+			rel: (v) => {
+				if (!v) return 'jamais';
+				const m = Math.floor((Date.now() - new Date(v).getTime()) / 60000);
+				if (m < 60) return `${m} min`;
+				const h = Math.floor(m / 60);
+				if (h < 48) return `${h} h`;
+				return `${Math.floor(h / 24)} j`;
+			},
+		};
+
+		function escapeHtml(s) {
+			return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+		}
+
+		function setEmpty(canvasId, empty) {
+			const el = document.getElementById(`empty-${canvasId}`);
+			if (el) el.hidden = !empty;
+			const canvas = document.getElementById(canvasId);
+			if (canvas) canvas.style.opacity = empty ? '0' : '1';
+		}
+
+		function destroyChart(id) {
+			if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+		}
+
+		function barOpts(horizontal = false) {
+			return {
+				responsive: true,
+				maintainAspectRatio: false,
+				indexAxis: horizontal ? 'y' : 'x',
+				plugins: { legend: { display: false } },
+				scales: {
+					x: { beginAtZero: true, ticks: { font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,.05)' } },
+					y: { beginAtZero: true, ticks: { font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,.05)' } },
+				},
+				onClick: null,
+			};
+		}
+
+		function doughnutOpts() {
+			return {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+				},
+			};
+		}
+
+		function makeChart(id, config, empty = false) {
+			destroyChart(id);
+			setEmpty(id, empty);
+			if (empty) return;
+			const el = document.getElementById(id);
+			if (!el) return;
+			charts[id] = new Chart(el, config);
+		}
+
+		function series(items, nameKey = 'name', valueKey = 'total') {
+			const list = items || [];
+			const values = list.map((x) => Number(x[valueKey]) || 0);
+			return {
+				labels: list.map((x) => x[nameKey]),
+				values,
+				empty: !list.length || values.every((v) => v <= 0),
+			};
+		}
+
+		function renderKpis(data) {
+			const k = data.kpis;
+			const items = [
+				['Actifs', k.active_guilds, `${k.total_seen_guilds} vus`],
+				['Setup', k.setup_servers, fmt.pct(k.setup_rate_pct)],
+				['Sans setup', k.pending_setup, ''],
+				['Partis', k.left_guilds, ''],
+				['Commandes', k.total_commands, `moy ${fmt.n(k.avg_commands_per_active)}`],
+				['Engagés 7j', k.engaged_7d, fmt.pct(k.engagement_7d_pct)],
+				['Membres', k.total_members_active, `moy ${fmt.n(k.avg_members)}`],
+				['Boards', k.orderboards, `${fmt.n(k.orderboards_open)} open`],
+				['Lines', k.orderlines, fmt.pct(data.product.orderline_progress.pct)],
+				['Stockpiles', k.stockpiles, `${fmt.n(k.total_stock_boards)} boards`],
+				['Ops docs', k.operations_docs, `${fmt.n(k.total_operations)} stats`],
+				['Notifs', k.notifications, `${fmt.n(k.tracked_messages)} msgs`],
+			];
+			document.getElementById('kpis').innerHTML = items.map(([label, value, hint]) => `
+				<div class="kpi"><span class="label">${label}</span><span class="value">${fmt.n(value)}</span>
+				${hint ? `<span class="hint">${hint}</span>` : ''}</div>`).join('');
+		}
+
+		function renderOverviewCharts(data) {
+			const act = series(data.activity.buckets);
+			makeChart('chartActivity', {
+				type: 'bar',
+				data: { labels: act.labels, datasets: [{ data: act.values, backgroundColor: '#3d5a80', borderRadius: 6 }] },
+				options: barOpts(),
+			}, act.empty);
+
+			makeChart('chartJoins', {
+				type: 'line',
+				data: {
+					labels: data.activity.joins_by_month.map((m) => m.month),
+					datasets: [
+						{ label: 'Joins', data: data.activity.joins_by_month.map((m) => m.count), borderColor: '#2f6b4f', backgroundColor: 'rgba(47,107,79,.12)', fill: true, tension: .3 },
+						{ label: 'Leaves', data: data.activity.leaves_by_month.map((m) => m.count), borderColor: '#b4451a', backgroundColor: 'rgba(180,69,26,.10)', fill: true, tension: .3 },
+					],
+				},
+				options: {
+					responsive: true, maintainAspectRatio: false,
+					plugins: { legend: { position: 'bottom' } },
+					scales: {
+						x: { ticks: { font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,.04)' } },
+						y: { beginAtZero: true, ticks: { font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(0,0,0,.06)' } },
+					},
+				},
+			}, false);
+
+			const mem = series(data.members.distribution);
+			makeChart('chartMembers', {
+				type: 'bar',
+				data: { labels: mem.labels, datasets: [{ data: mem.values, backgroundColor: '#2f6b4f', borderRadius: 6 }] },
+				options: barOpts(),
+			}, mem.empty);
+
+			const cmds = (data.commands || []).slice(0, 8);
+			const cmdSeries = series(cmds);
+			makeChart('chartTopCmdsMini', {
+				type: 'bar',
+				data: {
+					labels: cmds.map((c) => `/${c.name}`),
+					datasets: [{ data: cmds.map((c) => c.total), backgroundColor: cmds.map((_, i) => palette[i % palette.length]), borderRadius: 6 }],
+				},
+				options: {
+					...barOpts(true),
+					onClick: (_e, els) => {
+						if (!els.length) return;
+						const cmd = cmds[els[0].index]?.name;
+						if (!cmd) return;
+						state.command = cmd;
+						document.getElementById('fCommand').value = cmd;
+						switchView('guilds');
+						renderGuilds();
+					},
+				},
+			}, cmdSeries.empty);
+
+			makeChart('chartSetup', {
+				type: 'doughnut',
+				data: {
+					labels: ['Setup', 'Sans setup', 'Engagés 7j', 'Inactifs 7j'],
+					datasets: [{
+						data: [
+							data.kpis.setup_servers,
+							data.kpis.pending_setup,
+							data.kpis.engaged_7d,
+							Math.max(0, data.kpis.active_guilds - data.kpis.engaged_7d),
+						],
+						backgroundColor: ['#2f6b4f', '#9a6b12', '#3d5a80', '#c9c1b2'],
+					}],
+				},
+				options: doughnutOpts(),
+			}, false);
+
+			const topCmds = data.top.by_commands.slice(0, 10);
+			makeChart('chartTopCmds', {
+				type: 'bar',
+				data: {
+					labels: topCmds.map((g) => g.name.slice(0, 22)),
+					datasets: [{ data: topCmds.map((g) => g.command_count), backgroundColor: '#b4451a', borderRadius: 6 }],
+				},
+				options: {
+					...barOpts(true),
+					onClick: (_e, els) => {
+						if (!els.length) return;
+						openDrawer(topCmds[els[0].index]);
+					},
+				},
+			}, !topCmds.length);
+
+			const topMem = data.top.by_members.slice(0, 10);
+			makeChart('chartTopMembers', {
+				type: 'bar',
+				data: {
+					labels: topMem.map((g) => g.name.slice(0, 22)),
+					datasets: [{ data: topMem.map((g) => g.member_count), backgroundColor: '#2f6b4f', borderRadius: 6 }],
+				},
+				options: {
+					...barOpts(true),
+					onClick: (_e, els) => {
+						if (!els.length) return;
+						openDrawer(topMem[els[0].index]);
+					},
+				},
+			}, !topMem.length);
+		}
+
+		function renderCommandCharts(data) {
+			const cmds = data.commands || [];
+			document.getElementById('cmdCloud').innerHTML = cmds.map((c) => `
+				<button type="button" class="chip-btn ${state.command === c.name ? 'active' : ''}" data-cmd="${escapeHtml(c.name)}">/${escapeHtml(c.name)} · ${fmt.n(c.total)}</button>
+			`).join('');
+
+			makeChart('chartCommands', {
+				type: 'bar',
+				data: {
+					labels: cmds.map((c) => `/${c.name}`),
+					datasets: [{ data: cmds.map((c) => c.total), backgroundColor: cmds.map((c, i) => state.command === c.name ? '#1c1914' : palette[i % palette.length]), borderRadius: 6 }],
+				},
+				options: {
+					...barOpts(true),
+					onClick: (_e, els) => {
+						if (!els.length) return;
+						const name = cmds[els[0].index]?.name;
+						state.command = state.command === name ? '' : name;
+						document.getElementById('fCommand').value = state.command;
+						renderCommandCharts(raw);
+						renderGuilds();
+					},
+				},
+			}, !cmds.length);
+
+			makeChart('chartCommandsPie', {
+				type: 'doughnut',
+				data: {
+					labels: cmds.map((c) => `/${c.name}`),
+					datasets: [{ data: cmds.map((c) => c.total), backgroundColor: cmds.map((_, i) => palette[i % palette.length]) }],
+				},
+				options: {
+					...doughnutOpts(),
+					plugins: {
+						...doughnutOpts().plugins,
+						tooltip: {
+							callbacks: {
+								label: (ctx) => {
+									const c = cmds[ctx.dataIndex];
+									return c ? ` /${c.name}: ${fmt.n(c.total)} (${fmt.pct(c.pct)})` : '';
+								},
+							},
+						},
+					},
+					onClick: (_e, els) => {
+						if (!els.length) return;
+						const name = cmds[els[0].index]?.name;
+						state.command = state.command === name ? '' : name;
+						document.getElementById('fCommand').value = state.command;
+						renderCommandCharts(raw);
+						renderGuilds();
+					},
+				},
+			}, !cmds.length);
+
+			const sorted = [...cmds].sort((a, b) => {
+				const av = a[cmdSortKey]; const bv = b[cmdSortKey];
+				if (typeof av === 'string') return cmdSortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+				return cmdSortDir === 'asc' ? av - bv : bv - av;
+			});
+			document.getElementById('cmdTable').innerHTML = sorted.map((c) => `
+				<tr class="row-click" data-cmd="${escapeHtml(c.name)}">
+					<td class="mono">/${escapeHtml(c.name)}</td>
+					<td class="mono">${fmt.n(c.total)}</td>
+					<td class="mono">${fmt.pct(c.pct)}</td>
+				</tr>`).join('');
+		}
+
+		function renderProductCharts(data) {
+			const p = data.product;
+			const kind = series(p.orderboards_by_kind);
+			makeChart('chartBoardKind', {
+				type: 'doughnut',
+				data: { labels: kind.labels, datasets: [{ data: kind.values, backgroundColor: kind.labels.map((_, i) => palette[i % palette.length]) }] },
+				options: doughnutOpts(),
+			}, kind.empty);
+
+			const status = series(p.orderboards_by_status);
+			makeChart('chartBoardStatus', {
+				type: 'doughnut',
+				data: { labels: status.labels, datasets: [{ data: status.values, backgroundColor: ['#2f6b4f', '#9a6b12', '#b4451a', '#3d5a80'] }] },
+				options: doughnutOpts(),
+			}, status.empty);
+
+			const prio = series(p.orderlines_by_priority);
+			makeChart('chartLinePrio', {
+				type: 'doughnut',
+				data: { labels: prio.labels, datasets: [{ data: prio.values, backgroundColor: ['#b4451a', '#9a6b12', '#2f6b4f', '#3d5a80'] }] },
+				options: doughnutOpts(),
+			}, prio.empty);
+
+			const prog = p.orderline_progress || {};
+			document.getElementById('lineProgressHint').textContent =
+				`${fmt.n(prog.current)} / ${fmt.n(prog.target)} (${fmt.pct(prog.pct)}) · ${fmt.n(prog.complete)}/${fmt.n(prog.total)} complètes`;
+			const remain = Math.max(0, (prog.target || 0) - (prog.current || 0));
+			makeChart('chartLineProgress', {
+				type: 'doughnut',
+				data: {
+					labels: ['Livré', 'Restant'],
+					datasets: [{ data: [prog.current || 0, remain], backgroundColor: ['#2f6b4f', '#c9c1b2'] }],
+				},
+				options: doughnutOpts(),
+			}, !(prog.target || prog.current));
+
+			const lang = series(p.servers_by_lang);
+			makeChart('chartLang', {
+				type: 'doughnut',
+				data: { labels: lang.labels, datasets: [{ data: lang.values, backgroundColor: lang.labels.map((_, i) => palette[i % palette.length]) }] },
+				options: doughnutOpts(),
+			}, lang.empty);
+
+			const camp = series(p.servers_by_camp);
+			makeChart('chartCamp', {
+				type: 'doughnut',
+				data: { labels: camp.labels, datasets: [{ data: camp.values, backgroundColor: ['#2f6b4f', '#3d5a80', '#9a6b12'] }] },
+				options: doughnutOpts(),
+			}, camp.empty);
+
+			const notif = series(p.notifications_by_type);
+			makeChart('chartNotif', {
+				type: 'bar',
+				data: { labels: notif.labels, datasets: [{ data: notif.values, backgroundColor: '#3d5a80', borderRadius: 6 }] },
+				options: barOpts(),
+			}, notif.empty);
+
+			const ops = series(p.operations_by_status);
+			makeChart('chartOps', {
+				type: 'bar',
+				data: { labels: ops.labels, datasets: [{ data: ops.values, backgroundColor: '#b4451a', borderRadius: 6 }] },
+				options: barOpts(),
+			}, ops.empty);
+		}
+
+		function filteredGuilds() {
+			const q = state.search.trim().toLowerCase();
+			return (raw?.guilds || []).filter((g) => {
+				if (state.setup === 'yes' && !g.setup) return false;
+				if (state.setup === 'no' && g.setup) return false;
+				if (state.activity !== 'all' && g.activity !== state.activity) return false;
+				if ((g.command_count || 0) < state.minCmds) return false;
+				if (state.command) {
+					const count = g.command_breakdown?.[state.command] || 0;
+					if (!(count > 0)) return false;
+				}
+				if (q && !(`${g.name} ${g.guild_id}`).toLowerCase().includes(q)) return false;
+				return true;
+			}).sort((a, b) => {
+				let av = a[sortKey]; let bv = b[sortKey];
+				if (sortKey === 'setup') { av = a.setup ? 1 : 0; bv = b.setup ? 1 : 0; }
+				if (sortKey === 'lang' || sortKey === 'camp') { av = a[sortKey] || ''; bv = b[sortKey] || ''; }
+				if (sortKey === 'last_command_at' || sortKey === 'joined_at') {
+					av = av ? new Date(av).getTime() : 0;
+					bv = bv ? new Date(bv).getTime() : 0;
+				}
+				if (typeof av === 'string') return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+				return sortDir === 'asc' ? (av - bv) : (bv - av);
+			});
+		}
+
+		function renderGuilds() {
+			if (!raw) return;
+			const guilds = filteredGuilds();
+			document.getElementById('guildCount').textContent = `${fmt.n(guilds.length)} / ${fmt.n(raw.guilds.length)} serveurs`;
+			const af = document.getElementById('activeFilter');
+			if (state.command) {
+				af.hidden = false;
+				af.textContent = `filtre /${state.command}`;
+			} else af.hidden = true;
+
+			document.querySelectorAll('th[data-sort]').forEach((th) => {
+				const key = th.dataset.sort;
+				const on = key === sortKey;
+				th.classList.toggle('sorted', on);
+				const arrow = th.querySelector('.arrow');
+				if (arrow) arrow.remove();
+				if (on) {
+					const s = document.createElement('span');
+					s.className = 'arrow';
+					s.textContent = sortDir === 'asc' ? '▲' : '▼';
+					th.appendChild(s);
+				}
+			});
+
+			document.getElementById('guilds').innerHTML = guilds.length ? guilds.map((g) => `
+				<tr class="row-click" data-gid="${g.guild_id}">
+					<td>
+						<strong>${escapeHtml(g.name)}</strong><br />
+						<span class="mono muted">${g.guild_id}</span>
+					</td>
+					<td><span class="badge ${g.setup ? 'ok' : 'warn'}">${g.setup ? 'oui' : 'non'}</span></td>
+					<td class="mono">${g.lang ? escapeHtml(g.lang) : '<span class="muted">—</span>'}</td>
+					<td class="mono">${fmt.n(g.command_count)}</td>
+					<td class="mono">${fmt.n(g.member_count)}</td>
+					<td class="mono">${fmt.n(g.operation_count)}</td>
+					<td class="mono">${fmt.n(g.stock_board_count)}</td>
+					<td class="mono" title="${fmt.dt(g.last_command_at)}"><span class="badge info">${escapeHtml(g.activity)}</span> ${fmt.rel(g.last_command_at)}</td>
+					<td><div class="chips">${(g.top_commands || []).slice(0,3).map((c) => `<span class="chip ${state.command===c.name?'active':''}" data-cmd="${escapeHtml(c.name)}">/${escapeHtml(c.name)} ${c.count}</span>`).join('') || '—'}</div></td>
+				</tr>`).join('') : '<tr><td colspan="9" class="muted">Aucun serveur pour ces filtres.</td></tr>';
+
+			const lq = state.leftSearch.trim().toLowerCase();
+			let left = (raw.left_guilds || []).filter((g) => !lq || (`${g.name} ${g.guild_id}`).toLowerCase().includes(lq));
+			left = [...left].sort((a, b) => {
+				if (state.leftSort === 'name') return a.name.localeCompare(b.name);
+				if (state.leftSort === 'command_count') return b.command_count - a.command_count;
+				return new Date(b.left_at || 0) - new Date(a.left_at || 0);
+			});
+			document.getElementById('left').innerHTML = left.length ? left.map((g) => `
+				<tr>
+					<td><strong>${escapeHtml(g.name)}</strong><br /><span class="mono muted">${g.guild_id}</span></td>
+					<td class="mono">${fmt.n(g.command_count)}</td>
+					<td class="mono">${fmt.dt(g.left_at)}</td>
+				</tr>`).join('') : '<tr><td colspan="3" class="muted">Aucun départ.</td></tr>';
+		}
+
+		function personCell(user, extra = '') {
+			if (!user?.user_id) return '<span class="muted">—</span>';
+			const name = escapeHtml(user.display_name || user.username || user.user_id);
+			const uname = user.username ? `<span class="mono muted">@${escapeHtml(user.username)}</span>` : '';
+			const img = user.avatar_url
+				? `<img src="${escapeHtml(user.avatar_url)}" alt="" loading="lazy" width="28" height="28" />`
+				: '';
+			return `<div class="person">${img}<div class="who"><strong><a href="${escapeHtml(user.profile_url)}" target="_blank" rel="noopener">${name}</a></strong>${uname}${extra}</div></div>`;
+		}
+
+		function roleBadge(role) {
+			const map = {
+				owner: ['info', 'owner'],
+				creator: ['warn', 'créateur'],
+			};
+			const [cls, label] = map[role] || ['info', role];
+			return `<span class="badge ${cls}">${label}</span>`;
+		}
+
+		function renderContacts() {
+			const meta = document.getElementById('contactsMeta');
+			if (contactsLoading) {
+				meta.textContent = 'Chargement Discord…';
+				return;
+			}
+			if (!contactsData) {
+				meta.textContent = 'Ouvre cet onglet pour charger les contacts…';
+				return;
+			}
+			const k = contactsData.kpis || {};
+			meta.innerHTML = contactsData.discord_token
+				? `${fmt.n(k.active_guilds)} actifs · ${fmt.n(k.left_guilds)} retirés · ${fmt.n(k.with_owner)} owners · ${fmt.n(k.unique_people)} personnes · ${fmt.dt(contactsData.generated_at)}`
+				: `<span class="error">TOKEN Discord absent — IDs seulement</span>`;
+
+			const q = state.contactSearch.trim().toLowerCase();
+			const guildsPanel = document.getElementById('contactsGuildsPanel');
+			const peoplePanel = document.getElementById('contactsPeoplePanel');
+			const byPeople = state.contactView === 'people';
+			guildsPanel.hidden = byPeople;
+			peoplePanel.hidden = !byPeople;
+
+			if (!byPeople) {
+				const guilds = (contactsData.guilds || []).filter((g) => {
+					if (!q) return true;
+					const blob = [
+						g.name, g.guild_id, g.active ? 'actif' : 'retiré',
+						g.owner?.display_name, g.owner?.username, g.owner?.user_id,
+						...(g.creators || []).flatMap((c) => [c.display_name, c.username, c.user_id]),
+					].filter(Boolean).join(' ').toLowerCase();
+					return blob.includes(q);
+				});
+				document.getElementById('contactsGuilds').innerHTML = guilds.length ? guilds.map((g) => {
+					const creators = (g.creators || []).slice(0, 4).map((c) => {
+						const bits = [];
+						if (c.stockpiles) bits.push(`${c.stockpiles} stock`);
+						if (c.operations) bits.push(`${c.operations} ops`);
+						if (c.boards) bits.push(`${c.boards} boards`);
+						return personCell(c, bits.length ? `<div class="muted" style="font-size:.72rem">${escapeHtml(bits.join(' · '))}</div>` : '');
+					}).join('') || '<span class="muted">—</span>';
+					const status = g.active
+						? '<span class="badge ok">actif</span>'
+						: `<span class="badge warn">retiré</span><div class="muted" style="font-size:.72rem;margin-top:.15rem">${fmt.dt(g.left_at)}</div>`;
+					return `<tr>
+						<td>
+							<strong>${escapeHtml(g.name)}</strong><br />
+							<span class="mono muted">${g.guild_id}</span>
+							<div class="muted" style="font-size:.78rem;margin-top:.15rem">${fmt.n(g.member_count)} membres · join ${fmt.dt(g.joined_at)}</div>
+						</td>
+						<td>${status}</td>
+						<td>${personCell(g.owner)}</td>
+						<td><div style="display:grid;gap:.45rem">${creators}</div></td>
+						<td class="mono">${fmt.n(g.command_count)}</td>
+					</tr>`;
+				}).join('') : '<tr><td colspan="5" class="muted">Aucun contact pour cette recherche.</td></tr>';
+				return;
+			}
+
+			const people = (contactsData.people || []).filter((p) => {
+				if (!q) return true;
+				const blob = [
+					p.display_name, p.username, p.user_id,
+					...(p.guilds || []).flatMap((g) => [g.name, g.guild_id, g.role]),
+				].filter(Boolean).join(' ').toLowerCase();
+				return blob.includes(q);
+			});
+			document.getElementById('contactsPeople').innerHTML = people.length ? people.map((p) => `
+				<tr>
+					<td>${personCell(p)}</td>
+					<td><div class="contact-roles">${(p.roles || []).map(roleBadge).join('')}</div></td>
+					<td>
+						<div class="chips">${(p.guilds || []).map((g) =>
+		`<span class="chip" title="${escapeHtml(g.role)}${g.active === false ? ' · retiré' : ''}">${escapeHtml(g.name.slice(0, 24))}${g.active === false ? ' ✕' : ''}</span>`).join('')}</div>
+						<div class="muted" style="font-size:.75rem;margin-top:.25rem">${fmt.n(p.guild_count)} serveur(s)</div>
+					</td>
+					<td>
+						<button type="button" class="copy-id" data-copy="${escapeHtml(p.user_id)}" title="Copier">${escapeHtml(p.user_id)}</button>
+						<div><a class="mono" href="${escapeHtml(p.profile_url)}" target="_blank" rel="noopener">profil</a></div>
+					</td>
+				</tr>`).join('') : '<tr><td colspan="4" class="muted">Aucune personne pour cette recherche.</td></tr>';
+		}
+
+		async function loadContacts(force = false) {
+			contactsLoading = true;
+			renderContacts();
+			try {
+				const res = await fetch(`/api/contacts${force ? '?force=1' : ''}`);
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || res.statusText);
+				contactsData = data;
+			} catch (err) {
+				document.getElementById('contactsMeta').innerHTML =
+					`<span class="error">Erreur contacts : ${escapeHtml(err.message)}</span>`;
+				contactsLoading = false;
+				return;
+			}
+			contactsLoading = false;
+			renderContacts();
+		}
+
+		function openDrawer(g) {
+			if (!g) return;
+			selectedGuildId = g.guild_id;
+			document.getElementById('drawerBody').innerHTML = `
+				<h3>${escapeHtml(g.name)}</h3>
+				<p class="mono muted">${g.guild_id}</p>
+				<div class="stat-list">
+					<div><span>Setup</span><strong>${g.setup ? 'oui' : 'non'}</strong></div>
+					<div><span>Langue</span><strong>${g.lang ? escapeHtml(g.lang) : '—'}</strong></div>
+					<div><span>Camp</span><strong>${g.camp ? escapeHtml(g.camp) : '—'}</strong></div>
+					<div><span>Membres</span><strong>${fmt.n(g.member_count)}</strong></div>
+					<div><span>Commandes</span><strong>${fmt.n(g.command_count)}</strong></div>
+					<div><span>Ops</span><strong>${fmt.n(g.operation_count)}</strong></div>
+					<div><span>Stock boards</span><strong>${fmt.n(g.stock_board_count)}</strong></div>
+					<div><span>Cmd / membre</span><strong>${fmt.n(g.cmds_per_member)}</strong></div>
+					<div><span>Joined</span><strong>${fmt.dt(g.joined_at)}</strong></div>
+					<div><span>First cmd</span><strong>${fmt.dt(g.first_command_at)}</strong></div>
+					<div><span>Last cmd</span><strong>${fmt.dt(g.last_command_at)} (${fmt.rel(g.last_command_at)})</strong></div>
+					<div><span>Récence</span><strong>${escapeHtml(g.activity)}</strong></div>
+				</div>
+				<p><strong>Top commandes</strong></p>
+				<div class="chips">${(g.top_commands || []).map((c) => `<span class="chip">/${escapeHtml(c.name)} ${c.count}</span>`).join('') || '—'}</div>
+			`;
+			document.getElementById('drawer').classList.add('open');
+			document.getElementById('backdrop').classList.add('open');
+		}
+
+		function closeDrawer() {
+			document.getElementById('drawer').classList.remove('open');
+			document.getElementById('backdrop').classList.remove('open');
+		}
+
+		function switchView(name) {
+			document.querySelectorAll('.view').forEach((v) => v.classList.toggle('active', v.id === `view-${name}`));
+			document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
+			requestAnimationFrame(() => {
+				Object.values(charts).forEach((c) => c.resize());
+			});
+			if (name === 'contacts' && !contactsData && !contactsLoading) loadContacts(false);
+		}
+
+		function fillCommandFilter(data) {
+			const sel = document.getElementById('fCommand');
+			const current = state.command;
+			sel.innerHTML = `<option value="">Toutes</option>` + (data.commands || []).map((c) =>
+				`<option value="${escapeHtml(c.name)}">/${escapeHtml(c.name)} (${fmt.n(c.total)})</option>`).join('');
+			sel.value = current;
+		}
+
+		function renderAll(data) {
+			raw = data;
+			const envPill = `<span class="pill ${data.env_file === '.env.prod' ? 'prod' : ''}">${escapeHtml(data.env_file || '?')} · ${escapeHtml(data.db_name || '?')}</span>`;
+			document.getElementById('meta').innerHTML =
+				`${envPill} ${fmt.dt(data.generated_at)} · ${fmt.n(data.kpis.active_guilds)} actifs / ${fmt.n(data.kpis.total_seen_guilds)} vus`;
+			document.getElementById('footer').textContent =
+				`Mongo ${data.db_name || '?'} via ${data.env_file || '?'} · 127.0.0.1 · logs_enabled=${data.product.servers_logs_enabled}`;
+			renderKpis(data);
+			fillCommandFilter(data);
+			renderOverviewCharts(data);
+			renderCommandCharts(data);
+			renderProductCharts(data);
+			renderGuilds();
+			if (selectedGuildId) {
+				const g = data.guilds.find((x) => x.guild_id === selectedGuildId);
+				if (g) openDrawer(g);
+			}
+		}
+
+		async function load(silent = false) {
+			if (!silent) document.getElementById('meta').textContent = 'Chargement…';
+			try {
+				const res = await fetch('/api/summary');
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || res.statusText);
+				renderAll(data);
+			} catch (err) {
+				document.getElementById('meta').innerHTML = `<span class="error">Erreur : ${escapeHtml(err.message)}</span>`;
+			}
+		}
+
+		function scheduleAuto() {
+			clearInterval(timer);
+			if (autoRefresh) timer = setInterval(() => load(true), 60000);
+		}
+
+		// events
+		document.getElementById('refresh').addEventListener('click', () => load(false));
+		document.getElementById('autoBtn').addEventListener('click', (e) => {
+			autoRefresh = !autoRefresh;
+			e.currentTarget.classList.toggle('active', autoRefresh);
+			scheduleAuto();
+		});
+		document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => switchView(t.dataset.view)));
+		document.getElementById('fSearch').addEventListener('input', (e) => { state.search = e.target.value; renderGuilds(); });
+		document.getElementById('fSetup').addEventListener('change', (e) => { state.setup = e.target.value; renderGuilds(); });
+		document.getElementById('fActivity').addEventListener('change', (e) => { state.activity = e.target.value; renderGuilds(); });
+		document.getElementById('fMinCmds').addEventListener('input', (e) => { state.minCmds = Number(e.target.value) || 0; renderGuilds(); });
+		document.getElementById('fCommand').addEventListener('change', (e) => {
+			state.command = e.target.value;
+			renderCommandCharts(raw);
+			renderGuilds();
+		});
+		document.getElementById('fReset').addEventListener('click', () => {
+			state.search = ''; state.setup = 'all'; state.activity = 'all'; state.minCmds = 0; state.command = '';
+			document.getElementById('fSearch').value = '';
+			document.getElementById('fSetup').value = 'all';
+			document.getElementById('fActivity').value = 'all';
+			document.getElementById('fMinCmds').value = '0';
+			document.getElementById('fCommand').value = '';
+			renderCommandCharts(raw);
+			renderGuilds();
+		});
+		document.getElementById('fLeftSearch').addEventListener('input', (e) => { state.leftSearch = e.target.value; renderGuilds(); });
+		document.getElementById('fLeftSort').addEventListener('change', (e) => { state.leftSort = e.target.value; renderGuilds(); });
+		document.getElementById('fContactSearch').addEventListener('input', (e) => { state.contactSearch = e.target.value; renderContacts(); });
+		document.getElementById('fContactView').addEventListener('change', (e) => { state.contactView = e.target.value; renderContacts(); });
+		document.getElementById('contactsRefresh').addEventListener('click', () => loadContacts(true));
+		document.getElementById('contactsPeople').addEventListener('click', async (e) => {
+			const btn = e.target.closest('[data-copy]');
+			if (!btn) return;
+			try {
+				await navigator.clipboard.writeText(btn.dataset.copy);
+				btn.textContent = 'copié';
+				setTimeout(() => { btn.textContent = btn.dataset.copy; }, 900);
+			} catch {
+				btn.textContent = 'ctrl+c';
+			}
+		});
+
+		document.querySelector('#view-guilds thead').addEventListener('click', (e) => {
+			const th = e.target.closest('th[data-sort]');
+			if (!th) return;
+			const key = th.dataset.sort;
+			if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+			else { sortKey = key; sortDir = key === 'name' ? 'asc' : 'desc'; }
+			renderGuilds();
+		});
+
+		document.querySelector('#view-commands').addEventListener('click', (e) => {
+			const th = e.target.closest('th[data-sort-cmd]');
+			if (th) {
+				const key = th.dataset.sortCmd;
+				if (cmdSortKey === key) cmdSortDir = cmdSortDir === 'asc' ? 'desc' : 'asc';
+				else { cmdSortKey = key; cmdSortDir = key === 'name' ? 'asc' : 'desc'; }
+				renderCommandCharts(raw);
+				return;
+			}
+			const btn = e.target.closest('[data-cmd]');
+			if (btn) {
+				const name = btn.dataset.cmd;
+				state.command = state.command === name ? '' : name;
+				document.getElementById('fCommand').value = state.command;
+				renderCommandCharts(raw);
+				renderGuilds();
+			}
+		});
+
+		document.getElementById('guilds').addEventListener('click', (e) => {
+			const chip = e.target.closest('[data-cmd]');
+			if (chip) {
+				e.stopPropagation();
+				state.command = state.command === chip.dataset.cmd ? '' : chip.dataset.cmd;
+				document.getElementById('fCommand').value = state.command;
+				renderCommandCharts(raw);
+				renderGuilds();
+				return;
+			}
+			const tr = e.target.closest('tr[data-gid]');
+			if (!tr) return;
+			const g = raw.guilds.find((x) => x.guild_id === tr.dataset.gid);
+			openDrawer(g);
+		});
+		document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+		document.getElementById('backdrop').addEventListener('click', closeDrawer);
+
+		load(false);
+		scheduleAuto();
+	</script>
+</body>
+</html>

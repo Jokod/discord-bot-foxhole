@@ -27,7 +27,7 @@ Thank you for your interest in contributing to the Discord Bot for Foxhole! This
 - MongoDB (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
 - A Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
 
-Full self-host guide (env, migrations, wiki, ops): [docs/SELF-HOST.md](docs/SELF-HOST.md).
+Full self-host guide (env, migrations, wiki, ops, dashboard): [docs/SELF-HOST.md](docs/SELF-HOST.md).
 
 ### Installation
 
