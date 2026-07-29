@@ -8,6 +8,6 @@ npm run test:ci          # lint + i18n parity + coverage (same gates as GitHub A
 npm run i18n:check       # en/fr/ru/zh-cn key parity + ORDER_* presence
 ```
 
-CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then the full Jest suite with coverage thresholds (order, migrate-v2, etc.). New tests under `__tests__/` are picked up automatically.
+CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then the full Jest suite with coverage thresholds (order, migrate-v2, etc.). Tests live under `__tests__/` and mirror source layout; new files are picked up automatically.
 
-Manual smoke after upgrades: checklist in [MIGRATION.md](MIGRATION.md).
+Manual smoke after upgrades: checklist in [MIGRATION.md](MIGRATION.md). Ops / env: [SELF-HOST.md](SELF-HOST.md).

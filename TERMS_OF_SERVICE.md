@@ -1,6 +1,6 @@
 # Terms of Service
 
-**Last updated: March 11, 2026**
+**Last updated: July 29, 2026**
 
 By adding the Discord Bot for Foxhole ("the Bot") to your Discord server or using any of its features, you agree to be bound by the following Terms of Service. If you do not agree, do not use the Bot.
 
@@ -8,7 +8,7 @@ By adding the Discord Bot for Foxhole ("the Bot") to your Discord server or usin
 
 ## 1. Description
 
-The Discord Bot for Foxhole is an open-source tool designed to assist Foxhole gaming communities in managing in-game operations, material stock inventories, and stockpile codes through Discord. The Bot also provides real-time game data fetched from publicly available third-party APIs.
+The Discord Bot for Foxhole is an open-source tool for Foxhole communities on Discord. It helps coordinate **operations**, **order boards** (production, front transfer, scrap/farm progress — not a live in-game inventory), and **stockpile codes**, and it shows live game data from public third-party APIs.
 
 ---
 
@@ -39,12 +39,10 @@ You must not:
 
 The Bot provides the following features:
 
-- **Server configuration** (language, faction).
-- **Operation management** (creation, tracking, cancellation).
-- **Stock inventory boards** (stock/target quantities and priorities).
+- **Server configuration** (language, faction, optional order Logs threads).
+- **Operation management** (create, start, finish, cancel).
+- **Order boards** (production / front transfer / scrap progress toward targets).
 - **Stockpile code management** (region/city, timers, notifications).
-- **Operation scheduling** (create, start, finish, cancel).
-- **Stockpile management** (codes, timers, expiry notifications).
 - **Live game data** from the Foxhole War API and the Steam API.
 
 The Bot is provided **as-is**. Features may be modified, restricted, or removed at any time without prior notice.
@@ -88,4 +86,4 @@ We may update these Terms of Service at any time. Continued use of the Bot after
 
 ## 10. Contact
 
-For questions, issues, or reports, please open an issue on the [GitHub repository](https://github.com/Jokod/discord-bot-foxhole).
+For questions, issues, or reports, please open an issue on the [GitHub repository](https://github.com/Jokod/discord-bot-foxhole/issues).

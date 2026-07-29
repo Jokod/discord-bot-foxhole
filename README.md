@@ -22,7 +22,7 @@ FoxBot publishes news and release notes in the **Announcements** channel on the 
 3. Click **Follow** (needs **Manage Webhooks** on your server)  
 4. Choose the target channel  
 
-Also explained in **`/about`** (FR `/a-propos`).
+Also explained in **`/about`**.
 
 ## Table of Contents
 
@@ -37,14 +37,14 @@ Also explained in **`/about`** (FR `/a-propos`).
 ## Features
 
 - **Operations** — Create and track ops (`/operation`: pending → started → finished).
-- **Order boards** — Per-channel **production**, **front transfer**, or **scrap/farm** boards (`/order`, FR **`/commande`**):
+- **Order boards** — Per-channel **production**, **front transfer**, or **scrap/farm** boards (`/order`):
   - Lines = item + **priority** + `Stock: current/target` + **urgency**
   - Select a line, then **-1 / +1 / +4 / +9 / Max**
   - Add from catalog · Correct · Close · Priority cycle
-  - Locked **Logs** thread (read-only)
+  - Optional locked **Logs** thread (read-only; off by default)
   - Optional link to an operation  
   - **Not** a Foxhole stockpile inventory (front stock is read in-game).
-- **Stockpile codes** — Share depot codes with region/city grouping and expiry timers (`/stockpile`, FR **`depot`**).
+- **Stockpile codes** — Share depot codes with region/city grouping and expiry timers (`/stockpile`).
 - **War API** — Live war status / maps / reports (`/war`).
 - **Notifications** — Stockpile activity & expiry reminders (`/notify`).
 - **Languages** — English, French, Russian, Chinese (Simplified).
@@ -60,11 +60,11 @@ Command reference: **[docs/USAGE.md](docs/USAGE.md)**.
 
 ## Data collected
 
-When installed on a server, the bot stores **usage statistics** and **functional data** in MongoDB. Details: [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+The bot stores **functional data** (setup, operations, order boards, stockpile codes, notifications, tracked message IDs) and **usage statistics** (including guild and server-owner Discord IDs) in MongoDB. It does not archive general chat; it may read message content only for mention/prefix handling, syncing its own messages, and host interaction logs. Full detail: [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 Self-host: data stays in **your** database — see [docs/SELF-HOST.md](docs/SELF-HOST.md).
 
-Triggered when the bot leaves a guild, is blocked (`BLOCKED_GUILD_IDS`), or is missing at startup: cleanup of that guild’s `OrderLine`, `OrderBoard`, `Operation`, `NotificationSubscription`, `TrackedMessage`, `Stockpile`, `Server` ; `Stats.left_at` is set for analytics.
+When the bot leaves a guild, is blocked (`BLOCKED_GUILD_IDS`), or is missing at startup: that guild’s `OrderLine`, `OrderBoard`, `Operation`, `NotificationSubscription`, `TrackedMessage`, `Stockpile`, and `Server` rows are deleted; `Stats.left_at` is set for analytics.
 
 ## Documentation
 

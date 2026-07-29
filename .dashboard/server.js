@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 
 const PORT = Number(process.env.DASHBOARD_PORT) || 3847;
 const INDEX = path.join(__dirname, 'index.html');
+const ASSETS_DIR = path.join(__dirname, 'assets');
 const ROOT = path.join(__dirname, '..');
 const ENV_FILE = process.env.DASHBOARD_ENV_FILE
 	|| (fs.existsSync(path.join(ROOT, '.env.prod')) ? '.env.prod' : '.env');
@@ -574,6 +575,36 @@ function sendHtml(res) {
 	res.end(fs.readFileSync(INDEX, 'utf8'));
 }
 
+const ASSET_TYPES = {
+	'.css': 'text/css; charset=utf-8',
+	'.js': 'application/javascript; charset=utf-8',
+	'.map': 'application/json; charset=utf-8',
+	'.svg': 'image/svg+xml',
+	'.png': 'image/png',
+	'.ico': 'image/x-icon',
+};
+
+function sendAsset(res, urlPath) {
+	const rel = urlPath.replace(/^\/assets\/?/, '');
+	if (!rel || rel.includes('..') || path.isAbsolute(rel)) {
+		res.writeHead(404, { 'Content-Type': 'text/plain' });
+		res.end('Not found');
+		return;
+	}
+	const filePath = path.join(ASSETS_DIR, rel);
+	if (!filePath.startsWith(ASSETS_DIR) || !fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+		res.writeHead(404, { 'Content-Type': 'text/plain' });
+		res.end('Not found');
+		return;
+	}
+	const ext = path.extname(filePath).toLowerCase();
+	res.writeHead(200, {
+		'Content-Type': ASSET_TYPES[ext] || 'application/octet-stream',
+		'Cache-Control': 'no-store',
+	});
+	res.end(fs.readFileSync(filePath));
+}
+
 async function main() {
 	const url = process.env.MONGODB_URL;
 	if (!url) {
@@ -597,6 +628,9 @@ async function main() {
 			}
 			if (urlPath === '/' || urlPath === '/index.html') {
 				return sendHtml(res);
+			}
+			if (urlPath.startsWith('/assets/')) {
+				return sendAsset(res, urlPath);
 			}
 			res.writeHead(404, { 'Content-Type': 'text/plain' });
 			res.end('Not found');

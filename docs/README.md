@@ -2,14 +2,14 @@
 
 | Doc | Audience |
 |-----|----------|
-| [../README.md](../README.md) | Vue d’ensemble, features, invite hébergée |
-| [USAGE.md](USAGE.md) | Commandes slash & boards (joueurs / admins serveur) |
-| [SELF-HOST.md](SELF-HOST.md) | Hébergeurs : install, env, ops, wiki, dashboard |
-| [MIGRATION.md](MIGRATION.md) | Upgrades de version (scripts Mongo) |
-| [TESTING.md](TESTING.md) | Tests & CI |
-| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Contributeurs code |
-| [../CHANGELOG.md](../CHANGELOG.md) | Notes de release |
-| [../PRIVACY_POLICY.md](../PRIVACY_POLICY.md) | Données & vie privée |
-| [../TERMS_OF_SERVICE.md](../TERMS_OF_SERVICE.md) | Conditions d’utilisation |
+| [../README.md](../README.md) | Overview, features, hosted invite |
+| [USAGE.md](USAGE.md) | Slash commands and boards (players / server admins) |
+| [SELF-HOST.md](SELF-HOST.md) | Operators: install, env, ops, wiki, dashboard |
+| [MIGRATION.md](MIGRATION.md) | Version upgrades (Mongo scripts) |
+| [TESTING.md](TESTING.md) | Tests and CI |
+| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Code contributors |
+| [../CHANGELOG.md](../CHANGELOG.md) | Release notes |
+| [../PRIVACY_POLICY.md](../PRIVACY_POLICY.md) | Data and privacy |
+| [../TERMS_OF_SERVICE.md](../TERMS_OF_SERVICE.md) | Terms of use |
 
-Séparation volontaire : **produit** (README + USAGE) ≠ **ops** (SELF-HOST + MIGRATION) ≠ **légal** (PRIVACY / TERMS) ≠ **dev** (CONTRIBUTING + TESTING).
+Separation of concerns: **product** (README + USAGE) ≠ **ops** (SELF-HOST + MIGRATION) ≠ **legal** (PRIVACY / TERMS) ≠ **dev** (CONTRIBUTING + TESTING).

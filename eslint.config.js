@@ -85,4 +85,24 @@ module.exports = [
 			'no-unused-vars': 'off',
 		},
 	},
+	{
+		files: ['.dashboard/assets/**/*.js'],
+		languageOptions: {
+			sourceType: 'script',
+			globals: {
+				document: 'readonly',
+				window: 'readonly',
+				navigator: 'readonly',
+				fetch: 'readonly',
+				Chart: 'readonly',
+				Intl: 'readonly',
+				requestAnimationFrame: 'readonly',
+				setTimeout: 'readonly',
+				setInterval: 'readonly',
+				clearInterval: 'readonly',
+				clearTimeout: 'readonly',
+				console: 'readonly',
+			},
+		},
+	},
 ];

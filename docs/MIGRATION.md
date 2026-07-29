@@ -1,40 +1,40 @@
 # Migrations
 
-Guides d’upgrade pour les instances **self-host**. Toujours **backup MongoDB** avant d’appliquer un script.
+Upgrade guides for **self-host** instances. Always **backup MongoDB** before running a script.
 
-Guide ops complet (install, env, wiki) : [SELF-HOST.md](SELF-HOST.md). Usage joueurs : [USAGE.md](USAGE.md). Notes produit : [CHANGELOG.md](../CHANGELOG.md).
+Full ops guide (install, env, wiki): [SELF-HOST.md](SELF-HOST.md). Player usage: [USAGE.md](USAGE.md). Product notes: [CHANGELOG.md](../CHANGELOG.md).
 
-| Depuis → vers | Section |
-|---------------|---------|
-| Pré-1.0.0 (logistics / inventaire `/stock`) → **1.0.0** | [ci-dessous](#release-100--changements-migration-et-validation) |
+| From → to | Section |
+|-----------|---------|
+| Pre-1.0.0 (logistics / inventory `/stock`) → **1.0.0** | [below](#release-100--changes-migration-and-validation) |
 
 ---
 
-# Release 1.0.0 — changements, migration et validation
+# Release 1.0.0 — changes, migration, and validation
 
-## 0. Avant / après pour un serveur déjà en prod
+## 0. Before / after for an existing production server
 
-La 1.0.0 **ne convertit pas** l’ancienne logi en commandes. C’est une **coupure + purge**, puis recreation manuelle des boards utiles.
+1.0.0 **does not convert** old logistics into orders. It is a **cut + purge**, then staff recreate useful boards.
 
-| Données / UX (avant 1.0.0) | Après upgrade 1.0.0 |
-|----------------------------|---------------------|
-| Threads / Group logistics, `/logistics`, `/material` | **Effacés en DB** (`groups`, materials legacy). Boutons morts si messages Discord restent. |
-| Boards inventaire `/stock` + lignes `Material` | **Effacés en DB** (`stocks`, `materials`). Messages résumé/panneau Discord peuvent rester orphelins → à supprimer à la main dans le salon. |
-| Tracked `stock_summary:*` / `stock_panel:*` | **Purge** des refs en DB (plus de resync inventaire). |
-| Codes `/stockpile` | **Conservés** ; `group_id` → `channel_id` si besoin ; liste resync au ready. |
-| `/operation` en cours | **Conservées** (même collection). |
-| Stats slash `logistics` / `stock` / … | Clés obsolètes **nettoyées**. |
-| Nouveau besoin logi | Recréer avec **`/order create`** (prod, transfert ou scrap) ; lien OP optionnel. |
+| Data / UX (before 1.0.0) | After 1.0.0 upgrade |
+|--------------------------|---------------------|
+| Group logistics threads, `/logistics`, `/material` | **Deleted in DB** (`groups`, legacy materials). Dead buttons if Discord messages remain. |
+| Inventory boards `/stock` + `Material` lines | **Deleted in DB** (`stocks`, `materials`). Summary/panel Discord messages may remain orphaned → delete manually in the channel. |
+| Tracked `stock_summary:*` / `stock_panel:*` | **Purged** DB refs (no inventory resync). |
+| `/stockpile` codes | **Kept**; `group_id` → `channel_id` if needed; list resyncs on ready. |
+| In-progress `/operation` | **Kept** (same collection). |
+| Slash stats keys `logistics` / `stock` / … | Obsolete keys **cleaned**. |
+| New logistics need | Recreate with **`/order create`** (prod, transfer, or scrap); optional OP link. |
 
-**Qui fait quoi**
+**Who does what**
 
-1. **Ops du bot (self-host / instance officielle)** : backup → `migrate-v2.js` → déployer le code 1.0.0 → restart.  
-2. **Chaque serveur Discord** : pas d’action DB ; après restart, les slash changent. Les leads logi **recrée** les tableaux `/order` et **supprime** les vieux messages inventaire/logistics encore visibles.  
-3. **Rien n’est migré automatiquement** inventaire → ordre (actuel/cible inventaire ≠ commande OP).
+1. **Bot ops (self-host / official instance)**: backup → `migrate-v2.js` → deploy 1.0.0 → restart.  
+2. **Each Discord server**: no DB action; after restart, slash commands change. Logistics leads **recreate** `/order` boards and **delete** old inventory/logistics messages still visible.  
+3. **Nothing is auto-migrated** inventory → order (inventory current/target ≠ OP order).
 
 ```mermaid
 flowchart LR
-  Old["Avant: logistics et/ou /stock"]
+  Old["Before: logistics and/or /stock"]
   Migrate["migrate-v2.js purge DB"]
   Deploy["Deploy 1.0.0 + restart"]
   Recreate["Staff: /order create + clean messages"]
@@ -43,47 +43,47 @@ flowchart LR
 
 ---
 
-## 1. Ce qui change (résumé)
+## 1. What changes (summary)
 
 ### Breaking
 
-| Avant | Après |
-|-------|--------|
-| `/logistics`, `/material`, threads Group | **Supprimés** |
-| Inventaire salon `/stock` (selects, priorité, ±qty) | **Supprimé** |
-| Demandes ask/given / assignee | **Supprimés** |
+| Before | After |
+|--------|--------|
+| `/logistics`, `/material`, Group threads | **Removed** |
+| Channel inventory `/stock` (selects, priority, ±qty) | **Removed** |
+| Ask/given / assignee requests | **Removed** |
 | `Stockpile.group_id` | **`channel_id`** |
-| `/create_operation`, `/notification`, `/foxhole` | **`/operation`**, **`/notify`**, fusion dans **`/war`** |
+| `/create_operation`, `/notification`, `/foxhole` | **`/operation`**, **`/notify`**, merged into **`/war`** |
 
-### Nouveau cœur logi
+### New logistics core
 
-| Élément | Détail |
-|---------|--------|
-| Slash | **`/order`** (FR **`/commande`**) — `create` / `remove` |
-| Types de board | **Production** · **Transfert front** · **Scrap / farm** |
-| Ligne | `actuel/objectif` + **priorité** + **urgence** auto (URGENT / OK / BAS) |
-| Interaction | **Sélection** d’une ligne → **-1 / +1 / +4 / +9 / Max** · Priorité · Ajouter · Corriger · Clôturer |
-| Logs | Optionnel (`Server.logs`, défaut **false**) — thread Discord **verrouillé** si activé ; purge au remove / `/server logs false` |
-| Lien OP | Option `operation` à la création |
-| Données | `OrderBoard` (`log_thread_id`, `selected_line_id`, …) / `OrderLine` (`priority`, …) |
+| Item | Detail |
+|------|--------|
+| Slash | **`/order`** — `create` / `remove` |
+| Board kinds | **Production** · **Front transfer** · **Scrap / farm** |
+| Line | `current/target` + **priority** + auto **urgency** (URGENT / OK / LOW) |
+| Interaction | **Select** a line → **-1 / +1 / +4 / +9 / Max** · Priority · Add · Correct · Close |
+| Logs | Optional (`Server.logs`, default **false**) — **locked** Discord thread if enabled; purged on remove / `/server logs false` |
+| OP link | Optional `operation` at create |
+| Data | `OrderBoard` (`log_thread_id`, `selected_line_id`, …) / `OrderLine` (`priority`, …) |
 
-### Inchangé (rôle)
+### Unchanged (role)
 
-- **`/operation`** — annonce / cycle d’OP  
-- **`/stockpile`** (FR **`depot`**) — codes dépôt  
+- **`/operation`** — OP announce / lifecycle  
+- **`/stockpile`** — depot codes  
 - **`/notify`**, **`/war`**, setup / server / help  
 
 ---
 
 ## 2. Migration (self-host / instance)
 
-À lancer **une fois** sur la Mongo du bot (pas par serveur Discord séparément : une DB = tous les guilds).
+Run **once** against the bot’s MongoDB (one DB = all guilds).
 
-### Prérequis
+### Prerequisites
 
-- Bot arrêté (recommandé)
-- Même `.env` prod (`MONGODB_URL`, `MONGODB_NAME`)
-- Possibilité de redémarrer après
+- Bot stopped (recommended)
+- Same prod `.env` (`MONGODB_URL`, `MONGODB_NAME`)
+- Ability to restart afterward
 
 ### 2.1 Backup
 
@@ -97,93 +97,93 @@ mongodump --uri="$MONGODB_URL/$MONGODB_NAME" --out="./backup-pre-1.0.0-$(date +%
 node scripts/migrate-v2.js --dry-run
 ```
 
-Étapes :
+Steps:
 
-1. **`purgeLogistics`** — drop `groups` ; purge `materials` + `stocks` ; tracked obsolètes ; garde `stockpile_list` (+ `order_board:*` si déjà présents)
+1. **`purgeLogistics`** — drop `groups`; purge `materials` + `stocks`; obsolete tracked types; keep `stockpile_list` (+ `order_board:*` if already present)
 2. **`migrateStockpileChannelId`** — `group_id` → `channel_id`
-3. **`cleanupStats`** — clés slash mortes
+3. **`cleanupStats`** — dead slash keys
 
-### Collections MongoDB touchées
+### MongoDB collections touched
 
-Pour les hébergeurs self-host : le script agit sur **ta** base (`MONGODB_NAME`). Tu n’as **pas** besoin de dropper des collections à la main si tu lances `migrate-v2.js`.
+For self-host operators: the script acts on **your** database (`MONGODB_NAME`). You do **not** need to drop collections by hand if you run `migrate-v2.js`.
 
-| Collection | Action du script |
-|------------|------------------|
-| **`materials`** | `deleteMany` — tout vidé |
-| **`stocks`** | `deleteMany` — inventaire `/stock` vidé |
-| **`groups`** | **`drop`** de la collection (legacy logistics) |
-| **`trackedmessages`** | delete **partiel** : types obsolètes (`stock_summary:*`, `stock_panel:*`, logistics, …) ; **conserve** `stockpile_list` (et `order_board:*` si présents) |
-| **`stockpiles`** | **conservée** — migration `group_id` → `channel_id` uniquement |
-| **`operations`**, **`servers`**, **`notificationsubscriptions`** | **conservées** |
-| **`stats`** | **conservée** — prune des clés de commandes slash obsolètes |
-| **`orderboards`**, **`orderlines`** | **non touchées** (créées à l’usage après 1.0.0) |
+| Collection | Script action |
+|------------|---------------|
+| **`materials`** | `deleteMany` — emptied |
+| **`stocks`** | `deleteMany` — inventory `/stock` emptied |
+| **`groups`** | **`drop`** collection (legacy logistics) |
+| **`trackedmessages`** | **partial** delete: obsolete types (`stock_summary:*`, `stock_panel:*`, logistics, …); **keeps** `stockpile_list` (and `order_board:*` if present) |
+| **`stockpiles`** | **kept** — `group_id` → `channel_id` only |
+| **`operations`**, **`servers`**, **`notificationsubscriptions`** | **kept** |
+| **`stats`** | **kept** — prune obsolete slash command keys |
+| **`orderboards`**, **`orderlines`** | **untouched** (created in use after 1.0.0) |
 
-Ne drop **pas** toute la DB. Si tu veux vérifier avant apply : `node scripts/migrate-v2.js --dry-run` affiche les compteurs (`materialsDeleted`, `stocksDeleted`, `groupsDropped`, `trackedDeleted`, …).
+Do **not** drop the whole DB. To inspect before apply: `node scripts/migrate-v2.js --dry-run` prints counters (`materialsDeleted`, `stocksDeleted`, `groupsDropped`, `trackedDeleted`, …).
 
-### 2.3 Appliquer
+### 2.3 Apply
 
 ```bash
 node scripts/migrate-v2.js
 ```
 
-### 2.4 Deploy code 1.0.0 + restart
+### 2.4 Deploy 1.0.0 + restart
 
-Au `ready` :
+On `ready`:
 
-- enregistre **`/order`** / **`/commande`**, retire **`/stock`**
+- registers **`/order`**, removes **`/stock`**
 - `syncAllOrderBoards` + `syncAllStockpileLists`
 
-En `APP_ENV=dev`, seules les slash **guild** sont poussées : nettoyer les commandes **globales** Discord si d’anciennes restent visibles.
+With `APP_ENV=dev`, only **guild** slash commands are pushed: clear leftover **global** Discord commands if old ones still appear.
 
-### 2.5 Côté staff serveur (après restart)
+### 2.5 Server staff (after restart)
 
-- Supprimer manuellement les anciens messages inventaire / logistics encore dans les salons (la migrate ne les delete pas sur Discord, seulement les refs DB).
-- Recréer les commandes utiles : `/order create` …
-- Annoncer le changement aux users (plus de `/stock` / logistics).
+- Manually delete old inventory / logistics messages still in channels (migrate does not delete Discord messages, only DB refs).
+- Recreate useful boards: `/order create` …
+- Tell users `/stock` / logistics are gone.
 
 ---
 
-## 3. Comment tout checker
+## 3. How to validate
 
-### 3.1 Tests auto
+### 3.1 Automated tests
 
 ```bash
 npm test
 ```
 
-Couverture order : modèles, services, embeds, slash, autocomplete, boutons, modals, sync, permissions, migrate helpers.
+Order coverage: models, services, embeds, slash, autocomplete, buttons, modals, sync, permissions, migrate helpers.
 
-### 3.2 Smoke manuel — Orders
+### 3.2 Manual smoke — Orders
 
-- [ ] `/setup` / serveur avec `logs:false` (défaut) → `/order create` **sans** thread Logs
-- [ ] `/server logs enabled:true` puis nouveau board → **thread Logs** créé et **verrouillé**
-- [ ] `/server reset confirm:false` → aperçu des counts
-- [ ] `/server reset confirm:true` → wipe boards + stockpiles + opérations (config/notifs intactes) ; messages d’ops avec `channel_id` supprimés
-- [ ] Restart bot → slash `/order` / `/server reset` visibles (re-register au boot)
-- [ ] `/order create type:Production name:TestProd` → embed + select + boutons
-- [ ] **Ajouter** → objectif → ligne `0/N` ; log d’ajout dans le thread (si logs on)
-- [ ] Sélectionner une ligne → **-1 / +1 / +4 / +9 / Max** ; ✅ si objectif atteint ; logs qty/max
-- [ ] **Priorité** cycle (🔻/➖/🔺) ; urgence affichée
-- [ ] **Corriger** (actuel/objectif) ; **Clôturer**
-- [ ] Board **Transfert front** et **Scrap / farm**
-- [ ] Lien `operation:`
-- [ ] `/order remove` → message + thread logs (s’il existait) + DB
-- [ ] `/server logs enabled:false` → purge des threads Logs existants
+- [ ] `/setup` / server with `logs:false` (default) → `/order create` **without** Logs thread
+- [ ] `/server logs enabled:true` then new board → **Logs thread** created and **locked**
+- [ ] `/server reset confirm:false` → count preview
+- [ ] `/server reset confirm:true` → wipe boards + stockpiles + operations (config/notifications intact); op messages with `channel_id` deleted
+- [ ] Restart bot → slash `/order` / `/server reset` visible (re-register at boot)
+- [ ] `/order create type:prod name:TestProd` → embed + select + buttons
+- [ ] **Add** → target → line `0/N`; add log in thread (if logs on)
+- [ ] Select a line → **-1 / +1 / +4 / +9 / Max**; checkmark when target reached; qty/max logs
+- [ ] **Priority** cycle; urgency displayed
+- [ ] **Correct** (current/target); **Close**
+- [ ] **Front transfer** and **Scrap / farm** boards
+- [ ] `operation:` link
+- [ ] `/order remove` → message + logs thread (if any) + DB
+- [ ] `/server logs enabled:false` → purge existing Logs threads
 
-### 3.3 Smoke manuel — Régression
+### 3.3 Manual smoke — Regression
 
 - [ ] `/stockpile` add / list / reset
 - [ ] `/operation` create / start / finish / cancel
 - [ ] `/notify`, `/war`
-- [ ] `/stock` / logistics / material **absents**
-- [ ] `/help` → order / commande
-- [ ] Logs ready OrderBoard + StockpileList OK
-- [ ] Permissions bot : Create Public Threads + Send Messages in Threads
+- [ ] `/stock` / logistics / material **absent**
+- [ ] `/help` → order
+- [ ] Ready logs: OrderBoard + StockpileList OK
+- [ ] Bot permissions: Create Public Threads + Send Messages in Threads
 
 ### 3.4 Post-migration
 
-- [ ] Backup gardé jusqu’à smoke OK
-- [ ] migrate appliqué
-- [ ] Bot redémarré, slash à jour
-- [ ] Anciens messages Discord nettoyés dans les salons concernés
-- [ ] Au moins un `/order` de test créé par guild actif si besoin
+- [ ] Backup kept until smoke OK
+- [ ] migrate applied
+- [ ] Bot restarted, slash up to date
+- [ ] Old Discord messages cleaned in affected channels
+- [ ] At least one test `/order` per active guild if needed

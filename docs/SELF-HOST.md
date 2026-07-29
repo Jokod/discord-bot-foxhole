@@ -1,26 +1,26 @@
 # Self-host
 
-Guide pour **héberger ta propre instance** du bot Foxhole (Discord + MongoDB).
+Guide to **run your own instance** of the Foxhole Discord bot (Discord + MongoDB).
 
-Instance publique / support : [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5) · code : [GitHub](https://github.com/Jokod/discord-bot-foxhole).
+Public instance / support: [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5) · source: [GitHub](https://github.com/Jokod/discord-bot-foxhole).
 
-| Sujet | Lien |
+| Topic | Link |
 |-------|------|
-| Index docs | [README.md](README.md) |
-| Commandes (usage) | [USAGE.md](USAGE.md) |
-| Migrations de version | [MIGRATION.md](MIGRATION.md) |
+| Docs index | [README.md](README.md) |
+| Commands (usage) | [USAGE.md](USAGE.md) |
+| Version migrations | [MIGRATION.md](MIGRATION.md) |
 | Tests | [TESTING.md](TESTING.md) |
-| Notes de release | [CHANGELOG.md](../CHANGELOG.md) |
-| Confidentialité | [PRIVACY_POLICY.md](../PRIVACY_POLICY.md) |
-| Contribuer | [CONTRIBUTING.md](../CONTRIBUTING.md) |
+| Release notes | [CHANGELOG.md](../CHANGELOG.md) |
+| Privacy | [PRIVACY_POLICY.md](../PRIVACY_POLICY.md) |
+| Contributing | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
 ---
 
-## Prérequis
+## Prerequisites
 
-- **Node.js ≥ 20** (LTS) — voir `.nvmrc`
-- **MongoDB** (local ou Atlas)
-- Application bot Discord ([Developer Portal](https://discord.com/developers/applications)) avec token
+- **Node.js ≥ 20** (LTS) — see `.nvmrc`
+- **MongoDB** (local or Atlas)
+- A Discord bot application ([Developer Portal](https://discord.com/developers/applications)) with a token
 
 ---
 
@@ -33,181 +33,192 @@ npm install
 cp .env.dist .env
 ```
 
-Édite `.env` (voir [Variables d’environnement](#variables-denvironnement)), puis :
+Edit `.env` (see [Environment variables](#environment-variables)), then:
 
 ```bash
 npm run start    # production
-npm run dev      # développement (nodemon)
+npm run dev      # development (nodemon)
 ```
 
-### Invitation Discord
+### Discord invite
 
-Scopes : **`bot`** + **`applications.commands`**.
+Scopes: **`bot`** + **`applications.commands`**.
 
 ```
 https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=328565001280&scope=bot%20applications.commands
 ```
 
-Permissions incluses (entre autres) : gérer les messages/salons utiles aux boards, **Create Public Threads** + **Send Messages in Threads** (threads Logs des `/order`).
+Included permissions (among others): manage messages/channels used by boards, **Create Public Threads** + **Send Messages in Threads** (order Logs threads).
 
-Après invite : **`/setup`** une fois (langue + camp ; `logs` optionnel, défaut **false**).
+After invite: run **`/setup`** once (language + faction; optional `logs`, default **false**).
 
 ---
 
-## Variables d’environnement
+## Environment variables
 
-Référence : [`.env.dist`](../.env.dist).
+Reference: [`.env.dist`](../.env.dist).
 
-| Variable | Requis | Rôle |
-|----------|--------|------|
-| `TOKEN` | oui | Token bot Discord |
-| `CLIENT_ID` | oui | ID application |
-| `MONGODB_URL` | oui | URI Mongo |
-| `MONGODB_NAME` | oui | Nom de la base |
-| `OWNER` | oui | ID Discord owner (`!reload`, etc.) |
-| `TEST_GUILD_ID` | recommandé en `dev` | Guild de test |
-| `APP_ENV` | oui | `dev` ou `prod` |
-| `PREFIX` | non | Préfixe commandes texte (défaut `!`) |
-| `TZ` | non | Fuseau (ex. `Europe/Paris`) |
-| `BLOCKED_GUILD_IDS` | non | IDs de guilds à quitter (séparés par des virgules) |
-| `GITHUB_URL` | non | Affiché dans `/about` |
-| `GITHUB_ISSUES_URL` | non | Override lien issues (`GITHUB_URL/issues/new` par défaut) |
-| `DISCORD_INVITE_URL` | non | Invite support + texte Follow annonces dans `/about` |
+| Variable | Required | Role |
+|----------|----------|------|
+| `TOKEN` | yes | Discord bot token |
+| `CLIENT_ID` | yes | Application ID |
+| `MONGODB_URL` | yes | Mongo URI |
+| `MONGODB_NAME` | yes | Database name |
+| `OWNER` | yes | Discord owner user ID (`!reload`, etc.) |
+| `TEST_GUILD_ID` | recommended in `dev` | Test guild |
+| `APP_ENV` | yes | `dev` or `prod` |
+| `PREFIX` | no | Text command prefix (default `!`) |
+| `TZ` | no | Timezone (e.g. `Europe/Paris`) |
+| `BLOCKED_GUILD_IDS` | no | Comma-separated guild IDs to leave |
+| `GITHUB_URL` | no | Shown in `/about` |
+| `GITHUB_ISSUES_URL` | no | Issues link override (default `GITHUB_URL/issues/new`) |
+| `DISCORD_INVITE_URL` | no | Support invite + Follow Announcements text in `/about` |
 
 ### `APP_ENV`
 
-| Valeur | Comportement slash |
-|--------|-------------------|
-| `prod` | Enregistrement **global** des commandes au démarrage |
-| `dev` | Enregistrement **guild** (`TEST_GUILD_ID`) — plus rapide pour itérer |
+| Value | Slash behaviour |
+|-------|-----------------|
+| `prod` | **Global** command registration at startup |
+| `dev` | **Guild** registration (`TEST_GUILD_ID`) — faster iteration |
 
-En `dev`, d’anciennes commandes **globales** peuvent encore apparaître : les nettoyer dans le Developer Portal ou attendre la propagation.
+In `dev`, old **global** commands may still appear: clear them in the Developer Portal or wait for propagation.
 
 ---
 
-## Données & responsabilité
+## Data and responsibility
 
-- Toutes les données restent dans **ta** MongoDB.
-- Au départ d’un serveur (leave / blocklist / absent au boot), cleanup guild : boards, lignes, ops, notifs, tracked messages, stockpiles, config `Server` ; `Stats.left_at` renseigné.
-- Détail : [PRIVACY_POLICY.md](../PRIVACY_POLICY.md).
+- All data stays in **your** MongoDB (plus optional host log files under `var/logs/`).
+- On guild leave / blocklist / orphan at boot: cleanup deletes that guild’s boards, lines, ops, notifications, tracked messages, stockpiles, and `Server` config; `Stats.left_at` is set. Statistics may include the server owner Discord ID.
+- The bot does not archive general chat; see [PRIVACY_POLICY.md](../PRIVACY_POLICY.md).
 
 ---
 
 ## Migration / upgrade
 
-Avant toute montée de version majeure :
+Before any major version bump:
 
 1. **Backup** MongoDB  
-2. Suivre **[MIGRATION.md](MIGRATION.md)** (scripts, collections touchées, checklist)  
-3. Déployer le code → **restart**  
-4. Vérifier les slash (re-register au boot)
+2. Follow **[MIGRATION.md](MIGRATION.md)** (scripts, collections, checklist)  
+3. Deploy code → **restart**  
+4. Check slash commands (re-registered at boot)
 
-Exemple **→ 1.0.0** : `node scripts/migrate-v2.js --dry-run` puis `node scripts/migrate-v2.js`, puis recreer les boards avec `/order` (pas de conversion auto logistics/stock → order).
-
----
-
-## Exploitation courante
-
-| Action | Commande / note |
-|--------|------------------|
-| Démarrer | `npm run start` |
-| Restart | Relance le process → resync boards ouverts + listes stockpile + slash |
-| Nouvelle guerre (wipe data jeu) | `/server reset confirm:true` (Manage Server) — aperçu avec `confirm:false` |
-| Threads Logs order | `/setup logs` ou `/server logs` |
-| Owner | `!reload <commande>` |
-| Dashboard stats (local) | Voir [Dashboard](#dashboard-stats-local) |
-
-### Annonces GitHub → Discord (optionnel)
-
-Pour poster les **releases** dans un salon Annonces : webhook Discord + suffixe **`/github`** sur l’URL, event GitHub **Releases**. Dans un salon Annonces, **Publier** le message pour les serveurs qui **Suivent**.
+Example **→ 1.0.0**: `node scripts/migrate-v2.js --dry-run` then `node scripts/migrate-v2.js`, then recreate boards with `/order` (no automatic logistics/stock → order conversion).
 
 ---
 
-## Dashboard stats (local)
+## Day-to-day operations
 
-Petit tableau de bord **local** (KPIs, graphiques, liste des serveurs, contacts Discord) qui lit **ta** MongoDB. Utile pour l’ops self-host — **pas** exposé publiquement.
+| Action | Command / note |
+|--------|----------------|
+| Start | `npm run start` |
+| Restart | Restart the process → resync open boards + stockpile lists + slash |
+| New war (wipe game data) | `/server reset confirm:true` (Manage Server) — preview with `confirm:false` |
+| Order Logs threads | `/setup logs` or `/server logs` |
+| Owner | `!reload <command>` |
+| Stats dashboard (local) | See [Dashboard](#dashboard-stats-local) |
+
+### GitHub releases → Discord (optional)
+
+To post **releases** in an Announcements channel: Discord webhook + **`/github`** URL suffix, GitHub **Releases** event. In an Announcements channel, **Publish** the message so servers that **Follow** receive it.
+
+### One-shot announce to all guilds (optional)
+
+Maintainer script (not run by CI or the dashboard):
+
+```bash
+DASHBOARD_ENV_FILE=.env.prod node scripts/announce-guilds.js --dry-run
+DASHBOARD_ENV_FILE=.env.prod node scripts/announce-guilds.js --send
+```
+
+Message body: `data/announce.md` (or `--message-file=…`). Writes a per-guild summary to `data/announce-last-run.txt`. Exit code `1` if any guild failed.
+
+---
+
+## Dashboard (local stats)
+
+Small **local** dashboard (KPIs, charts, guild list, Discord contacts) that reads **your** MongoDB. For self-host ops — **not** publicly exposed.
 
 | | |
 |--|--|
-| Code | [`.dashboard/`](../.dashboard/) |
-| URL | `http://127.0.0.1:3847` (écoute **localhost uniquement**) |
-| Env | Même fichier que le bot (`TOKEN`, `MONGODB_*`) |
+| Code | [`.dashboard/`](../.dashboard/) (`assets/` for CSS/JS) |
+| URL | `http://127.0.0.1:3847` (**localhost only**) |
+| Env | Same file as the bot (`TOKEN`, `MONGODB_*`) |
 
-### Démarrage
+### Start
 
 ```bash
-# avec ton .env (défaut Makefile = .env.prod)
+# with your .env (Makefile default = .env.prod)
 make dashboard-start DASHBOARD_ENV_FILE=.env
 
-# ou
+# or
 DASHBOARD_ENV_FILE=.env npm run dashboard
 ```
 
-| Commande Make | Effet |
-|---------------|--------|
-| `make dashboard-start` | Démarre en arrière-plan |
-| `make dashboard-stop` | Arrête |
+| Make target | Effect |
+|-------------|--------|
+| `make dashboard-start` | Start in background |
+| `make dashboard-stop` | Stop |
 | `make dashboard-restart` | Restart |
-| `make dashboard-status` | Statut / pid |
-| `make dashboard-open` | Ouvre le navigateur |
-| `make dashboard-logs` | Tail des logs |
+| `make dashboard-status` | Status / pid |
+| `make dashboard-open` | Open browser |
+| `make dashboard-logs` | Tail logs |
 
-Overrides optionnels : `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`.
+Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`.
 
-### Contenu
+### Contents
 
-- Vue d’ensemble : activité, joins/leaves, tailles, top commandes / serveurs  
-- Commandes : répartition globale, filtre vers les serveurs  
-- Serveurs : recherche, filtres, tri, fiche (langue, camp, stats)  
-- Contacts : owners Discord + créateurs d’ops / stockpiles (résolution via `TOKEN`)  
-- Produit : order boards, langues, camps, notifs, ops  
+- Overview: activity, joins/leaves, sizes, top commands / servers  
+- Commands: global breakdown, filter to servers  
+- Servers: search, filters, sort, detail (language, faction, stats)  
+- Contacts: Discord owners + creators of ops / stockpiles / boards (resolved via `TOKEN`)  
+- Product: order boards, languages, factions, notifications, ops  
 
-L’onglet Contacts appelle l’API Discord (`TOKEN`) : owners des guilds **où le bot est encore**, et résolution des pseudos. Les `owner_id` sont aussi persistés dans `Stats` au join / ready / leave pour rester visibles après un départ.
+The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the bot is still present**, and username resolution. `owner_id` is also stored on `Stats` at join / ready / leave so it remains after departure.
 
-### Sécurité
+### Security
 
-- Bind **127.0.0.1** seulement — ne pas reverse-proxyer sans auth.  
-- Même secrets que le bot : ne pas committer `.env` / `.env.*` (hors `.env.dist`).
+- Binds to **127.0.0.1** only — do not reverse-proxy without auth.  
+- Same secrets as the bot: do not commit `.env` / `.env.*` (except `.env.dist`).
 
 ---
 
 ## Wiki sync (materials)
 
-Les JSON sous `data/materials/` alimentent **Ajouter** sur les boards `/order`.
+JSON under `data/materials/` feeds **Add** on `/order` boards.
 
-| Commande npm | Effet |
-|--------------|--------|
-| `npm run wiki:sync-materials` | Maj descriptions / factions des entrées existantes |
+| npm script | Effect |
+|------------|--------|
+| `npm run wiki:sync-materials` | Update descriptions / factions for existing entries |
 | `npm run wiki:sync-materials:dry` | Dry-run |
-| `npm run wiki:sync-materials:add-missing` | Import pages wiki manquantes |
-| `npm run wiki:sync-materials:add-missing:and-sync` | Import + synchro complète |
+| `npm run wiki:sync-materials:add-missing` | Import missing wiki pages |
+| `npm run wiki:sync-materials:add-missing:and-sync` | Import + full sync |
 
-Source : [foxhole.wiki.gg](https://foxhole.wiki.gg). Préférer le script / le routing (`scripts/lib/wiki-sync/`) plutôt que l’édition manuelle massive.
+Source: [foxhole.wiki.gg](https://foxhole.wiki.gg). Prefer the script / routing under `scripts/lib/wiki-sync/` over large manual edits.
 
 ---
 
-## Tests (avant deploy)
+## Tests (before deploy)
 
 ```bash
 npm test
-npm run test:ci      # lint + i18n + coverage (comme la CI)
+npm run test:ci      # lint + i18n + coverage (same as CI)
 npm run i18n:check
 ```
 
-CI : [`.github/workflows/integration.yaml`](../.github/workflows/integration.yaml).
+CI: [`.github/workflows/integration.yaml`](../.github/workflows/integration.yaml).
 
 ---
 
-## Dépannage rapide
+## Quick troubleshooting
 
-| Problème | Piste |
-|----------|--------|
-| Slash manquantes / anciennes | Restart en `prod` ; attendre quelques minutes ; vérifier scopes invite |
-| Bot muet | Token, intents, permissions salon, `/setup` fait |
-| Mongo error | `MONGODB_URL` / `MONGODB_NAME`, réseau Atlas |
-| Threads Logs absents | `logs:true` + permissions threads |
-| `/about` vide | Renseigner `GITHUB_URL` / `DISCORD_INVITE_URL` |
-| Dashboard ne démarre pas | Vérifier `DASHBOARD_ENV_FILE` (souvent `.env`), `TOKEN` / Mongo ; logs : `make dashboard-logs` |
-| Contacts sans pseudo | `TOKEN` invalide ou expiré dans le fichier d’env du dashboard |
+| Problem | Hint |
+|---------|------|
+| Missing / stale slash commands | Restart in `prod`; wait a few minutes; check invite scopes |
+| Bot silent | Token, intents, channel permissions, `/setup` done |
+| Mongo error | `MONGODB_URL` / `MONGODB_NAME`, Atlas network |
+| Missing Logs threads | `logs:true` + thread permissions |
+| Empty `/about` | Set `GITHUB_URL` / `DISCORD_INVITE_URL` |
+| Dashboard won’t start | Check `DASHBOARD_ENV_FILE` (often `.env`), `TOKEN` / Mongo; logs: `make dashboard-logs` |
+| Contacts without usernames | Invalid or expired `TOKEN` in the dashboard env file |
 
-Support communauté (pas ta prod clan) : [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5).
+Community support (not your clan prod): [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5).

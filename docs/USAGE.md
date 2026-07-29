@@ -1,6 +1,6 @@
 # Usage
 
-Slash commands and board behaviour after **`/setup`**. Localized names follow server language (e.g. FR: `/commande`, `/depot`).
+Slash commands and board behaviour after **`/setup`**. Discord may show localized command names depending on client language; this doc uses the English names.
 
 Hosted invite: use the [Add to Discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot) link from the README. Self-host: [SELF-HOST.md](SELF-HOST.md).
 
@@ -15,14 +15,14 @@ Receive FoxBot **news and release notes in your own Discord** via Discord’s na
 3. Click **Follow** (you need **Manage Webhooks** on your server)  
 4. Pick a channel on your server  
 
-Same steps in **`/about`** (FR `/a-propos`).
+Same steps in **`/about`**.
 
 ---
 
 ## General
 
 - `/help [command]` — List commands or detail one command.
-- `/about` — Support Discord + **Follow Announcements** steps, GitHub, issues (ephemeral; FR `/a-propos`).
+- `/about` — Support Discord + **Follow Announcements** steps, GitHub, issues (ephemeral).
 
 ## Server
 
@@ -44,7 +44,7 @@ Same steps in **`/about`** (FR `/a-propos`).
 
 Not a Foxhole inventory. Counts **progress on a short order** (OP, haul, or farm run).
 
-- `/order create type:prod|transfer|scrap name:<Name> [operation:<…>]` — Create board in this channel (FR: `/commande`). Link an **active** operation via autocomplete. Creates a locked **Logs** thread if enabled in setup/server.
+- `/order create type:prod|transfer|scrap name:<Name> [operation:<…>]` — Create board in this channel. Link an **active** operation via autocomplete. Creates a locked **Logs** thread if enabled in setup/server.
 - `/order remove name:<Name>` — Delete board + Discord message + log thread if any (autocomplete; owner or Manage Guild/Channels).
 
 **On the board:** Select a line · **-1 / +1 / +4 / +9 / Max** · Priority · Add · Correct · Delete · Close / Reopen.  
