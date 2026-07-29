@@ -24,10 +24,17 @@ module.exports = {
 
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub：** %url%',
-	ABOUT_DISCORD: '**Discord：** %url%',
+	ABOUT_DISCORD: '**支持 Discord：** %url%',
 	ABOUT_ISSUES: '**提交 Issue：** %url%',
-	ABOUT_ANNOUNCEMENTS_FOLLOW: '**公告（Discord 原生）：** 加入上方支持服务器 → **Announcements** 频道 → **关注**，以便该频道的更新出现在你自己的服务器中（管理 Webhook）。与 `/newsletter` 无关。',
-	ABOUT_MESSAGE: '你可以关注更新并通过 pull request 参与改进：协助更新阵营物资、提议新命令或提交 issue。',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: [
+		'**📢 关注 Announcements 频道（推荐）**',
+		'通过 Discord 原生「关注」功能，在**你自己的服务器**接收 FoxBot 新闻与版本说明（无需机器人命令）：',
+		'1. 加入上方支持服务器',
+		'2. 打开 **Announcements** 频道',
+		'3. 点击 **关注**（你的服务器需要「管理 Webhook」权限）',
+		'4. 选择一个频道 — 更新会自动转发到那里',
+	].join('\n'),
+	ABOUT_MESSAGE: '你也可以在 GitHub 参与：提交 pull request、更新阵营物资、提议命令或提交 issue。',
 	ABOUT_NOT_CONFIGURED: '未配置支持链接。',
 
 	// FOXHOLE
@@ -324,10 +331,4 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_1H: '1 小时后',
 	NOTIFICATION_EXPIRING_IN_30M: '30 分钟后',
 
-	// NEWSLETTER
-	NEWSLETTER_NO_PERMS: '需要“管理服务器”权限才能订阅或取消订阅。',
-	NEWSLETTER_SUBSCRIBE_SUCCESS: '此频道已订阅机器人通讯。',
-	NEWSLETTER_UNSUBSCRIBE_SUCCESS: '此频道已取消订阅机器人通讯。',
-	NEWSLETTER_ALREADY_SUBSCRIBED: '此频道已订阅机器人通讯。',
-	NEWSLETTER_NOT_SUBSCRIBED: '此频道未订阅机器人通讯。',
 };

@@ -24,10 +24,17 @@ module.exports = {
 
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub :** %url%',
-	ABOUT_DISCORD: '**Discord :** %url%',
+	ABOUT_DISCORD: '**Discord de support :** %url%',
 	ABOUT_ISSUES: '**Déclarer une issue :** %url%',
-	ABOUT_ANNOUNCEMENTS_FOLLOW: '**Annonces (natif Discord) :** rejoignez le Discord de support ci-dessus → salon **Annonces** → **Suivre** pour que les mises à jour de ce salon apparaissent dans ton propre serveur (Gérer les webhooks). Indépendant de `/newsletter`.',
-	ABOUT_MESSAGE: 'Vous pouvez suivre les évolutions et participer à l\'amélioration de l\'outil en proposant des pull requests : tenir à jour le matériel pour les factions, proposer des commandes ou signaler des problèmes (issues).',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: [
+		'**📢 Suivre le salon Annonces (recommandé)**',
+		'Reçois les news et notes de version de FoxBot **directement sur ton serveur** (fonction native Discord — pas de commande bot) :',
+		'1. Rejoins le Discord de support (lien ci-dessus)',
+		'2. Ouvre le salon **Annonces**',
+		'3. Clique sur **Suivre** (permission **Gérer les webhooks** sur ton serveur)',
+		'4. Choisis un salon — les mises à jour y sont postées automatiquement',
+	].join('\n'),
+	ABOUT_MESSAGE: 'Tu peux aussi contribuer sur GitHub : pull requests, mise à jour du matériel des factions, suggestions de commandes ou signalement d’issues.',
 	ABOUT_NOT_CONFIGURED: 'Aucun lien de support n\'est configuré.',
 
 	// FOXHOLE
@@ -323,10 +330,4 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_1H: 'dans 1 h',
 	NOTIFICATION_EXPIRING_IN_30M: 'dans 30 min',
 
-	// NEWSLETTER
-	NEWSLETTER_NO_PERMS: 'Il faut la permission « Gérer le serveur » pour s\'abonner ou se désabonner.',
-	NEWSLETTER_SUBSCRIBE_SUCCESS: 'Ce salon est maintenant abonné à la newsletter du bot.',
-	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'Ce salon n\'est plus abonné à la newsletter du bot.',
-	NEWSLETTER_ALREADY_SUBSCRIBED: 'Ce salon est déjà abonné à la newsletter du bot.',
-	NEWSLETTER_NOT_SUBSCRIBED: 'Ce salon n\'est pas abonné à la newsletter du bot.',
 };

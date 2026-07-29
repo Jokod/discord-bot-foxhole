@@ -23,7 +23,6 @@
 		"wiki:sync-materials:add-missing:dry": "node scripts/sync-wiki-materials.js --add-missing-only --dry-run",
 		"wiki:sync-materials:add-missing:and-sync": "node scripts/sync-wiki-materials.js --add-missing",
 		"wiki:sync-materials:add-missing:and-sync:dry": "node scripts/sync-wiki-materials.js --add-missing --dry-run",
-		"newsletter:publish": "node scripts/publish-newsletter.js",
 		"dashboard": "node .dashboard/server.js"
 	},
 	"dependencies": {

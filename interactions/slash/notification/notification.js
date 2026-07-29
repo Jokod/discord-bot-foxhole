@@ -178,7 +178,6 @@ module.exports = {
 		if (subcommand === 'list') {
 			const knownTypes = new Set(NOTIFICATION_TYPES.map((t) => t.value));
 			const all = await NotificationSubscription.find({ guild_id: guild.id }).lean();
-			// Newsletter subscriptions are managed via /newsletter — exclude them here.
 			const listed = all.filter((sub) => knownTypes.has(sub.notification_type));
 			if (listed.length === 0) {
 				return interaction.reply({

@@ -14,11 +14,11 @@ module.exports = {
 			ru: 'о-боте',
 			'zh-CN': '关于',
 		})
-		.setDescription('Bot links: GitHub, issues, and support Discord (ephemeral).')
+		.setDescription('Support Discord, Follow Announcements, GitHub & issues (ephemeral).')
 		.setDescriptionLocalizations({
-			fr: 'Liens du bot : GitHub, déclarer une issue, Discord de support (éphémère).',
-			ru: 'Ссылки бота: GitHub, создать issue и Discord поддержки (временно).',
-			'zh-CN': '机器人链接：GitHub、提交 Issue、支持 Discord（仅你可见）。',
+			fr: 'Discord de support, suivre Annonces, GitHub et issues (éphémère).',
+			ru: 'Discord поддержки, отслеживание Announcements, GitHub и issues (временно).',
+			'zh-CN': '支持 Discord、关注公告、GitHub 与 Issue（仅你可见）。',
 		}),
 
 	async execute(interaction) {
@@ -26,15 +26,15 @@ module.exports = {
 		const translations = new Translate(interaction.client, guildId);
 
 		const parts = [];
+		if (DISCORD_INVITE_URL) {
+			parts.push(translations.translate('ABOUT_DISCORD', { url: DISCORD_INVITE_URL }));
+			parts.push('', translations.translate('ABOUT_ANNOUNCEMENTS_FOLLOW'));
+		}
 		if (GITHUB_URL) {
-			parts.push(translations.translate('ABOUT_GITHUB', { url: GITHUB_URL }));
+			parts.push('', translations.translate('ABOUT_GITHUB', { url: GITHUB_URL }));
 		}
 		if (GITHUB_ISSUES_URL) {
 			parts.push(translations.translate('ABOUT_ISSUES', { url: GITHUB_ISSUES_URL }));
-		}
-		if (DISCORD_INVITE_URL) {
-			parts.push(translations.translate('ABOUT_DISCORD', { url: DISCORD_INVITE_URL }));
-			parts.push(translations.translate('ABOUT_ANNOUNCEMENTS_FOLLOW'));
 		}
 
 		if (!parts.length) {

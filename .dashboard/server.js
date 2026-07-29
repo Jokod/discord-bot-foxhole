@@ -121,7 +121,6 @@ async function loadSummary() {
 		trackedCol.estimatedDocumentCount(),
 	]);
 
-	const setupIds = new Set(servers.map((s) => s.guild_id));
 	const serverByGuild = new Map(servers.map((s) => [s.guild_id, s]));
 	const active = allStats.filter((g) => !g.left_at);
 	const left = allStats.filter((g) => g.left_at);
@@ -344,10 +343,10 @@ function mapUser(user) {
 	};
 }
 
-async function discordFetch(path) {
+async function discordFetch(apiPath) {
 	const token = process.env.TOKEN;
 	if (!token) return { ok: false, status: 0, data: null, error: 'TOKEN manquant' };
-	const res = await fetch(`https://discord.com/api/v10${path}`, {
+	const res = await fetch(`https://discord.com/api/v10${apiPath}`, {
 		headers: {
 			Authorization: `Bot ${token}`,
 			'User-Agent': 'FoxBot-Dashboard (local)',
@@ -357,7 +356,7 @@ async function discordFetch(path) {
 		const body = await res.json().catch(() => ({}));
 		const wait = Math.ceil(Number(body.retry_after || 1) * 1000);
 		await sleep(Math.min(wait, 5000));
-		return discordFetch(path);
+		return discordFetch(apiPath);
 	}
 	if (!res.ok) {
 		const text = await res.text().catch(() => '');
@@ -441,7 +440,7 @@ async function loadContacts({ force = false } = {}) {
 		const active = !g.left_at;
 		let ownerId = g.owner_id || null;
 		let owner = null;
-		let discord = { guild_ok: false, error: null };
+		const discord = { guild_ok: false, error: null };
 
 		if (token && active) {
 			const guildRes = await discordFetch(`/guilds/${g.guild_id}`);

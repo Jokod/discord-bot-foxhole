@@ -13,8 +13,20 @@ Focus: **order boards** (production, front transfer, scrap/farm), operations, an
 
 **Support Discord:** [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5) · **Source:** [GitHub](https://github.com/Jokod/discord-bot-foxhole) · **Docs:** [docs/](docs/README.md)
 
+## Get updates on your server
+
+FoxBot publishes news and release notes in the **Announcements** channel on the [support Discord](https://discord.gg/bjkzG9YsX5). Server admins can **Follow** that channel so posts appear in a channel of **their own** Discord (native Discord feature — no bot command).
+
+1. Join [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5)  
+2. Open **Announcements**  
+3. Click **Follow** (needs **Manage Webhooks** on your server)  
+4. Choose the target channel  
+
+Also explained in **`/about`** (FR `/a-propos`).
+
 ## Table of Contents
 
+- [Get updates on your server](#get-updates-on-your-server)
 - [Features](#features)
 - [Configuration](#configuration)
 - [Data collected](#data-collected)
@@ -42,6 +54,7 @@ Focus: **order boards** (production, front transfer, scrap/farm), operations, an
 1. Invite the bot: [Add to my Discord server](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot).
 2. Grant command permissions as needed for your roles.
 3. Run **`/setup`** once (language + faction: colonial / warden ; optional **`logs`** for order Logs threads, default off).
+4. **Recommended:** [Follow Announcements](#get-updates-on-your-server) so FoxBot news lands in your Discord.
 
 Command reference: **[docs/USAGE.md](docs/USAGE.md)**.
 

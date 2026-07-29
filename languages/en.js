@@ -24,10 +24,17 @@ module.exports = {
 
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
-	ABOUT_DISCORD: '**Discord:** %url%',
+	ABOUT_DISCORD: '**Support Discord:** %url%',
 	ABOUT_ISSUES: '**Report an issue:** %url%',
-	ABOUT_ANNOUNCEMENTS_FOLLOW: '**Announcements (Discord native):** join the support server above → **Announcements** channel → **Follow** so updates from that channel appear on your own server (Manage Webhooks). Separate from `/newsletter`.',
-	ABOUT_MESSAGE: 'You can follow updates and contribute by opening pull requests: help keep faction material up to date, suggest new commands, or report issues.',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: [
+		'**📢 Follow Announcements (recommended)**',
+		'Receive FoxBot news & release notes **directly in your own Discord** (native Discord Follow — no bot command):',
+		'1. Join the support server (link above)',
+		'2. Open the **Announcements** channel',
+		'3. Click **Follow** (you need **Manage Webhooks** on your server)',
+		'4. Pick a channel — updates are posted there automatically',
+	].join('\n'),
+	ABOUT_MESSAGE: 'You can also contribute on GitHub: open pull requests, keep faction materials up to date, suggest commands, or report issues.',
 	ABOUT_NOT_CONFIGURED: 'No support links are configured.',
 
 	// FOXHOLE
@@ -323,10 +330,4 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_1H: 'in 1h',
 	NOTIFICATION_EXPIRING_IN_30M: 'in 30min',
 
-	// NEWSLETTER
-	NEWSLETTER_NO_PERMS: 'You need the "Manage Server" permission to subscribe or unsubscribe.',
-	NEWSLETTER_SUBSCRIBE_SUCCESS: 'This channel is now subscribed to the bot newsletter.',
-	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'This channel is no longer subscribed to the bot newsletter.',
-	NEWSLETTER_ALREADY_SUBSCRIBED: 'This channel is already subscribed to the bot newsletter.',
-	NEWSLETTER_NOT_SUBSCRIBED: 'This channel is not subscribed to the bot newsletter.',
 };

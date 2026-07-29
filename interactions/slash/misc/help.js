@@ -321,7 +321,7 @@ module.exports = {
 			// Surface documentée (pas logistics / material / stock inventaire)
 			const HELP_SURFACE = new Set([
 				'setup', 'server', 'order', 'stockpile', 'operation',
-				'notify', 'war', 'newsletter', 'help', 'about',
+				'notify', 'war', 'help', 'about',
 			]);
 
 			const allCommands = interaction.client.slashCommands

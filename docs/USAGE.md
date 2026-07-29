@@ -6,10 +6,23 @@ Hosted invite: use the [Add to Discord](https://discord.com/api/oauth2/authorize
 
 ---
 
+## Follow Announcements (recommended)
+
+Receive FoxBot **news and release notes in your own Discord** via Discord’s native **Follow** (independent of the bot).
+
+1. Join the [support Discord](https://discord.gg/bjkzG9YsX5)  
+2. Open the **Announcements** channel  
+3. Click **Follow** (you need **Manage Webhooks** on your server)  
+4. Pick a channel on your server  
+
+Same steps in **`/about`** (FR `/a-propos`).
+
+---
+
 ## General
 
 - `/help [command]` — List commands or detail one command.
-- `/about` — GitHub, issues, support Discord, Follow tips (ephemeral; FR `/a-propos`).
+- `/about` — Support Discord + **Follow Announcements** steps, GitHub, issues (ephemeral; FR `/a-propos`).
 
 ## Server
 
@@ -65,11 +78,3 @@ Requires **Manage Channels** for on/off.
 |------|------|
 | Stockpile activity | On add / remove / reset |
 | Stockpile expiring soon | Startup + every 5 min (12h / 6h / 1h / 30m) |
-
-## Announcements (Discord native Follow)
-
-On the [support Discord](https://discord.gg/bjkzG9YsX5), use an **Announcement** channel. Server admins with **Manage Webhooks** can **Follow** it into a channel on their own server (Discord UI — independent of the bot). Explained in `/about`.
-
-## Newsletter (bot push)
-
-Requires **Manage Server**. `/newsletter subscribe` | `unsubscribe`. Publish (self-host): see [SELF-HOST.md](SELF-HOST.md). Separate from Discord Follow.

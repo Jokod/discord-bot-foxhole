@@ -24,10 +24,17 @@ module.exports = {
 
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
-	ABOUT_DISCORD: '**Discord:** %url%',
+	ABOUT_DISCORD: '**Discord поддержки:** %url%',
 	ABOUT_ISSUES: '**Создать issue:** %url%',
-	ABOUT_ANNOUNCEMENTS_FOLLOW: '**Объявления (нативно Discord):** зайдите на сервер поддержки выше → канал **Announcements** → **Отслеживать**, чтобы обновления этого канала появлялись на вашем сервере (Управление вебхуками). Это отдельно от `/newsletter`.',
-	ABOUT_MESSAGE: 'Вы можете следить за обновлениями и участвовать в улучшении: предлагать pull requests (обновление материала фракций, новые команды) или создавать issues.',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: [
+		'**📢 Отслеживать канал Announcements (рекомендуется)**',
+		'Получайте новости и релизы FoxBot **прямо на своём сервере** (встроенная функция Discord — без команды бота):',
+		'1. Зайдите на сервер поддержки (ссылка выше)',
+		'2. Откройте канал **Announcements**',
+		'3. Нажмите **Отслеживать** (нужно право **Управление вебхуками** на вашем сервере)',
+		'4. Выберите канал — обновления будут публиковаться туда автоматически',
+	].join('\n'),
+	ABOUT_MESSAGE: 'Также можно участвовать на GitHub: pull requests, обновление материалов фракций, идеи команд или issues.',
 	ABOUT_NOT_CONFIGURED: 'Ссылки поддержки не настроены.',
 
 	// FOXHOLE
@@ -324,10 +331,4 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_1H: 'через 1 ч',
 	NOTIFICATION_EXPIRING_IN_30M: 'через 30 мин',
 
-	// NEWSLETTER
-	NEWSLETTER_NO_PERMS: 'Нужно право « Управление сервером » для подписки или отписки.',
-	NEWSLETTER_SUBSCRIBE_SUCCESS: 'Этот канал подписан на рассылку бота.',
-	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'Этот канал больше не подписан на рассылку бота.',
-	NEWSLETTER_ALREADY_SUBSCRIBED: 'Этот канал уже подписан на рассылку бота.',
-	NEWSLETTER_NOT_SUBSCRIBED: 'Этот канал не подписан на рассылку бота.',
 };

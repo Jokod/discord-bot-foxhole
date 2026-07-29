@@ -62,20 +62,6 @@ js-start: ## Build assets for production
 deploy-prod: ## Deploy on production
 	$(SSH_COMMAND) "cd $(REMOTE_PATH) && git fetch && git pull origin main && git reset --hard HEAD && /usr/local/bin/docker container restart foxbot"
 
-## —— Newsletter 📰 ————————————————————————————————————————————————————————————
-
-newsletter-publish: ## Publish data/newsletter.md to all subscribed Discord channels
-	node scripts/publish-newsletter.js
-
-# Supports: make newsletter publish
-ifeq ($(firstword $(MAKECMDGOALS)),newsletter)
-ifeq ($(word 2,$(MAKECMDGOALS)),publish)
-newsletter: newsletter-publish
-publish:
-	@:
-endif
-endif
-
 ## —— Dashboard 📊 —————————————————————————————————————————————————————————————
 
 DASHBOARD_PORT     ?= 3847

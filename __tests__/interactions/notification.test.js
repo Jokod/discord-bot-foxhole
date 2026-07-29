@@ -165,10 +165,10 @@ describe('Slash command /notify', () => {
 			expect(interaction.reply.mock.calls[0][0].content).toContain('<#ch-2>');
 		});
 
-		it('ignore les abonnements newsletter (gérés via /newsletter)', async () => {
+		it('ignore les abonnements de type inconnu', async () => {
 			NotificationSubscription.find.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([
-					{ notification_type: 'newsletter', channel_id: 'ch-news' },
+					{ notification_type: 'legacy_unknown', channel_id: 'ch-old' },
 					{ notification_type: 'stockpile_activity', channel_id: 'ch-1' },
 				]),
 			});
@@ -176,14 +176,13 @@ describe('Slash command /notify', () => {
 			await notificationCommand.execute(interaction);
 			const content = interaction.reply.mock.calls[0][0].content;
 			expect(content).toContain('<#ch-1>');
-			expect(content).not.toContain('newsletter');
-			expect(content).not.toContain('<#ch-news>');
+			expect(content).not.toContain('<#ch-old>');
 		});
 
-		it('répond LIST_EMPTY si seuls des abonnements newsletter existent', async () => {
+		it('répond LIST_EMPTY si seuls des abonnements inconnus existent', async () => {
 			NotificationSubscription.find.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([
-					{ notification_type: 'newsletter', channel_id: 'ch-news' },
+					{ notification_type: 'legacy_unknown', channel_id: 'ch-old' },
 				]),
 			});
 			const interaction = createInteraction('list');

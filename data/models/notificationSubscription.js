@@ -12,7 +12,7 @@ const NotificationSubscription = mongoose.Schema({
 	notification_type: {
 		type: String,
 		required: true,
-		enum: ['stockpile_activity', 'stockpile_expiring', 'newsletter'],
+		enum: ['stockpile_activity', 'stockpile_expiring'],
 	},
 }, {
 	timestamps: true,

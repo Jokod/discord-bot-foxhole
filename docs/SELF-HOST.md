@@ -114,7 +114,6 @@ Exemple **→ 1.0.0** : `node scripts/migrate-v2.js --dry-run` puis `node script
 | Restart | Relance le process → resync boards ouverts + listes stockpile + slash |
 | Nouvelle guerre (wipe data jeu) | `/server reset confirm:true` (Manage Server) — aperçu avec `confirm:false` |
 | Threads Logs order | `/setup logs` ou `/server logs` |
-| Publier newsletter bot | Éditer `data/newsletter.md` → `npm run newsletter:publish` (abonnés `/newsletter`) |
 | Owner | `!reload <commande>` |
 | Dashboard stats (local) | Voir [Dashboard](#dashboard-stats-local) |
 
