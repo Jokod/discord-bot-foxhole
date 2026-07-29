@@ -1,8 +1,16 @@
-# Release 1.0.0 — changements, migration et validation
+# Migrations
 
-Guide unique pour self-host et QA. Notes produit détaillées : [CHANGELOG.md](../CHANGELOG.md).
+Guides d’upgrade pour les instances **self-host**. Toujours **backup MongoDB** avant d’appliquer un script.
+
+Guide ops complet (install, env, wiki) : [SELF-HOST.md](SELF-HOST.md). Usage joueurs : [USAGE.md](USAGE.md). Notes produit : [CHANGELOG.md](../CHANGELOG.md).
+
+| Depuis → vers | Section |
+|---------------|---------|
+| Pré-1.0.0 (logistics / inventaire `/stock`) → **1.0.0** | [ci-dessous](#release-100--changements-migration-et-validation) |
 
 ---
+
+# Release 1.0.0 — changements, migration et validation
 
 ## 0. Avant / après pour un serveur déjà en prod
 

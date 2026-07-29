@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "Discord bot for Foxhole",
 	"engines": {
-		"node": ">=16.11.0"
+		"node": ">=20"
 	},
 	"types": "./typings.d.ts",
 	"main": "bot.js",

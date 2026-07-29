@@ -38,7 +38,7 @@ Première version majeure de la refonte : abandon de la logistique opérationnel
 - Slash **`/about`** (FR `/a-propos`) : liens GitHub + Discord support (remplace `/github`).
 - Autocomplete Discord enregistré au boot.
 - Scripts **`scripts/migrate-v2.js`** (purge logistics + inventaire `stocks`/`materials`, rename channel_id, cleanup stats) et stub resync.
-- Docs : `docs/MIGRATION_V2.md` (changements + migration + checklist).
+- Docs : `docs/MIGRATION.md` (changements + migration + checklist).
 
 #### Autre
 - `/war status` enrichi (joueurs Steam) ; lien stats dans `maps`.
@@ -70,7 +70,7 @@ Première version majeure de la refonte : abandon de la logistique opérationnel
 3. Restart du bot (resync stockpile + order boards au `ready`).
 4. Ré-enregistrer les slash (`/order` ; disparition `/stock` / logistics).
 
-Détails migration et validation : [docs/MIGRATION_V2.md](docs/MIGRATION_V2.md).
+Détails migration et validation : [docs/MIGRATION.md](docs/MIGRATION.md).
 
 ---
 

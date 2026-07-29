@@ -1,0 +1,75 @@
+# Usage
+
+Slash commands and board behaviour after **`/setup`**. Localized names follow server language (e.g. FR: `/commande`, `/depot`).
+
+Hosted invite: use the [Add to Discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot) link from the README. Self-host: [SELF-HOST.md](SELF-HOST.md).
+
+---
+
+## General
+
+- `/help [command]` — List commands or detail one command.
+- `/about` — GitHub, issues, support Discord, Follow tips (ephemeral; FR `/a-propos`).
+
+## Server
+
+- `/setup lang:<en|fr|ru|zh-CN> camp:<warden|colonial> [logs:<true|false>]` — First-time init (`logs` default **false**).
+- `/server infos` — Show config.
+- `/server lang` / `/server camp` / `/server logs enabled:<true|false>` — Update config (`logs:false` deletes existing order Logs threads).
+- `/server reset confirm:false` — Preview counts (boards / stockpiles / operations) without deleting.
+- `/server reset confirm:true` — Wipe order boards, stockpiles and operations for a **new war** (Manage Server). Keeps language/camp/logs config and notifications. Also deletes operation Discord messages when `channel_id` is known.
+
+## War (live API)
+
+- `/war status` | `maps` | `report map:<MapName>`
+
+## Operations
+
+- `/operation title:<TITLE>` — Modal (date, time, duration, description) → Start / Cancel / Finished.
+
+## Orders (production / front transfer / scrap)
+
+Not a Foxhole inventory. Counts **progress on a short order** (OP, haul, or farm run).
+
+- `/order create type:prod|transfer|scrap name:<Name> [operation:<…>]` — Create board in this channel (FR: `/commande`). Link an **active** operation via autocomplete. Creates a locked **Logs** thread if enabled in setup/server.
+- `/order remove name:<Name>` — Delete board + Discord message + log thread if any (autocomplete; owner or Manage Guild/Channels).
+
+**On the board:** Select a line · **-1 / +1 / +4 / +9 / Max** · Priority · Add · Correct · Delete · Close / Reopen.  
+Up to **50 lines** (Discord: **2** selects × 25). At capacity the embed turns **red**, **Add** is disabled, and further adds are rejected. Long lists may truncate in the embed (use the selects).
+
+**Permissions**
+
+| Who | Actions |
+|-----|---------|
+| Everyone | Create board, select line, ±qty / Max, Add, Correct, Priority |
+| Line/board owner **or** Manage Guild / Manage Channels | Delete, Close / Reopen, `/order remove` |
+
+**Closed boards** stay read-only until an owner/moderator clicks **Reopen** (synced on bot startup too).
+
+**Logs thread:** optional (`/setup logs:true` or `/server logs`). Locked (read-only for members; bot posts qty / max / priority / add / correct / close / reopen / delete). Not attached to the board message. Board remove always deletes the thread if it exists.
+
+Bot needs **Create Public Threads** + **Send Messages in Threads**.
+
+## Stockpiles (depot codes)
+
+- `/stockpile add` — Modal (region, city, name, 6-digit code).
+- `/stockpile list` — Tracked list (reset timers, soft-delete, admin cleanup / delete all).
+
+## Notifications
+
+Requires **Manage Channels** for on/off.
+
+- `/notify on|off type:<Type>` | `/notify list`
+
+| Type | When |
+|------|------|
+| Stockpile activity | On add / remove / reset |
+| Stockpile expiring soon | Startup + every 5 min (12h / 6h / 1h / 30m) |
+
+## Announcements (Discord native Follow)
+
+On the [support Discord](https://discord.gg/bjkzG9YsX5), use an **Announcement** channel. Server admins with **Manage Webhooks** can **Follow** it into a channel on their own server (Discord UI — independent of the bot). Explained in `/about`.
+
+## Newsletter (bot push)
+
+Requires **Manage Server**. `/newsletter subscribe` | `unsubscribe`. Publish (self-host): see [SELF-HOST.md](SELF-HOST.md). Separate from Discord Follow.
