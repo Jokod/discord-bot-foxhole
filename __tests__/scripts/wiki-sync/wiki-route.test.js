@@ -48,6 +48,36 @@ describe('wiki-sync / wiki-route', () => {
 		});
 	});
 
+	it('HeavyAmmo via ItemCategory vide profile (Absol AA) → aircraft_ammo.json', () => {
+		expect(routeWikiInfoboxToMaterialFile(itemFields({
+			name: 'Absol Anti-Aircraft Rounds',
+			ItemCategory: 'HeavyAmmo',
+			ItemFlags: 'Default,HeavyAmmo',
+			ItemProfileType: '',
+			type: 'Magazine',
+			ChassisName: 'Anti-Aircraft Ammo',
+			category: 'Heavy Ammunition',
+			damage_type: 'shrapnel',
+		}))).toEqual({
+			relPath: 'ammunition/aircraft_ammo.json',
+			itemCategory: 'heavy_arms',
+		});
+	});
+
+	it('HeavyAmmo Torpedo sans profile (Tenta) → misc_ammo.json', () => {
+		expect(routeWikiInfoboxToMaterialFile(itemFields({
+			name: 'Tenta Torpedo',
+			ItemCategory: 'HeavyAmmo',
+			ItemProfileType: '',
+			type: 'Torpedo',
+			ChassisName: 'Torpedo',
+			category: 'Heavy Ammunition',
+		}))).toEqual({
+			relPath: 'ammunition/misc_ammo.json',
+			itemCategory: 'heavy_arms',
+		});
+	});
+
 	it('LiquidAmmo + Flamethrower Ammo → flamethrower_ammo.json', () => {
 		expect(routeWikiInfoboxToMaterialFile(itemFields({
 			name: '\u201cMolten Wind\u201d v.II Ammo',

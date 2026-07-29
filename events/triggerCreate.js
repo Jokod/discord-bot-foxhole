@@ -1,4 +1,5 @@
 const { Events } = require('discord.js');
+const Translate = require('../utils/translations.js');
 
 module.exports = {
 	name: Events.MessageCreate,
@@ -19,6 +20,7 @@ module.exports = {
 		// Checks if the trigger author is a bot. Comment this line if you want to reply to bots as well.
 
 		if (message.author.bot) return;
+		if (!message.guild) return;
 
 		// Checking ALL triggers using every function and breaking out if a trigger was found.
 
@@ -46,8 +48,9 @@ module.exports = {
 
 						console.error(error);
 
+						const translations = new Translate(message.client, message.guild.id);
 						message.reply({
-							content: 'An error occured while executing the trigger.',
+							content: translations.translate('COMMAND_EXECUTE_ERROR'),
 						});
 					}
 

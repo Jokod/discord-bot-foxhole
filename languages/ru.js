@@ -25,6 +25,8 @@ module.exports = {
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
 	ABOUT_DISCORD: '**Discord:** %url%',
+	ABOUT_ISSUES: '**Создать issue:** %url%',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: '**Объявления (нативно Discord):** зайдите на сервер поддержки выше → канал **Announcements** → **Отслеживать**, чтобы обновления этого канала появлялись на вашем сервере (Управление вебхуками). Это отдельно от `/newsletter`.',
 	ABOUT_MESSAGE: 'Вы можете следить за обновлениями и участвовать в улучшении: предлагать pull requests (обновление материала фракций, новые команды) или создавать issues.',
 	ABOUT_NOT_CONFIGURED: 'Ссылки поддержки не настроены.',
 
@@ -35,12 +37,22 @@ module.exports = {
 	FOXHOLE_WAR_NUMBER: 'Война №',
 	FOXHOLE_WAR_WINNER: 'Победитель',
 	FOXHOLE_WAR_REQUIRED_TOWNS: 'Городов для победы',
+	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: 'Городов (короткая цель)',
 	FOXHOLE_WAR_START: 'Начало завоевания',
+	FOXHOLE_WAR_END: 'Конец завоевания',
 	FOXHOLE_WINNER_NONE: 'В процессе',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Данные недоступны',
 	FOXHOLE_ALL_UNAVAILABLE: 'Внешние сервисы (Steam, Foxhole) не отвечают. Попробуйте позже.',
+	FOXHOLE_MAPS_TITLE: 'Foxhole Война – Карты',
+	FOXHOLE_MAPS_UNAVAILABLE: 'War API (карты) недоступен или не вернул карты.',
+	FOXHOLE_REPORT_TITLE: 'Отчёт о войне – %map%',
+	FOXHOLE_REPORT_UNAVAILABLE: 'Нет данных отчёта для карты `%map%` (или War API недоступен).',
+	FOXHOLE_REPORT_ENLISTMENTS: 'Всего зачислений',
+	FOXHOLE_REPORT_COLONIAL_CASUALTIES: 'Потери Colonial',
+	FOXHOLE_REPORT_WARDEN_CASUALTIES: 'Потери Warden',
+	FOXHOLE_REPORT_DAY: 'День войны',
 
 	HELP_NO_SUBCOMMANDS: 'У этой команды нет подкоманд.',
 	HELP_NO_PARAMS: 'У этой команды нет параметров.',
@@ -61,6 +73,9 @@ module.exports = {
 	ARGS_MISSING: 'Ты не предоставил аргументы, %author%!',
 	COMMAND_USAGE: 'Правильное использование: `%prefix%%command% %usage%`',
 	COMMAND_COOLDOWN: 'Пожалуйста, подождите %time% секунд, прежде чем использовать команду `%command%` снова.',
+	RELOAD_UNKNOWN: 'Нет команды с именем или псевдонимом `%command%`, %author%!',
+	RELOAD_SUCCESS: 'Команда `%command%` перезагружена!',
+	RELOAD_ERROR: 'Ошибка при перезагрузке команды `%command%`:\n`%error%`',
 
 	// SERVER ---------------------------------------------
 
@@ -97,6 +112,8 @@ module.exports = {
 	OPERATION_CREATE_LABEL_TIME: 'Время операции (чч:мм)',
 	OPERATION_CREATE_LABEL_DURATION: 'Продолжительность операции (в минутах)',
 	OPERATION_CREATE_LABEL_DESCRIPTION: 'Описание операции',
+	OPERATION_CREATE_PLACEHOLDER_DATE: 'дд/мм/гггг',
+	OPERATION_CREATE_PLACEHOLDER_TIME: 'чч:мм',
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'Эта операция не существует.',

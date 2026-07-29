@@ -114,7 +114,9 @@ describe('Slash command /war', () => {
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_NUMBER' && f.value === String(warPayload.warNumber))).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === String(warPayload.requiredVictoryTowns))).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SHORT_REQUIRED_TOWNS' && f.value === String(warPayload.shortRequiredVictoryTowns))).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_START')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(true);
 	});
 
 	it('status: affiche FOXHOLE_UNAVAILABLE pour les joueurs si Steam échoue', async () => {
@@ -187,7 +189,7 @@ describe('Slash command /war', () => {
 		const embed = embeds[0];
 		const embedData = embed.data ?? embed;
 
-		expect(embedData.title).toBe('Foxhole War – Maps');
+		expect(embedData.title).toBe('FOXHOLE_MAPS_TITLE');
 		expect(embedData.description).toContain('DeadLandsHex');
 		expect(embedData.description).toContain('UmbralWildwoodHex');
 		expect(embedData.description).toContain('https://foxholestats.com/');
@@ -205,7 +207,7 @@ describe('Slash command /war', () => {
 		await warCommand.execute(interaction);
 
 		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'War API (maps endpoint) is unavailable or returned no maps.',
+			content: 'FOXHOLE_MAPS_UNAVAILABLE',
 		});
 	});
 
@@ -245,13 +247,13 @@ describe('Slash command /war', () => {
 		const embed = embeds[0];
 		const embedData = embed.data ?? embed;
 
-		expect(embedData.title).toBe('War report – DeadLandsHex');
+		expect(embedData.title).toBe('FOXHOLE_REPORT_TITLE');
 
 		const fields = embedData.fields ?? [];
-		expect(fields.some((f) => f.name === 'Total enlistments' && f.value === String(reportPayload.totalEnlistments))).toBe(true);
-		expect(fields.some((f) => f.name === 'Colonial casualties' && f.value === String(reportPayload.colonialCasualties))).toBe(true);
-		expect(fields.some((f) => f.name === 'Warden casualties' && f.value === String(reportPayload.wardenCasualties))).toBe(true);
-		expect(fields.some((f) => f.name === 'Day of war' && f.value === String(reportPayload.dayOfWar))).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_ENLISTMENTS' && f.value === String(reportPayload.totalEnlistments))).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_COLONIAL_CASUALTIES' && f.value === String(reportPayload.colonialCasualties))).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_WARDEN_CASUALTIES' && f.value === String(reportPayload.wardenCasualties))).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_DAY' && f.value === String(reportPayload.dayOfWar))).toBe(true);
 	});
 
 	it('report: affiche un message d’erreur quand le rapport est indisponible', async () => {
@@ -266,7 +268,7 @@ describe('Slash command /war', () => {
 		await warCommand.execute(interaction);
 
 		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'No war report data for map `DeadLandsHex` (or War API is unavailable).',
+			content: 'FOXHOLE_REPORT_UNAVAILABLE',
 		});
 	});
 

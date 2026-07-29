@@ -326,7 +326,7 @@ module.exports = {
 						inline: true,
 					},
 					{
-						name: 'Short required towns',
+						name: translations.translate('FOXHOLE_WAR_SHORT_REQUIRED_TOWNS'),
 						value: String(warData.shortRequiredVictoryTowns ?? '0'),
 						inline: true,
 					},
@@ -336,7 +336,7 @@ module.exports = {
 						inline: false,
 					},
 					{
-						name: 'Conquest end',
+						name: translations.translate('FOXHOLE_WAR_END'),
 						value: endTime,
 						inline: false,
 					},
@@ -358,13 +358,13 @@ module.exports = {
 
 			if (!Array.isArray(maps) || maps.length === 0) {
 				return interaction.editReply({
-					content: 'War API (maps endpoint) is unavailable or returned no maps.',
+					content: translations.translate('FOXHOLE_MAPS_UNAVAILABLE'),
 				});
 			}
 
 			const embed = new EmbedBuilder()
 				.setColor(getRandomColor())
-				.setTitle('Foxhole War – Maps')
+				.setTitle(translations.translate('FOXHOLE_MAPS_TITLE'))
 				.setDescription(`${maps.join('\n')}\n\n${FOXHOLE_STATS_URL}`);
 
 			return interaction.editReply({ embeds: [embed] });
@@ -376,18 +376,18 @@ module.exports = {
 
 			if (!report || typeof report.totalEnlistments !== 'number') {
 				return interaction.editReply({
-					content: `No war report data for map \`${mapName}\` (or War API is unavailable).`,
+					content: translations.translate('FOXHOLE_REPORT_UNAVAILABLE', { map: mapName }),
 				});
 			}
 
 			const embed = new EmbedBuilder()
 				.setColor(getRandomColor())
-				.setTitle(`War report – ${mapName}`)
+				.setTitle(translations.translate('FOXHOLE_REPORT_TITLE', { map: mapName }))
 				.addFields(
-					{ name: 'Total enlistments', value: String(report.totalEnlistments), inline: true },
-					{ name: 'Colonial casualties', value: String(report.colonialCasualties ?? 0), inline: true },
-					{ name: 'Warden casualties', value: String(report.wardenCasualties ?? 0), inline: true },
-					{ name: 'Day of war', value: String(report.dayOfWar ?? '—'), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_ENLISTMENTS'), value: String(report.totalEnlistments), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_COLONIAL_CASUALTIES'), value: String(report.colonialCasualties ?? 0), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_WARDEN_CASUALTIES'), value: String(report.wardenCasualties ?? 0), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_DAY'), value: String(report.dayOfWar ?? '—'), inline: true },
 				);
 
 			return interaction.editReply({ embeds: [embed] });

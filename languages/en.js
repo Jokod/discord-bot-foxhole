@@ -25,6 +25,8 @@ module.exports = {
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
 	ABOUT_DISCORD: '**Discord:** %url%',
+	ABOUT_ISSUES: '**Report an issue:** %url%',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: '**Announcements (Discord native):** join the support server above → **Announcements** channel → **Follow** so updates from that channel appear on your own server (Manage Webhooks). Separate from `/newsletter`.',
 	ABOUT_MESSAGE: 'You can follow updates and contribute by opening pull requests: help keep faction material up to date, suggest new commands, or report issues.',
 	ABOUT_NOT_CONFIGURED: 'No support links are configured.',
 
@@ -35,12 +37,22 @@ module.exports = {
 	FOXHOLE_WAR_NUMBER: 'War #',
 	FOXHOLE_WAR_WINNER: 'Winner',
 	FOXHOLE_WAR_REQUIRED_TOWNS: 'Towns to win',
+	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: 'Short required towns',
 	FOXHOLE_WAR_START: 'Conquest start',
+	FOXHOLE_WAR_END: 'Conquest end',
 	FOXHOLE_WINNER_NONE: 'In progress',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Data unavailable',
 	FOXHOLE_ALL_UNAVAILABLE: 'External services (Steam, Foxhole) are not responding. Try again later.',
+	FOXHOLE_MAPS_TITLE: 'Foxhole War – Maps',
+	FOXHOLE_MAPS_UNAVAILABLE: 'War API (maps endpoint) is unavailable or returned no maps.',
+	FOXHOLE_REPORT_TITLE: 'War report – %map%',
+	FOXHOLE_REPORT_UNAVAILABLE: 'No war report data for map `%map%` (or War API is unavailable).',
+	FOXHOLE_REPORT_ENLISTMENTS: 'Total enlistments',
+	FOXHOLE_REPORT_COLONIAL_CASUALTIES: 'Colonial casualties',
+	FOXHOLE_REPORT_WARDEN_CASUALTIES: 'Warden casualties',
+	FOXHOLE_REPORT_DAY: 'Day of war',
 
 	HELP_NO_SUBCOMMANDS: 'This command has no subcommands.',
 	HELP_NO_PARAMS: 'This command has no parameters.',
@@ -61,6 +73,9 @@ module.exports = {
 	ARGS_MISSING: 'You didn\'t provide any arguments, %author%!',
 	COMMAND_USAGE: 'The proper usage would be: `%prefix%%command% %usage%`',
 	COMMAND_COOLDOWN: 'Please wait %time% more seconds before using the `%command%` command again.',
+	RELOAD_UNKNOWN: 'There is no command with name or alias `%command%`, %author%!',
+	RELOAD_SUCCESS: 'Command `%command%` was reloaded!',
+	RELOAD_ERROR: 'There was an error while reloading a command `%command%`:\n`%error%`',
 
 	// SERVER ---------------------------------------------
 
@@ -97,6 +112,8 @@ module.exports = {
 	OPERATION_CREATE_LABEL_TIME: 'Operation Time (hh:mm)',
 	OPERATION_CREATE_LABEL_DURATION: 'Operation Duration (in minutes)',
 	OPERATION_CREATE_LABEL_DESCRIPTION: 'Operation Description',
+	OPERATION_CREATE_PLACEHOLDER_DATE: 'dd/mm/yyyy',
+	OPERATION_CREATE_PLACEHOLDER_TIME: 'hh:mm',
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'This operation does not exist.',

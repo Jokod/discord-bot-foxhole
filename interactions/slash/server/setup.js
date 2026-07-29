@@ -5,6 +5,11 @@ const Translate = require('../../../utils/translations.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('setup')
+		.setNameLocalizations({
+			fr: 'configurer',
+			ru: 'настройка',
+			'zh-CN': '初始化',
+		})
 		.setDescription('Command to init the server configuration.')
 		.setDescriptionLocalizations({
 			fr: 'Commande pour initialiser la configuration du serveur.',

@@ -42,6 +42,7 @@ const WIKI_HUB_TITLES = new Set([
 	'Firearms', 'Melee', 'Grenades', 'Launchers', 'Heavy Arms', 'Assault Rifle',
 	'Rifle', 'Pistol', 'Sniper Rifle', 'Long Rifle', 'Secondary Weapons',
 	'Aircraft',
+	'R-Series Vehicles',
 	'Anti-Tank RPG',
 	'Anti-Tank Rifle',
 	'Armoured Fighting Vehicles',

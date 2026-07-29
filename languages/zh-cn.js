@@ -25,6 +25,8 @@ module.exports = {
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub：** %url%',
 	ABOUT_DISCORD: '**Discord：** %url%',
+	ABOUT_ISSUES: '**提交 Issue：** %url%',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: '**公告（Discord 原生）：** 加入上方支持服务器 → **Announcements** 频道 → **关注**，以便该频道的更新出现在你自己的服务器中（管理 Webhook）。与 `/newsletter` 无关。',
 	ABOUT_MESSAGE: '你可以关注更新并通过 pull request 参与改进：协助更新阵营物资、提议新命令或提交 issue。',
 	ABOUT_NOT_CONFIGURED: '未配置支持链接。',
 
@@ -35,12 +37,22 @@ module.exports = {
 	FOXHOLE_WAR_NUMBER: '战争 #',
 	FOXHOLE_WAR_WINNER: '获胜方',
 	FOXHOLE_WAR_REQUIRED_TOWNS: '胜利所需城镇',
+	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: '短期目标城镇',
 	FOXHOLE_WAR_START: '征服开始',
+	FOXHOLE_WAR_END: '征服结束',
 	FOXHOLE_WINNER_NONE: '进行中',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: '数据不可用',
 	FOXHOLE_ALL_UNAVAILABLE: '外部服务（Steam、Foxhole）无响应，请稍后再试。',
+	FOXHOLE_MAPS_TITLE: 'Foxhole 战争 – 地图',
+	FOXHOLE_MAPS_UNAVAILABLE: 'War API（地图）不可用或未返回地图。',
+	FOXHOLE_REPORT_TITLE: '战争报告 – %map%',
+	FOXHOLE_REPORT_UNAVAILABLE: '地图 `%map%` 无报告数据（或 War API 不可用）。',
+	FOXHOLE_REPORT_ENLISTMENTS: '总入伍人数',
+	FOXHOLE_REPORT_COLONIAL_CASUALTIES: 'Colonial 伤亡',
+	FOXHOLE_REPORT_WARDEN_CASUALTIES: 'Warden 伤亡',
+	FOXHOLE_REPORT_DAY: '战争日',
 
 	HELP_NO_SUBCOMMANDS: '此命令没有子命令。',
 	HELP_NO_PARAMS: '此命令没有参数。',
@@ -61,6 +73,9 @@ module.exports = {
 	ARGS_MISSING: '您没有提供任何参数，%author%！',
 	COMMAND_USAGE: '正确的用法应为：%prefix%%command% %usage%',
 	COMMAND_COOLDOWN: '请等待%time%秒，然后再次使用“%command%”命令。',
+	RELOAD_UNKNOWN: '没有名为或别名为 `%command%` 的命令，%author%！',
+	RELOAD_SUCCESS: '命令 `%command%` 已重新加载！',
+	RELOAD_ERROR: '重新加载命令 `%command%` 时出错：\n`%error%`',
 
 	// SERVER ---------------------------------------------
 
@@ -97,6 +112,8 @@ module.exports = {
 	OPERATION_CREATE_LABEL_TIME: '操作时间（hh:mm）',
 	OPERATION_CREATE_LABEL_DURATION: '操作持续时间（以分钟为单位）',
 	OPERATION_CREATE_LABEL_DESCRIPTION: '操作描述',
+	OPERATION_CREATE_PLACEHOLDER_DATE: 'dd/mm/yyyy',
+	OPERATION_CREATE_PLACEHOLDER_TIME: 'hh:mm',
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: '此操作不存在。',

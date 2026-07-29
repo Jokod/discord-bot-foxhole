@@ -25,6 +25,8 @@ module.exports = {
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub :** %url%',
 	ABOUT_DISCORD: '**Discord :** %url%',
+	ABOUT_ISSUES: '**Déclarer une issue :** %url%',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: '**Annonces (natif Discord) :** rejoignez le Discord de support ci-dessus → salon **Annonces** → **Suivre** pour que les mises à jour de ce salon apparaissent dans ton propre serveur (Gérer les webhooks). Indépendant de `/newsletter`.',
 	ABOUT_MESSAGE: 'Vous pouvez suivre les évolutions et participer à l\'amélioration de l\'outil en proposant des pull requests : tenir à jour le matériel pour les factions, proposer des commandes ou signaler des problèmes (issues).',
 	ABOUT_NOT_CONFIGURED: 'Aucun lien de support n\'est configuré.',
 
@@ -35,12 +37,22 @@ module.exports = {
 	FOXHOLE_WAR_NUMBER: 'Guerre #',
 	FOXHOLE_WAR_WINNER: 'Vainqueur',
 	FOXHOLE_WAR_REQUIRED_TOWNS: 'Villes pour victoire',
+	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: 'Villes (objectif court)',
 	FOXHOLE_WAR_START: 'Début de la conquête',
+	FOXHOLE_WAR_END: 'Fin de la conquête',
 	FOXHOLE_WINNER_NONE: 'En cours',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Données indisponibles',
 	FOXHOLE_ALL_UNAVAILABLE: 'Les services externes (Steam, Foxhole) ne répondent pas. Réessayez plus tard.',
+	FOXHOLE_MAPS_TITLE: 'Foxhole Guerre – Cartes',
+	FOXHOLE_MAPS_UNAVAILABLE: 'L’API War (endpoint cartes) est indisponible ou n’a renvoyé aucune carte.',
+	FOXHOLE_REPORT_TITLE: 'Rapport de guerre – %map%',
+	FOXHOLE_REPORT_UNAVAILABLE: 'Aucune donnée de rapport pour la carte `%map%` (ou API War indisponible).',
+	FOXHOLE_REPORT_ENLISTMENTS: 'Engagements totaux',
+	FOXHOLE_REPORT_COLONIAL_CASUALTIES: 'Pertes Colonial',
+	FOXHOLE_REPORT_WARDEN_CASUALTIES: 'Pertes Warden',
+	FOXHOLE_REPORT_DAY: 'Jour de guerre',
 
 	HELP_NO_SUBCOMMANDS: 'Cette commande n\'a pas de sous-commandes.',
 	HELP_NO_PARAMS: 'Cette commande n\'a pas de paramètres.',
@@ -61,6 +73,9 @@ module.exports = {
 	ARGS_MISSING: 'Vous n\'avez fourni aucun argument, %author% !',
 	COMMAND_USAGE: 'L\'utilisation correcte serait: `%prefix%%command% %usage%`',
 	COMMAND_COOLDOWN: 'Veuillez attendre %time% secondes avant de réutiliser la commande `%command%`.',
+	RELOAD_UNKNOWN: 'Il n\'y a aucune commande nommée ou alias `%command%`, %author% !',
+	RELOAD_SUCCESS: 'La commande `%command%` a été rechargée !',
+	RELOAD_ERROR: 'Erreur lors du rechargement de la commande `%command%` :\n`%error%`',
 
 	// SERVER ---------------------------------------------
 
@@ -97,6 +112,8 @@ module.exports = {
 	OPERATION_CREATE_LABEL_TIME: 'Heure de l\'opération (hh:mm)',
 	OPERATION_CREATE_LABEL_DURATION: 'Durée de l\'opération (en minutes)',
 	OPERATION_CREATE_LABEL_DESCRIPTION: 'Description de l\'opération',
+	OPERATION_CREATE_PLACEHOLDER_DATE: 'jj/mm/aaaa',
+	OPERATION_CREATE_PLACEHOLDER_TIME: 'hh:mm',
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'Cette opération n\'existe pas.',

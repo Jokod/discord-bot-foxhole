@@ -96,5 +96,13 @@
 		"itemName": "Shatter Missile",
 		"itemDesc": "Short-range rockets that specialize in breaching bunkers and devastating enemy structures.",
 		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Tenta Torpedo",
+		"itemDesc": "The Tenta Torpedo is an extra large high explosive ordnance designed to attack naval surface ships. Similar to other Torpedoes, it must be launched in order to deal damage to enemy Naval Ships.",
+		"itemCategory": "heavy_arms"
 	}
 ]

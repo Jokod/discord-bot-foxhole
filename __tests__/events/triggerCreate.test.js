@@ -1,8 +1,16 @@
+const mockTranslate = jest.fn((key) => key);
+
+jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({
+	translate: mockTranslate,
+})));
+
 describe('triggerCreate event', () => {
 	let triggerCreate;
 
 	beforeEach(() => {
 		jest.resetModules();
+		jest.clearAllMocks();
+		mockTranslate.mockImplementation((key) => key);
 		triggerCreate = require('../../events/triggerCreate.js');
 	});
 
@@ -16,6 +24,22 @@ describe('triggerCreate event', () => {
 		const message = {
 			content: 'hello',
 			author: { bot: true },
+			guild: { id: 'g1' },
+			client: { triggers: [{ name: ['hello'], execute }] },
+			reply: jest.fn(),
+		};
+
+		await triggerCreate.execute(message);
+
+		expect(execute).not.toHaveBeenCalled();
+	});
+
+	it('ne fait rien hors guild', async () => {
+		const execute = jest.fn();
+		const message = {
+			content: 'hello',
+			author: { bot: false },
+			guild: null,
 			client: { triggers: [{ name: ['hello'], execute }] },
 			reply: jest.fn(),
 		};
@@ -30,6 +54,7 @@ describe('triggerCreate event', () => {
 		const message = {
 			content: 'hello world',
 			author: { bot: false },
+			guild: { id: 'g1' },
 			client: { triggers: [{ name: ['hello'], execute }] },
 			reply: jest.fn().mockResolvedValue(undefined),
 		};
@@ -45,14 +70,15 @@ describe('triggerCreate event', () => {
 		const message = {
 			content: 'hello',
 			author: { bot: false },
-			client: { triggers: [{ name: ['hello'], execute }] },
+			guild: { id: 'g1' },
+			client: { triggers: [{ name: ['hello'], execute }], traductions: new Map() },
 			reply,
 		};
 		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 		await triggerCreate.execute(message);
 
-		expect(reply).toHaveBeenCalledWith({ content: 'An error occured while executing the trigger.' });
+		expect(reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR' });
 		consoleSpy.mockRestore();
 	});
 
@@ -62,6 +88,7 @@ describe('triggerCreate event', () => {
 		const message = {
 			content: 'hello world',
 			author: { bot: false },
+			guild: { id: 'g1' },
 			client: {
 				triggers: [
 					{ name: ['hello'], execute: exec1 },

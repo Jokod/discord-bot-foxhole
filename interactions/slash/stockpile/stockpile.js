@@ -76,7 +76,7 @@ module.exports = {
 			{
 				const modal = new ModalBuilder()
 					.setCustomId('modal_stockpile_add')
-					.setTitle(translations.translate('STOCKPILE') || 'Stockpile');
+					.setTitle(translations.translate('STOCKPILE'));
 
 				const regionInput = new TextInputBuilder()
 					.setCustomId('stock_region')

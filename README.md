@@ -188,9 +188,13 @@ Requires **Manage Channels** for on/off.
 | Stockpile activity | On add / remove / reset |
 | Stockpile expiring soon | Startup + every 5 min (12h / 6h / 1h / 30m) |
 
-#### Newsletter
+#### Announcements (Discord native Follow)
 
-Requires **Manage Server**. `/newsletter subscribe` | `unsubscribe`. Publish: `make newsletter publish`.
+On the [support Discord](https://discord.gg/bjkzG9YsX5), use a **Announcement** channel. Server admins with **Manage Webhooks** can **Follow** it into a channel on their own server (Discord UI — independent of the bot). Explained in `/about`.
+
+#### Newsletter (bot push)
+
+Requires **Manage Server**. `/newsletter subscribe` | `unsubscribe`. Publish: `make newsletter publish`. Separate from Discord Follow.
 
 ## Project Structure
 
