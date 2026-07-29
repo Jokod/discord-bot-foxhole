@@ -68,19 +68,24 @@ describe('stockpileList embed', () => {
 	});
 
 	describe('buildStockpileListComponents', () => {
-		it('retourne [] si aucun stock actif', async () => {
+		const translations = { translate: mockTranslate };
+
+		it('retourne uniquement la rangée admin si aucun stock actif', async () => {
 			const Stockpile = {
 				find: jest.fn().mockReturnValue({
 					sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
 				}),
 			};
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+			const result = await buildStockpileListComponents(Stockpile, 'guild-1', translations);
 
-			expect(result).toEqual([]);
+			expect(result.length).toBe(1);
+			expect(result[0].components.length).toBe(2);
+			expect(result[0].components[0].data.custom_id).toBe('stockpile_cleanup');
+			expect(result[0].components[1].data.custom_id).toBe('stockpile_deleteall');
 		});
 
-		it('retourne des ActionRows avec boutons pour chaque stock', async () => {
+		it('retourne des ActionRows avec boutons reset + rangée admin', async () => {
 			const stocks = [
 				{ _id: '507f1f77bcf86cd799439011', id: '1', server_id: 'guild-1', deleted: false },
 				{ _id: '507f1f77bcf86cd799439012', id: '2', server_id: 'guild-1', deleted: false },
@@ -91,12 +96,17 @@ describe('stockpileList embed', () => {
 				}),
 			};
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+			const result = await buildStockpileListComponents(Stockpile, 'guild-1', translations);
 
-			expect(result.length).toBe(1);
+			expect(result.length).toBe(3);
 			expect(result[0].components.length).toBe(2);
 			expect(result[0].components[0].data.custom_id).toBe('stockpile_reset-507f1f77bcf86cd799439011');
 			expect(result[0].components[1].data.custom_id).toBe('stockpile_reset-507f1f77bcf86cd799439012');
+			expect(result[1].components[0].data.custom_id).toBe('select_stockpile_remove');
+			expect(result[2].components[0].data.custom_id).toBe('stockpile_cleanup');
+			expect(result[2].components[1].data.custom_id).toBe('stockpile_deleteall');
+			expect(mockTranslate).toHaveBeenCalledWith('STOCKPILE_BTN_CLEANUP');
+			expect(mockTranslate).toHaveBeenCalledWith('STOCKPILE_BTN_DELETEALL');
 		});
 
 		it('ignore les doublons de _id pour éviter des custom_id dupliqués', async () => {
@@ -111,7 +121,7 @@ describe('stockpileList embed', () => {
 				}),
 			};
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+			const result = await buildStockpileListComponents(Stockpile, 'guild-1', translations);
 
 			expect(result[0].components.length).toBe(2);
 		});
@@ -127,7 +137,7 @@ describe('stockpileList embed', () => {
 				}),
 			};
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+			const result = await buildStockpileListComponents(Stockpile, 'guild-1', translations);
 
 			expect(result[0].components[0].data.label).toBe('#5 Alpha');
 			expect(result[0].components[1].data.label).toBe('#5 Bravo');

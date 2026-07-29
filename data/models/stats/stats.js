@@ -54,7 +54,12 @@ const Stats = mongoose.Schema({
 		type: Number,
 		default: 0,
 	},
+	/** @deprecated logistics validation; kept for historical stats only */
 	material_validated_count: {
+		type: Number,
+		default: 0,
+	},
+	stock_board_count: {
 		type: Number,
 		default: 0,
 	},

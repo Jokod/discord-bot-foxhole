@@ -15,11 +15,10 @@ describe('Commande reload', () => {
 		mockReadDirSync.mockImplementation((p) => {
 			if (!p) return [];
 			if (String(p).endsWith('commands') || p === './commands') return ['misc'];
-			if (String(p).includes('misc')) return ['help.js', 'ping.js', 'reload.js'];
+			if (String(p).includes('misc')) return ['reload.js'];
 			return [];
 		});
 		client = { commands: new Collection() };
-		client.commands.set('ping', { name: 'ping' });
 		reloadCommand = reloadModule();
 		client.commands.set('reload', reloadCommand);
 	});
@@ -42,16 +41,16 @@ describe('Commande reload', () => {
 		);
 	});
 
-	it('recharge la commande ping et envoie confirmation', () => {
+	it('recharge la commande reload et envoie confirmation', () => {
 		const send = jest.fn().mockResolvedValue(undefined);
 		const message = { client, author: { toString: () => '@User' }, channel: { send } };
 
-		reloadCommand.execute(message, ['ping']);
+		reloadCommand.execute(message, ['reload']);
 
 		expect(mockReadDirSync).toHaveBeenCalledWith('./commands');
 		expect(mockReadDirSync).toHaveBeenCalledWith('./commands/misc');
 		expect(send).toHaveBeenCalledWith(
-			expect.objectContaining({ content: expect.stringContaining('ping') }),
+			expect.objectContaining({ content: expect.stringContaining('reload') }),
 		);
 		expect(send).toHaveBeenCalledWith(
 			expect.objectContaining({ content: expect.stringContaining('reloaded') }),
@@ -60,19 +59,18 @@ describe('Commande reload', () => {
 
 	it('recharge par alias et envoie confirmation', () => {
 		const send = jest.fn().mockResolvedValue(undefined);
-		client.commands.set('help', { name: 'help', aliases: ['h'] });
+		client.commands.set('reload', { name: 'reload', aliases: ['rl'] });
 		mockReadDirSync.mockImplementation((p) => {
 			if (p === './commands') return ['misc'];
-			if (p === './commands/misc') return ['help.js', 'ping.js', 'reload.js'];
+			if (p === './commands/misc') return ['reload.js'];
 			return [];
 		});
 		const message = { client, author: {}, channel: { send } };
 
-		reloadCommand.execute(message, ['h']);
+		reloadCommand.execute(message, ['rl']);
 
 		expect(send).toHaveBeenCalledWith(
 			expect.objectContaining({ content: expect.stringContaining('reloaded') }),
 		);
 	});
-
 });

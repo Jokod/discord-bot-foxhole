@@ -56,7 +56,7 @@ module.exports = {
 			});
 		}
 		else {
-			const components = await buildStockpileListComponents(Stockpile, guild.id);
+			const components = await buildStockpileListComponents(Stockpile, guild.id, translations);
 			await interaction.editReply({
 				content: '',
 				embeds: [embed],

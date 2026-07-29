@@ -31,6 +31,11 @@ const Operation = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	/** Discord channel hosting the operation message (for cleanup). */
+	channel_id: {
+		type: String,
+		required: false,
+	},
 });
 
 module.exports = mongoose.model('Operation', Operation);

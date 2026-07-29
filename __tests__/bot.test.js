@@ -48,6 +48,9 @@ jest.mock('../data/models.js', () => ({
 	Server: {
 		find: jest.fn().mockResolvedValue([]),
 	},
+	OrderBoard: {
+		syncIndexes: jest.fn().mockResolvedValue(undefined),
+	},
 }));
 jest.mock('../utils/translations.js', () => {
 	function MockTranslate() {

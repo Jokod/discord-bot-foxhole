@@ -12,18 +12,12 @@ module.exports = {
 	 */
 
 	execute: async (interaction) => {
-		// Deconstructed client from interaction object.
+		if (!interaction.isContextMenuCommand()) return;
+		if (!interaction.guild) return;
+
 		const { client } = interaction;
 		const guildId = interaction.guild.id;
 		const translations = new Translate(client, guildId);
-
-		// Checks if the interaction is a context interaction (to prevent weird bugs)
-
-		if (!interaction.isContextMenuCommand()) return;
-
-		/** ********************************************************************/
-
-		// Checks if the interaction target was a user
 
 		if (interaction.isUserContextMenuCommand()) {
 			const command = client.contextCommands.get(
@@ -39,41 +33,55 @@ module.exports = {
 				});
 			}
 
-			// A try to execute the interaction.
-
 			try {
 				return await command.execute(interaction);
 			}
 			catch (err) {
 				console.error(err);
-				await interaction.reply({
-					content: translations.translate('COMMAND_EXECUTE_ERROR'),
-					flags: 64,
-				});
+				try {
+					const payload = {
+						content: translations.translate('COMMAND_EXECUTE_ERROR'),
+						flags: 64,
+					};
+					if (interaction.replied || interaction.deferred) {
+						await interaction.followUp(payload);
+					}
+					else {
+						await interaction.reply(payload);
+					}
+				}
+				catch (replyErr) {
+					console.error('Failed to send error message to interaction:', replyErr);
+				}
 			}
 		}
-		// Checks if the interaction target was a message
 		else if (interaction.isMessageContextMenuCommand()) {
 			const command = client.contextCommands.get(
 				'MESSAGE ' + interaction.commandName,
 			);
 
-			// A try to execute the interaction.
-
 			try {
 				return await command.execute(interaction);
 			}
 			catch (err) {
 				console.error(err);
-				await interaction.reply({
-					content: translations.translate('COMMAND_EXECUTE_ERROR'),
-					flags: 64,
-				});
+				try {
+					const payload = {
+						content: translations.translate('COMMAND_EXECUTE_ERROR'),
+						flags: 64,
+					};
+					if (interaction.replied || interaction.deferred) {
+						await interaction.followUp(payload);
+					}
+					else {
+						await interaction.reply(payload);
+					}
+				}
+				catch (replyErr) {
+					console.error('Failed to send error message to interaction:', replyErr);
+				}
 			}
 		}
-
-		// Practically not possible, but we are still caching the bug.
-		// Possible Fix is a restart!
 		else {
 			return console.log(
 				'An error occured while executing the context command.',

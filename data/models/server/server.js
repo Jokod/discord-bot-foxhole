@@ -14,6 +14,11 @@ const Server = mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	/** When true, order boards create a locked Discord Logs thread. Default false. */
+	logs: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 module.exports = mongoose.model('Server', Server);

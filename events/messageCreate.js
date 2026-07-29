@@ -20,7 +20,8 @@ module.exports = {
 		// Declares const to be used.
 
 		const { client, content } = message;
-		const guildId = message.guild.id;
+		const guildId = message.guild?.id;
+		if (!guildId) return;
 		const translations = new Translate(client, guildId);
 
 		// Checks if the bot is mentioned in the message all alone and triggers onMention trigger.

@@ -8,7 +8,7 @@ By adding the Discord Bot for Foxhole ("the Bot") to your Discord server or usin
 
 ## 1. Description
 
-The Discord Bot for Foxhole is an open-source tool designed to assist Foxhole gaming communities in managing in-game operations, logistics, materials, and stockpiles through Discord. The Bot also provides real-time game data fetched from publicly available third-party APIs.
+The Discord Bot for Foxhole is an open-source tool designed to assist Foxhole gaming communities in managing in-game operations, material stock inventories, and stockpile codes through Discord. The Bot also provides real-time game data fetched from publicly available third-party APIs.
 
 ---
 
@@ -41,7 +41,9 @@ The Bot provides the following features:
 
 - **Server configuration** (language, faction).
 - **Operation management** (creation, tracking, cancellation).
-- **Logistics management** (material requests, priorities, validation).
+- **Stock inventory boards** (stock/target quantities and priorities).
+- **Stockpile code management** (region/city, timers, notifications).
+- **Operation scheduling** (create, start, finish, cancel).
 - **Stockpile management** (codes, timers, expiry notifications).
 - **Live game data** from the Foxhole War API and the Steam API.
 

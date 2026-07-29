@@ -1,6 +1,8 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { Server } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { deleteAllOrderLogThreads, ensureAllOrderLogThreads } = require('../../../utils/orderBoardLog.js');
+const { previewServerWarData, resetServerWarData } = require('../../../utils/serverReset.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -10,11 +12,11 @@ module.exports = {
 			ru: 'сервер',
 			'zh-CN': '服务器',
 		})
-		.setDescription('Commands to manage the server configuration.')
+		.setDescription('Commands to manage the server configuration and war reset.')
 		.setDescriptionLocalizations({
-			fr: 'Commandes pour gérer la configuration du serveur.',
-			ru: 'Команды для настройки сервера.',
-			'zh-CN': '管理服务器配置的命令。',
+			fr: 'Commandes pour gérer la configuration du serveur et le reset de guerre.',
+			ru: 'Команды для настройки сервера и сброса данных войны.',
+			'zh-CN': '管理服务器配置与战争数据重置的命令。',
 		})
 		.addSubcommand((subcommand) =>
 			subcommand
@@ -102,6 +104,68 @@ module.exports = {
 							{ name: 'Colonial', value: 'colonial' },
 						),
 				),
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('logs')
+				.setNameLocalizations({
+					fr: 'logs',
+					ru: 'логи',
+					'zh-CN': '日志',
+				})
+				.setDescription('Enable or disable order board Logs threads.')
+				.setDescriptionLocalizations({
+					fr: 'Active ou désactive les threads Logs des tableaux de commandes.',
+					ru: 'Включает или отключает треды логов досок заказов.',
+					'zh-CN': '启用或禁用订单面板的日志讨论串。',
+				})
+				.addBooleanOption((option) =>
+					option
+						.setName('enabled')
+						.setNameLocalizations({
+							fr: 'actif',
+							ru: 'включено',
+							'zh-CN': '启用',
+						})
+						.setDescription('Create Logs threads for new / refreshed order boards.')
+						.setDescriptionLocalizations({
+							fr: 'Créer des threads Logs pour les tableaux de commandes.',
+							ru: 'Создавать треды логов для досок заказов.',
+							'zh-CN': '为订单面板创建日志讨论串。',
+						})
+						.setRequired(true),
+				),
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('reset')
+				.setNameLocalizations({
+					fr: 'reset',
+					ru: 'сброс',
+					'zh-CN': '重置',
+				})
+				.setDescription('Wipe order boards, stockpiles and operations for a new war (Manage Server).')
+				.setDescriptionLocalizations({
+					fr: 'Effacer tableaux de commandes, stocks et opérations pour une nouvelle guerre (Gérer le serveur).',
+					ru: 'Удалить доски заказов, склады и операции для новой войны (Управлять сервером).',
+					'zh-CN': '为新战争清空订单面板、库存与行动（需要管理服务器）。',
+				})
+				.addBooleanOption((option) =>
+					option
+						.setName('confirm')
+						.setNameLocalizations({
+							fr: 'confirmer',
+							ru: 'подтвердить',
+							'zh-CN': '确认',
+						})
+						.setDescription('Must be true to run the reset. Irreversible.')
+						.setDescriptionLocalizations({
+							fr: 'Doit être true pour lancer le reset. Irréversible.',
+							ru: 'Должно быть true, чтобы выполнить сброс. Необратимо.',
+							'zh-CN': '必须为 true 才会执行重置。不可撤销。',
+						})
+						.setRequired(true),
+				),
 		),
 	async execute(interaction) {
 		const guild = interaction.member.guild;
@@ -116,6 +180,7 @@ module.exports = {
 			});
 		}
 
+		const logsEnabled = Boolean(server.logs);
 		const embed = new EmbedBuilder()
 			.setTitle(translations.translate('SERVER_TITLE_CONFIGURATION'))
 			.addFields(
@@ -123,6 +188,11 @@ module.exports = {
 				{ name: translations.translate('SERVER_FIELD_GUILD_ID'), value: guild.id, inline: false },
 				{ name: translations.translate('SERVER_FIELD_GUILD_LANG'), value: server.lang, inline: false },
 				{ name: translations.translate('SERVER_FIELD_GUILD_CAMP'), value: server.camp, inline: false },
+				{
+					name: translations.translate('SERVER_FIELD_GUILD_LOGS'),
+					value: translations.translate(logsEnabled ? 'SERVER_LOGS_ENABLED' : 'SERVER_LOGS_DISABLED'),
+					inline: false,
+				},
 			);
 
 		const lang = interaction.options.getString('lang');
@@ -158,6 +228,60 @@ module.exports = {
 				content: translations.translate('SERVER_SET_CAMP_REPLY', { camp: camp.toUpperCase() }),
 				flags: 64,
 			});
+		case 'logs': {
+			const enabled = interaction.options.getBoolean('enabled');
+			await Server.findOneAndUpdate(
+				{ guild_id: guild.id },
+				{ logs: enabled },
+				{ returnDocument: 'after' },
+			);
+
+			if (!enabled) {
+				await deleteAllOrderLogThreads(interaction.client, guild.id);
+			}
+			else {
+				await ensureAllOrderLogThreads(interaction.client, guild.id);
+			}
+
+			return interaction.reply({
+				content: translations.translate(
+					enabled ? 'SERVER_SET_LOGS_ON_REPLY' : 'SERVER_SET_LOGS_OFF_REPLY',
+				),
+				flags: 64,
+			});
+		}
+		case 'reset': {
+			const canManage = interaction.member?.permissions?.has(PermissionFlagsBits.ManageGuild);
+			if (!canManage) {
+				return interaction.reply({
+					content: translations.translate('NO_PERMS'),
+					flags: 64,
+				});
+			}
+
+			const confirmed = interaction.options.getBoolean('confirm');
+			if (!confirmed) {
+				const preview = await previewServerWarData(guild.id);
+				return interaction.reply({
+					content: translations.translate('SERVER_RESET_PREVIEW', {
+						boards: preview.boards,
+						stockpiles: preview.stockpiles,
+						operations: preview.operations,
+					}),
+					flags: 64,
+				});
+			}
+
+			await interaction.deferReply({ flags: 64 });
+			const counts = await resetServerWarData(interaction.client, guild.id);
+			return interaction.editReply({
+				content: translations.translate('SERVER_RESET_SUCCESS', {
+					boards: counts.boards,
+					stockpiles: counts.stockpiles,
+					operations: counts.operations,
+				}),
+			});
+		}
 		default:
 			return interaction.reply({
 				content: translations.translate('COMMAND_UNKNOWN'),

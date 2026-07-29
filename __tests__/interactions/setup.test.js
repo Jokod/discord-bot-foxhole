@@ -53,6 +53,10 @@ describe('Slash command /setup', () => {
 				if (name === 'camp') return 'warden';
 				return null;
 			}),
+			getBoolean: jest.fn((name) => {
+				if (name === 'logs') return overrides.logs ?? null;
+				return null;
+			}),
 		};
 
 		return {
@@ -67,10 +71,11 @@ describe('Slash command /setup', () => {
 	it('doit définir correctement les métadonnées de la commande', () => {
 		expect(setupCommand.data.name).toBe('setup');
 		const options = setupCommand.data.options ?? [];
-		// lang + camp
-		expect(options).toHaveLength(2);
+		// lang + camp + logs
+		expect(options).toHaveLength(3);
 		expect(options.some((opt) => opt.name === 'lang')).toBe(true);
 		expect(options.some((opt) => opt.name === 'camp')).toBe(true);
+		expect(options.some((opt) => opt.name === 'logs')).toBe(true);
 	});
 
 	it('répond SERVER_IS_ALREADY_INIT si le serveur existe déjà', async () => {
@@ -99,6 +104,12 @@ describe('Slash command /setup', () => {
 		expect(ServerModel.findOne).toHaveBeenCalledWith({ guild_id: interaction.guild.id });
 		// Vérifie que `new Server(...)` a été utilisé et que save a été appelé
 		expect(ServerModel).toHaveBeenCalledTimes(1);
+		expect(ServerModel).toHaveBeenCalledWith(expect.objectContaining({
+			guild_id: interaction.guild.id,
+			lang: 'en',
+			camp: 'warden',
+			logs: false,
+		}));
 		expect(ServerModel._saveMock).toHaveBeenCalledTimes(1);
 
 		// La langue doit être stockée dans la map des traductions du client
@@ -120,6 +131,19 @@ describe('Slash command /setup', () => {
 		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_ID' && f.value === interaction.guild.id)).toBe(true);
 		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_LANG' && f.value === 'en')).toBe(true);
 		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_CAMP' && f.value === 'warden')).toBe(true);
+		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_LOGS' && f.value === 'SERVER_LOGS_DISABLED')).toBe(true);
+	});
+
+	it('enregistre logs:true quand l’option est passée', async () => {
+		ServerModel.findOne.mockResolvedValue(null);
+		const interaction = createInteraction({ logs: true });
+
+		await setupCommand.execute(interaction);
+
+		expect(ServerModel).toHaveBeenCalledWith(expect.objectContaining({ logs: true }));
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = (embed.data ?? embed).fields ?? [];
+		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_LOGS' && f.value === 'SERVER_LOGS_ENABLED')).toBe(true);
 	});
 });
 

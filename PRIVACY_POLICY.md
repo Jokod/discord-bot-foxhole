@@ -25,10 +25,11 @@ When a server administrator runs `/setup`, the following data is stored:
 | Discord Guild ID | Uniquely identifies the server |
 | Chosen language | Displays the bot in the correct language |
 | Chosen faction (warden/colonial) | Filters faction-specific game content |
+| Order Logs threads flag | Whether locked Discord Logs threads are created for order boards |
 
 ### 2.2 Operations
 
-When an operation is created via `/create_operation`:
+When an operation is created via `/operation`:
 
 | Data | Purpose |
 |------|---------|
@@ -37,16 +38,16 @@ When an operation is created via `/create_operation`:
 | Operation details (title, date, time, duration, description) | Stores the operation content |
 | Operation status | Tracks whether the operation is active, started, or finished |
 
-### 2.3 Logistics & Materials
+### 2.3 Order boards
 
-When a material request is created via `/material create`:
+When order lines are added via `/order` (FR `/commande`) board interactions:
 
 | Data | Purpose |
 |------|---------|
-| Guild ID | Links the material to the server |
-| Creator's Discord User ID | Identifies the requester |
-| Assignee's Discord User ID (optional) | Tracks who is handling the request |
-| Material details (name, quantity, priority, localization, status) | Stores the request content |
+| Guild ID | Links the board / line to the server |
+| Channel ID | Identifies the order board channel |
+| Board kind (prod / transfer / scrap), name, optional operation id | Stores the order board |
+| Line details (name, category, current, target, owner) | Stores progress toward the order goal |
 
 ### 2.4 Stockpiles
 
@@ -63,7 +64,7 @@ When a stockpile is added via `/stockpile add`:
 
 ### 2.5 Notifications
 
-When a channel subscribes to notifications via `/notification subscribe`:
+When a channel subscribes to notifications via `/notify on`:
 
 | Data | Purpose |
 |------|---------|
@@ -83,7 +84,7 @@ The Bot automatically records anonymous usage statistics per server to help impr
 | Bot join/leave dates | Tracks installation lifecycle |
 | Total command count and breakdown per command | Understands feature usage |
 | Member count (updated on each command) | Monitors server size at time of usage |
-| Operation, material, and material validation counts | Feature-level analytics |
+| Operation, material, and stock board counts | Feature-level analytics |
 
 These statistics contain **no individual user data** and are used solely for maintenance and development purposes.
 
@@ -114,8 +115,8 @@ If you self-host the Bot, the data is stored in your own MongoDB instance and is
 | Data type | Retention |
 |-----------|-----------|
 | Server configuration | Until the Bot is removed from the server or the data is deleted manually |
-| Operations, materials | Until deleted by the user or server admin |
-| Stockpiles | Until permanently removed via `/stockpile cleanup` or `/stockpile deleteall` |
+| Operations, order boards / lines | Until deleted by the user, server admin, or `/server reset` |
+| Stockpiles | Until permanently removed via list buttons (Cleanup / Delete all) or `/server reset` |
 | Notification subscriptions | Until unsubscribed or the server removes the Bot |
 | Usage statistics | Retained indefinitely for analytics; no personal data is included |
 
@@ -146,9 +147,9 @@ Data may only be disclosed if required by applicable law.
 
 As a server administrator, you can:
 
-- **Delete operations and materials** using the provided bot commands.
-- **Remove stockpiles** using `/stockpile cleanup` or `/stockpile deleteall`.
-- **Unsubscribe from notifications** using `/notification unsubscribe`.
+- **Delete operations and order boards** using the provided bot commands and board buttons, or wipe them with stockpiles via **`/server reset confirm:true`** (requires **Manage Server**).
+- **Remove stockpiles** using Cleanup / Delete all on the stockpile list, or `/server reset` (requires **Manage Server**).
+- **Unsubscribe from notifications** using `/notify off`.
 - **Remove the Bot** from your server at any time, which stops all further data collection.
 
 To request deletion of all data associated with your server from the hosted instance, please open an issue on the [GitHub repository](https://github.com/Jokod/discord-bot-foxhole).

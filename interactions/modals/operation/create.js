@@ -71,13 +71,7 @@ module.exports = {
 			.setLabel(translations.translate('CANCEL'))
 			.setStyle(ButtonStyle.Danger);
 
-		const logisticsButton = new ButtonBuilder()
-			.setCustomId('button_create_operation_logistics')
-			.setLabel(translations.translate('LOGISTICS'))
-			.setStyle(ButtonStyle.Primary)
-			.setEmoji('📦');
-
-		const actionRow = new ActionRowBuilder().addComponents(startButton, cancelButton, logisticsButton);
+		const actionRow = new ActionRowBuilder().addComponents(startButton, cancelButton);
 
 		try {
 			await Operation.create({
@@ -107,7 +101,13 @@ module.exports = {
 			});
 
 			const message = response.resource?.message ?? await interaction.fetchReply();
-			await Operation.updateOne({ guild_id: guild.id, operation_id: `${interaction.id}` }, { operation_id: `${message.id}` });
+			await Operation.updateOne(
+				{ guild_id: guild.id, operation_id: `${interaction.id}` },
+				{
+					operation_id: `${message.id}`,
+					channel_id: interaction.channelId || interaction.channel?.id || null,
+				},
+			);
 
 			delete interaction.client.sessions[interaction.user.id];
 

@@ -2,8 +2,8 @@ const { Events } = require('discord.js');
 const {
 	Stats,
 	Server,
-	Material,
-	Group,
+	OrderLine,
+	OrderBoard,
 	Operation,
 	NotificationSubscription,
 	TrackedMessage,
@@ -30,6 +30,16 @@ module.exports = {
 			console.error('[StockpileList] Échec de la synchronisation au démarrage:', err);
 		});
 
+		try {
+			const { syncAllOrderBoards } = require('../utils/orderBoardSync.js');
+			void syncAllOrderBoards(client).catch((err) => {
+				console.error('[OrderBoard] Échec de la synchronisation au démarrage:', err);
+			});
+		}
+		catch (err) {
+			console.error('[OrderBoard] syncAllOrderBoards indisponible:', err.message);
+		}
+
 		const purgedStats = await purgeEmptyStatsRecords();
 		if (purgedStats > 0) {
 			console.log(`[Stats] ${purgedStats} fiche(s) Stats sans nom supprimée(s).`);
@@ -38,7 +48,6 @@ module.exports = {
 		const blockedGuildIds = getBlockedGuildIds();
 		const currentGuildIds = Array.from(client.guilds.cache.keys());
 
-		// Quitter les serveurs blacklistés
 		for (const [id, guild] of client.guilds.cache) {
 			if (blockedGuildIds.has(id)) {
 				try {
@@ -56,7 +65,6 @@ module.exports = {
 			}
 		}
 
-		// Backfill stats pour les serveurs actifs (et réinitialiser left_at)
 		for (const [id, guild] of client.guilds.cache) {
 			const joinedAt = guild.joinedAt ?? guild.members.me?.joinedAt ?? null;
 
@@ -76,13 +84,10 @@ module.exports = {
 			);
 		}
 
-		// Chercher tous les guild_ids orphelins directement dans chaque collection de données.
-		// Ne pas s'appuyer uniquement sur Stats : un serveur peut avoir des données sans doc Stats
-		// ou avec Stats.left_at=null (guildDelete manqué quand le bot était offline).
 		const [
 			serverIds,
-			materialIds,
-			groupIds,
+			lineIds,
+			boardIds,
 			operationIds,
 			notifIds,
 			trackedIds,
@@ -90,23 +95,21 @@ module.exports = {
 			statsLeftIds,
 		] = await Promise.all([
 			Server.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
-			Material.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
-			Group.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
+			OrderLine.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
+			OrderBoard.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
 			Operation.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
 			NotificationSubscription.distinct('guild_id', { guild_id: { $nin: currentGuildIds } }),
 			TrackedMessage.distinct('server_id', { server_id: { $nin: currentGuildIds } }),
 			Stockpile.distinct('server_id', { server_id: { $nin: currentGuildIds } }),
-			// Stats actifs (left_at null) alors que le bot n'est plus sur le serveur (guildDelete manqué)
 			Stats.distinct('guild_id', { guild_id: { $nin: currentGuildIds }, left_at: null }),
 		]);
 
 		const orphanedIds = new Set([
-			...serverIds, ...materialIds, ...groupIds, ...operationIds,
+			...serverIds, ...lineIds, ...boardIds, ...operationIds,
 			...notifIds, ...trackedIds, ...stockpileIds, ...statsLeftIds,
 		]);
 
 		if (orphanedIds.size > 0) {
-			// Récupérer les noms depuis Stats en un seul appel
 			const statsForOrphans = await Stats.find({ guild_id: { $in: Array.from(orphanedIds) } });
 			const nameMap = new Map(statsForOrphans.map((s) => [s.guild_id, s.name]));
 

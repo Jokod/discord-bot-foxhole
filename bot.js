@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
-const { Server } = require('./data/models.js');
+const { Server, OrderBoard } = require('./data/models.js');
 const Translate = require('./utils/translations.js');
 
 const configureDns = () => {
@@ -63,6 +63,7 @@ client.slashCommands = new Collection();
 client.buttonCommands = new Collection();
 client.selectCommands = new Collection();
 client.modalCommands = new Collection();
+client.autocompleteInteractions = new Collection();
 client.cooldowns = new Collection();
 client.languages = new Collection();
 client.traductions = new Collection();
@@ -103,6 +104,13 @@ getFiles('./interactions/modals', (command) => {
 
 getFiles('./interactions/select-menus', (command) => {
 	client.selectCommands.set(command.id, command);
+});
+
+/** ********************************************************************/
+// Registration of Autocomplete Interactions.
+
+getFiles('./interactions/autocomplete', (command) => {
+	client.autocompleteInteractions.set(command.name, command);
 });
 
 /** ********************************************************************/
@@ -172,6 +180,12 @@ const connectToMongoWithRetry = async () => {
 				serverSelectionTimeoutMS: 15000,
 			});
 			console.log('Connected to MongoDB');
+			try {
+				await OrderBoard.syncIndexes();
+			}
+			catch (indexErr) {
+				console.error('Failed to sync OrderBoard indexes:', indexErr.message);
+			}
 			return;
 		}
 		catch (error) {

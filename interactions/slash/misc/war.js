@@ -5,12 +5,15 @@ const { getRandomColor } = require('../../../utils/colors.js');
 const WARAPI_ROOT = 'https://war-service-live.foxholeservices.com/api';
 const WARAPI_WAR_URL = `${WARAPI_ROOT}/worldconquest/war`;
 const WARAPI_MAPS_URL = `${WARAPI_ROOT}/worldconquest/maps`;
+const STEAM_PLAYERS_URL = 'https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=505460';
+const FOXHOLE_STATS_URL = 'https://foxholestats.com/';
 const FETCH_TIMEOUT_MS = 8000;
 
 // Simple in-memory cache with ETag + expiry
 const warCache = {
 	war: { data: null, etag: null, expiresAt: 0 },
 	maps: { data: null, etag: null, expiresAt: 0 },
+	steam: { data: null, expiresAt: 0 },
 	// mapName -> { data, etag, expiresAt }
 	reports: new Map(),
 };
@@ -23,6 +26,8 @@ const TTL = {
 	maps: 10 * 60_000,
 	// 5s – per-map war report is fairly dynamic
 	report: 5_000,
+	// 60s – Steam players is poll-based
+	steam: 60_000,
 };
 
 function parseMaxAge(cacheControl) {
@@ -123,6 +128,26 @@ async function getMaps() {
 	return data;
 }
 
+async function getSteamPlayers() {
+	const now = Date.now();
+	if (warCache.steam.data && now < warCache.steam.expiresAt) {
+		return warCache.steam.data;
+	}
+
+	const res = await fetchWithTimeout(STEAM_PLAYERS_URL);
+	if (!res || !res.ok) return warCache.steam.data;
+
+	const data = await res.json().catch(() => null);
+	if (!data) return warCache.steam.data;
+
+	warCache.steam = {
+		data,
+		expiresAt: now + TTL.steam,
+	};
+
+	return data;
+}
+
 async function getWarReport(mapName) {
 	const key = mapName.toLowerCase();
 	const now = Date.now();
@@ -188,7 +213,12 @@ module.exports = {
 					ru: 'статус',
 					'zh-CN': '状态',
 				})
-				.setDescription('Show current war status.'),
+				.setDescription('Show current war status and players online.')
+				.setDescriptionLocalizations({
+					fr: 'Afficher le statut de la guerre et les joueurs en ligne.',
+					ru: 'Показать статус войны и игроков онлайн.',
+					'zh-CN': '显示当前战争状态与在线玩家。',
+				}),
 		)
 		.addSubcommand((sub) =>
 			sub
@@ -196,9 +226,14 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'cartes',
 					ru: 'карты',
-					'zh-CN': '地图',
+					'zh-CN': '地图列表',
 				})
-				.setDescription('List active World Conquest maps.'),
+				.setDescription('List active World Conquest maps and live stats link.')
+				.setDescriptionLocalizations({
+					fr: 'Lister les cartes World Conquest et le lien foxholestats.com.',
+					ru: 'Список карт World Conquest и ссылка foxholestats.com.',
+					'zh-CN': '列出 World Conquest 地图及 foxholestats.com 链接。',
+				}),
 		)
 		.addSubcommand((sub) =>
 			sub
@@ -209,6 +244,11 @@ module.exports = {
 					'zh-CN': '报告',
 				})
 				.setDescription('Show war report for a specific map.')
+				.setDescriptionLocalizations({
+					fr: 'Afficher le rapport de guerre pour une carte.',
+					ru: 'Показать отчёт по карте.',
+					'zh-CN': '显示指定地图的战争报告。',
+				})
 				.addStringOption((opt) =>
 					opt
 						.setName('map')
@@ -235,33 +275,80 @@ module.exports = {
 		await interaction.deferReply({ flags: 64 });
 
 		if (sub === 'status') {
-			const warData = await getWar();
+			const [warData, steamData] = await Promise.all([getWar(), getSteamPlayers()]);
 
-			if (!warData || typeof warData.warNumber !== 'number') {
+			const playerCount = steamData?.response?.player_count;
+			const hasWar = warData && typeof warData.warNumber === 'number';
+			const hasPlayers = typeof playerCount === 'number';
+
+			if (!hasWar && !hasPlayers) {
 				return interaction.editReply({
-					content: 'War API is currently unavailable. Please try again later.',
+					content: translations.translate('FOXHOLE_ALL_UNAVAILABLE'),
 				});
 			}
 
-			const winner = warData.winner || 'NONE';
-			const startTime = warData.conquestStartTime
-				? `<t:${Math.floor(warData.conquestStartTime / 1000)}:F>`
-				: '—';
-			const endTime = warData.conquestEndTime
-				? `<t:${Math.floor(warData.conquestEndTime / 1000)}:F>`
-				: '—';
-
 			const embed = new EmbedBuilder()
 				.setColor(getRandomColor())
-				.setTitle('Foxhole War – Status')
-				.addFields(
-					{ name: 'War #', value: String(warData.warNumber), inline: true },
-					{ name: 'Winner', value: winner, inline: true },
-					{ name: 'Required victory towns', value: String(warData.requiredVictoryTowns ?? '—'), inline: true },
-					{ name: 'Short required towns', value: String(warData.shortRequiredVictoryTowns ?? '0'), inline: true },
-					{ name: 'Conquest start', value: startTime, inline: false },
-					{ name: 'Conquest end', value: endTime, inline: false },
+				.setTitle(translations.translate('FOXHOLE_TITLE'));
+
+			embed.addFields({
+				name: translations.translate('FOXHOLE_PLAYERS_CURRENT'),
+				value: hasPlayers
+					? playerCount.toLocaleString()
+					: translations.translate('FOXHOLE_UNAVAILABLE'),
+				inline: true,
+			});
+
+			if (hasWar) {
+				const winnerKeys = { NONE: 'FOXHOLE_WINNER_NONE', WARDEN: 'FOXHOLE_WINNER_WARDEN', COLONIAL: 'FOXHOLE_WINNER_COLONIAL' };
+				const winnerKey = winnerKeys[warData.winner] || 'FOXHOLE_WINNER_NONE';
+				const startTime = warData.conquestStartTime
+					? `<t:${Math.floor(warData.conquestStartTime / 1000)}:F>`
+					: '—';
+				const endTime = warData.conquestEndTime
+					? `<t:${Math.floor(warData.conquestEndTime / 1000)}:F>`
+					: '—';
+
+				embed.addFields(
+					{
+						name: translations.translate('FOXHOLE_WAR_NUMBER'),
+						value: String(warData.warNumber),
+						inline: true,
+					},
+					{
+						name: translations.translate('FOXHOLE_WAR_WINNER'),
+						value: translations.translate(winnerKey),
+						inline: true,
+					},
+					{
+						name: translations.translate('FOXHOLE_WAR_REQUIRED_TOWNS'),
+						value: String(warData.requiredVictoryTowns ?? '—'),
+						inline: true,
+					},
+					{
+						name: 'Short required towns',
+						value: String(warData.shortRequiredVictoryTowns ?? '0'),
+						inline: true,
+					},
+					{
+						name: translations.translate('FOXHOLE_WAR_START'),
+						value: startTime,
+						inline: false,
+					},
+					{
+						name: 'Conquest end',
+						value: endTime,
+						inline: false,
+					},
 				);
+			}
+			else {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_TITLE'),
+					value: translations.translate('FOXHOLE_UNAVAILABLE'),
+					inline: false,
+				});
+			}
 
 			return interaction.editReply({ embeds: [embed] });
 		}
@@ -278,7 +365,7 @@ module.exports = {
 			const embed = new EmbedBuilder()
 				.setColor(getRandomColor())
 				.setTitle('Foxhole War – Maps')
-				.setDescription(maps.join('\n'));
+				.setDescription(`${maps.join('\n')}\n\n${FOXHOLE_STATS_URL}`);
 
 			return interaction.editReply({ embeds: [embed] });
 		}
@@ -311,4 +398,3 @@ module.exports = {
 		});
 	},
 };
-

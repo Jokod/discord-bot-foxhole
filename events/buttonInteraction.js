@@ -1,6 +1,7 @@
 const { Events } = require('discord.js');
 const { Server } = require('../data/models.js');
 const Translate = require('../utils/translations.js');
+const { getPrefix } = require('../shared/customId.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -12,19 +13,14 @@ module.exports = {
 	 */
 
 	async execute(interaction) {
-		// Deconstructed client from interaction object.
+		if (!interaction.isButton()) return;
+		if (!interaction.guild) return;
+
 		const { client } = interaction;
 		const guildId = interaction.guild.id;
 		const translations = new Translate(client, guildId);
 
-		// Checks if the interaction is a button interaction (to prevent weird bugs)
-
-		if (!interaction.isButton()) return;
-
-		const command = client.buttonCommands.get(interaction.customId) || client.buttonCommands.get(interaction.customId.split('-')[0]);
-
-		// If the interaction is not a command in cache, return error message.
-		// You can modify the error message at ./messages/defaultButtonError.js file!
+		const command = client.buttonCommands.get(interaction.customId) || client.buttonCommands.get(getPrefix(interaction.customId));
 
 		if (!command) {
 			return await require('../messages/defaultButtonError').execute(interaction);
@@ -38,8 +34,6 @@ module.exports = {
 				flags: 64,
 			});
 		}
-
-		// A try to execute the interaction.
 
 		try {
 			return await command.execute(interaction);

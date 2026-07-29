@@ -1,7 +1,10 @@
 {
 	"name": "discord-foxhole-bot",
-	"version": "0.9.14",
+	"version": "1.0.0",
 	"description": "Discord bot for Foxhole",
+	"engines": {
+		"node": ">=16.11.0"
+	},
 	"types": "./typings.d.ts",
 	"main": "bot.js",
 	"scripts": {
@@ -12,6 +15,8 @@
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
+		"test:ci": "npm run lint && node scripts/check-i18n-parity.js && npm run test:coverage -- --ci --forceExit",
+		"i18n:check": "node scripts/check-i18n-parity.js",
 		"wiki:sync-materials": "node scripts/sync-wiki-materials.js",
 		"wiki:sync-materials:dry": "node scripts/sync-wiki-materials.js --dry-run",
 		"wiki:sync-materials:add-missing": "node scripts/sync-wiki-materials.js --add-missing-only",

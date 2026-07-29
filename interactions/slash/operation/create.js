@@ -5,11 +5,11 @@ const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 module.exports = {
 	init: true,
 	data: new SlashCommandBuilder()
-		.setName('create_operation')
+		.setName('operation')
 		.setNameLocalizations({
-			fr: 'créer_opération',
-			ru: 'создать_операцию',
-			'zh-CN': '创建操作',
+			fr: 'operation',
+			ru: 'операция',
+			'zh-CN': '操作',
 		})
 		.setDescription('Create a new operation')
 		.setDescriptionLocalizations({

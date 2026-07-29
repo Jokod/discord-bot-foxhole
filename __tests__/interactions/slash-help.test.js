@@ -17,12 +17,13 @@ describe('Slash command /help', () => {
 	function createInteraction(commandOption = null) {
 		const guildId = 'guild-123';
 		const slashCommands = new Collection();
-		slashCommands.set('github', {
+		slashCommands.set('about', {
 			data: {
+				name: 'about',
 				toJSON: () => ({
-					name: 'github',
-					description: 'GitHub link',
-					name_localizations: { fr: 'github', en: 'github' },
+					name: 'about',
+					description: 'Bot links',
+					name_localizations: { fr: 'a-propos', en: 'about' },
 					options: [],
 				}),
 			},
@@ -58,7 +59,7 @@ describe('Slash command /help', () => {
 			embeds: [expect.objectContaining({
 				data: expect.objectContaining({
 					title: 'HELP_TITLE_LIST',
-					description: expect.stringContaining('github'),
+					description: expect.stringContaining('about'),
 				}),
 			})],
 			flags: 64,
@@ -76,17 +77,17 @@ describe('Slash command /help', () => {
 	});
 
 	it('avec commande connue par nom: affiche l\'aide', async () => {
-		const interaction = createInteraction('github');
+		const interaction = createInteraction('about');
 
 		await helpCommand.execute(interaction);
 
 		const embed = interaction.reply.mock.calls[0][0].embeds[0];
 		expect(embed.data?.title ?? embed.title).toContain('HELP_TITLE_COMMAND');
-		expect(embed.data?.description ?? embed.description).toContain('GitHub link');
+		expect(embed.data?.description ?? embed.description).toContain('Bot links');
 	});
 
 	it('avec préfixe /: normalise correctement', async () => {
-		const interaction = createInteraction('/github');
+		const interaction = createInteraction('/about');
 
 		await helpCommand.execute(interaction);
 
@@ -95,7 +96,7 @@ describe('Slash command /help', () => {
 			flags: 64,
 		});
 		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('GitHub link');
+		expect(embed.data?.description ?? embed.description).toContain('Bot links');
 	});
 
 	it('utilise en si la langue courante est absente de languages', async () => {

@@ -55,7 +55,7 @@ async function refreshTrackedStockpileList(client, tracked) {
 			});
 		}
 		else {
-			const components = await buildStockpileListComponents(Stockpile, tracked.server_id);
+			const components = await buildStockpileListComponents(Stockpile, tracked.server_id, translations);
 			await msg.edit({ content: '', embeds: [embed], components });
 		}
 

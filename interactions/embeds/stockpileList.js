@@ -1,8 +1,15 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const {
+	EmbedBuilder,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
+} = require('discord.js');
 const { getRandomColor } = require('../../utils/colors.js');
-const { DISCORD_MAX_BUTTONS_PER_MESSAGE } = require('../../utils/constants.js');
 const { formatForDisplay } = require('../../utils/formatLocation.js');
 const { safeEscapeMarkdown } = require('../../utils/markdown.js');
+const { STOCKPILE_MAX_ACTIVE } = require('../../utils/constants.js');
 
 /**
  * Construit l'embed de la liste des stockpiles pour un serveur.
@@ -114,36 +121,70 @@ function buildStockpileButtonLabel(stock, idCounts) {
 }
 
 /**
- * Construit les boutons de reset pour la liste des stockpiles d'un serveur.
+ * Construit les boutons de reset + select remove + rangée admin.
  * @param {import('mongoose').Model} Stockpile - Modèle Stockpile
  * @param {string} guildId - ID du serveur
+ * @param {{ translate: (key: string, vars?: object) => string }} [translations]
  * @returns {Promise<import('discord.js').ActionRowBuilder[]>}
  */
-async function buildStockpileListComponents(Stockpile, guildId) {
+async function buildStockpileListComponents(Stockpile, guildId, translations) {
 	const stocks = await Stockpile.find({ server_id: guildId, deleted: false }).sort({ id: 1 }).lean();
-	if (!stocks || stocks.length === 0) return [];
-
-	const seen = new Set();
-	const uniqueStocks = stocks.filter((stock) => {
-		const ref = String(stock._id);
-		if (seen.has(ref)) return false;
-		seen.add(ref);
-		return true;
-	});
-
-	const idCounts = countStockIds(uniqueStocks);
-
-	const buttons = uniqueStocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
-		new ButtonBuilder()
-			.setCustomId(`stockpile_reset-${stock._id}`)
-			.setLabel(buildStockpileButtonLabel(stock, idCounts))
-			.setStyle(ButtonStyle.Primary),
-	);
 
 	const rows = [];
-	for (let i = 0; i < buttons.length; i += 5) {
-		rows.push(new ActionRowBuilder().addComponents(...buttons.slice(i, i + 5)));
+	const t = (key) => (translations?.translate ? translations.translate(key) : key);
+
+	if (stocks && stocks.length > 0) {
+		const seen = new Set();
+		const uniqueStocks = stocks.filter((stock) => {
+			const ref = String(stock._id);
+			if (seen.has(ref)) return false;
+			seen.add(ref);
+			return true;
+		});
+
+		const idCounts = countStockIds(uniqueStocks);
+
+		const buttons = uniqueStocks.slice(0, STOCKPILE_MAX_ACTIVE).map((stock) =>
+			new ButtonBuilder()
+				.setCustomId(`stockpile_reset-${stock._id}`)
+				.setLabel(buildStockpileButtonLabel(stock, idCounts))
+				.setStyle(ButtonStyle.Primary),
+		);
+
+		for (let i = 0; i < buttons.length; i += 5) {
+			rows.push(new ActionRowBuilder().addComponents(...buttons.slice(i, i + 5)));
+		}
+
+		const removeOptions = uniqueStocks.slice(0, 25).map((stock) =>
+			new StringSelectMenuOptionBuilder()
+				.setLabel(buildStockpileButtonLabel(stock, idCounts).slice(0, 100))
+				.setDescription(String(stock.name || '').slice(0, 100) || `#${stock.id}`)
+				.setValue(String(stock._id)),
+		);
+
+		rows.push(
+			new ActionRowBuilder().addComponents(
+				new StringSelectMenuBuilder()
+					.setCustomId('select_stockpile_remove')
+					.setPlaceholder(t('STOCKPILE_REMOVE_PLACEHOLDER').slice(0, 150))
+					.addOptions(removeOptions),
+			),
+		);
 	}
+
+	rows.push(
+		new ActionRowBuilder().addComponents(
+			new ButtonBuilder()
+				.setCustomId('stockpile_cleanup')
+				.setLabel(t('STOCKPILE_BTN_CLEANUP').slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH))
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId('stockpile_deleteall')
+				.setLabel(t('STOCKPILE_BTN_DELETEALL').slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH))
+				.setStyle(ButtonStyle.Danger),
+		),
+	);
+
 	return rows;
 }
 

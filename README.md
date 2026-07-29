@@ -1,6 +1,17 @@
 # Discord Bot for Foxhole
 
-The Discord Bot for Foxhole is an open-source project aimed at simplifying operations and logistics management in the Foxhole game using Discord as a communication platform. This bot offers powerful features to help gaming teams coordinate their activities and enhance their gaming experience.
+[![CI](https://img.shields.io/github/actions/workflow/status/Jokod/discord-bot-foxhole/integration.yaml?branch=main&label=CI)](https://github.com/Jokod/discord-bot-foxhole/actions/workflows/integration.yaml)
+[![Version](https://img.shields.io/github/package-json/v/Jokod/discord-bot-foxhole?label=version)](CHANGELOG.md)
+[![License](https://img.shields.io/github/license/Jokod/discord-bot-foxhole)](LICENSE)
+[![Node](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FJokod%2Fdiscord-bot-foxhole%2Fmain%2Fpackage.json&query=%24.engines.node&label=node&color=brightgreen)](https://nodejs.org/)
+[![discord.js](https://img.shields.io/github/package-json/dependency-version/Jokod/discord-bot-foxhole/discord.js)](https://discord.js.org/)
+[![mongoose](https://img.shields.io/github/package-json/dependency-version/Jokod/discord-bot-foxhole/mongoose)](https://mongoosejs.com/)
+[![Last commit](https://img.shields.io/github/last-commit/Jokod/discord-bot-foxhole)](https://github.com/Jokod/discord-bot-foxhole/commits)
+
+Open-source Discord bot for **Foxhole** operations and logistics coordination.  
+Focus: **order boards** (production, front transfer, scrap/farm), operations, and stockpile **codes** — not a live in-game inventory mirror.
+
+**Support Discord:** [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5) · **Source:** [GitHub](https://github.com/Jokod/discord-bot-foxhole)
 
 ## Table of Contents
 
@@ -8,375 +19,220 @@ The Discord Bot for Foxhole is an open-source project aimed at simplifying opera
 - [Configuration](#configuration)
 - [Data collected](#data-collected)
 - [Installation](#installation)
+- [Upgrading to 1.0.0](#upgrading-to-100-self-host)
 - [Usage](#usage)
 - [Wiki sync (materials)](#wiki-sync-materials)
+- [Testing](#testing)
 - [Contribute](#contribute)
 - [License](#license)
 
 ## Features
 
-The Discord Bot for Foxhole provides the following features:
-
-- **Operation Management:** Create, track, and update operations in real-time to coordinate your team's activities.
-
-- **Streamlined Logistics:** Automate resource distribution, inventory management, and the creation of logistics threads.
-
-- **Advanced Material Categorization:** Materials are organized into main categories and subcategories for easy navigation:
-  - **Utilities** (Tools, Field Equipment, Mounted Equipment, Medical, Uniforms, Outfits)
-  - **Infantry Weapons** (Small Arms, Melee Weapons, Machine Guns, Heavy Arms, Grenades, Launchers, Mortar)
-  - **Ammunition** (Light Ammo, Tank Ammo, Aircraft Ammo, Artillery Ammo, Misc Ammo, Flamethrower Ammo)
-  - **Resources** (Basic Materials, Explosive Materials, Heavy Explosive Materials, Refined Materials, Gravel)
-  - **Vehicles** (All vehicle types)
-
-- **Assigning a priority to materials:** You can assign each material a priority—**High**, **Neutral**, or **Low**
-
-- **Multi-language Support:** Available in English, French, Russian, and Chinese (Simplified).
-
-- **Customization:** Configure the bot to fit the specific needs of your Discord server.
+- **Operations** — Create and track ops (`/operation`: pending → started → finished).
+- **Order boards** — Per-channel **production**, **front transfer**, or **scrap/farm** boards (`/order`, FR **`/commande`**):
+  - Lines = item + **priority** + `Stock: current/target` + **urgency**
+  - Select a line, then **-1 / +1 / +4 / +9 / Max**
+  - Add from catalog · Correct · Close · Priority cycle
+  - Locked **Logs** thread (read-only)
+  - Optional link to an operation  
+  - **Not** a Foxhole stockpile inventory (front stock is read in-game).
+- **Stockpile codes** — Share depot codes with region/city grouping and expiry timers (`/stockpile`, FR **`depot`**).
+- **War API** — Live war status / maps / reports (`/war`).
+- **Notifications** — Stockpile activity & expiry reminders (`/notify`).
+- **Languages** — English, French, Russian, Chinese (Simplified).
 
 ## Configuration
 
-Before using the Discord Bot for Foxhole, you will need to perform some configurations:
-
-1. Invite the bot to your Discord server by following [Add to my server discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot).
-
-2. Set up appropriate permissions for the bot's commands based on roles within your server.
-
-3. Initialize the bot using the `/setup` command to specify the language and faction (colonial or warden) of the server.
+1. Invite the bot: [Add to my Discord server](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot).
+2. Grant command permissions as needed for your roles.
+3. Run **`/setup`** once (language + faction: colonial / warden ; optional **`logs`** for order Logs threads, default off).
 
 ## Data collected
 
-When the bot is installed on a server, it stores **usage statistics** in the database (MongoDB) to improve the service and understand how the bot is used. No personal data (user IDs, messages, etc.) is collected beyond what is strictly necessary for the bot to function.
+When installed on a server, the bot stores **usage statistics** and **functional data** in MongoDB. Details: [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 ### Per-server statistics (Stats)
 
 | Data | Description |
 |------|-------------|
-| **Server ID** | Discord guild identifier |
-| **Server name** | Name of the server |
-| **Server creation date** | When the Discord server was created |
-| **Bot join date** | When the bot was added to the server |
-| **Bot leave date** | When the bot was removed from the server (kick, leave, blacklist, or detected at bot restart) |
-| **Last command date** | Date of the last slash command executed |
-| **First command date** | Date of the first slash command on the server |
-| **Total command count** | Total number of slash commands executed |
-| **Command breakdown** | Number of uses per command (e.g. `/help`, `/logistics`, `/github`) |
-| **Last command per type** | Last usage date for each command |
-| **Member count** | Total number of members in the server (updated on each command) |
-| **Operations created** | Number of operations created via the bot |
-| **Materials added** | Number of materials added to logistics |
-| **Materials validated** | Number of materials marked as validated |
+| Server ID / name / creation date | Guild identity |
+| Bot join / leave dates | Lifecycle |
+| Command counts & last use | Slash usage analytics |
+| Member count | Updated on command use |
+| Operations created | Via `/operation` |
+| Materials / order-related counters | Historical + order activity fields |
 
-These statistics are stored in a `Stats` collection and are used only for analytics and maintenance. They are not shared with third parties. If you self-host the bot, this data remains in your own database.
+Self-host: data stays in **your** database.
 
 ### Automatic server data cleanup
 
-When the bot is no longer active on a server, it automatically cleans server-scoped data in MongoDB.
+Triggered when the bot leaves a guild, is blocked (`BLOCKED_GUILD_IDS`), or is missing at startup.
 
-This cleanup is triggered when:
-- the bot is kicked / removed from a server (`guildDelete`);
-- the server is in `BLOCKED_GUILD_IDS` (on invite or at startup);
-- the bot detects at startup that it is no longer present on a previously known server.
-
-Collections cleaned for that server include:
-- `Material`
-- `Group`
-- `Operation`
-- `NotificationSubscription`
-- `TrackedMessage`
-- `Stockpile`
-- `Server`
-
-`Stats.left_at` is also set to keep a leave timestamp for analytics.
+Collections cleaned for that guild include: `OrderLine`, `OrderBoard`, `Operation`, `NotificationSubscription`, `TrackedMessage`, `Stockpile`, `Server`.  
+`Stats.left_at` is set for analytics.
 
 ## Installation
 
-If you want to host your own instance of the Discord Bot for Foxhole, follow these steps:
-
 ### Prerequisites
 
-- Node.js v16.11.0 or higher (v20.x recommended)
-- MongoDB (local or MongoDB Atlas)
-- A Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
+- Node.js **v16.11+** (v20.x recommended)
+- MongoDB (local or Atlas)
+- Discord bot token ([Developer Portal](https://discord.com/developers/applications))
 
-### Setup Steps
+### Setup
 
-1. **Clone this GitHub repository** to your machine:
+1. Clone and install:
    ```bash
    git clone https://github.com/Jokod/discord-bot-foxhole.git
    cd discord-bot-foxhole
-   ```
-
-2. **Install dependencies**:
-   ```bash
    npm install
    ```
 
-3. **Configure environment variables**:
+2. Configure env:
    ```bash
    cp .env.dist .env
    ```
-   
-   Edit `.env` and fill in the required values:
-   - `TOKEN`: Your Discord bot token
-   - `CLIENT_ID`: Your Discord application ID
-   - `MONGODB_URL`: MongoDB connection URL
-   - `MONGODB_NAME`: Database name (e.g., "foxhole-bot")
-   - `OWNER`: Your Discord user ID
-   - `TEST_GUILD_ID`: Your test server ID (for development)
-   - `APP_ENV`: Set to `dev` for development, `prod` for production
-  - `BLOCKED_GUILD_IDS` (optional): Comma-separated server IDs where the bot must not stay. If the bot is in one of these servers (or invited there), it leaves automatically and server-scoped data is cleaned from MongoDB.
+   Fill in: `TOKEN`, `CLIENT_ID`, `MONGODB_URL`, `MONGODB_NAME`, `OWNER`, `TEST_GUILD_ID`, `APP_ENV` (`dev` / `prod`).  
+   Optional: `BLOCKED_GUILD_IDS` (comma-separated guild IDs the bot must leave).
 
-4. **Invite the bot to your server**:
-   
-   Use this URL (replace `YOUR_CLIENT_ID` with your actual Client ID):
+3. Invite with scopes **`bot`** + **`applications.commands`**:
    ```
    https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=328565001280&scope=bot%20applications.commands
    ```
-   
-   ⚠️ **Important**: Make sure to include both `bot` and `applications.commands` scopes!
 
-5. **Start the application**:
+4. Start:
    ```bash
-   npm run start      # Production
-   npm run dev        # Development (with auto-reload)
-   # or
-   make start         # Production
-   make dev           # Development
+   npm run start    # production
+   npm run dev      # development (nodemon)
    ```
 
-### Troubleshooting
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues.  
+Release notes: [CHANGELOG.md](CHANGELOG.md).
 
-If you encounter any issues during setup or runtime, please refer to the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) file for common problems and solutions.
+## Upgrading to 1.0.0 (self-host)
 
-For detailed information about recent updates and changes, see [MIGRATION.md](MIGRATION.md).
+If you already run a **pre-1.0.0** instance (logistics threads and/or `/stock` inventory):
+
+1. **Backup** MongoDB.
+2. Run **`node scripts/migrate-v2.js --dry-run`**, then **`node scripts/migrate-v2.js`**.
+3. Deploy **1.0.0** code and **restart** the bot.
+4. On each Discord server: delete leftover inventory/logistics messages if any, recreate needed boards with **`/order create`**.
+5. **Re-register slash commands** so Discord drops obsolete commands and picks up `/order`, `/server reset`, etc. Restart the bot (global registration runs at boot). If an old command still appears, wait a few minutes or kick/re-invite the bot with the `applications.commands` scope.
+
+There is **no** automatic conversion of old inventory/logistics into order boards.
+
+Full guide (collections touched, smoke checklist): **[docs/MIGRATION_V2.md](docs/MIGRATION_V2.md)**.
 
 ## Usage
 
-Once the bot is configured on your Discord server, you can use its commands to create operations, manage logistics, and more. Check out [the wiki](https://github.com/Jokod/discord-bot-foxhole/wiki) for more details on available commands and features.
+After `/setup`, use slash commands below. Localized names appear according to server language (e.g. FR: `/commande`, `/depot`).
 
 ### Commands overview
 
-#### Slash commands – General / utilities
+#### General
 
-- `/help [command]` – List all slash commands or show detailed help for a specific command (supports localized names).
-- `/github` – Get the bot GitHub repository link (ephemeral).
+- `/help [command]` — List commands or detail one command.
+- `/about` — GitHub + support Discord invite (ephemeral; FR `/a-propos`).
 
-#### Slash commands – Server configuration
+#### Server
 
-- `/setup lang:<en|fr|ru|zh-CN> camp:<warden|colonial>` – Initialize server configuration (must be run once per server).
-- `/server infos` – Display the current server configuration (language and camp).
-- `/server lang lang:<en|fr|ru|zh-CN>` – Change the bot language for the server.
-- `/server camp camp:<warden|colonial>` – Change the configured camp (faction) for the server.
+- `/setup lang:<en|fr|ru|zh-CN> camp:<warden|colonial> [logs:<true|false>]` — First-time init (`logs` default **false**).
+- `/server infos` — Show config.
+- `/server lang` / `/server camp` / `/server logs enabled:<true|false>` — Update config (`logs:false` deletes existing order Logs threads).
+- `/server reset confirm:false` — Preview counts (boards / stockpiles / operations) without deleting.
+- `/server reset confirm:true` — Wipe order boards, stockpiles and operations for a **new war** (Manage Server). Keeps language/camp/logs config and notifications. Also deletes operation Discord messages when `channel_id` is known.
 
-#### Slash commands – Foxhole live data
+#### War (live API)
 
-- `/foxhole info` – Show current online players and current war stats (Steam API + War API).
-- `/foxhole map` – Get a link to the Foxhole live map & stats website.
-- `/war status` – Detailed current war status from the War API.
-- `/war maps` – List all active World Conquest maps from the War API.
-- `/war report map:<MapName>` – War report for a specific map (enlistments, casualties, day of war).
+- `/war status` | `maps` | `report map:<MapName>`
 
-#### Slash commands – Operations & logistics
+#### Operations
 
-- `/create_operation title:<TITLE>` – Open a modal to create a new operation (date, time, duration, description).
-- `/logistics help` – List all `logistics` subcommands.
-- `/logistics resume operation:<OperationId>` – Show a summary of all logistics groups of an operation.
-- `/logistics list group:<GroupId>` – List all materials of a given logistics group.
+- `/operation title:<TITLE>` — Modal (date, time, duration, description) → Start / Cancel / Finished.
 
-#### Slash commands – Materials
+#### Orders (production / front transfer / scrap)
 
-Materials support **priority** (High / Neutral / Low) so the team can see what to prioritize.
+Not a Foxhole inventory. Counts **progress on a short order** (OP, haul, or farm run).
 
-- `/material help` – List all `material` subcommands.
-- `/material create [group:<GroupId>]` – Create a material: choose category, subcategory, material, quantity, then **set its priority** and confirm.
-- `/material delete material:<MaterialId>` – Delete a material.
-- `/material info material:<MaterialId>` – Show material details (including priority).
+- `/order create type:prod|transfer|scrap name:<Name> [operation:<…>]` — Create board in this channel (FR: `/commande`). Link an **active** operation via autocomplete. Creates a locked **Logs** thread if enabled in setup/server.
+- `/order remove name:<Name>` — Delete board + Discord message + log thread if any (autocomplete; owner or Manage Guild/Channels).
 
-On the material message, use **Priority** to change it at any time; **Assignee** and **Delete** are also available (management restricted to creator or server/channel managers).
+**On the board:** Select a line · **-1 / +1 / +4 / +9 / Max** · Priority · Add · Correct · Delete · Close / Reopen.  
+Up to **50 lines** (Discord: **2** selects × 25). At capacity the embed turns **red**, **Add** is disabled, and further adds are rejected. Long lists may truncate in the embed (use the selects).
 
-#### Slash commands – Stockpiles
+**Permissions**
+| Who | Actions |
+|-----|---------|
+| Everyone | Create board, select line, ±qty / Max, Add, Correct, Priority |
+| Line/board owner **or** Manage Guild / Manage Channels | Delete, Close / Reopen, `/order remove` |
 
-Stockpile codes (seaport/depot) are scoped per server and per channel. Only the creator can remove or restore a given stock; the list is grouped by region and city with a 2-day-and-2-hour reset timer.
+**Closed boards** stay read-only until an owner/moderator clicks **Reopen** (synced on bot startup too).
 
-- `/stockpile help` – Show available stockpile subcommands.
-- `/stockpile add` – Open a form to add a stockpile (region, city, name, 6-digit code).
-- `/stockpile remove id:<Id>` – Mark a stockpile as deleted (creator only).
-- `/stockpile restore id:<Id>` – Restore a deleted stockpile (creator only).
-- `/stockpile list` – Display stockpiles by region and city (stock, code, expiry).
-- `/stockpile reset id:<Id>` – Reset a stockpile’s timer to 2 days and 2 hours.
-- `/stockpile cleanup` – Permanently remove deleted stockpiles in this channel (requires **Manage Channels**).
-- `/stockpile deleteall` – Permanently delete all stockpiles on this server (requires **Manage Server** permission).
+**Logs thread:** optional (enable with `/setup logs:true` or `/server logs`). Locked (read-only for members; bot posts qty / max / priority / add / correct / close / reopen / delete). Not attached to the board message. Board remove always deletes the thread if it exists.
 
-#### Slash commands – Notifications
+Bot needs **Create Public Threads** + **Send Messages in Threads** (included in the invite link permissions above).
 
-Subscribe channels to notifications. Requires **Manage Channels** to subscribe or unsubscribe.
+#### Stockpiles (depot codes)
 
-- `/notification subscribe type:<Type>` – Subscribe this channel.
-- `/notification unsubscribe type:<Type>` – Unsubscribe this channel.
-- `/notification list` – List channels subscribed to notifications on this server.
+- `/stockpile add` — Modal (region, city, name, 6-digit code).
+- `/stockpile list` — Tracked list (reset timers, soft-delete, admin cleanup / delete all).
 
-| Type | Trigger / interval | Details |
-|------|--------------------|---------|
-| **Stockpile activity** | On each action | Sent immediately when a user **adds**, **removes**, **restores** or **resets** a stock. |
-| **Stockpile expiring soon** | Check at startup + **every 5 min** | One notification per stock for the **closest** due interval (12h, 6h, 1h, 30min).|
+#### Notifications
 
-The two types are independent: subscribing to *Stockpile activity* does not enable expiry reminders; you must also subscribe to *Stockpile expiring soon*.
+Requires **Manage Channels** for on/off.
 
-Bot newsletters are **not** part of `/notification` — use `/newsletter` instead (see below).
+- `/notify on|off type:<Type>` | `/notify list`
 
-#### Slash commands – Newsletter
+| Type | When |
+|------|------|
+| Stockpile activity | On add / remove / reset |
+| Stockpile expiring soon | Startup + every 5 min (12h / 6h / 1h / 30m) |
 
-Subscribe a channel to bot newsletters (announcements from the bot maintainer). Requires **Manage Server**.
+#### Newsletter
 
-- `/newsletter subscribe` – Subscribe this channel to the bot newsletter.
-- `/newsletter unsubscribe` – Unsubscribe this channel from the bot newsletter.
-
-To **publish**, edit `data/newsletter.md` on the host, then run:
-
-```bash
-make newsletter publish
-```
-
-(or `make newsletter-publish`). This sends the Discord markdown content to **all** subscribed channels across every server. Max 2000 characters.
+Requires **Manage Server**. `/newsletter subscribe` | `unsubscribe`. Publish: `make newsletter publish`.
 
 ## Project Structure
 
-### Materials Organization
+### Materials catalog (for order “Add”)
 
-Materials are organized in a hierarchical structure:
-
-```
-data/materials/
-├── utilities/
-│   ├── tools.json
-│   ├── field_equipment.json
-│   ├── mounted_equipment.json
-│   ├── medical.json
-│   ├── uniforms.json
-│   └── outfits.json
-├── infantry_weapons/
-│   ├── small_arms.json
-│   ├── melee_weapons.json
-│   ├── machine_guns.json
-│   ├── heavy_arms.json
-│   ├── grenades.json
-│   ├── launchers.json
-│   └── mortar.json
-├── ammunition/
-│   ├── light_ammo.json
-│   ├── tank_ammo.json
-│   ├── aircraft_ammo.json
-│   ├── artillery_ammo.json
-│   ├── misc_ammo.json
-│   └── flamethrower_ammo.json
-├── resources/
-│   ├── bmat.json
-│   ├── emat.json
-│   ├── hemat.json
-│   ├── rmat.json
-│   └── gravel.json
-└── vehicles/
-    └── vehicles.json
-```
-
-Each JSON file contains an array of materials with the following structure:
-```json
-{
-  "faction": ["colonial", "warden"],
-  "itemName": "Item Name",
-  "itemDesc": "Item description",
-  "itemCategory": "category"
-}
-```
-
-### Adding New Materials
-
-To add or refresh materials for the bot:
-
-1. **Do not edit `data/materials/*.json` by hand** — they are generated/maintained by the wiki sync script so descriptions and factions stay aligned with [foxhole.wiki.gg](https://foxhole.wiki.gg).
-2. Adjust routing or overrides in `scripts/lib/wiki-sync/` (`config.js`, `wiki-route.js`, etc.) if needed (see **Wiki sync** below).
-3. Run `npm run wiki:sync-materials:add-missing:dry` then `npm run wiki:sync-materials:add-missing:and-sync` (or the individual npm scripts) to import new wiki pages and refresh the whole catalog.
-4. Run `npm test` to validate.
+Catalog JSON under `data/materials/` (utilities, infantry_weapons, ammunition, resources, vehicles). Used when adding lines to an order board — kept in sync with the wiki (see below).
 
 ## Wiki sync (materials)
 
-Maintainers who **self-host** the bot refresh `data/materials/` from the [official Foxhole wiki](https://foxhole.wiki.gg) using `scripts/sync-wiki-materials.js`. The script talks to the **MediaWiki API** (with a dedicated User-Agent and rate-friendly batching). On each run it can also **prune** known duplicate `itemName`s and **rehome** rows to the correct JSON file (see `PRUNE_CATALOG_ITEM_NAMES` and `ITEM_REHOME_TO_REL` in `scripts/lib/wiki-sync/config.js`) so you rarely need to touch JSON manually.
-
-The sync targets **items players typically request from logistics** (weapons, ammo, vehicles, utilities, medical, etc.). It does **not** bulk-import factory-only resource chains from the wiki’s resource category.
-
-### npm scripts
+Self-host maintainers refresh `data/materials/` from [foxhole.wiki.gg](https://foxhole.wiki.gg) via `scripts/sync-wiki-materials.js`. Prefer script/config changes over hand-editing JSON.
 
 | Command | What it does |
 |--------|----------------|
-| `npm run wiki:sync-materials` | Updates **every** material already in JSON: `itemDesc` from wiki (in-game quote when available) and **faction** from the infobox. **Writes** files. |
-| `npm run wiki:sync-materials:dry` | Same logic, **dry run** — prints diffs, **does not** change files. |
-| `npm run wiki:sync-materials:add-missing` | **Adds** wiki pages that are still missing from the JSON lists (per configured wiki categories). Stops **after** the import (no full-catalog description pass). |
-| `npm run wiki:sync-materials:add-missing:dry` | Dry run for **add-missing** only. |
-| `npm run wiki:sync-materials:add-missing:and-sync` | **Add missing** entries, **then** run a full wiki sync on the **entire** catalog (same as `wiki:sync-materials` for all rows). |
-| `npm run wiki:sync-materials:add-missing:and-sync:dry` | Dry run for that combined pipeline. |
+| `npm run wiki:sync-materials` | Update all existing rows (desc + faction) |
+| `npm run wiki:sync-materials:dry` | Dry run |
+| `npm run wiki:sync-materials:add-missing` | Import missing wiki pages |
+| `npm run wiki:sync-materials:add-missing:and-sync` | Add missing + full sync |
 
-### Suggested workflow
-
-1. See what would change: `npm run wiki:sync-materials:dry`  
-2. Apply: `npm run wiki:sync-materials`  
-3. After a game/wiki update with **new** equipment:  
-   - `npm run wiki:sync-materials:add-missing:dry` → review  
-   - `npm run wiki:sync-materials:add-missing` → import new rows  
-   - `npm run wiki:sync-materials` → refresh descriptions (and factions) for **all** materials, including the new ones  
-
-(Or use `wiki:sync-materials:add-missing:and-sync` once if you want add + full refresh in a single command.)
-
-### Behaviour notes
-
-- **`data/materials/*.json` are script output** — prefer changing `scripts/lib/wiki-sync/` (e.g. `config.js`, `wiki-route.js`) and re-running the npm commands above instead of editing JSON directly.
-- Entries whose `itemName` starts with **`Uniforme `** (French uniform labels) are **skipped** for description sync so localized copy is preserved.
-- Wiki infobox names for some RPG rounds use a Unicode slash (**`AP⧸RPG`**, **`ARC⧸RPG`**). On `--add-missing`, ASCII spellings (`AP/RPG`) are normalized to that form so you do not get duplicate catalogue rows.
-- Infantry **flamethrower fuel** (`LiquidAmmo` / `Flamethrower Ammo` in the infobox, e.g. **“Molten Wind” v.II Ammo**) is routed to **`ammunition/flamethrower_ammo.json`** (not field utilities).
-- Extra flags (e.g. `--desc-only`) are documented in the header comment of `scripts/sync-wiki-materials.js` (CLI entry point).
+See script header and `scripts/lib/wiki-sync/` for flags and routing.
 
 ## Testing
 
-This project includes unit tests to ensure code quality and reliability.
-
-### Run tests
-
 ```bash
-npm test                # Run all tests
-npm run test:watch      # Run tests in watch mode
-npm run test:coverage   # Run tests with coverage report
-
-# Or using make
-make test              # Run all tests
-make test-watch        # Run tests in watch mode
-make test-coverage     # Run tests with coverage
+npm test
+npm run test:watch
+npm run test:coverage
+npm run test:ci          # lint + i18n parity + coverage (same gates as GitHub Actions)
+npm run i18n:check       # en/fr/ru/zh-cn key parity + ORDER_* presence
 ```
 
-### Test Coverage
+CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then the full Jest suite with coverage thresholds (order, migrate-v2, etc.). New tests under `__tests__/` are picked up automatically — no workflow edit needed.
 
-The test suite includes:
-- **Material Structure Tests**: Validates the organization and integrity of material categories
-- **Translation Tests**: Ensures all categories and subcategories are properly translated in all supported languages
-- **Data Model Tests**: Tests database schema and validation
-- **Utility Tests**: Tests helper functions and utilities
-- **Wiki sync tests** (`__tests__/scripts/wiki-sync/`): infobox parsing, JSON routing, wiki titles, mocked API client (`fetch`), prune/rehome maintenance on a temporary directory — **no network calls** to the wiki in CI
-
-For more information about testing, see [TESTING.md](TESTING.md).
+More: [TESTING.md](TESTING.md) · smoke checklist in [docs/MIGRATION_V2.md](docs/MIGRATION_V2.md).
 
 ## Contribute
 
-We welcome contributions from the community! If you'd like to contribute to the development of the Discord Bot for Foxhole, follow these steps:
+Questions / help: [FoxBot Discord](https://discord.gg/bjkzG9YsX5).
 
-1. Fork this GitHub repository.
-
-2. Create a branch for your contribution: `git checkout -b my-contribution`.
-
-3. Make your changes and test them.
-
-4. Submit a pull request to the main branch of this repository.
-
-5. Our team will review your contribution and merge it if approved.
+1. Fork the repo.  
+2. Branch: `git checkout -b my-contribution`.  
+3. Change, test (`npm test`), open a PR to `main`.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute it in accordance with the terms of this license.
+[MIT License](LICENSE).

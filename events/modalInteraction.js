@@ -1,6 +1,7 @@
 const { Events } = require('discord.js');
 const { Server } = require('../data/models.js');
 const Translate = require('../utils/translations.js');
+const { getPrefix } = require('../shared/customId.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -12,19 +13,14 @@ module.exports = {
 	 */
 
 	async execute(interaction) {
-		// Deconstructed client from interaction object.
+		if (!interaction.isModalSubmit()) return;
+		if (!interaction.guild) return;
+
 		const { client } = interaction;
 		const guildId = interaction.guild.id;
 		const translations = new Translate(client, guildId);
 
-		// Checks if the interaction is a modal interaction (to prevent weird bugs)
-
-		if (!interaction.isModalSubmit()) return;
-
-		const command = client.modalCommands.get(interaction.customId) || client.modalCommands.get(interaction.customId.split('-')[0]);
-
-		// If the interaction is not a command in cache, return error message.
-		// You can modify the error message at ./messages/defaultModalError.js file!
+		const command = client.modalCommands.get(interaction.customId) || client.modalCommands.get(getPrefix(interaction.customId));
 
 		if (!command) {
 			return await require('../messages/defaultModalError').execute(interaction);
@@ -38,8 +34,6 @@ module.exports = {
 				flags: 64,
 			});
 		}
-
-		// A try to execute the interaction.
 
 		try {
 			await command.execute(interaction);

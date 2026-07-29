@@ -11,7 +11,7 @@ describe('Stockpile Model', () => {
 			expect(err.errors.password).toBeDefined();
 			expect(err.errors.region).toBeDefined();
 			expect(err.errors.city).toBeDefined();
-			expect(err.errors.group_id).toBeDefined();
+			expect(err.errors.channel_id).toBeDefined();
 			expect(err.errors.owner_id).toBeDefined();
 			expect(err.errors.lastResetAt).toBeDefined();
 			expect(err.errors.expiresAt).toBeDefined();
@@ -26,7 +26,7 @@ describe('Stockpile Model', () => {
 				password: 'code123',
 				region: 'Region',
 				city: 'City',
-				group_id: 'channel-456',
+				channel_id: 'channel-456',
 				owner_id: 'user-789',
 				lastResetAt: now,
 				expiresAt: new Date(now.getTime() + 86400000),
@@ -47,7 +47,7 @@ describe('Stockpile Model', () => {
 				password: 'pwd',
 				region: 'r',
 				city: 'c',
-				group_id: 'ch1',
+				channel_id: 'ch1',
 				owner_id: 'u1',
 				lastResetAt: now,
 				expiresAt: new Date(now.getTime() + 86400000),
@@ -65,7 +65,7 @@ describe('Stockpile Model', () => {
 				password: 'pwd',
 				region: 'r',
 				city: 'c',
-				group_id: 'ch1',
+				channel_id: 'ch1',
 				owner_id: 'u1',
 				lastResetAt: now,
 				expiresAt: new Date(now.getTime() + 86400000),

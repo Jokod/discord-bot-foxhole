@@ -4,7 +4,7 @@ const { editTrackedOrFallback } = require('../../../utils/trackedMessage.js');
 const { normalizeForDb, formatForDisplay } = require('../../../utils/formatLocation.js');
 const { buildStockpileListEmbed, buildStockpileListComponents } = require('../../embeds/stockpileList.js');
 const { sendToSubscribers } = require('../../../utils/notifications.js');
-const { DISCORD_MAX_BUTTONS_PER_MESSAGE, STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
+const { STOCKPILE_MAX_ACTIVE, STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 
 module.exports = {
@@ -47,9 +47,9 @@ module.exports = {
 		}
 
 		try {
-			// Limite de stocks actifs (liée au nombre max de boutons).
+			// Limite de stocks actifs (alignée sur les boutons reset de la liste).
 			const activeCount = await Stockpile.countDocuments({ server_id: guild.id, deleted: false });
-			if (activeCount >= DISCORD_MAX_BUTTONS_PER_MESSAGE) {
+			if (activeCount >= STOCKPILE_MAX_ACTIVE) {
 				return await interaction.reply({
 					content: translations.translate('STOCKPILE_MAX_REACHED'),
 					flags: 64,
@@ -75,7 +75,7 @@ module.exports = {
 				password,
 				region,
 				city,
-				group_id: channelId,
+				channel_id: channelId,
 				owner_id: user.id,
 				lastResetAt: now,
 				expiresAt,
@@ -118,7 +118,7 @@ module.exports = {
 				});
 			}
 			else {
-				const components = await buildStockpileListComponents(Stockpile, guild.id);
+				const components = await buildStockpileListComponents(Stockpile, guild.id, translations);
 				const payload = { content: '', embeds: [listEmbed], components };
 				await editTrackedOrFallback({
 					channel: interaction.channel,

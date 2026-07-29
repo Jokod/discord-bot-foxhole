@@ -4,7 +4,7 @@
  *
  * @param {import('discord.js').TextChannel} channel
  * @param {string} serverId
- * @param {string} messageType - Clé unique (ex. 'stockpile_list', 'material_list')
+ * @param {string} messageType - Clé unique (ex. 'stockpile_list', 'order_board:<id>')
  * @param {Object} options
  * @param {import('mongoose').Model} options.model - Modèle TrackedMessage
  * @param {Function} [options.fallbackMatcher] - (messages: Collection) => Message | null - Pour migrer ou retrouver si le message a été supprimé de la base
@@ -97,7 +97,7 @@ async function editTrackedOrFallback({
 	if (sent?.id) {
 		await saveTrackedMessage(serverId, channel?.id, sent.id, messageType, model);
 	}
-	return { usedFallback: true };
+	return { usedFallback: true, message: sent || null };
 }
 
 module.exports = { findTrackedMessage, saveTrackedMessage, editTrackedOrFallback };

@@ -69,12 +69,14 @@ npm run start   # Production
 │   ├── modals/                 # Modal handlers
 │   ├── select-menus/           # Select menu handlers
 │   └── slash/                  # Slash command handlers
-│       ├── logistics/
 │       ├── misc/
 │       ├── notification/
 │       ├── operation/
 │       ├── server/
+│       ├── stock/
 │       └── stockpile/
+├── services/                   # Domain services (e.g. stock)
+├── shared/                     # Shared helpers (customId, permissions, wizards)
 ├── data/
 │   ├── models.js               # Mongoose models
 │   └── materials/              # Material JSON files by category

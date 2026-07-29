@@ -1,6 +1,6 @@
 const Operation = require('./models/operation.js');
-const Material = require('./models/logistic/material.js');
-const Group = require('./models/logistic/group.js');
+const OrderLine = require('./models/logistic/orderLine.js');
+const OrderBoard = require('./models/logistic/orderBoard.js');
 const Server = require('./models/server/server.js');
 const Stockpile = require('./models/logistic/stockpile.js');
 const TrackedMessage = require('./models/trackedMessage.js');
@@ -9,8 +9,8 @@ const NotificationSubscription = require('./models/notificationSubscription.js')
 
 module.exports = {
 	Operation,
-	Material,
-	Group,
+	OrderLine,
+	OrderBoard,
 	Server,
 	Stockpile,
 	TrackedMessage,

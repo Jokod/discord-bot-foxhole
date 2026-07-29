@@ -53,7 +53,7 @@ module.exports = {
 
 			const parts = name.split(/\s+/);
 			let baseName = parts[0];
-			// Autoriser \"help /material\" ou \"help material\" indistinctement
+			// Autoriser \"help /stock\" ou \"help stock\" indistinctement
 			if (baseName.startsWith('/')) {
 				baseName = baseName.slice(1);
 			}
@@ -94,7 +94,7 @@ module.exports = {
 				// Utilise la version JSON pour avoir une structure stable (options, sous-commandes, etc.)
 				const data = command.data.toJSON();
 
-				// Aide pour une sous-commande spécifique, ex: \"material help\"
+				// Aide pour une sous-commande spécifique, ex: \"stockpile list\"
 				if (subPath.length > 0) {
 					const options = data.options ?? [];
 
@@ -180,7 +180,7 @@ module.exports = {
 						'';
 					let description = localizedDesc;
 
-					// List subcommands and/or parameters if any (e.g. /foxhole, /war, /server, ...)
+					// List subcommands and/or parameters if any (e.g. /war, /server, /stockpile, ...)
 					const options = data.options ?? [];
 					const subcommands = options.filter(
 						(o) =>
@@ -318,13 +318,19 @@ module.exports = {
 			}
 		}
 		else {
-			// Give a list of all the commands
+			// Surface documentée (pas logistics / material / stock inventaire)
+			const HELP_SURFACE = new Set([
+				'setup', 'server', 'order', 'stockpile', 'operation',
+				'notify', 'war', 'newsletter', 'help', 'about',
+			]);
 
-			const allCommands = interaction.client.slashCommands.map((command) => {
-				const json = command.data.toJSON();
-				const locs = json.name_localizations || {};
-				return (locs[currentLang] || json.name);
-			});
+			const allCommands = interaction.client.slashCommands
+				.filter((command) => HELP_SURFACE.has(command.data.name))
+				.map((command) => {
+					const json = command.data.toJSON();
+					const locs = json.name_localizations || {};
+					return (locs[currentLang] || json.name);
+				});
 
 			helpEmbed
 				.setTitle(translations.translate('HELP_TITLE_LIST'))

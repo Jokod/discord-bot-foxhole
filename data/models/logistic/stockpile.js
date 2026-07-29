@@ -13,7 +13,6 @@ const Stockpile = mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	// Utilisé historiquement comme "mot de passe", mais correspond au "code" du stockpile.
 	password: {
 		type: String,
 		required: true,
@@ -26,17 +25,15 @@ const Stockpile = mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	// Groupe logique, lié au salon Discord (canal / thread)
-	group_id: {
+	/** Discord channel / thread id hosting this stockpile list */
+	channel_id: {
 		type: String,
 		required: true,
 	},
-	// Propriétaire du stockpile (créateur)
 	owner_id: {
 		type: String,
 		required: true,
 	},
-	// Gestion du "timer" (2 j + 2 h)
 	lastResetAt: {
 		type: Date,
 		required: true,
@@ -45,7 +42,6 @@ const Stockpile = mongoose.Schema({
 		type: Date,
 		required: true,
 	},
-	// Suppression en deux étapes : marquage puis purge
 	deleted: {
 		type: Boolean,
 		default: false,
@@ -53,14 +49,15 @@ const Stockpile = mongoose.Schema({
 	deletedAt: {
 		type: Date,
 	},
-	// Rappels d'expiration déjà envoyés : '12h', '6h', '1h', '30m'
 	expiry_reminders_sent: {
 		type: [String],
 		default: [],
 	},
 }, {
-	// Ajoute automatiquement createdAt et updatedAt
 	timestamps: true,
 });
+
+Stockpile.index({ server_id: 1, channel_id: 1 });
+Stockpile.index({ server_id: 1, id: 1 }, { unique: true });
 
 module.exports = mongoose.model('Stockpile', Stockpile);

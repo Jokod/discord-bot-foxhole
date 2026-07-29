@@ -17,24 +17,16 @@ module.exports = {
 	CANCEL: 'Cancel',
 	FINISHED: 'Finished',
 	CONFIRM: 'Confirm',
-	VALIDATE: 'Validate',
-	VALIDATED: 'Validated',
-	PENDING: 'Pending',
-	CONFIRMED: 'Confirmed',
-	LOGISTICS: 'Logistics',
-	ASSIGNEE: 'Assignee',
-	REVOKE: 'Revoke',
 	BACK: 'Back',
 	INTERACTION_ERROR: 'No interaction was found for this action.',
 	PREFIX_MESSAGE: 'Hi %author%! My prefix is %prefix%, for help %prefix%help',
 	STATUS: 'Status',
 
-	// COMMANDS
-
-	// GITHUB
-	GITHUB_REPLY: 'Repository link: %url%',
-	GITHUB_MESSAGE: 'You can follow updates and contribute by opening pull requests: help keep faction material up to date, suggest new commands, or report issues.',
-	GITHUB_NOT_CONFIGURED: 'GitHub link is not configured.',
+	// ABOUT / LINKS
+	ABOUT_GITHUB: '**GitHub:** %url%',
+	ABOUT_DISCORD: '**Discord:** %url%',
+	ABOUT_MESSAGE: 'You can follow updates and contribute by opening pull requests: help keep faction material up to date, suggest new commands, or report issues.',
+	ABOUT_NOT_CONFIGURED: 'No support links are configured.',
 
 	// FOXHOLE
 	FOXHOLE_TITLE: 'Foxhole – Players & War',
@@ -83,10 +75,18 @@ module.exports = {
 	SERVER_FIELD_GUILD_ID: 'Server ID',
 	SERVER_FIELD_GUILD_LANG: 'Server Language',
 	SERVER_FIELD_GUILD_CAMP: 'Server Camp',
+	SERVER_FIELD_GUILD_LOGS: 'Order Logs threads',
+	SERVER_LOGS_ENABLED: 'Enabled',
+	SERVER_LOGS_DISABLED: 'Disabled',
 
 	// SERVER SETUP
 	SERVER_SET_LANG_REPLY: 'The server language has been changed to **%lang%**.',
 	SERVER_SET_CAMP_REPLY: 'The server camp has been changed to **%camp%**.',
+	SERVER_SET_LOGS_ON_REPLY: 'Order board Logs threads are now **enabled**. New boards will create a locked Logs thread.',
+	SERVER_SET_LOGS_OFF_REPLY: 'Order board Logs threads are now **disabled**. Existing Logs threads have been deleted.',
+	SERVER_RESET_PREVIEW: 'Reset preview — would remove **%boards%** order board(s), **%stockpiles%** stockpile(s), **%operations%** operation(s). Run again with **confirm:true** to proceed.',
+	SERVER_RESET_CONFIRM_REQUIRED: 'Set **confirm:true** to wipe order boards, stockpiles and operations for a new war. This cannot be undone.',
+	SERVER_RESET_SUCCESS: 'Server reset done — **%boards%** order board(s), **%stockpiles%** stockpile(s), **%operations%** operation(s) removed. Server config and notifications were kept.',
 
 	// OPERATION ---------------------------------------------
 	OPERATION_CREATOR: 'Creator',
@@ -101,9 +101,6 @@ module.exports = {
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'This operation does not exist.',
 	OPERATION_NOT_HAVE_GROUPS: 'This operation has no groups.',
-
-	// OPERATION BUTTONS
-
 
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'Operation %title% has been created.',
@@ -123,62 +120,69 @@ module.exports = {
 	OPERATION_CANCELED_ERROR: 'An error occurred while canceling the operation.',
 	OPERATION_ARE_NO_OWNER_ERROR: 'You are not the owner of this operation.',
 
-	// GROUP ---------------------------------------------
-	GROUP_NOT_EXIST: 'This group does not exist.',
-	THREAD_NOT_EXIST: 'This thread does not exist.',
-	THREAD_CLOSED_OR_ARCHIVED: 'This thread is closed or archived.',
-	GROUPS_OF_OPERATION: 'Operation Groups %title%',
-
-	GROUP_TITLE: 'Logistics #%size% for operation %title%',
-
-	// GROUP SUCCESS
-	GROUP_CREATE_SUCCESS: 'Logistics thread created!',
-
-	// GROUP ERRORS
-	GROUP_CREATE_ERROR: 'An error occurred while implementing the logistics!',
-	THREAD_CLOSE_ERROR: 'An error occurred while closing the thread!',
-	THREAD_ARE_NO_OWNER_ERROR: 'You are not the owner of this thread!',
-	GROUP_NO_MATERIALS: 'There are no materials in this group.',
-
-	// LOGISTIC ---------------------------------------------
-
-	LOGISTIC_LIST_COMMANDS: 'List of logistic commands',
-
 	// MATERIAL ---------------------------------------------
 
 	MATERIAL: 'Material',
-	MATERIAL_NOT_EXIST: 'This material does not exist.',
-	MATERIAL_DETAIL: 'Material Details',
-	MATERIAL_ADD: 'Add Material',
-	MATERIAL_REMOVE: 'Remove Material',
-	MATERIAL_SELECT_QUANTITY: 'Select Quantity',
-	MATERIAL_CONFIRMATION: 'Confirm Material',
-	MATERIAL_REVOKE: 'Revoke Material',
-	MATERIAL_ENTER_ID: 'Message ID or message link',
-
-	MATERIAL_NOMBER: 'Number of Materials',
-	MATERIAL_VALIDATE: 'Validated Materials',
-	MATERIAL_INVALIDATE: 'Invalidated Materials',
-	MATERIAL_QUANTITY_ASK: 'Requested Quantity',
-	MATERIAL_QUANTITY_GIVEN: 'Submitted Quantity',
-	MATERIAL_CREATOR: 'Creator',
-	MATERIAL_PERSON_IN_CHARGE: 'Responsible',
-	MATERIAL_LIST_OF_GROUP: 'List of Group Materials',
-	MATERIAL_LOCALIZATION: 'Storage Location',
 	MATERIAL_PRIORITY: 'Priority',
 	MATERIAL_PRIORITY_LOW: 'Low',
 	MATERIAL_PRIORITY_NEUTRAL: 'Neutral',
 	MATERIAL_PRIORITY_HIGH: 'High',
-	MATERIAL_HAVE_NO_NAME_OR_QUANTITY: 'Material must have a name and quantity.',
+	MATERIAL_URGENCY_URGENT: 'URGENT',
+	MATERIAL_URGENCY_LOW: 'LOW',
+	MATERIAL_URGENCY_OK: 'OK',
+
+	// ORDER BOARDS (prod / transfer / scrap) -----------------
+	ORDER_KIND_PROD: 'Production order',
+	ORDER_KIND_TRANSFER: 'Front transfer',
+	ORDER_KIND_SCRAP: 'Scrap / farm',
+	ORDER_EMPTY: 'No lines yet.\nUse **Add** to pick an item and set a target.',
+	ORDER_LINKED_OPERATION: 'Operation: **%title%**',
+	ORDER_STATUS_CLOSED: 'This order board is closed. An owner or moderator can reopen it with **Reopen**.',
+	ORDER_STATUS_ALREADY_OPEN: 'This order board is already open.',
+	ORDER_SUMMARY: '**%done%/%total%** done · **%current%/%target%** crates · **%remaining%** left',
+	ORDER_LINE_LEFT: '%n% left',
+	ORDER_STOCK: 'Stock: %current%/%target%',
+	ORDER_FOOTER: '%lines% line(s) · %status%',
+	ORDER_STATUS_LABEL_OPEN: 'Open',
+	ORDER_STATUS_LABEL_CLOSED: 'Closed',
+	ORDER_SELECT_PLACEHOLDER: 'Select a line',
+	ORDER_SELECT_PLACEHOLDER_RANGE: 'Select a line (%from%–%to%)',
+	ORDER_NO_SELECTION: 'Select a line first.',
+	ORDER_ADD: 'Add',
+	ORDER_CORRECT: 'Correct',
+	ORDER_CLOSE: 'Close',
+	ORDER_REOPEN: 'Reopen',
+	ORDER_DELETE_LINE: 'Delete',
+	ORDER_MAX: 'Max',
+	ORDER_CORRECT_TITLE: 'Correct line',
+	ORDER_ADD_TARGET_TITLE: 'Target quantity',
+	ORDER_FULL: 'This order board is full (**%max%/%max%** lines — limit: 2×25 selects). Use **Delete** before adding.',
+	ORDER_FULL_BANNER: '⚠️ **FULL — %count%/%max% lines** (limit: 2×25 selects). Cannot add more.',
+	ORDER_CURRENT: 'Current',
+	ORDER_TARGET: 'Target',
+	ORDER_NOT_EXIST: 'No order board named **%name%** in this channel. Use `/order create`.',
+	ORDER_BOARD_NOT_EXIST: 'This order board no longer exists.',
+	ORDER_ALREADY_EXISTS: 'An order board named **%name%** already exists in this channel.',
+	ORDER_INVALID_NAME: 'Invalid order board name.',
+	ORDER_INVALID_TARGET: 'Enter a valid quantity (current ≥ 0, target ≥ 1).',
+	ORDER_EMBED_TRUNCATED: '…and more (showing part of %count% lines — use the selects).',
+	ORDER_CANNOT_MANAGE_ERROR: 'You cannot manage this order (line/board owner or server/channel manager only).',
+	ORDER_OPERATION_FINISHED: 'That operation is finished — pick an active one (autocomplete).',
+	ORDER_LINE_NOT_EXIST: 'This line no longer exists.',
+	ORDER_LIST_COMMANDS: 'Order commands',
+	ORDER_LOG_THREAD: 'Logs — %name%',
+	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
+	ORDER_LOG_MAX: '%user% **%name%** Max %from%→%to%',
+	ORDER_LOG_PRIORITY: '%user% **%name%** priority → %priority%',
+	ORDER_LOG_ADD: '%user% added **%name%** (target %target%)',
+	ORDER_LOG_CORRECT: '%user% corrected **%name%** → %current%/%target%',
+	ORDER_LOG_CLOSE: '%user% closed the board.',
+	ORDER_LOG_REOPEN: '%user% reopened the board.',
+	ORDER_LOG_DELETE_LINE: '%user% removed **%name%**.',
+
 	MATERIAL_SELECT_TYPE: 'Select a material type to add',
-	MATERIAL_SMALL_ARMS: 'Small Arms',
-	MATERIAL_HEAVY_ARMS: 'Heavy Arms',
-	MATERIAL_UTILITIES: 'Utilities',
-	MATERIAL_SHIPABLES: 'Shipable Items',
-	MATERIAL_VEHICLES: 'Vehicles',
-	MATERIAL_UNIFORMS: 'Uniforms',
-	MATERIAL_RESOURCES: 'Resources',
-	MATERIAL_MEDICAL: 'Medical',
+	MATERIAL_SELECT_CATEGORY: 'Select a category',
+	MATERIAL_SELECT_SUBCATEGORY: 'Select a subcategory',
 
 	// New categories
 	CATEGORY_UTILITIES: 'Utilities',
@@ -227,34 +231,11 @@ module.exports = {
 	// Vehicles subcategories
 	SUBCATEGORY_VEHICLES: 'Vehicles',
 
-	MATERIAL_LIST_SMALL_ARMS: 'List of available small arms',
-	MATERIAL_LIST_HEAVY_ARMS: 'List of available heavy arms',
-	MATERIAL_LIST_UTILITIES: 'List of available utilities',
-	MATERIAL_LIST_SHIPABLES: 'List of available shipable items',
-	MATERIAL_LIST_VEHICLES: 'List of available vehicles',
-	MATERIAL_LIST_UNIFORMS: 'List of available uniforms',
-	MATERIAL_LIST_RESOURCES: 'List of available resources',
 	MATERIAL_SUBCATEGORY_EMPTY: 'No materials available in this category.',
 
 	// MATERIAL SUCCESS
-	MATERIAL_CREATE_SUCCESS: 'Material has been created.',
-	MATERIAL_DELETE_SUCCESS: 'Material has been deleted.',
 
 	// MATERIAL ERRORS
-	MATERIAL_CREATE_ERROR: 'An error occurred while creating the material.',
-	MATERIAL_UPDATE_ERROR: 'An error occurred while updating the material.',
-	MATERIAL_DELETE_ERROR: 'An error occurred while deleting the material.',
-	MATERIAL_SELECT_ERROR: 'An error occurred while selecting the material.',
-	MATERIAL_VALIDATE_ERROR: 'An error occurred while validating the material.',
-	MATERIAL_CONFIRM_ERROR: 'An error occurred while confirming the material.',
-	MATERIAL_ASSIGN_ERROR: 'An error occurred while assigning the material.',
-	MATERIAL_ARE_NO_CREATOR_ERROR: 'You are not the creator of this material.',
-	MATERIAL_CANNOT_MANAGE_ERROR: 'You cannot modify this material (creator or server/channel manager only).',
-	MATERIAL_ARE_NO_OWNER_ERROR: 'You are not the owner of this material.',
-	MATERIAL_QUANTITY_ERROR: 'The quantity must be a positive number.',
-	MATERIAL_SELECT_QUANTITY_ERROR: 'An error occurred while selecting the quantity.',
-	MATERIAL_LOCALIZATION_ERROR: 'The localization format is incorrect.',
-	MATERIAL_BACK_ERROR: 'An error occurred while returning to the previous menu.',
 
 	// STOCKPILE ---------------------------------------------
 
@@ -280,8 +261,11 @@ module.exports = {
 	STOCKPILE_DELETE_SUCCESS: 'Stock #%id% has been deleted.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Stock #%id% has been marked as deleted.',
 	STOCKPILE_RESET_SUCCESS: 'The timer for stock #%id% has been reset to 2 days and 2 hours.',
-	STOCKPILE_CLEANUP_SUCCESS: '%count% marked stock(s) deleted in this channel.',
+	STOCKPILE_CLEANUP_SUCCESS: '%count% marked stock(s) permanently deleted on this server.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'All stockpiles have been deleted.',
+	STOCKPILE_REMOVE_PLACEHOLDER: 'Mark stockpile as deleted…',
+	STOCKPILE_BTN_CLEANUP: 'Cleanup',
+	STOCKPILE_BTN_DELETEALL: 'Delete all',
 
 	// STOCKPILE ERRORS
 	STOCKPILE_LIST_EMPTY: 'There are no stocks.',

@@ -256,52 +256,20 @@ describe('Material Categories Translations', () => {
 		});
 	});
 
-	describe('Material flow translations (errors, status, manage)', () => {
-		const materialFlowKeys = [
-			'MATERIAL_CANNOT_MANAGE_ERROR',
-			'MATERIAL_ARE_NO_OWNER_ERROR',
-			'MATERIAL_NOT_EXIST',
-			'MATERIAL_BACK_ERROR',
-			'MATERIAL_CREATE_ERROR',
-			'MATERIAL_UPDATE_ERROR',
-			'MATERIAL_DELETE_SUCCESS',
-			'MATERIAL_DELETE_ERROR',
-			'MATERIAL_CONFIRM_ERROR',
-			'MATERIAL_VALIDATE_ERROR',
-			'MATERIAL_ASSIGN_ERROR',
-			'MATERIAL_HAVE_NO_NAME_OR_QUANTITY',
-			'MATERIAL_SELECT_QUANTITY_ERROR',
-			'MATERIAL_QUANTITY_ERROR',
-			'MATERIAL_LOCALIZATION_ERROR',
-			'MATERIAL_SELECT_ERROR',
-			'CONFIRMED',
+	describe('Catalog select translations', () => {
+		const catalogKeys = [
+			'MATERIAL_SELECT_TYPE',
+			'MATERIAL_SELECT_CATEGORY',
+			'MATERIAL_SELECT_SUBCATEGORY',
+			'MATERIAL_SUBCATEGORY_EMPTY',
+			'MATERIAL_URGENCY_URGENT',
+			'MATERIAL_URGENCY_OK',
+			'MATERIAL_URGENCY_LOW',
 		];
 
-		it('should have all material flow keys in all languages', () => {
-			for (const key of materialFlowKeys) {
+		it('should have catalog/urgency keys in all languages', () => {
+			for (const key of catalogKeys) {
 				assertKeyInAllLanguages(key, languages);
-			}
-		});
-	});
-
-	describe('Legacy Material Translations', () => {
-		it('should still have legacy material category translations', () => {
-			const legacyKeys = [
-				'MATERIAL_SMALL_ARMS',
-				'MATERIAL_HEAVY_ARMS',
-				'MATERIAL_UTILITIES',
-				'MATERIAL_VEHICLES',
-				'MATERIAL_UNIFORMS',
-				'MATERIAL_RESOURCES',
-				'MATERIAL_MEDICAL',
-			];
-
-			const langCodes = Object.keys(languages);
-			for (const key of legacyKeys) {
-				for (const langCode of langCodes) {
-					const lang = languages[langCode];
-					expect(lang).toHaveProperty(key);
-				}
 			}
 		});
 	});

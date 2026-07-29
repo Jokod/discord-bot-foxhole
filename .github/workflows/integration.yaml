@@ -1,3 +1,5 @@
+name: Continuous integration
+
 on:
   push:
     branches:
@@ -7,37 +9,41 @@ on:
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - '**.*ignore'
-      - '**.env*'
-      - docker-compose.yaml
-      - '**deployment.yaml'
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   integration:
-    name: Continuous integration
-    runs-on: ubuntu-22.04
+    name: Lint, i18n, tests & coverage
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
+        uses: actions/checkout@v7
 
-      - name: Setup npm
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Lint project
+      - name: Lint
         run: npm run lint
 
-      - name: Run tests
-        run: npm test
+      - name: i18n key parity (en/fr/ru/zh-cn + ORDER_*)
+        run: node scripts/check-i18n-parity.js
 
-      - name: Generate coverage report
-        run: npm run test:coverage
+      - name: Unit tests with coverage thresholds
+        run: npm run test:coverage -- --ci --forceExit
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
