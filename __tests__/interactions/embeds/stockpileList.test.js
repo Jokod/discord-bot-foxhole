@@ -68,14 +68,14 @@ describe('stockpileList embed', () => {
 	});
 
 	describe('buildStockpileListComponents', () => {
-		it('retourne [] si aucun stock actif', async () => {
-			const Stockpile = {
-				find: jest.fn().mockReturnValue({
-					sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
-				}),
-			};
+		const createComponentsMock = (findResult) => ({
+			find: jest.fn().mockReturnValue({
+				lean: jest.fn().mockResolvedValue(findResult),
+			}),
+		});
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+		it('retourne [] si aucun stock actif', async () => {
+			const result = await buildStockpileListComponents(createComponentsMock([]), 'guild-1');
 
 			expect(result).toEqual([]);
 		});
@@ -85,18 +85,26 @@ describe('stockpileList embed', () => {
 				{ _id: '507f1f77bcf86cd799439011', id: '1', server_id: 'guild-1', deleted: false },
 				{ _id: '507f1f77bcf86cd799439012', id: '2', server_id: 'guild-1', deleted: false },
 			];
-			const Stockpile = {
-				find: jest.fn().mockReturnValue({
-					sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(stocks) }),
-				}),
-			};
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
 
 			expect(result.length).toBe(1);
 			expect(result[0].components.length).toBe(2);
 			expect(result[0].components[0].data.custom_id).toBe('stockpile_reset-507f1f77bcf86cd799439011');
 			expect(result[0].components[1].data.custom_id).toBe('stockpile_reset-507f1f77bcf86cd799439012');
+		});
+
+		it('trie les boutons par id numérique et non alphabétique', async () => {
+			const stocks = [
+				{ _id: '507f1f77bcf86cd799439010', id: '10', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439001', id: '1', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439002', id: '2', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439011', id: '11', server_id: 'guild-1', deleted: false },
+			];
+
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
+
+			expect(result[0].components.map((b) => b.data.label)).toEqual(['#1', '#2', '#10', '#11']);
 		});
 
 		it('ignore les doublons de _id pour éviter des custom_id dupliqués', async () => {
@@ -105,13 +113,8 @@ describe('stockpileList embed', () => {
 				{ _id: '507f1f77bcf86cd799439011', id: '1', server_id: 'guild-1', deleted: false },
 				{ _id: '507f1f77bcf86cd799439012', id: '2', server_id: 'guild-1', deleted: false },
 			];
-			const Stockpile = {
-				find: jest.fn().mockReturnValue({
-					sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(stocks) }),
-				}),
-			};
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
 
 			expect(result[0].components.length).toBe(2);
 		});
@@ -121,13 +124,8 @@ describe('stockpileList embed', () => {
 				{ _id: '507f1f77bcf86cd799439011', id: '5', name: 'Alpha', server_id: 'guild-1', deleted: false },
 				{ _id: '507f1f77bcf86cd799439012', id: '5', name: 'Bravo', server_id: 'guild-1', deleted: false },
 			];
-			const Stockpile = {
-				find: jest.fn().mockReturnValue({
-					sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(stocks) }),
-				}),
-			};
 
-			const result = await buildStockpileListComponents(Stockpile, 'guild-1');
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
 
 			expect(result[0].components[0].data.label).toBe('#5 Alpha');
 			expect(result[0].components[1].data.label).toBe('#5 Bravo');

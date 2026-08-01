@@ -120,16 +120,18 @@ function buildStockpileButtonLabel(stock, idCounts) {
  * @returns {Promise<import('discord.js').ActionRowBuilder[]>}
  */
 async function buildStockpileListComponents(Stockpile, guildId) {
-	const stocks = await Stockpile.find({ server_id: guildId, deleted: false }).sort({ id: 1 }).lean();
+	const stocks = await Stockpile.find({ server_id: guildId, deleted: false }).lean();
 	if (!stocks || stocks.length === 0) return [];
 
 	const seen = new Set();
-	const uniqueStocks = stocks.filter((stock) => {
-		const ref = String(stock._id);
-		if (seen.has(ref)) return false;
-		seen.add(ref);
-		return true;
-	});
+	const uniqueStocks = stocks
+		.filter((stock) => {
+			const ref = String(stock._id);
+			if (seen.has(ref)) return false;
+			seen.add(ref);
+			return true;
+		})
+		.sort((a, b) => Number(a.id) - Number(b.id));
 
 	const idCounts = countStockIds(uniqueStocks);
 
