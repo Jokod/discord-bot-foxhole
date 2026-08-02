@@ -16,7 +16,7 @@
 	"action.profile": "Profil",
 	"action.logout": "Déconnexion",
 	"lang.label": "Langue",
-	"banner.defaultCreds": "Tu utilises encore le mot de passe initial — change-le dans Profil avant d’accéder aux stats.",
+	"banner.defaultCreds": "Change le mot de passe par défaut dans Profil avant d’accéder aux stats.",
 	"meta.loading": "Chargement…",
 	"meta.changePassword": "Change le mot de passe pour charger les stats",
 	"footer": "Données live MongoDB · auth session",
@@ -185,5 +185,5 @@
 	"guilds.empty": "Aucun serveur pour ces filtres.",
 	"guilds.emptyLeft": "Aucun départ.",
 	"meta.activeSeen": "{active} actifs / {seen} vus",
-	"action.backToStats": "← Retour aux stats"
+	"action.backToStats": "Retour"
 }

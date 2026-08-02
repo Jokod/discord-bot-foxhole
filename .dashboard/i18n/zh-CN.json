@@ -16,7 +16,7 @@
 	"action.profile": "个人资料",
 	"action.logout": "退出",
 	"lang.label": "语言",
-	"banner.defaultCreds": "仍在使用初始密码 — 请先在「个人资料」中修改密码再查看统计。",
+	"banner.defaultCreds": "请先在「个人资料」中修改默认密码再查看统计。",
 	"meta.loading": "加载中…",
 	"meta.changePassword": "请先修改密码以加载统计",
 	"footer": "实时 MongoDB 数据 · 会话认证",
@@ -185,5 +185,5 @@
 	"guilds.empty": "没有符合筛选的服务器。",
 	"guilds.emptyLeft": "暂无离开记录。",
 	"meta.activeSeen": "{active} 活跃 / {seen} 已见",
-	"action.backToStats": "← 返回统计"
+	"action.backToStats": "返回"
 }

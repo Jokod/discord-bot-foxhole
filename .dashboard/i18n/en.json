@@ -16,7 +16,7 @@
 	"action.profile": "Profile",
 	"action.logout": "Sign out",
 	"lang.label": "Language",
-	"banner.defaultCreds": "You’re still using the initial password — change it in Profile before accessing stats.",
+	"banner.defaultCreds": "Change the default password in Profile before accessing stats.",
 	"meta.loading": "Loading…",
 	"meta.changePassword": "Change the password to load stats",
 	"footer": "Live MongoDB data · session auth",
@@ -185,5 +185,5 @@
 	"guilds.empty": "No server for these filters.",
 	"guilds.emptyLeft": "No leaves.",
 	"meta.activeSeen": "{active} active / {seen} seen",
-	"action.backToStats": "← Back to stats"
+	"action.backToStats": "Back"
 }

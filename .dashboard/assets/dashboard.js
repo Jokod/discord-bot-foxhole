@@ -62,6 +62,7 @@ function showLogin() {
 	document.getElementById('app').hidden = true;
 	document.getElementById('loginGate').hidden = false;
 	clearInterval(timer);
+	document.getElementById('refreshTools').hidden = true;
 }
 
 function showApp(user) {
@@ -72,6 +73,7 @@ function showApp(user) {
 	document.getElementById('defaultCredBanner').hidden = !user.isDefault;
 	document.getElementById('profileUser').value = user.username;
 	document.getElementById('profileBackBtn').hidden = !!user.isDefault;
+	document.getElementById('refreshTools').hidden = !!user.isDefault;
 	closeUserMenu();
 	if (user.isDefault) switchView('profile');
 	else switchView('overview');
@@ -767,7 +769,9 @@ async function load(silent = false) {
 
 function scheduleAuto() {
 	clearInterval(timer);
-	if (autoRefresh && currentUser) timer = setInterval(() => load(true), 60000);
+	if (autoRefresh && currentUser && !currentUser.isDefault) {
+		timer = setInterval(() => load(true), 60000);
+	}
 }
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {

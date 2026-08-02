@@ -16,7 +16,7 @@
 	"action.profile": "Профиль",
 	"action.logout": "Выйти",
 	"lang.label": "Язык",
-	"banner.defaultCreds": "Вы всё ещё используете начальный пароль — смените его в Профиле, чтобы открыть статистику.",
+	"banner.defaultCreds": "Смените пароль по умолчанию в Профиле, чтобы открыть статистику.",
 	"meta.loading": "Загрузка…",
 	"meta.changePassword": "Смените пароль, чтобы загрузить статистику",
 	"footer": "Данные MongoDB · сессия",
@@ -185,5 +185,5 @@
 	"guilds.empty": "Нет серверов по фильтрам.",
 	"guilds.emptyLeft": "Нет выходов.",
 	"meta.activeSeen": "{active} активных / {seen} видно",
-	"action.backToStats": "← К статистике"
+	"action.backToStats": "Назад"
 }

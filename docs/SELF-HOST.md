@@ -168,14 +168,14 @@ Message body: `data/announce.md` (or `--message-file=…`). Writes a per-guild s
 Small dashboard (KPIs, charts, guild list, Discord contacts) that reads **your** MongoDB.  
 **By default it binds to localhost only** (`127.0.0.1:3847`) — it is **not** published on the public web. Remote access is optional via a reverse proxy (see below).
 
-Protected by **login**. On **first seed** (empty `dashboard_auth`), the password is either `DASHBOARD_BOOTSTRAP_SECRET` (min. 10 chars) or a **random one-time password printed once in the logs** — never a known `admin`/`admin`. Changing that env later does **not** rewrite an existing hash. Change the password in **Profile** before data APIs unlock. Credentials are stored hashed in MongoDB (`dashboard_auth`).
+Protected by **login**. First seed creates `admin` / `admin` (`isDefault`). Data APIs stay locked until **you** change the password in **Profile** — the server never rotates credentials and never logs passwords. Stored hashed in MongoDB (`dashboard_auth`).
 
 | | |
 |--|--|
 | Code | [`.dashboard/`](../.dashboard/) (`assets/` for CSS/JS) |
 | URL | `http://127.0.0.1:3847` |
 | Env | Same file as the bot (`TOKEN`, `MONGODB_*`) + optional `DASHBOARD_*` |
-| Login | user `admin` + bootstrap / logged password until changed in Profile |
+| Login | `admin` / `admin` until changed in Profile |
 
 ### Start
 
@@ -206,7 +206,7 @@ Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`, `DASHBOARD
 The dashboard stays on **localhost** by default. Auth allows an optional reverse proxy to `127.0.0.1:3847` (do **not** publish the Docker port on `0.0.0.0`).
 
 1. Start the dashboard (`docker compose --profile dashboard up -d` or `make dashboard-start`).
-2. **From localhost**, sign in (password from logs or `DASHBOARD_BOOTSTRAP_SECRET`) and **change the password in Profile** (unlocks data APIs) **before** opening any public proxy.
+2. **From localhost**, sign in with `admin` / `admin` and **change the password in Profile** (unlocks data APIs) **before** opening any public proxy.
 3. In `.env`:
    - `DASHBOARD_PUBLIC_ORIGIN=https://stats.your-domain` (required so CSRF Origin matches the public host; also enables `Secure` cookies when the URL is `https://…`)
    - `DASHBOARD_TRUST_PROXY=1` if the proxy sets `X-Forwarded-For` (login rate-limit uses the real client IP; `X-Forwarded-Host` is never trusted)
@@ -226,7 +226,7 @@ The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the b
 
 ### Security
 
-- Login required (session cookie HttpOnly, SameSite=Strict). Initial password from `DASHBOARD_BOOTSTRAP_SECRET` or a random one-time value in the logs — **must change in Profile** (min. 10 chars) before data APIs work. Legacy factory `admin`/`admin` rows (`isDefault`) are rotated on startup to a new bootstrap/random password.
+- Login required (session cookie HttpOnly, SameSite=Strict). Default `admin` / `admin` — **you** must change it in Profile (min. 10 chars) before data APIs work. No automatic password rotation; passwords are never written to logs.
 - Credentials stored in MongoDB collection `dashboard_auth` as **scrypt hash + salt** (never plaintext). Sessions are in-memory (container/process restart = re-login).
 - Login rate-limited; CSRF requires `Origin` on POSTs (loopback exempt); sessions cleared on password change; CSP + security headers.
 - Default bind **127.0.0.1** (`DASHBOARD_HOST`). Docker publishes `127.0.0.1:3847` on the host only and isolates the dashboard Compose network from the bot — use a reverse proxy for remote access.
@@ -273,7 +273,7 @@ Docker image on tag: [`.github/workflows/docker.yaml`](../.github/workflows/dock
 | Missing Logs threads | `logs:true` + thread permissions |
 | Empty `/about` | Set `GITHUB_URL` / `DISCORD_INVITE_URL` |
 | Dashboard won’t start | Check `DASHBOARD_ENV_FILE` (often `.env`), `MONGODB_*` / `TOKEN`; logs: `make dashboard-logs` |
-| Can’t log in after first start | Password is in the seed log line (or `DASHBOARD_BOOTSTRAP_SECRET`); not `admin`/`admin` |
+| Can’t unlock stats | Still on default password — change it in Profile (min. 10 chars) |
 | Contacts without usernames | Invalid or expired `TOKEN` in the dashboard env file |
 
 Community support (not your clan prod): [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5).

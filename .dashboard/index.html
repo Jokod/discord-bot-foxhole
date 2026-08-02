@@ -42,13 +42,13 @@
 				<p class="meta" id="meta" data-i18n="meta.loading">Loading…</p>
 			</div>
 			<div class="topbar-tools">
-				<div class="tool-group" role="group" aria-label="Refresh">
+				<div class="tool-group" id="refreshTools" role="group" aria-label="Refresh" hidden>
 					<button type="button" id="autoBtn" class="active" data-i18n="action.auto" data-i18n-title="action.autoTitle" title="Auto-refresh every 60s">Auto</button>
 					<button type="button" id="refresh" data-i18n="action.refresh">Refresh</button>
 				</div>
 				<div class="user-menu" id="userMenu">
 					<button type="button" class="user-menu-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
-						<span class="pill" id="userPill">admin</span>
+						<span id="userPill">admin</span>
 						<span class="user-caret" aria-hidden="true">▾</span>
 					</button>
 					<div class="user-menu-panel" id="userMenuPanel" hidden>
@@ -68,7 +68,7 @@
 		</header>
 
 		<p class="banner warn" id="defaultCredBanner" hidden data-i18n="banner.defaultCreds">
-			You’re still using the initial password — change it in Profile before accessing stats.
+			Change the default password in Profile before accessing stats.
 		</p>
 
 		<div id="statsChrome">
@@ -328,7 +328,7 @@
 
 		<section class="view" id="view-profile" hidden>
 			<p class="profile-back">
-				<button type="button" id="profileBackBtn" data-i18n="action.backToStats">← Back to stats</button>
+				<button type="button" id="profileBackBtn" data-i18n="action.backToStats">Back</button>
 			</p>
 			<article class="panel" style="max-width:480px">
 				<h2 data-i18n="profile.title">Admin profile</h2>

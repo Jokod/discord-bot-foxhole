@@ -105,70 +105,31 @@ function authCollection() {
 	return require('mongoose').connection.db.collection('dashboard_auth');
 }
 
-function resolveBootstrapPassword() {
-	const fromEnv = (process.env.DASHBOARD_BOOTSTRAP_SECRET || '').trim();
-	if (fromEnv) {
-		validatePasswordStrength(fromEnv, DEFAULT_USERNAME);
-		return { password: fromEnv, source: 'env' };
-	}
-	return {
-		password: crypto.randomBytes(18).toString('base64url'),
-		source: 'generated',
-	};
-}
+/**
+ * Seed credentials once. Default login is admin / admin until the operator
+ * changes it in Profile (isDefault blocks data APIs until then).
+ * Never rotates an existing password and never logs secrets.
+ */
+async function ensureDefaultAdmin() {
+	const col = authCollection();
+	const existing = await col.findOne({ _id: 'credentials' });
+	if (existing) return existing;
 
-function logBootstrapSeed(source, password) {
-	if (source === 'env') {
-		console.log(
-			'[dashboard] Auth seeded — using DASHBOARD_BOOTSTRAP_SECRET '
-			+ `(user ${DEFAULT_USERNAME}; change password in Profil before data APIs)`,
-		);
-		return;
-	}
-	console.log(
-		`[dashboard] Auth seeded — one-time login ${DEFAULT_USERNAME} / ${password} `
-		+ '(change in Profil before data APIs; not shown again)',
-	);
-}
-
-async function writeCredentialsDoc(col, existing, password, source) {
-	const { salt, hash } = hashPassword(password);
+	const { salt, hash } = hashPassword('admin');
 	const doc = {
-		username: (existing && existing.username) || DEFAULT_USERNAME,
+		_id: 'credentials',
+		username: DEFAULT_USERNAME,
 		salt,
 		hash,
 		isDefault: true,
 		updatedAt: new Date(),
 	};
-	if (existing) {
-		await col.updateOne({ _id: 'credentials' }, { $set: doc });
-		destroyAllSessions();
-	}
-	else {
-		await col.insertOne({ _id: 'credentials', ...doc });
-	}
-	logBootstrapSeed(source, password);
-	return { _id: 'credentials', ...doc };
-}
-
-/**
- * Seed credentials on first run. Never uses a known default password (admin/admin).
- * If an older install still has the factory admin/admin hash (isDefault), rotate it.
- */
-async function ensureDefaultAdmin() {
-	const col = authCollection();
-	const existing = await col.findOne({ _id: 'credentials' });
-
-	if (existing && !existing.isDefault) return existing;
-
-	if (existing && existing.isDefault) {
-		const stillFactory = verifyPassword('admin', existing.salt, existing.hash);
-		if (!stillFactory) return existing;
-		console.warn('[dashboard] Rotating insecure factory credentials (admin/admin)');
-	}
-
-	const { password, source } = resolveBootstrapPassword();
-	return writeCredentialsDoc(col, existing, password, source);
+	await col.insertOne(doc);
+	console.log(
+		`[dashboard] Auth seeded — default user ${DEFAULT_USERNAME} `
+		+ '(change password in Profile before data APIs)',
+	);
+	return doc;
 }
 
 async function getCredentials() {
