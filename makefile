@@ -102,6 +102,21 @@ docker-dashboard: ## Start bot + local dashboard (127.0.0.1:3847)
 docker-shell: ## Shell into the running bot container
 	$(DOCKER_COMPOSE) exec discord-bot sh
 
+## —— MongoDB 🍃 ——————————————————————————————————————————————————————————————
+# mongodump local, sinon docker run mongo:7. URI depuis MONGO_ENV_FILE (défaut .env.prod).
+
+MONGO_ENV_FILE ?= .env.prod
+MONGO_DUMP_DIR ?= var/mongo-dump
+
+mongo-dump: ## Dump MONGODB_NAME → var/mongo-dump/<timestamp>/ (MONGO_ENV_FILE=.env.prod)
+	@test -f "$(MONGO_ENV_FILE)" || { echo "Fichier env manquant: $(MONGO_ENV_FILE) (override: MONGO_ENV_FILE=.env)"; exit 1; }
+	@MONGO_ENV_FILE="$(MONGO_ENV_FILE)" MONGO_DUMP_DIR="$(MONGO_DUMP_DIR)" node scripts/mongo-backup.js dump
+
+mongo-restore: ## Restore last dump (or MONGO_RESTORE_DIR=…) into MONGODB_NAME
+	@test -f "$(MONGO_ENV_FILE)" || { echo "Fichier env manquant: $(MONGO_ENV_FILE)"; exit 1; }
+	@MONGO_ENV_FILE="$(MONGO_ENV_FILE)" MONGO_DUMP_DIR="$(MONGO_DUMP_DIR)" MONGO_RESTORE_DIR="$(MONGO_RESTORE_DIR)" \
+		node scripts/mongo-backup.js restore
+
 ## —— Dashboard 📊 —————————————————————————————————————————————————————————————
 
 DASHBOARD_PORT     ?= 3847

@@ -143,6 +143,8 @@ Example **→ 1.0.0**: `node scripts/migrate-v2.js --dry-run` then `node scripts
 | Order Logs threads | `/setup logs` or `/server logs` |
 | Owner | `!reload <command>` |
 | Stats dashboard (local) | See [Dashboard](#dashboard-stats-localhost) |
+| Dump MongoDB | `make mongo-dump` (`MONGO_ENV_FILE=.env.prod`; uses local `mongodump` or Docker `mongo:7`) |
+| Restore dump | `make mongo-restore` (latest under `var/mongo-dump/`, or `MONGO_RESTORE_DIR=…`) |
 
 ### GitHub releases → Discord (optional)
 
