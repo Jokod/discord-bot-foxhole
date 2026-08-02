@@ -29,15 +29,15 @@ Public instance / support: [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5
 
 ### Docker (recommended for self-host)
 
-Each git tag push builds and publishes to GHCR: `ghcr.io/jokod/foxbot:<version>` (also `:latest`, `:<major>.<minor>`, `:<major>` on stable releases). Package must be **public**, or run `docker login ghcr.io` before pull.
+Each git tag push builds and publishes **one app image** to GHCR: `ghcr.io/jokod/foxbot:<version>` (also `:latest`, `:<major>.<minor>`, `:<major>` on stable releases). Package must be **public**, or run `docker login ghcr.io` before pull.
 
-Compose: [`compose.yaml`](../compose.yaml).
+That image is **FoxBot only** (bot + dashboard code). It does **not** include MongoDB. The “full package” is **`compose.yaml`**: Compose pulls `foxbot` from GHCR and, if you ask for it, the official `mongo:7` image.
 
 ```bash
 git clone https://github.com/Jokod/discord-bot-foxhole.git
 cd discord-bot-foxhole
 cp .env.dist .env
-# edit .env — at least TOKEN, CLIENT_ID, OWNER, MONGODB_URL, MONGODB_NAME
+# edit .env — TOKEN, CLIENT_ID, OWNER, MONGODB_*
 docker compose up -d
 ```
 
@@ -45,8 +45,28 @@ Pin a release: `FOXBOT_IMAGE_TAG=1.0.0` in `.env`.
 Upgrade: bump the tag → `docker compose pull && docker compose up -d`.  
 Local build: `docker compose up -d --build`.
 
-Optional Mongo (dev): set `MONGO_ROOT_*`, `MONGODB_URL=mongodb://USER:PASS@mongo:27017/?authSource=admin`, then `docker compose --profile with-mongo up -d`.  
-Dashboard (**localhost only** by default — not on the public web): `docker compose --profile dashboard up -d` → http://127.0.0.1:3847
+#### MongoDB options
+
+| Option | What to do |
+|--------|------------|
+| **Atlas / external Mongo** (recommended in prod) | Set `MONGODB_URL` / `MONGODB_NAME` in `.env`. `docker compose up -d` starts the bot only. |
+| **Local Mongo via Compose** | Set `MONGO_ROOT_USERNAME` / `MONGO_ROOT_PASSWORD`, point `MONGODB_URL` at the `mongo` service, enable the profile (below). |
+
+Local Mongo example in `.env`:
+
+```bash
+MONGO_ROOT_USERNAME=foxbot
+MONGO_ROOT_PASSWORD=change-me
+MONGODB_URL=mongodb://foxbot:change-me@mongo:27017/?authSource=admin
+MONGODB_NAME=foxhole-bot
+COMPOSE_PROFILES=with-mongo
+```
+
+Then: `docker compose up -d` (or `docker compose --profile with-mongo up -d`). Compose pulls **both** `ghcr.io/jokod/foxbot` and `mongo:7`.
+
+Dashboard (**localhost only** by default): add `dashboard` to `COMPOSE_PROFILES` (e.g. `with-mongo,dashboard`) or `docker compose --profile dashboard up -d` → http://127.0.0.1:3847
+
+If you only pull the `foxbot` image without `compose.yaml`, you get the bot container alone — use the Compose project (`compose.yaml` + `.env`) for Mongo / dashboard services.
 
 ### From source (Node)
 
@@ -201,7 +221,7 @@ docker compose --profile dashboard up -d
 
 Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`, `DASHBOARD_HOST=127.0.0.1` (Compose sets `0.0.0.0` in the container and publishes `127.0.0.1:3847` on a **separate** Compose network from the bot). UI languages: **en / fr / ru / zh-CN** (same as the bot) — selector in the user menu.
 
-### Reverse proxy (Synology Web Station, nginx, …)
+### Reverse proxy (nginx, Caddy, Traefik, …)
 
 The dashboard stays on **localhost** by default. Auth allows an optional reverse proxy to `127.0.0.1:3847` (do **not** publish the Docker port on `0.0.0.0`).
 
@@ -211,7 +231,7 @@ The dashboard stays on **localhost** by default. Auth allows an optional reverse
    - `DASHBOARD_PUBLIC_ORIGIN=https://stats.your-domain` (required so CSRF Origin matches the public host; also enables `Secure` cookies when the URL is `https://…`)
    - `DASHBOARD_TRUST_PROXY=1` if the proxy sets `X-Forwarded-For` (login rate-limit uses the real client IP; `X-Forwarded-Host` is never trusted)
    - Optional: `DASHBOARD_COOKIE_SECURE=1` (redundant when `PUBLIC_ORIGIN` is `https://…`; use `=0` to force off)
-4. In Web Station / Reverse Proxy: source `https://stats.your-domain` → destination `http://127.0.0.1:3847`.
+4. Proxy `https://stats.your-domain` → `http://127.0.0.1:3847`.
 5. Restart the dashboard so env changes apply, then open the public URL.
 
 ### Contents

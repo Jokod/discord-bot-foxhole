@@ -1,10 +1,14 @@
-# ghcr.io/jokod/foxbot — published on each git tag push
+# ghcr.io/jokod/foxbot — published on each git tag push (bot + dashboard code only; not MongoDB)
 #
 #   cp .env.dist .env   # TOKEN, CLIENT_ID, OWNER, MONGODB_*
 #   docker compose up -d
 #
+# Full local stack (pulls foxbot + mongo:7):
+#   COMPOSE_PROFILES=with-mongo   (+ dashboard if wanted)
+#   MONGODB_URL=mongodb://USER:PASS@mongo:27017/?authSource=admin
+#
 # Pin: FOXBOT_IMAGE_TAG=1.0.0  ·  Local build: docker compose up -d --build
-# Profiles: --profile with-mongo  ·  --profile dashboard → http://127.0.0.1:3847
+# Profiles: with-mongo  ·  dashboard → http://127.0.0.1:3847
 
 name: foxbot
 
