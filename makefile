@@ -62,6 +62,46 @@ js-start: ## Build assets for production
 deploy-prod: ## Deploy on production
 	$(SSH_COMMAND) "cd $(REMOTE_PATH) && git fetch && git pull origin main && git reset --hard HEAD && /usr/local/bin/docker container restart foxbot"
 
+## —— Docker 🐳 ————————————————————————————————————————————————————————————————
+# Requires .env (cp .env.dist .env). Optional: FOXBOT_IMAGE_TAG=1.0.0
+# Profiles: with-mongo (dev), dashboard → http://127.0.0.1:3847
+
+DOCKER_COMPOSE ?= docker compose
+DOCKER_PROFILES ?=
+
+docker-up: ## Start bot (override: DOCKER_PROFILES="--profile with-mongo --profile dashboard")
+	$(DOCKER_COMPOSE) $(DOCKER_PROFILES) up -d
+
+docker-down: ## Stop all compose services (incl. mongo / dashboard profiles)
+	$(DOCKER_COMPOSE) --profile with-mongo --profile dashboard down
+
+docker-restart: ## Restart bot container
+	$(DOCKER_COMPOSE) restart discord-bot
+
+docker-pull: ## Pull image from GHCR
+	$(DOCKER_COMPOSE) pull
+
+docker-build: ## Build image locally and start
+	$(DOCKER_COMPOSE) $(DOCKER_PROFILES) up -d --build
+
+docker-logs: ## Tail bot logs
+	$(DOCKER_COMPOSE) logs -f discord-bot
+
+docker-ps: ## Show compose services status
+	$(DOCKER_COMPOSE) --profile with-mongo --profile dashboard ps -a
+
+docker-config: ## Validate compose + show resolved config
+	$(DOCKER_COMPOSE) $(DOCKER_PROFILES) config
+
+docker-mongo: ## Start bot + local Mongo (dev)
+	$(DOCKER_COMPOSE) --profile with-mongo up -d
+
+docker-dashboard: ## Start bot + local dashboard (127.0.0.1:3847)
+	$(DOCKER_COMPOSE) --profile dashboard up -d
+
+docker-shell: ## Shell into the running bot container
+	$(DOCKER_COMPOSE) exec discord-bot sh
+
 ## —— Dashboard 📊 —————————————————————————————————————————————————————————————
 
 DASHBOARD_PORT     ?= 3847

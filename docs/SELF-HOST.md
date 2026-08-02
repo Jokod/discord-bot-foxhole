@@ -18,13 +18,37 @@ Public instance / support: [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5
 
 ## Prerequisites
 
-- **Node.js ≥ 20** (LTS) — see `.nvmrc`
+- **Node.js ≥ 20** (LTS) — see `.nvmrc` *(not required if you use Docker)*
 - **MongoDB** (local or Atlas)
 - A Discord bot application ([Developer Portal](https://discord.com/developers/applications)) with a token
+- Optional: **Docker** + Compose for the published image
 
 ---
 
 ## Installation
+
+### Docker (recommended for self-host)
+
+Each git tag push builds and publishes to GHCR: `ghcr.io/jokod/foxbot:<version>` (also `:latest`, `:<major>.<minor>`, `:<major>` on stable releases). Package must be **public**, or run `docker login ghcr.io` before pull.
+
+Compose: [`compose.yaml`](../compose.yaml).
+
+```bash
+git clone https://github.com/Jokod/discord-bot-foxhole.git
+cd discord-bot-foxhole
+cp .env.dist .env
+# edit .env — at least TOKEN, CLIENT_ID, OWNER, MONGODB_URL, MONGODB_NAME
+docker compose up -d
+```
+
+Pin a release: `FOXBOT_IMAGE_TAG=1.0.0` in `.env`.  
+Upgrade: bump the tag → `docker compose pull && docker compose up -d`.  
+Local build: `docker compose up -d --build`.
+
+Optional Mongo (dev): set `MONGO_ROOT_*`, `MONGODB_URL=mongodb://USER:PASS@mongo:27017/?authSource=admin`, then `docker compose --profile with-mongo up -d`.  
+Dashboard (localhost only): `docker compose --profile dashboard up -d` → http://127.0.0.1:3847
+
+### From source (Node)
 
 ```bash
 git clone https://github.com/Jokod/discord-bot-foxhole.git
@@ -110,8 +134,11 @@ Example **→ 1.0.0**: `node scripts/migrate-v2.js --dry-run` then `node scripts
 
 | Action | Command / note |
 |--------|----------------|
-| Start | `npm run start` |
-| Restart | Restart the process → resync open boards + stockpile lists + slash |
+| Start (Node) | `npm run start` |
+| Start (Docker) | `make docker-up` (or `docker compose up -d`) |
+| Dashboard (Docker) | `make docker-dashboard` → http://127.0.0.1:3847 |
+| Restart | Restart the process / container → resync open boards + stockpile lists + slash |
+| Logs (Docker) | `make docker-logs` |
 | New war (wipe game data) | `/server reset confirm:true` (Manage Server) — preview with `confirm:false` |
 | Order Logs threads | `/setup logs` or `/server logs` |
 | Owner | `!reload <command>` |
@@ -147,11 +174,14 @@ Small **local** dashboard (KPIs, charts, guild list, Discord contacts) that read
 ### Start
 
 ```bash
-# with your .env (Makefile default = .env.prod)
+# Node / Makefile (default env file = .env.prod)
 make dashboard-start DASHBOARD_ENV_FILE=.env
 
 # or
 DASHBOARD_ENV_FILE=.env npm run dashboard
+
+# Docker (localhost only)
+docker compose --profile dashboard up -d
 ```
 
 | Make target | Effect |
@@ -163,7 +193,7 @@ DASHBOARD_ENV_FILE=.env npm run dashboard
 | `make dashboard-open` | Open browser |
 | `make dashboard-logs` | Tail logs |
 
-Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`.
+Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`, `DASHBOARD_HOST=127.0.0.1` (Compose sets `0.0.0.0` in the container and publishes `127.0.0.1:3847`).
 
 ### Contents
 
@@ -177,7 +207,8 @@ The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the b
 
 ### Security
 
-- Binds to **127.0.0.1** only — do not reverse-proxy without auth.  
+- Default bind **127.0.0.1** (`DASHBOARD_HOST`) — do not reverse-proxy without auth.  
+- Docker: listens on `0.0.0.0` *inside* the container, port published as `127.0.0.1:3847` on the host only.  
 - Same secrets as the bot: do not commit `.env` / `.env.*` (except `.env.dist`).
 
 ---
@@ -205,7 +236,8 @@ npm run test:ci      # lint + i18n + coverage (same as CI)
 npm run i18n:check
 ```
 
-CI: [`.github/workflows/integration.yaml`](../.github/workflows/integration.yaml).
+CI: [`.github/workflows/integration.yaml`](../.github/workflows/integration.yaml).  
+Docker image on tag: [`.github/workflows/docker.yaml`](../.github/workflows/docker.yaml) → `ghcr.io/jokod/foxbot`.
 
 ---
 

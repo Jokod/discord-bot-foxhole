@@ -1,0 +1,142 @@
+# ghcr.io/jokod/foxbot — published on each git tag push
+#
+#   cp .env.dist .env   # TOKEN, CLIENT_ID, OWNER, MONGODB_*
+#   docker compose up -d
+#
+# Pin: FOXBOT_IMAGE_TAG=1.0.0  ·  Local build: docker compose up -d --build
+# Profiles: --profile with-mongo  ·  --profile dashboard → http://127.0.0.1:3847
+
+name: foxbot
+
+x-bot-image: &bot-image
+  image: ghcr.io/jokod/foxbot:${FOXBOT_IMAGE_TAG:-latest}
+  pull_policy: always
+  build:
+    context: .
+    dockerfile: .docker/Dockerfile
+
+x-security: &security
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  read_only: true
+  tmpfs:
+    - /tmp:size=64m,mode=1777,uid=10001,gid=10001
+
+x-resources: &resources
+  mem_limit: 512m
+  pids_limit: 256
+
+services:
+  discord-bot:
+    <<: [*bot-image, *security, *resources]
+    container_name: foxbot-discord
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 20s
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      NODE_ENV: production
+      APP_ENV: ${APP_ENV:-prod}
+    volumes:
+      - type: volume
+        source: bot-logs
+        target: /app/var/logs
+    networks:
+      - bot
+    depends_on:
+      mongo:
+        condition: service_healthy
+        required: false
+
+  dashboard:
+    profiles:
+      - dashboard
+    <<: [*bot-image, *security, *resources]
+    container_name: foxbot-dashboard
+    init: true
+    restart: unless-stopped
+    command: ["node", ".dashboard/server.js"]
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      NODE_ENV: production
+      DASHBOARD_HOST: 0.0.0.0
+      DASHBOARD_PORT: "3847"
+    ports:
+      - target: 3847
+        published: ${DASHBOARD_PORT:-3847}
+        host_ip: 127.0.0.1
+        protocol: tcp
+    networks:
+      - bot
+    depends_on:
+      mongo:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3847/api/summary').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  # Local/dev Mongo only — prefer Atlas (TLS + auth) in production.
+  # Set MONGO_ROOT_USERNAME / MONGO_ROOT_PASSWORD before enabling this profile.
+  mongo:
+    profiles:
+      - with-mongo
+    image: mongo:7
+    pull_policy: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    mem_limit: 1g
+    pids_limit: 512
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-}
+    volumes:
+      - type: volume
+        source: mongo-data
+        target: /data/db
+    networks:
+      - bot
+    # No host ports — reachable only on the compose network.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "if [ -n \"$$MONGO_INITDB_ROOT_USERNAME\" ]; then mongosh -u \"$$MONGO_INITDB_ROOT_USERNAME\" -p \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --quiet --eval \"db.adminCommand('ping').ok\"; else mongosh --quiet --eval \"db.adminCommand('ping').ok\"; fi",
+        ]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+networks:
+  bot:
+    driver: bridge
+    attachable: false
+
+volumes:
+  bot-logs:
+    name: foxbot-bot-logs
+  mongo-data:
+    name: foxbot-mongo-data

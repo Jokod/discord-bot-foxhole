@@ -7,6 +7,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 
 const PORT = Number(process.env.DASHBOARD_PORT) || 3847;
+const HOST = process.env.DASHBOARD_HOST || '127.0.0.1';
 const INDEX = path.join(__dirname, 'index.html');
 const ASSETS_DIR = path.join(__dirname, 'assets');
 const ROOT = path.join(__dirname, '..');
@@ -614,7 +615,7 @@ async function main() {
 
 	const dbName = process.env.MONGODB_NAME || undefined;
 	await mongoose.connect(url, dbName ? { dbName } : undefined);
-	console.log(`[dashboard] env=${path.basename(ENV_PATH)} db=${dbName || '(from URL)'} → http://127.0.0.1:${PORT}`);
+	console.log(`[dashboard] env=${path.basename(ENV_PATH)} db=${dbName || '(from URL)'} → http://${HOST}:${PORT}`);
 
 	const server = http.createServer(async (req, res) => {
 		try {
@@ -641,8 +642,8 @@ async function main() {
 		}
 	});
 
-	server.listen(PORT, '127.0.0.1', () => {
-		console.log(`[dashboard] http://127.0.0.1:${PORT}`);
+	server.listen(PORT, HOST, () => {
+		console.log(`[dashboard] http://${HOST}:${PORT}`);
 	});
 }
 

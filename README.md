@@ -1,6 +1,7 @@
 # Discord Bot for Foxhole
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Jokod/discord-bot-foxhole/integration.yaml?branch=main&label=CI)](https://github.com/Jokod/discord-bot-foxhole/actions/workflows/integration.yaml)
+[![GHCR](https://img.shields.io/badge/ghcr.io-jokod%2Ffoxbot-blue?logo=docker&label=image)](https://github.com/Jokod/discord-bot-foxhole/pkgs/container/foxbot)
 [![Version](https://img.shields.io/github/package-json/v/Jokod/discord-bot-foxhole?label=version)](CHANGELOG.md)
 [![License](https://img.shields.io/github/license/Jokod/discord-bot-foxhole)](LICENSE)
 [![Node](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FJokod%2Fdiscord-bot-foxhole%2Fmain%2Fpackage.json&query=%24.engines.node&label=node&color=brightgreen)](https://nodejs.org/)
@@ -62,7 +63,7 @@ Command reference: **[docs/USAGE.md](docs/USAGE.md)**.
 
 The bot stores **functional data** (setup, operations, order boards, stockpile codes, notifications, tracked message IDs) and **usage statistics** (including guild and server-owner Discord IDs) in MongoDB. It does not archive general chat; it may read message content only for mention/prefix handling, syncing its own messages, and host interaction logs. Full detail: [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
-Self-host: data stays in **your** database — see [docs/SELF-HOST.md](docs/SELF-HOST.md).
+Self-host: data stays in **your** database — see [docs/SELF-HOST.md](docs/SELF-HOST.md) (Node or **Docker** / `ghcr.io/jokod/foxbot`).
 
 When the bot leaves a guild, is blocked (`BLOCKED_GUILD_IDS`), or is missing at startup: that guild’s `OrderLine`, `OrderBoard`, `Operation`, `NotificationSubscription`, `TrackedMessage`, `Stockpile`, and `Server` rows are deleted; `Stats.left_at` is set for analytics.
 
