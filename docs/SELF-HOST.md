@@ -29,9 +29,15 @@ Public instance / support: [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5
 
 ### Docker (recommended for self-host)
 
+**Full package = [`compose.yaml`](../compose.yaml) + [`.env`](../.env.dist).**  
+Use Compose if you want the bot, optional local MongoDB, and optional dashboard in one project. Pulling only the GHCR image is **not** enough for that stack.
+
 Each git tag push builds and publishes **one app image** to GHCR: `ghcr.io/jokod/foxbot:<version>` (also `:latest`, `:<major>.<minor>`, `:<major>` on stable releases). Package must be **public**, or run `docker login ghcr.io` before pull.
 
-That image is **FoxBot only** (bot + dashboard code). It does **not** include MongoDB. The “full package” is **`compose.yaml`**: Compose pulls `foxbot` from GHCR and, if you ask for it, the official `mongo:7` image.
+| What you get | How |
+|--------------|-----|
+| Image alone (`docker pull ghcr.io/jokod/foxbot`) | FoxBot **code** only (bot + dashboard). **No** MongoDB. You must supply your own `MONGODB_URL`. |
+| **[`compose.yaml`](../compose.yaml)** (recommended) | Orchestrates services: `discord-bot` always; `mongo` with profile `with-mongo`; `dashboard` with profile `dashboard`. Pulls `foxbot` from GHCR and `mongo:7` when needed. |
 
 ```bash
 git clone https://github.com/Jokod/discord-bot-foxhole.git
@@ -64,9 +70,13 @@ COMPOSE_PROFILES=with-mongo
 
 Then: `docker compose up -d` (or `docker compose --profile with-mongo up -d`). Compose pulls **both** `ghcr.io/jokod/foxbot` and `mongo:7`.
 
-Dashboard (**localhost only** by default): add `dashboard` to `COMPOSE_PROFILES` (e.g. `with-mongo,dashboard`) or `docker compose --profile dashboard up -d` → http://127.0.0.1:3847
+**Complete local stack** (bot + Mongo + dashboard on localhost):
 
-If you only pull the `foxbot` image without `compose.yaml`, you get the bot container alone — use the Compose project (`compose.yaml` + `.env`) for Mongo / dashboard services.
+```bash
+COMPOSE_PROFILES=with-mongo,dashboard
+```
+
+Dashboard URL: http://127.0.0.1:3847 (localhost only by default — see [Dashboard](#dashboard-stats-localhost)).
 
 ### From source (Node)
 
