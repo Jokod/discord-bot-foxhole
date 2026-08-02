@@ -10,6 +10,7 @@ let sortDir = 'desc';
 let cmdSortKey = 'total';
 let cmdSortDir = 'desc';
 let selectedGuildId = null;
+let currentUser = null;
 
 const state = {
 	search: '',
@@ -23,21 +24,107 @@ const state = {
 	contactView: 'guilds',
 };
 
+async function api(path, options = {}) {
+	const opts = {
+		credentials: 'same-origin',
+		...options,
+		headers: {
+			...(options.body ? { 'Content-Type': 'application/json' } : {}),
+			...options.headers,
+		},
+	};
+	const res = await fetch(path, opts);
+	const text = await res.text();
+	let data;
+	try {
+		data = text ? JSON.parse(text) : null;
+	}
+	catch {
+		data = { error: text || res.statusText };
+	}
+	if (res.status === 401 && path !== '/api/login') {
+		showLogin();
+		const err = new Error(apiMessage(data, 'error.auth'));
+		err.status = 401;
+		throw err;
+	}
+	if (!res.ok) {
+		const err = new Error(apiMessage(data, 'error.generic'));
+		err.status = res.status;
+		err.code = data?.code;
+		throw err;
+	}
+	return data;
+}
+
+function showLogin() {
+	currentUser = null;
+	document.getElementById('app').hidden = true;
+	document.getElementById('loginGate').hidden = false;
+	clearInterval(timer);
+}
+
+function showApp(user) {
+	currentUser = user;
+	document.getElementById('loginGate').hidden = true;
+	document.getElementById('app').hidden = false;
+	document.getElementById('userPill').textContent = user.username;
+	document.getElementById('defaultCredBanner').hidden = !user.isDefault;
+	document.getElementById('profileUser').value = user.username;
+	document.getElementById('profileBackBtn').hidden = !!user.isDefault;
+	closeUserMenu();
+	if (user.isDefault) switchView('profile');
+	else switchView('overview');
+}
+
+function openUserMenu() {
+	const panel = document.getElementById('userMenuPanel');
+	const btn = document.getElementById('userMenuBtn');
+	panel.hidden = false;
+	btn.setAttribute('aria-expanded', 'true');
+}
+
+function closeUserMenu() {
+	const panel = document.getElementById('userMenuPanel');
+	const btn = document.getElementById('userMenuBtn');
+	if (!panel || !btn) return;
+	panel.hidden = true;
+	btn.setAttribute('aria-expanded', 'false');
+}
+
+async function bootstrapAuth() {
+	try {
+		const me = await api('/api/me');
+		if (!me?.authenticated) {
+			showLogin();
+			return false;
+		}
+		showApp(me);
+		return true;
+	}
+	catch {
+		showLogin();
+		return false;
+	}
+}
+
+const { t, locale, loadLang, detectLang, apiMessage, getLang } = window.DashboardI18n;
+
 const fmt = {
-	n: (v) => new Intl.NumberFormat('fr-FR').format(v ?? 0),
-	pct: (v) => `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(v ?? 0)} %`,
+	n: (v) => new Intl.NumberFormat(locale()).format(v ?? 0),
+	pct: (v) => `${new Intl.NumberFormat(locale(), { maximumFractionDigits: 1 }).format(v ?? 0)} %`,
 	dt: (v) => {
 		if (!v) return '—';
 		const d = new Date(v);
-		return Number.isNaN(d.getTime()) ? '—' : new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(d);
+		return Number.isNaN(d.getTime()) ? '—' : new Intl.DateTimeFormat(locale(), { dateStyle: 'short', timeStyle: 'short' }).format(d);
 	},
 	rel: (v) => {
-		if (!v) return 'jamais';
+		if (!v) return t('never');
 		const m = Math.floor((Date.now() - new Date(v).getTime()) / 60000);
-		if (m < 60) return `${m} min`;
+		if (m < 60) return t('rel.min', { n: m });
 		const h = Math.floor(m / 60);
-		if (h < 48) return `${h} h`;
-		return `${Math.floor(h / 24)} j`;
+		if (h < 48) return t('rel.hours', { n: h });
+		return t('rel.days', { n: Math.floor(h / 24) });
 	},
 };
 
@@ -104,18 +191,18 @@ function series(items, nameKey = 'name', valueKey = 'total') {
 function renderKpis(data) {
 	const k = data.kpis;
 	const items = [
-		['Actifs', k.active_guilds, `${k.total_seen_guilds} vus`],
-		['Setup', k.setup_servers, fmt.pct(k.setup_rate_pct)],
-		['Sans setup', k.pending_setup, ''],
-		['Partis', k.left_guilds, ''],
-		['Commandes', k.total_commands, `moy ${fmt.n(k.avg_commands_per_active)}`],
-		['Engagés 7j', k.engaged_7d, fmt.pct(k.engagement_7d_pct)],
-		['Membres', k.total_members_active, `moy ${fmt.n(k.avg_members)}`],
-		['Boards', k.orderboards, `${fmt.n(k.orderboards_open)} open`],
-		['Lines', k.orderlines, fmt.pct(data.product.orderline_progress.pct)],
-		['Stockpiles', k.stockpiles, `${fmt.n(k.total_stock_boards)} boards`],
-		['Ops docs', k.operations_docs, `${fmt.n(k.total_operations)} stats`],
-		['Notifs', k.notifications, `${fmt.n(k.tracked_messages)} msgs`],
+		[t('kpi.active'), k.active_guilds, t('kpi.seen', { n: k.total_seen_guilds })],
+		[t('chart.setup'), k.setup_servers, fmt.pct(k.setup_rate_pct)],
+		[t('kpi.noSetup'), k.pending_setup, ''],
+		[t('kpi.left'), k.left_guilds, ''],
+		[t('kpi.commands'), k.total_commands, t('kpi.avg', { n: fmt.n(k.avg_commands_per_active) })],
+		[t('kpi.engaged7d'), k.engaged_7d, fmt.pct(k.engagement_7d_pct)],
+		[t('kpi.members'), k.total_members_active, t('kpi.avg', { n: fmt.n(k.avg_members) })],
+		[t('kpi.boardsLabel'), k.orderboards, t('kpi.boardsOpen', { n: fmt.n(k.orderboards_open) })],
+		[t('kpi.lines'), k.orderlines, fmt.pct(data.product.orderline_progress.pct)],
+		[t('kpi.stockpiles'), k.stockpiles, t('kpi.boards', { n: fmt.n(k.total_stock_boards) })],
+		[t('kpi.opsDocs'), k.operations_docs, t('kpi.opsStats', { n: fmt.n(k.total_operations) })],
+		[t('kpi.notifs'), k.notifications, t('kpi.msgs', { n: fmt.n(k.tracked_messages) })],
 	];
 	document.getElementById('kpis').innerHTML = items.map(([label, value, hint]) => `
 		<div class="kpi"><span class="label">${label}</span><span class="value">${fmt.n(value)}</span>
@@ -135,8 +222,8 @@ function renderOverviewCharts(data) {
 		data: {
 			labels: data.activity.joins_by_month.map((m) => m.month),
 			datasets: [
-				{ label: 'Joins', data: data.activity.joins_by_month.map((m) => m.count), borderColor: '#2f6b4f', backgroundColor: 'rgba(47,107,79,.12)', fill: true, tension: 0.3 },
-				{ label: 'Leaves', data: data.activity.leaves_by_month.map((m) => m.count), borderColor: '#b4451a', backgroundColor: 'rgba(180,69,26,.10)', fill: true, tension: 0.3 },
+				{ label: t('chart.joins'), data: data.activity.joins_by_month.map((m) => m.count), borderColor: '#2f6b4f', backgroundColor: 'rgba(47,107,79,.12)', fill: true, tension: 0.3 },
+				{ label: t('chart.leaves'), data: data.activity.leaves_by_month.map((m) => m.count), borderColor: '#b4451a', backgroundColor: 'rgba(180,69,26,.10)', fill: true, tension: 0.3 },
 			],
 		},
 		options: {
@@ -181,7 +268,7 @@ function renderOverviewCharts(data) {
 	makeChart('chartSetup', {
 		type: 'doughnut',
 		data: {
-			labels: ['Setup', 'Sans setup', 'Engagés 7j', 'Inactifs 7j'],
+			labels: [t('chart.setup'), t('chart.noSetup'), t('chart.engaged7d'), t('chart.inactive7d')],
 			datasets: [{
 				data: [
 					data.kpis.setup_servers,
@@ -320,13 +407,16 @@ function renderProductCharts(data) {
 	}, prio.empty);
 
 	const prog = p.orderline_progress || {};
-	document.getElementById('lineProgressHint').textContent =
-		`${fmt.n(prog.current)} / ${fmt.n(prog.target)} (${fmt.pct(prog.pct)}) · ${fmt.n(prog.complete)}/${fmt.n(prog.total)} complètes`;
+	document.getElementById('lineProgressHint').textContent = t('product.lineHint', {
+		done: fmt.n(prog.current || 0),
+		target: fmt.n(prog.target || 0),
+		pct: fmt.n(prog.pct || 0),
+	});
 	const remain = Math.max(0, (prog.target || 0) - (prog.current || 0));
 	makeChart('chartLineProgress', {
 		type: 'doughnut',
 		data: {
-			labels: ['Livré', 'Restant'],
+			labels: [t('product.delivered'), t('product.remaining')],
 			datasets: [{ data: [prog.current || 0, remain], backgroundColor: ['#2f6b4f', '#c9c1b2'] }],
 		},
 		options: doughnutOpts(),
@@ -397,11 +487,11 @@ function filteredGuilds() {
 function renderGuilds() {
 	if (!raw) return;
 	const guilds = filteredGuilds();
-	document.getElementById('guildCount').textContent = `${fmt.n(guilds.length)} / ${fmt.n(raw.guilds.length)} serveurs`;
+	document.getElementById('guildCount').textContent = t('guilds.count', { n: fmt.n(guilds.length), total: fmt.n(raw.guilds.length) });
 	const af = document.getElementById('activeFilter');
 	if (state.command) {
 		af.hidden = false;
-		af.textContent = `filtre /${state.command}`;
+		af.textContent = t('guilds.filterCmd', { cmd: state.command });
 	}
 	else {af.hidden = true;}
 
@@ -425,7 +515,7 @@ function renderGuilds() {
 				<strong>${escapeHtml(g.name)}</strong><br />
 				<span class="mono muted">${g.guild_id}</span>
 			</td>
-			<td><span class="badge ${g.setup ? 'ok' : 'warn'}">${g.setup ? 'oui' : 'non'}</span></td>
+			<td><span class="badge ${g.setup ? 'ok' : 'warn'}">${g.setup ? t('yes') : t('no')}</span></td>
 			<td class="mono">${g.lang ? escapeHtml(g.lang) : '<span class="muted">—</span>'}</td>
 			<td class="mono">${fmt.n(g.command_count)}</td>
 			<td class="mono">${fmt.n(g.member_count)}</td>
@@ -433,7 +523,7 @@ function renderGuilds() {
 			<td class="mono">${fmt.n(g.stock_board_count)}</td>
 			<td class="mono" title="${fmt.dt(g.last_command_at)}"><span class="badge info">${escapeHtml(g.activity)}</span> ${fmt.rel(g.last_command_at)}</td>
 			<td><div class="chips">${(g.top_commands || []).slice(0, 3).map((c) => `<span class="chip ${state.command === c.name ? 'active' : ''}" data-cmd="${escapeHtml(c.name)}">/${escapeHtml(c.name)} ${c.count}</span>`).join('') || '—'}</div></td>
-		</tr>`).join('') : '<tr><td colspan="9" class="muted">Aucun serveur pour ces filtres.</td></tr>';
+		</tr>`).join('') : '<tr><td colspan="9" class="muted">' + t('guilds.empty') + '</td></tr>';
 
 	const lq = state.leftSearch.trim().toLowerCase();
 	let left = (raw.left_guilds || []).filter((g) => !lq || (`${g.name} ${g.guild_id}`).toLowerCase().includes(lq));
@@ -462,8 +552,8 @@ function personCell(user, extra = '') {
 
 function roleBadge(role) {
 	const map = {
-		owner: ['info', 'owner'],
-		creator: ['warn', 'créateur'],
+		owner: ['info', t('contacts.owner')],
+		creator: ['warn', t('contacts.creator')],
 	};
 	const [cls, label] = map[role] || ['info', role];
 	return `<span class="badge ${cls}">${label}</span>`;
@@ -472,17 +562,17 @@ function roleBadge(role) {
 function renderContacts() {
 	const meta = document.getElementById('contactsMeta');
 	if (contactsLoading) {
-		meta.textContent = 'Chargement Discord…';
+		meta.textContent = t('contacts.metaLoading');
 		return;
 	}
 	if (!contactsData) {
-		meta.textContent = 'Ouvre cet onglet pour charger les contacts…';
+		meta.textContent = t('contacts.metaIdle');
 		return;
 	}
 	const k = contactsData.kpis || {};
 	meta.innerHTML = contactsData.discord_token
-		? `${fmt.n(k.active_guilds)} actifs · ${fmt.n(k.left_guilds)} retirés · ${fmt.n(k.with_owner)} owners · ${fmt.n(k.unique_people)} personnes · ${fmt.dt(contactsData.generated_at)}`
-		: '<span class="error">TOKEN Discord absent — IDs seulement</span>';
+		? `${fmt.n(k.active_guilds)} ${t('contacts.active')} · ${fmt.n(k.left_guilds)} ${t('contacts.left')} · ${fmt.n(k.with_owner)} ${t('contacts.owner')} · ${fmt.n(k.unique_people)} · ${fmt.dt(contactsData.generated_at)}`
+		: `<span class="error">${t('contacts.noToken')}</span>`;
 
 	const q = state.contactSearch.trim().toLowerCase();
 	const guildsPanel = document.getElementById('contactsGuildsPanel');
@@ -495,7 +585,7 @@ function renderContacts() {
 		const guilds = (contactsData.guilds || []).filter((g) => {
 			if (!q) return true;
 			const blob = [
-				g.name, g.guild_id, g.active ? 'actif' : 'retiré',
+				g.name, g.guild_id, g.active ? t('contacts.active') : t('contacts.left'),
 				g.owner?.display_name, g.owner?.username, g.owner?.user_id,
 				...(g.creators || []).flatMap((c) => [c.display_name, c.username, c.user_id]),
 			].filter(Boolean).join(' ').toLowerCase();
@@ -510,8 +600,8 @@ function renderContacts() {
 				return personCell(c, bits.length ? `<div class="muted" style="font-size:.72rem">${escapeHtml(bits.join(' · '))}</div>` : '');
 			}).join('') || '<span class="muted">—</span>';
 			const status = g.active
-				? '<span class="badge ok">actif</span>'
-				: `<span class="badge warn">retiré</span><div class="muted" style="font-size:.72rem;margin-top:.15rem">${fmt.dt(g.left_at)}</div>`;
+				? `<span class="badge ok">${t('contacts.active')}</span>`
+				: `<span class="badge warn">${t('contacts.left')}</span><div class="muted" style="font-size:.72rem;margin-top:.15rem">${fmt.dt(g.left_at)}</div>`;
 			return `<tr>
 				<td>
 					<strong>${escapeHtml(g.name)}</strong><br />
@@ -523,7 +613,7 @@ function renderContacts() {
 				<td><div style="display:grid;gap:.45rem">${creators}</div></td>
 				<td class="mono">${fmt.n(g.command_count)}</td>
 			</tr>`;
-		}).join('') : '<tr><td colspan="5" class="muted">Aucun contact pour cette recherche.</td></tr>';
+		}).join('') : `<tr><td colspan="5" class="muted">${t('contacts.emptyGuilds')}</td></tr>`;
 		return;
 	}
 
@@ -542,27 +632,25 @@ function renderContacts() {
 			<td>
 				<div class="chips">${(p.guilds || []).map((g) =>
 		`<span class="chip" title="${escapeHtml(g.role)}${g.active === false ? ' · retiré' : ''}">${escapeHtml(g.name.slice(0, 24))}${g.active === false ? ' ✕' : ''}</span>`).join('')}</div>
-				<div class="muted" style="font-size:.75rem;margin-top:.25rem">${fmt.n(p.guild_count)} serveur(s)</div>
+				<div class="muted" style="font-size:.75rem;margin-top:.25rem">${t('contacts.serversCount', { n: fmt.n(p.guild_count) })}</div>
 			</td>
 			<td>
 				<button type="button" class="copy-id" data-copy="${escapeHtml(p.user_id)}" title="Copier">${escapeHtml(p.user_id)}</button>
 				<div><a class="mono" href="${escapeHtml(p.profile_url)}" target="_blank" rel="noopener">profil</a></div>
 			</td>
-		</tr>`).join('') : '<tr><td colspan="4" class="muted">Aucune personne pour cette recherche.</td></tr>';
+		</tr>`).join('') : `<tr><td colspan="4" class="muted">${t('contacts.emptyPeople')}</td></tr>`;
 }
 
 async function loadContacts(force = false) {
 	contactsLoading = true;
 	renderContacts();
 	try {
-		const res = await fetch(`/api/contacts${force ? '?force=1' : ''}`);
-		const data = await res.json();
-		if (!res.ok) throw new Error(data.error || res.statusText);
-		contactsData = data;
+		contactsData = await api(`/api/contacts${force ? '?force=1' : ''}`);
 	}
 	catch (err) {
+		if (err.status === 401) return;
 		document.getElementById('contactsMeta').innerHTML =
-			`<span class="error">Erreur contacts : ${escapeHtml(err.message)}</span>`;
+			`<span class="error">${escapeHtml(t('error.contacts', { msg: err.message }))}</span>`;
 		contactsLoading = false;
 		return;
 	}
@@ -577,20 +665,20 @@ function openDrawer(g) {
 		<h3>${escapeHtml(g.name)}</h3>
 		<p class="mono muted">${g.guild_id}</p>
 		<div class="stat-list">
-			<div><span>Setup</span><strong>${g.setup ? 'oui' : 'non'}</strong></div>
-			<div><span>Langue</span><strong>${g.lang ? escapeHtml(g.lang) : '—'}</strong></div>
-			<div><span>Camp</span><strong>${g.camp ? escapeHtml(g.camp) : '—'}</strong></div>
-			<div><span>Membres</span><strong>${fmt.n(g.member_count)}</strong></div>
-			<div><span>Commandes</span><strong>${fmt.n(g.command_count)}</strong></div>
-			<div><span>Ops</span><strong>${fmt.n(g.operation_count)}</strong></div>
-			<div><span>Stock boards</span><strong>${fmt.n(g.stock_board_count)}</strong></div>
+			<div><span>${t('drawer.setup')}</span><strong>${g.setup ? t('yes') : t('no')}</strong></div>
+			<div><span>${t('drawer.lang')}</span><strong>${g.lang ? escapeHtml(g.lang) : '—'}</strong></div>
+			<div><span>${t('drawer.camp')}</span><strong>${g.camp ? escapeHtml(g.camp) : '—'}</strong></div>
+			<div><span>${t('drawer.members')}</span><strong>${fmt.n(g.member_count)}</strong></div>
+			<div><span>${t('drawer.commands')}</span><strong>${fmt.n(g.command_count)}</strong></div>
+			<div><span>${t('drawer.ops')}</span><strong>${fmt.n(g.operation_count)}</strong></div>
+			<div><span>${t('drawer.stocks')}</span><strong>${fmt.n(g.stock_board_count)}</strong></div>
 			<div><span>Cmd / membre</span><strong>${fmt.n(g.cmds_per_member)}</strong></div>
-			<div><span>Joined</span><strong>${fmt.dt(g.joined_at)}</strong></div>
+			<div><span>${t('drawer.joined')}</span><strong>${fmt.dt(g.joined_at)}</strong></div>
 			<div><span>First cmd</span><strong>${fmt.dt(g.first_command_at)}</strong></div>
-			<div><span>Last cmd</span><strong>${fmt.dt(g.last_command_at)} (${fmt.rel(g.last_command_at)})</strong></div>
-			<div><span>Récence</span><strong>${escapeHtml(g.activity)}</strong></div>
+			<div><span>${t('drawer.lastCmd')}</span><strong>${fmt.dt(g.last_command_at)} (${fmt.rel(g.last_command_at)})</strong></div>
+			<div><span>${t('guilds.colRecency')}</span><strong>${escapeHtml(g.activity)}</strong></div>
 		</div>
-		<p><strong>Top commandes</strong></p>
+		<p><strong>${t('overview.topCmds')}</strong></p>
 		<div class="chips">${(g.top_commands || []).map((c) => `<span class="chip">/${escapeHtml(c.name)} ${c.count}</span>`).join('') || '—'}</div>
 	`;
 	document.getElementById('drawer').classList.add('open');
@@ -606,18 +694,31 @@ function closeDrawer() {
 }
 
 function switchView(name) {
-	document.querySelectorAll('.view').forEach((v) => v.classList.toggle('active', v.id === `view-${name}`));
-	document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
-	requestAnimationFrame(() => {
-		Object.values(charts).forEach((c) => c.resize());
-	});
-	if (name === 'contacts' && !contactsData && !contactsLoading) loadContacts(false);
+	const isProfile = name === 'profile';
+	const statsChrome = document.getElementById('statsChrome');
+	const profileView = document.getElementById('view-profile');
+	statsChrome.hidden = isProfile;
+	profileView.hidden = !isProfile;
+	profileView.classList.toggle('active', isProfile);
+
+	if (!isProfile) {
+		document.querySelectorAll('#statsChrome .view').forEach((v) => v.classList.toggle('active', v.id === `view-${name}`));
+		document.querySelectorAll('.tab').forEach((tab) => tab.classList.toggle('active', tab.dataset.view === name));
+		requestAnimationFrame(() => {
+			Object.values(charts).forEach((c) => c.resize());
+		});
+		if (name === 'contacts' && !contactsData && !contactsLoading) loadContacts(false);
+	}
+	else {
+		document.querySelectorAll('.tab').forEach((tab) => tab.classList.remove('active'));
+	}
+	closeUserMenu();
 }
 
 function fillCommandFilter(data) {
 	const sel = document.getElementById('fCommand');
 	const current = state.command;
-	sel.innerHTML = '<option value="">Toutes</option>' + (data.commands || []).map((c) =>
+	sel.innerHTML = `<option value="">${t('guilds.commandAll')}</option>` + (data.commands || []).map((c) =>
 		`<option value="${escapeHtml(c.name)}">/${escapeHtml(c.name)} (${fmt.n(c.total)})</option>`).join('');
 	sel.value = current;
 }
@@ -626,9 +727,8 @@ function renderAll(data) {
 	raw = data;
 	const envPill = `<span class="pill ${data.env_file === '.env.prod' ? 'prod' : ''}">${escapeHtml(data.env_file || '?')} · ${escapeHtml(data.db_name || '?')}</span>`;
 	document.getElementById('meta').innerHTML =
-		`${envPill} ${fmt.dt(data.generated_at)} · ${fmt.n(data.kpis.active_guilds)} actifs / ${fmt.n(data.kpis.total_seen_guilds)} vus`;
-	document.getElementById('footer').textContent =
-		`Mongo ${data.db_name || '?'} via ${data.env_file || '?'} · 127.0.0.1 · logs_enabled=${data.product.servers_logs_enabled}`;
+		`${envPill} ${fmt.dt(data.generated_at)} · ${t('meta.activeSeen', { active: fmt.n(data.kpis.active_guilds), seen: fmt.n(data.kpis.total_seen_guilds) })}`;
+	document.getElementById('footer').textContent = t('footer');
 	renderKpis(data);
 	fillCommandFilter(data);
 	renderOverviewCharts(data);
@@ -644,22 +744,123 @@ function renderAll(data) {
 }
 
 async function load(silent = false) {
-	if (!silent) document.getElementById('meta').textContent = 'Chargement…';
+	if (!currentUser) return;
+	if (currentUser.isDefault) {
+		document.getElementById('meta').textContent = t('meta.changePassword');
+		return;
+	}
+	if (!silent) document.getElementById('meta').textContent = t('meta.loading');
 	try {
-		const res = await fetch('/api/summary');
-		const data = await res.json();
-		if (!res.ok) throw new Error(data.error || res.statusText);
+		const data = await api('/api/summary');
 		renderAll(data);
 	}
 	catch (err) {
-		document.getElementById('meta').innerHTML = `<span class="error">Erreur : ${escapeHtml(err.message)}</span>`;
+		if (err.status === 401) return;
+		if (err.status === 403) {
+			document.getElementById('meta').innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+			switchView('profile');
+			return;
+		}
+		document.getElementById('meta').innerHTML = `<span class="error">${escapeHtml(t('error.generic', { msg: err.message }))}</span>`;
 	}
 }
 
 function scheduleAuto() {
 	clearInterval(timer);
-	if (autoRefresh) timer = setInterval(() => load(true), 60000);
+	if (autoRefresh && currentUser) timer = setInterval(() => load(true), 60000);
 }
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+	e.preventDefault();
+	const errEl = document.getElementById('loginError');
+	errEl.hidden = true;
+	try {
+		const user = await api('/api/login', {
+			method: 'POST',
+			body: JSON.stringify({
+				username: document.getElementById('loginUser').value,
+				password: document.getElementById('loginPass').value,
+			}),
+		});
+		document.getElementById('loginPass').value = '';
+		showApp(user);
+		await load(false);
+		scheduleAuto();
+	}
+	catch (err) {
+		errEl.textContent = err.message || t('error.loginFailed');
+		errEl.hidden = false;
+	}
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+	try {
+		await api('/api/logout', { method: 'POST', body: '{}' });
+	}
+	catch {
+		// ignore
+	}
+	showLogin();
+});
+
+document.getElementById('profileBtn').addEventListener('click', () => switchView('profile'));
+document.getElementById('profileBackBtn').addEventListener('click', () => {
+	if (currentUser?.isDefault) return;
+	switchView('overview');
+});
+
+document.getElementById('userMenuBtn').addEventListener('click', (e) => {
+	e.stopPropagation();
+	const panel = document.getElementById('userMenuPanel');
+	if (panel.hidden) openUserMenu();
+	else closeUserMenu();
+});
+document.getElementById('userMenuPanel').addEventListener('click', (e) => e.stopPropagation());
+document.addEventListener('click', () => closeUserMenu());
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+	e.preventDefault();
+	const errEl = document.getElementById('profileError');
+	const okEl = document.getElementById('profileOk');
+	errEl.hidden = true;
+	okEl.hidden = true;
+	const newPass = document.getElementById('profileNew').value;
+	const newPass2 = document.getElementById('profileNew2').value;
+	if (newPass || newPass2 || currentUser?.isDefault) {
+		if (newPass !== newPass2) {
+			errEl.textContent = t('profile.mismatch');
+			errEl.hidden = false;
+			return;
+		}
+		if (!newPass || newPass.length < 10) {
+			errEl.textContent = t('profile.needNew', { min: 10 });
+			errEl.hidden = false;
+			return;
+		}
+	}
+	try {
+		const updated = await api('/api/profile', {
+			method: 'POST',
+			body: JSON.stringify({
+				currentPassword: document.getElementById('profileCurrent').value,
+				username: document.getElementById('profileUser').value,
+				newPassword: newPass || undefined,
+			}),
+		});
+		showApp(updated);
+		document.getElementById('profileCurrent').value = '';
+		document.getElementById('profileNew').value = '';
+		document.getElementById('profileNew2').value = '';
+		okEl.textContent = t('profile.ok');
+		okEl.hidden = false;
+		await load(false);
+		scheduleAuto();
+	}
+	catch (err) {
+		errEl.textContent = err.message || t('error.profileFailed');
+		errEl.hidden = false;
+	}
+});
 
 // events
 document.getElementById('refresh').addEventListener('click', () => load(false));
@@ -668,7 +869,7 @@ document.getElementById('autoBtn').addEventListener('click', (e) => {
 	e.currentTarget.classList.toggle('active', autoRefresh);
 	scheduleAuto();
 });
-document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => switchView(t.dataset.view)));
+document.querySelectorAll('.tab').forEach((tab) => tab.addEventListener('click', () => switchView(tab.dataset.view)));
 document.getElementById('fSearch').addEventListener('input', (e) => {
 	state.search = e.target.value;
 	renderGuilds();
@@ -780,6 +981,29 @@ document.getElementById('guilds').addEventListener('click', (e) => {
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 document.getElementById('backdrop').addEventListener('click', closeDrawer);
 
-load(false);
-scheduleAuto();
+function syncLangSelects(lang) {
+	for (const id of ['langSelect', 'loginLangSelect']) {
+		const el = document.getElementById(id);
+		if (el) el.value = lang;
+	}
+}
+
+async function changeLanguage(lang) {
+	await loadLang(lang);
+	syncLangSelects(getLang());
+	if (raw) renderAll(raw);
+	if (contactsData || contactsLoading) renderContacts();
+}
+
+document.getElementById('langSelect').addEventListener('change', (e) => changeLanguage(e.target.value));
+document.getElementById('loginLangSelect').addEventListener('change', (e) => changeLanguage(e.target.value));
+
+(async () => {
+	const lang = await loadLang(detectLang());
+	syncLangSelects(lang);
+	const ok = await bootstrapAuth();
+	if (!ok) return;
+	await load(false);
+	scheduleAuto();
+})();
 

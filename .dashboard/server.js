@@ -5,11 +5,14 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
+const auth = require('./auth');
 
 const PORT = Number(process.env.DASHBOARD_PORT) || 3847;
 const HOST = process.env.DASHBOARD_HOST || '127.0.0.1';
 const INDEX = path.join(__dirname, 'index.html');
 const ASSETS_DIR = path.join(__dirname, 'assets');
+const I18N_DIR = path.join(__dirname, 'i18n');
+const I18N_FILES = new Set(['en.json', 'fr.json', 'ru.json', 'zh-CN.json']);
 const ROOT = path.join(__dirname, '..');
 const ENV_FILE = process.env.DASHBOARD_ENV_FILE
 	|| (fs.existsSync(path.join(ROOT, '.env.prod')) ? '.env.prod' : '.env');
@@ -560,18 +563,58 @@ async function loadContacts({ force = false } = {}) {
 	return data;
 }
 
-function sendJson(res, status, body) {
+function sendJson(res, status, body, extraHeaders = {}) {
 	res.writeHead(status, {
 		'Content-Type': 'application/json; charset=utf-8',
 		'Cache-Control': 'no-store',
+		'X-Content-Type-Options': 'nosniff',
+		'X-Frame-Options': 'DENY',
+		'Referrer-Policy': 'no-referrer',
+		'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+		...extraHeaders,
 	});
 	res.end(JSON.stringify(body));
+}
+
+async function readJsonBody(req, limitBytes = 8 * 1024) {
+	const chunks = [];
+	let size = 0;
+	for await (const chunk of req) {
+		size += chunk.length;
+		if (size > limitBytes) {
+			const err = new Error('Request body too large');
+			err.status = 413;
+			err.code = 'AUTH_BODY_LARGE';
+			throw err;
+		}
+		chunks.push(chunk);
+	}
+	const raw = Buffer.concat(chunks).toString('utf8').trim();
+	if (!raw) return {};
+	try {
+		return JSON.parse(raw);
+	}
+	catch {
+		const err = new Error('Invalid JSON');
+		err.status = 400;
+		err.code = 'AUTH_JSON';
+		throw err;
+	}
+}
+
+function sendUnauthorized(res) {
+	sendJson(res, 401, { error: 'Not authenticated', code: 'error.auth' });
 }
 
 function sendHtml(res) {
 	res.writeHead(200, {
 		'Content-Type': 'text/html; charset=utf-8',
 		'Cache-Control': 'no-store',
+		'X-Content-Type-Options': 'nosniff',
+		'X-Frame-Options': 'DENY',
+		'Referrer-Policy': 'no-referrer',
+		'Content-Security-Policy':
+			'default-src \'self\'; script-src \'self\' https://cdn.jsdelivr.net; style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; font-src https://fonts.gstatic.com; img-src \'self\' https://cdn.discordapp.com data:; connect-src \'self\'; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\'',
 	});
 	res.end(fs.readFileSync(INDEX, 'utf8'));
 }
@@ -602,6 +645,9 @@ function sendAsset(res, urlPath) {
 	res.writeHead(200, {
 		'Content-Type': ASSET_TYPES[ext] || 'application/octet-stream',
 		'Cache-Control': 'no-store',
+		'X-Content-Type-Options': 'nosniff',
+		'X-Frame-Options': 'DENY',
+		'Referrer-Policy': 'no-referrer',
 	});
 	res.end(fs.readFileSync(filePath));
 }
@@ -615,30 +661,129 @@ async function main() {
 
 	const dbName = process.env.MONGODB_NAME || undefined;
 	await mongoose.connect(url, dbName ? { dbName } : undefined);
+	await auth.ensureDefaultAdmin();
 	console.log(`[dashboard] env=${path.basename(ENV_PATH)} db=${dbName || '(from URL)'} → http://${HOST}:${PORT}`);
 
 	const server = http.createServer(async (req, res) => {
 		try {
+			const method = req.method || 'GET';
 			const urlPath = (req.url || '/').split('?')[0];
-			if (urlPath === '/api/summary') {
+
+			if (urlPath === '/api/health' && method === 'GET') {
+				return sendJson(res, 200, { ok: true });
+			}
+
+			if (urlPath === '/api/me' && method === 'GET') {
+				const session = auth.requireSession(req);
+				if (!session) return sendJson(res, 200, { authenticated: false });
+				return sendJson(res, 200, {
+					authenticated: true,
+					username: session.username,
+					isDefault: session.isDefault,
+				});
+			}
+
+			if ((urlPath === '/favicon.ico') && method === 'GET') {
+				res.writeHead(204, { 'Cache-Control': 'public, max-age=86400' });
+				res.end();
+				return;
+			}
+
+			if (urlPath === '/api/login' && method === 'POST') {
+				auth.assertSameOrigin(req);
+				const body = await readJsonBody(req);
+				const user = await auth.validateLogin(body.username, body.password, req);
+				if (!user) return sendJson(res, 401, { error: 'Invalid credentials', code: 'AUTH_INVALID' });
+				auth.destroySession(auth.sessionIdFromReq(req));
+				const sid = auth.createSession(user);
+				auth.setSessionCookie(res, sid);
+				return sendJson(res, 200, {
+					authenticated: true,
+					username: user.username,
+					isDefault: user.isDefault,
+				});
+			}
+
+			if (urlPath === '/api/logout' && method === 'POST') {
+				auth.assertSameOrigin(req);
+				auth.destroySession(auth.sessionIdFromReq(req));
+				auth.clearSessionCookie(res);
+				return sendJson(res, 200, { ok: true });
+			}
+
+			if ((urlPath === '/' || urlPath === '/index.html') && method === 'GET') {
+				return sendHtml(res);
+			}
+			if (urlPath.startsWith('/assets/') && method === 'GET') {
+				return sendAsset(res, urlPath);
+			}
+			if (urlPath.startsWith('/i18n/') && method === 'GET') {
+				const name = urlPath.slice('/i18n/'.length);
+				if (!I18N_FILES.has(name) || name.includes('..')) {
+					res.writeHead(404, { 'Content-Type': 'text/plain', 'X-Content-Type-Options': 'nosniff' });
+					res.end('Not found');
+					return;
+				}
+				const filePath = path.join(I18N_DIR, name);
+				if (!filePath.startsWith(I18N_DIR) || !fs.existsSync(filePath)) {
+					res.writeHead(404, { 'Content-Type': 'text/plain', 'X-Content-Type-Options': 'nosniff' });
+					res.end('Not found');
+					return;
+				}
+				res.writeHead(200, {
+					'Content-Type': 'application/json; charset=utf-8',
+					'Cache-Control': 'no-store',
+					'X-Content-Type-Options': 'nosniff',
+				});
+				res.end(fs.readFileSync(filePath));
+				return;
+			}
+
+			const session = auth.requireSession(req);
+			if (!session) return sendUnauthorized(res);
+
+			if (urlPath === '/api/profile' && method === 'POST') {
+				auth.assertSameOrigin(req);
+				const body = await readJsonBody(req);
+				const updated = await auth.updateCredentials({
+					currentPassword: body.currentPassword,
+					username: body.username,
+					newPassword: body.newPassword,
+				});
+				const sid = auth.createSession(updated);
+				auth.setSessionCookie(res, sid);
+				return sendJson(res, 200, {
+					authenticated: true,
+					username: updated.username,
+					isDefault: updated.isDefault,
+				});
+			}
+
+			if (session.isDefault) {
+				return sendJson(res, 403, {
+					error: 'Change default password in Profile first',
+					code: 'AUTH_DEFAULT_BLOCK',
+				});
+			}
+
+			if (urlPath === '/api/summary' && method === 'GET') {
 				return sendJson(res, 200, await loadSummary());
 			}
-			if (urlPath === '/api/contacts') {
+			if (urlPath === '/api/contacts' && method === 'GET') {
 				const force = (req.url || '').includes('force=1');
 				return sendJson(res, 200, await loadContacts({ force }));
 			}
-			if (urlPath === '/' || urlPath === '/index.html') {
-				return sendHtml(res);
-			}
-			if (urlPath.startsWith('/assets/')) {
-				return sendAsset(res, urlPath);
-			}
-			res.writeHead(404, { 'Content-Type': 'text/plain' });
+
+			res.writeHead(404, { 'Content-Type': 'text/plain', 'X-Content-Type-Options': 'nosniff' });
 			res.end('Not found');
 		}
 		catch (err) {
 			console.error(err);
-			sendJson(res, 500, { error: err.message || 'Internal error' });
+			sendJson(res, err.status || 500, {
+				error: err.message || 'Internal error',
+				code: err.code || undefined,
+				params: err.params || undefined,
+			});
 		}
 	});
 

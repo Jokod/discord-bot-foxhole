@@ -118,7 +118,7 @@ dashboard-start: ## Start stats dashboard on prod Mongo (.env.prod) — override
 			nohup node .dashboard/server.js > "$(DASHBOARD_LOG)" 2>&1 & echo $$! > "$(DASHBOARD_PID)"; \
 		i=0; \
 		while [ $$i -lt 40 ]; do \
-			if curl -sf "$(DASHBOARD_URL)/api/summary" >/dev/null 2>&1; then \
+			if curl -sf "$(DASHBOARD_URL)/api/health" >/dev/null 2>&1; then \
 				echo "Dashboard démarré → $(DASHBOARD_URL) (env $(DASHBOARD_ENV_FILE), pid $$(cat $(DASHBOARD_PID)))"; \
 				exit 0; \
 			fi; \

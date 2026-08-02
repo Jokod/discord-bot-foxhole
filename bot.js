@@ -23,6 +23,21 @@ const configureDns = () => {
 	}
 };
 
+const REQUIRED_ENV = ['TOKEN', 'CLIENT_ID', 'OWNER', 'MONGODB_URL', 'MONGODB_NAME'];
+
+/** Fail fast with a clear log when runtime config is missing (Docker without env_file, empty .env, etc.). */
+const assertRequiredEnv = () => {
+	const missing = REQUIRED_ENV.filter((key) => !process.env[key] || String(process.env[key]).trim() === '');
+	if (missing.length === 0) return;
+
+	console.error(
+		`[foxbot] Missing required environment variable(s): ${missing.join(', ')}. `
+		+ 'Copy .env.dist to .env and fill values, or pass them to the container (Compose env_file / runtime env).',
+	);
+	process.exit(1);
+};
+
+
 /** ********************************************************************/
 // Connect to MongoDB, then load languages/traductions and login
 /** ********************************************************************/
@@ -216,6 +231,7 @@ const startBot = async () => {
 };
 
 const boot = async () => {
+	assertRequiredEnv();
 	configureDns();
 	void registerSlashCommands();
 	await startBot();
@@ -228,6 +244,7 @@ if (require.main === module) {
 module.exports = {
 	client,
 	configureDns,
+	assertRequiredEnv,
 	registerSlashCommands,
 	connectToMongoWithRetry,
 	startBot,

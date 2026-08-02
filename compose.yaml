@@ -73,7 +73,7 @@ services:
         host_ip: 127.0.0.1
         protocol: tcp
     networks:
-      - bot
+      - dashboard
     depends_on:
       mongo:
         condition: service_healthy
@@ -84,7 +84,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "fetch('http://127.0.0.1:3847/api/summary').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+          "fetch('http://127.0.0.1:3847/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
         ]
       interval: 30s
       timeout: 5s
@@ -118,7 +118,7 @@ services:
         target: /data/db
     networks:
       - bot
-    # No host ports — reachable only on the compose network.
+      - dashboard
     healthcheck:
       test:
         [
@@ -132,6 +132,9 @@ services:
 
 networks:
   bot:
+    driver: bridge
+    attachable: false
+  dashboard:
     driver: bridge
     attachable: false
 

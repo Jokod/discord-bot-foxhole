@@ -46,7 +46,7 @@ Upgrade: bump the tag → `docker compose pull && docker compose up -d`.
 Local build: `docker compose up -d --build`.
 
 Optional Mongo (dev): set `MONGO_ROOT_*`, `MONGODB_URL=mongodb://USER:PASS@mongo:27017/?authSource=admin`, then `docker compose --profile with-mongo up -d`.  
-Dashboard (localhost only): `docker compose --profile dashboard up -d` → http://127.0.0.1:3847
+Dashboard (**localhost only** by default — not on the public web): `docker compose --profile dashboard up -d` → http://127.0.0.1:3847
 
 ### From source (Node)
 
@@ -142,7 +142,7 @@ Example **→ 1.0.0**: `node scripts/migrate-v2.js --dry-run` then `node scripts
 | New war (wipe game data) | `/server reset confirm:true` (Manage Server) — preview with `confirm:false` |
 | Order Logs threads | `/setup logs` or `/server logs` |
 | Owner | `!reload <command>` |
-| Stats dashboard (local) | See [Dashboard](#dashboard-stats-local) |
+| Stats dashboard (local) | See [Dashboard](#dashboard-stats-localhost) |
 
 ### GitHub releases → Discord (optional)
 
@@ -161,15 +161,19 @@ Message body: `data/announce.md` (or `--message-file=…`). Writes a per-guild s
 
 ---
 
-## Dashboard (local stats)
+## Dashboard (stats, localhost)
 
-Small **local** dashboard (KPIs, charts, guild list, Discord contacts) that reads **your** MongoDB. For self-host ops — **not** publicly exposed.
+Small dashboard (KPIs, charts, guild list, Discord contacts) that reads **your** MongoDB.  
+**By default it binds to localhost only** (`127.0.0.1:3847`) — it is **not** published on the public web. Remote access is optional via a reverse proxy (see below).
+
+Protected by **login**. On **first seed** (empty `dashboard_auth`), the password is either `DASHBOARD_BOOTSTRAP_SECRET` (min. 10 chars) or a **random one-time password printed once in the logs** — never a known `admin`/`admin`. Changing that env later does **not** rewrite an existing hash. Change the password in **Profile** before data APIs unlock. Credentials are stored hashed in MongoDB (`dashboard_auth`).
 
 | | |
 |--|--|
 | Code | [`.dashboard/`](../.dashboard/) (`assets/` for CSS/JS) |
-| URL | `http://127.0.0.1:3847` (**localhost only**) |
-| Env | Same file as the bot (`TOKEN`, `MONGODB_*`) |
+| URL | `http://127.0.0.1:3847` |
+| Env | Same file as the bot (`TOKEN`, `MONGODB_*`) + optional `DASHBOARD_*` |
+| Login | user `admin` + bootstrap / logged password until changed in Profile |
 
 ### Start
 
@@ -180,7 +184,7 @@ make dashboard-start DASHBOARD_ENV_FILE=.env
 # or
 DASHBOARD_ENV_FILE=.env npm run dashboard
 
-# Docker (localhost only)
+# Docker (localhost only on the host)
 docker compose --profile dashboard up -d
 ```
 
@@ -193,7 +197,20 @@ docker compose --profile dashboard up -d
 | `make dashboard-open` | Open browser |
 | `make dashboard-logs` | Tail logs |
 
-Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`, `DASHBOARD_HOST=127.0.0.1` (Compose sets `0.0.0.0` in the container and publishes `127.0.0.1:3847`).
+Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`, `DASHBOARD_HOST=127.0.0.1` (Compose sets `0.0.0.0` in the container and publishes `127.0.0.1:3847` on a **separate** Compose network from the bot). UI languages: **en / fr / ru / zh-CN** (same as the bot) — selector in the user menu.
+
+### Reverse proxy (Synology Web Station, nginx, …)
+
+The dashboard stays on **localhost** by default. Auth allows an optional reverse proxy to `127.0.0.1:3847` (do **not** publish the Docker port on `0.0.0.0`).
+
+1. Start the dashboard (`docker compose --profile dashboard up -d` or `make dashboard-start`).
+2. **From localhost**, sign in (password from logs or `DASHBOARD_BOOTSTRAP_SECRET`) and **change the password in Profile** (unlocks data APIs) **before** opening any public proxy.
+3. In `.env`:
+   - `DASHBOARD_PUBLIC_ORIGIN=https://stats.your-domain` (required so CSRF Origin matches the public host; also enables `Secure` cookies when the URL is `https://…`)
+   - `DASHBOARD_TRUST_PROXY=1` if the proxy sets `X-Forwarded-For` (login rate-limit uses the real client IP; `X-Forwarded-Host` is never trusted)
+   - Optional: `DASHBOARD_COOKIE_SECURE=1` (redundant when `PUBLIC_ORIGIN` is `https://…`; use `=0` to force off)
+4. In Web Station / Reverse Proxy: source `https://stats.your-domain` → destination `http://127.0.0.1:3847`.
+5. Restart the dashboard so env changes apply, then open the public URL.
 
 ### Contents
 
@@ -207,8 +224,11 @@ The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the b
 
 ### Security
 
-- Default bind **127.0.0.1** (`DASHBOARD_HOST`) — do not reverse-proxy without auth.  
-- Docker: listens on `0.0.0.0` *inside* the container, port published as `127.0.0.1:3847` on the host only.  
+- Login required (session cookie HttpOnly, SameSite=Strict). Initial password from `DASHBOARD_BOOTSTRAP_SECRET` or a random one-time value in the logs — **must change in Profile** (min. 10 chars) before data APIs work. Legacy factory `admin`/`admin` rows (`isDefault`) are rotated on startup to a new bootstrap/random password.
+- Credentials stored in MongoDB collection `dashboard_auth` as **scrypt hash + salt** (never plaintext). Sessions are in-memory (container/process restart = re-login).
+- Login rate-limited; CSRF requires `Origin` on POSTs (loopback exempt); sessions cleared on password change; CSP + security headers.
+- Default bind **127.0.0.1** (`DASHBOARD_HOST`). Docker publishes `127.0.0.1:3847` on the host only and isolates the dashboard Compose network from the bot — use a reverse proxy for remote access.
+- Behind HTTPS: `DASHBOARD_PUBLIC_ORIGIN=https://…` (Secure cookie auto) and usually `DASHBOARD_TRUST_PROXY=1`.
 - Same secrets as the bot: do not commit `.env` / `.env.*` (except `.env.dist`).
 
 ---
@@ -250,7 +270,8 @@ Docker image on tag: [`.github/workflows/docker.yaml`](../.github/workflows/dock
 | Mongo error | `MONGODB_URL` / `MONGODB_NAME`, Atlas network |
 | Missing Logs threads | `logs:true` + thread permissions |
 | Empty `/about` | Set `GITHUB_URL` / `DISCORD_INVITE_URL` |
-| Dashboard won’t start | Check `DASHBOARD_ENV_FILE` (often `.env`), `TOKEN` / Mongo; logs: `make dashboard-logs` |
+| Dashboard won’t start | Check `DASHBOARD_ENV_FILE` (often `.env`), `MONGODB_*` / `TOKEN`; logs: `make dashboard-logs` |
+| Can’t log in after first start | Password is in the seed log line (or `DASHBOARD_BOOTSTRAP_SECRET`); not `admin`/`admin` |
 | Contacts without usernames | Invalid or expired `TOKEN` in the dashboard env file |
 
 Community support (not your clan prod): [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5).

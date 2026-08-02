@@ -75,6 +75,22 @@ describe('bot.js', () => {
 		expect(dns.setDefaultResultOrder).toHaveBeenCalledWith('ipv4first');
 	});
 
+	it('assertRequiredEnv exits when TOKEN is missing', () => {
+		const prev = process.env.TOKEN;
+		delete process.env.TOKEN;
+		const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => undefined);
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const { assertRequiredEnv } = require('../bot.js');
+
+		assertRequiredEnv();
+
+		expect(exitSpy).toHaveBeenCalledWith(1);
+		expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('TOKEN'));
+		exitSpy.mockRestore();
+		errSpy.mockRestore();
+		if (prev !== undefined) process.env.TOKEN = prev;
+	});
+
 	it('connectToMongoWithRetry retries after first failure', async () => {
 		const mongoose = require('mongoose');
 		const { connectToMongoWithRetry } = require('../bot.js');

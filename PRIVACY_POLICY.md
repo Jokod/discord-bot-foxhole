@@ -118,7 +118,7 @@ It does not sell or share collected data with third-party analytics providers.
 
 - **MongoDB** — configuration, features, and usage statistics.
 - **Log files** — `var/logs/` on the host that runs the Bot.
-- **Local dashboard** (optional, self-host / maintainer) — reads MongoDB and Discord for stats; binds to `127.0.0.1` only. See [docs/SELF-HOST.md](docs/SELF-HOST.md).
+- **Local dashboard** (optional, self-host / maintainer) — reads MongoDB and Discord for stats; binds to localhost by default (`127.0.0.1`), with optional reverse-proxy access behind login. See [docs/SELF-HOST.md](docs/SELF-HOST.md).
 
 Access on the hosted instance is limited to the Bot runtime and the project maintainer.
 

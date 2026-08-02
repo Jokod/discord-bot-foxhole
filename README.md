@@ -72,7 +72,7 @@ When the bot leaves a guild, is blocked (`BLOCKED_GUILD_IDS`), or is missing at 
 | Doc | For |
 |-----|-----|
 | [docs/USAGE.md](docs/USAGE.md) | Slash commands & boards |
-| [docs/SELF-HOST.md](docs/SELF-HOST.md) | Install, env, ops, wiki sync, dashboard local |
+| [docs/SELF-HOST.md](docs/SELF-HOST.md) | Install, env, ops, wiki sync, dashboard (localhost by default) |
 | [docs/MIGRATION.md](docs/MIGRATION.md) | Version upgrades |
 | [docs/TESTING.md](docs/TESTING.md) | Tests & CI |
 | [docs/README.md](docs/README.md) | Full docs index |

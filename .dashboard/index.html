@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>FoxBot — Stats prod</title>
+	<title>FoxBot — Prod stats</title>
+	<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -11,87 +12,135 @@
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
 </head>
 <body>
-	<div class="wrap">
-		<header>
-			<div>
+	<div id="loginGate" class="login-gate" hidden>
+		<form id="loginForm" class="login-card" autocomplete="on">
+			<p class="brand">Fox<span>Bot</span> stats</p>
+			<p class="login-sub" data-i18n="login.subtitle">Admin sign-in</p>
+			<label class="field lang-field"><span data-i18n="lang.label">Language</span>
+				<select id="loginLangSelect" aria-label="Language">
+					<option value="en">English</option>
+					<option value="fr">Français</option>
+					<option value="ru">Русский</option>
+					<option value="zh-CN">中文</option>
+				</select>
+			</label>
+			<label class="field"><span data-i18n="login.username">Username</span>
+				<input type="text" id="loginUser" name="username" required autocomplete="username" />
+			</label>
+			<label class="field"><span data-i18n="login.password">Password</span>
+				<input type="password" id="loginPass" name="password" required autocomplete="current-password" />
+			</label>
+			<p class="error" id="loginError" hidden></p>
+			<button type="submit" id="loginSubmit" data-i18n="login.submit">Sign in</button>
+		</form>
+	</div>
+
+	<div class="wrap" id="app" hidden>
+		<header class="topbar">
+			<div class="topbar-brand">
 				<p class="brand">Fox<span>Bot</span> stats</p>
-				<p class="meta" id="meta">Chargement…</p>
+				<p class="meta" id="meta" data-i18n="meta.loading">Loading…</p>
 			</div>
-			<div class="actions">
-				<button type="button" id="autoBtn" class="active" title="Auto-refresh 60s">Auto</button>
-				<button type="button" id="refresh">Actualiser</button>
+			<div class="topbar-tools">
+				<div class="tool-group" role="group" aria-label="Refresh">
+					<button type="button" id="autoBtn" class="active" data-i18n="action.auto" data-i18n-title="action.autoTitle" title="Auto-refresh every 60s">Auto</button>
+					<button type="button" id="refresh" data-i18n="action.refresh">Refresh</button>
+				</div>
+				<div class="user-menu" id="userMenu">
+					<button type="button" class="user-menu-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
+						<span class="pill" id="userPill">admin</span>
+						<span class="user-caret" aria-hidden="true">▾</span>
+					</button>
+					<div class="user-menu-panel" id="userMenuPanel" hidden>
+						<label class="field lang-field"><span data-i18n="lang.label">Language</span>
+							<select id="langSelect" aria-label="Language">
+								<option value="en">English</option>
+								<option value="fr">Français</option>
+								<option value="ru">Русский</option>
+								<option value="zh-CN">中文</option>
+							</select>
+						</label>
+						<button type="button" id="profileBtn" data-i18n="action.profile">Profile</button>
+						<button type="button" id="logoutBtn" data-i18n="action.logout">Sign out</button>
+					</div>
+				</div>
 			</div>
 		</header>
 
-		<section class="kpis" id="kpis"></section>
+		<p class="banner warn" id="defaultCredBanner" hidden data-i18n="banner.defaultCreds">
+			You’re still using the initial password — change it in Profile before accessing stats.
+		</p>
 
-		<nav class="tabs" id="tabs">
-			<button type="button" class="tab active" data-view="overview">Vue d’ensemble</button>
-			<button type="button" class="tab" data-view="commands">Commandes</button>
-			<button type="button" class="tab" data-view="guilds">Serveurs</button>
-			<button type="button" class="tab" data-view="contacts">Contacts</button>
-			<button type="button" class="tab" data-view="product">Produit</button>
-		</nav>
+		<div id="statsChrome">
+			<section class="kpis" id="kpis"></section>
+
+			<nav class="tabs" id="tabs">
+				<button type="button" class="tab active" data-view="overview" data-i18n="nav.overview">Overview</button>
+				<button type="button" class="tab" data-view="commands" data-i18n="nav.commands">Commands</button>
+				<button type="button" class="tab" data-view="guilds" data-i18n="nav.guilds">Servers</button>
+				<button type="button" class="tab" data-view="contacts" data-i18n="nav.contacts">Contacts</button>
+				<button type="button" class="tab" data-view="product" data-i18n="nav.product">Product</button>
+			</nav>
 
 		<section class="view active" id="view-overview">
 			<div class="grid grid-2">
 				<article class="panel">
-					<h2>Activité récente</h2>
-					<p class="sub">Dernière commande par serveur actif</p>
-					<div class="chart-box"><canvas id="chartActivity"></canvas><div class="chart-empty" hidden id="empty-chartActivity">Pas de données</div></div>
+					<h2 data-i18n="overview.activity">Recent activity</h2>
+					<p class="sub" data-i18n="overview.activitySub">Last command per active server</p>
+					<div class="chart-box"><canvas id="chartActivity"></canvas><div class="chart-empty" hidden id="empty-chartActivity" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Joins / leaves</h2>
-					<p class="sub">12 derniers mois</p>
-					<div class="chart-box"><canvas id="chartJoins"></canvas><div class="chart-empty" hidden id="empty-chartJoins">Pas de données</div></div>
+					<h2 data-i18n="overview.joins">Joins / leaves</h2>
+					<p class="sub" data-i18n="overview.joinsSub">Last 12 months</p>
+					<div class="chart-box"><canvas id="chartJoins"></canvas><div class="chart-empty" hidden id="empty-chartJoins" data-i18n="empty.noData">No data</div></div>
 				</article>
 			</div>
 			<div class="grid grid-3">
 				<article class="panel">
-					<h2>Taille des serveurs</h2>
-					<p class="sub">Répartition des membres</p>
-					<div class="chart-box sm"><canvas id="chartMembers"></canvas><div class="chart-empty" hidden id="empty-chartMembers">Pas de données</div></div>
+					<h2 data-i18n="overview.members">Server size</h2>
+					<p class="sub" data-i18n="overview.membersSub">Member distribution</p>
+					<div class="chart-box sm"><canvas id="chartMembers"></canvas><div class="chart-empty" hidden id="empty-chartMembers" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Top commandes</h2>
-					<p class="sub">Clique une barre pour filtrer les serveurs</p>
-					<div class="chart-box sm"><canvas id="chartTopCmdsMini"></canvas><div class="chart-empty" hidden id="empty-chartTopCmdsMini">Pas de données</div></div>
+					<h2 data-i18n="overview.topCmds">Top commands</h2>
+					<p class="sub" data-i18n="overview.topCmdsSub">Click a bar to filter servers</p>
+					<div class="chart-box sm"><canvas id="chartTopCmdsMini"></canvas><div class="chart-empty" hidden id="empty-chartTopCmdsMini" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Setup / engagement</h2>
-					<p class="sub">Actifs configurés vs engagés 7j</p>
-					<div class="chart-box sm"><canvas id="chartSetup"></canvas><div class="chart-empty" hidden id="empty-chartSetup">Pas de données</div></div>
+					<h2 data-i18n="overview.setup">Setup / engagement</h2>
+					<p class="sub" data-i18n="overview.setupSub">Configured actives vs engaged 7d</p>
+					<div class="chart-box sm"><canvas id="chartSetup"></canvas><div class="chart-empty" hidden id="empty-chartSetup" data-i18n="empty.noData">No data</div></div>
 				</article>
 			</div>
 			<div class="grid grid-2">
 				<article class="panel">
-					<h2>Top serveurs (commandes)</h2>
-					<div class="chart-box"><canvas id="chartTopCmds"></canvas><div class="chart-empty" hidden id="empty-chartTopCmds">Pas de données</div></div>
+					<h2 data-i18n="overview.topGuildsCmds">Top servers (commands)</h2>
+					<div class="chart-box"><canvas id="chartTopCmds"></canvas><div class="chart-empty" hidden id="empty-chartTopCmds" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Top serveurs (membres)</h2>
-					<div class="chart-box"><canvas id="chartTopMembers"></canvas><div class="chart-empty" hidden id="empty-chartTopMembers">Pas de données</div></div>
+					<h2 data-i18n="overview.topGuildsMembers">Top servers (members)</h2>
+					<div class="chart-box"><canvas id="chartTopMembers"></canvas><div class="chart-empty" hidden id="empty-chartTopMembers" data-i18n="empty.noData">No data</div></div>
 				</article>
 			</div>
 		</section>
 
 		<section class="view" id="view-commands">
 			<article class="panel" style="margin-bottom:.85rem">
-				<h2>Toutes les commandes</h2>
-				<p class="sub">Clique pour filtrer les serveurs qui utilisent cette commande</p>
+				<h2 data-i18n="commands.all">All commands</h2>
+				<p class="sub" data-i18n="commands.allSub">Click to filter servers using this command</p>
 				<div class="cmd-cloud" id="cmdCloud"></div>
-				<div class="chart-box lg"><canvas id="chartCommands"></canvas><div class="chart-empty" hidden id="empty-chartCommands">Pas de données</div></div>
+				<div class="chart-box lg"><canvas id="chartCommands"></canvas><div class="chart-empty" hidden id="empty-chartCommands" data-i18n="empty.noData">No data</div></div>
 			</article>
 			<div class="grid grid-2">
 				<article class="panel">
-					<h2>Part relative</h2>
-					<div class="chart-box"><canvas id="chartCommandsPie"></canvas><div class="chart-empty" hidden id="empty-chartCommandsPie">Pas de données</div></div>
+					<h2 data-i18n="commands.share">Relative share</h2>
+					<div class="chart-box"><canvas id="chartCommandsPie"></canvas><div class="chart-empty" hidden id="empty-chartCommandsPie" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Détail</h2>
+					<h2 data-i18n="commands.detail">Detail</h2>
 					<div class="table-wrap" style="max-height:320px">
 						<table>
-							<thead><tr><th data-sort-cmd="name">Commande</th><th data-sort-cmd="total">Total</th><th data-sort-cmd="pct">%</th></tr></thead>
+							<thead><tr><th data-sort-cmd="name" data-i18n="commands.colName">Command</th><th data-sort-cmd="total" data-i18n="commands.colTotal">Total</th><th data-sort-cmd="pct">%</th></tr></thead>
 							<tbody id="cmdTable"></tbody>
 						</table>
 					</div>
@@ -101,37 +150,37 @@
 
 		<section class="view" id="view-guilds">
 			<article class="panel">
-				<h2>Serveurs actifs</h2>
-				<p class="sub">Recherche, filtres, tri colonnes — clic ligne pour le détail</p>
+				<h2 data-i18n="guilds.active">Active servers</h2>
+				<p class="sub" data-i18n="guilds.activeSub">Search, filters, column sort — click a row for details</p>
 				<div class="filters">
-					<label class="field">Recherche
-						<input type="search" id="fSearch" placeholder="nom ou guild id" />
+					<label class="field"><span data-i18n="guilds.search">Search</span>
+						<input type="search" id="fSearch" data-i18n-placeholder="guilds.searchPh" placeholder="name or guild id" />
 					</label>
-					<label class="field">Setup
+					<label class="field"><span data-i18n="guilds.setup">Setup</span>
 						<select id="fSetup">
-							<option value="all">Tous</option>
-							<option value="yes">Oui</option>
-							<option value="no">Non</option>
+							<option value="all" data-i18n="guilds.all">All</option>
+							<option value="yes" data-i18n="guilds.yes">Yes</option>
+							<option value="no" data-i18n="guilds.no">No</option>
 						</select>
 					</label>
-					<label class="field">Récence
+					<label class="field"><span data-i18n="guilds.activity">Recency</span>
 						<select id="fActivity">
-							<option value="all">Toutes</option>
+							<option value="all" data-i18n="guilds.activityAll">All</option>
 							<option value="24h">24h</option>
-							<option value="7d">7j</option>
-							<option value="30d">30j</option>
-							<option value="90d">90j</option>
-							<option value="older">&gt;90j</option>
-							<option value="never">Jamais</option>
+							<option value="7d">7d</option>
+							<option value="30d">30d</option>
+							<option value="90d">90d</option>
+							<option value="older" data-i18n="guilds.activityOlder">&gt;90d</option>
+							<option value="never" data-i18n="guilds.activityNever">Never</option>
 						</select>
 					</label>
-					<label class="field">Min cmds
+					<label class="field"><span data-i18n="guilds.minCmds">Min cmds</span>
 						<input type="number" id="fMinCmds" min="0" value="0" />
 					</label>
-					<label class="field">Commande
-						<select id="fCommand"><option value="">Toutes</option></select>
+					<label class="field"><span data-i18n="guilds.command">Command</span>
+						<select id="fCommand"><option value="" data-i18n="guilds.commandAll">All</option></select>
 					</label>
-					<button type="button" id="fReset">Reset</button>
+					<button type="button" id="fReset" data-i18n="guilds.reset">Reset</button>
 				</div>
 				<div class="summary-bar">
 					<span id="guildCount"></span>
@@ -141,15 +190,15 @@
 					<table>
 						<thead>
 							<tr>
-								<th data-sort="name">Serveur</th>
-								<th data-sort="setup">Setup</th>
-								<th data-sort="lang">Langue</th>
-								<th data-sort="command_count" class="sorted">Cmds <span class="arrow">▼</span></th>
-								<th data-sort="member_count">Membres</th>
-								<th data-sort="operation_count">Ops</th>
-								<th data-sort="stock_board_count">Stocks</th>
-								<th data-sort="last_command_at">Récence</th>
-								<th>Top</th>
+								<th data-sort="name" data-i18n="guilds.colServer">Server</th>
+								<th data-sort="setup" data-i18n="guilds.colSetup">Setup</th>
+								<th data-sort="lang" data-i18n="guilds.colLang">Language</th>
+								<th data-sort="command_count" class="sorted"><span data-i18n="guilds.colCmds">Cmds</span> <span class="arrow">▼</span></th>
+								<th data-sort="member_count" data-i18n="guilds.colMembers">Members</th>
+								<th data-sort="operation_count" data-i18n="guilds.colOps">Ops</th>
+								<th data-sort="stock_board_count" data-i18n="guilds.colStocks">Stocks</th>
+								<th data-sort="last_command_at" data-i18n="guilds.colRecency">Recency</th>
+								<th data-i18n="guilds.colTop">Top</th>
 							</tr>
 						</thead>
 						<tbody id="guilds"></tbody>
@@ -157,22 +206,22 @@
 				</div>
 			</article>
 			<article class="panel" style="margin-top:.85rem">
-				<h2>Derniers départs</h2>
+				<h2 data-i18n="guilds.leftTitle">Recent leaves</h2>
 				<div class="filters" style="grid-template-columns:1fr auto">
-					<label class="field">Recherche
-						<input type="search" id="fLeftSearch" placeholder="nom ou guild id" />
+					<label class="field"><span data-i18n="guilds.search">Search</span>
+						<input type="search" id="fLeftSearch" data-i18n-placeholder="guilds.searchPh" placeholder="name or guild id" />
 					</label>
-					<label class="field">Tri
+					<label class="field"><span data-i18n="guilds.leftSort">Sort</span>
 						<select id="fLeftSort">
-							<option value="left_at">Départ récent</option>
-							<option value="command_count">Commandes</option>
-							<option value="name">Nom</option>
+							<option value="left_at" data-i18n="guilds.leftSortRecent">Recent leave</option>
+							<option value="command_count" data-i18n="guilds.leftSortCmds">Commands</option>
+							<option value="name" data-i18n="guilds.leftSortName">Name</option>
 						</select>
 					</label>
 				</div>
 				<div class="table-wrap" style="max-height:280px">
 					<table>
-						<thead><tr><th>Serveur</th><th>Cmds</th><th>Left at</th></tr></thead>
+						<thead><tr><th data-i18n="guilds.colServer">Server</th><th data-i18n="guilds.colCmds">Cmds</th><th data-i18n="guilds.leftAt">Left at</th></tr></thead>
 						<tbody id="left"></tbody>
 					</table>
 				</div>
@@ -181,35 +230,35 @@
 
 		<section class="view" id="view-contacts">
 			<article class="panel" style="margin-bottom:.85rem">
-				<h2>Contacts Discord</h2>
-				<p class="sub">Owners et créateurs d’ops / stockpiles — actifs en premier, retirés en bas</p>
+				<h2 data-i18n="contacts.title">Discord contacts</h2>
+				<p class="sub" data-i18n="contacts.sub">Owners and ops / stockpile creators — active first, left at the bottom</p>
 				<div class="filters" style="grid-template-columns:1.5fr auto auto">
-					<label class="field">Recherche
-						<input type="search" id="fContactSearch" placeholder="nom, username, user id, serveur…" />
+					<label class="field"><span data-i18n="guilds.search">Search</span>
+						<input type="search" id="fContactSearch" data-i18n-placeholder="contacts.searchPh" placeholder="name, username, user id, server…" />
 					</label>
-					<label class="field">Vue
+					<label class="field"><span data-i18n="contacts.view">View</span>
 						<select id="fContactView">
-							<option value="guilds">Par serveur</option>
-							<option value="people">Par personne</option>
+							<option value="guilds" data-i18n="contacts.byGuild">By server</option>
+							<option value="people" data-i18n="contacts.byPerson">By person</option>
 						</select>
 					</label>
-					<button type="button" id="contactsRefresh">Recharger Discord</button>
+					<button type="button" id="contactsRefresh" data-i18n="contacts.reload">Reload Discord</button>
 				</div>
 				<div class="summary-bar">
-					<span id="contactsMeta">Ouvre cet onglet pour charger les contacts…</span>
+					<span id="contactsMeta" data-i18n="contacts.metaIdle">Open this tab to load contacts…</span>
 				</div>
 			</article>
 			<article class="panel" id="contactsGuildsPanel">
-				<h2>Par serveur</h2>
+				<h2 data-i18n="contacts.byGuild">By server</h2>
 				<div class="table-wrap">
 					<table>
 						<thead>
 							<tr>
-								<th>Serveur</th>
-								<th>Statut</th>
-								<th>Owner</th>
-								<th>Créateurs actifs</th>
-								<th>Cmds</th>
+								<th data-i18n="guilds.colServer">Server</th>
+								<th data-i18n="contacts.colStatus">Status</th>
+								<th data-i18n="contacts.colOwner">Owner</th>
+								<th data-i18n="contacts.colCreators">Active creators</th>
+								<th data-i18n="guilds.colCmds">Cmds</th>
 							</tr>
 						</thead>
 						<tbody id="contactsGuilds"></tbody>
@@ -217,15 +266,15 @@
 				</div>
 			</article>
 			<article class="panel" id="contactsPeoplePanel" hidden>
-				<h2>Par personne</h2>
+				<h2 data-i18n="contacts.byPerson">By person</h2>
 				<div class="table-wrap">
 					<table>
 						<thead>
 							<tr>
-								<th>Personne</th>
-								<th>Rôles</th>
-								<th>Serveurs</th>
-								<th>User ID</th>
+								<th data-i18n="contacts.colPerson">Person</th>
+								<th data-i18n="contacts.colRoles">Roles</th>
+								<th data-i18n="contacts.colServers">Servers</th>
+								<th data-i18n="contacts.colUserId">User ID</th>
 							</tr>
 						</thead>
 						<tbody id="contactsPeople"></tbody>
@@ -237,56 +286,85 @@
 		<section class="view" id="view-product">
 			<div class="grid grid-3">
 				<article class="panel">
-					<h2>Order boards (kind)</h2>
-					<div class="chart-box sm"><canvas id="chartBoardKind"></canvas><div class="chart-empty" hidden id="empty-chartBoardKind">Aucun order board</div></div>
+					<h2 data-i18n="product.boardKind">Order boards (kind)</h2>
+					<div class="chart-box sm"><canvas id="chartBoardKind"></canvas><div class="chart-empty" hidden id="empty-chartBoardKind" data-i18n="empty.noOrderBoard">No order board</div></div>
 				</article>
 				<article class="panel">
-					<h2>Order boards (status)</h2>
-					<div class="chart-box sm"><canvas id="chartBoardStatus"></canvas><div class="chart-empty" hidden id="empty-chartBoardStatus">Aucun order board</div></div>
+					<h2 data-i18n="product.boardStatus">Order boards (status)</h2>
+					<div class="chart-box sm"><canvas id="chartBoardStatus"></canvas><div class="chart-empty" hidden id="empty-chartBoardStatus" data-i18n="empty.noOrderBoard">No order board</div></div>
 				</article>
 				<article class="panel">
-					<h2>Lines par priorité</h2>
-					<div class="chart-box sm"><canvas id="chartLinePrio"></canvas><div class="chart-empty" hidden id="empty-chartLinePrio">Aucune order line</div></div>
+					<h2 data-i18n="product.linePrio">Lines by priority</h2>
+					<div class="chart-box sm"><canvas id="chartLinePrio"></canvas><div class="chart-empty" hidden id="empty-chartLinePrio" data-i18n="empty.noOrderLine">No order line</div></div>
 				</article>
 			</div>
 			<div class="grid grid-3">
 				<article class="panel">
-					<h2>Progression lines</h2>
+					<h2 data-i18n="product.lineProgress">Line progress</h2>
 					<p class="sub" id="lineProgressHint">—</p>
-					<div class="chart-box sm"><canvas id="chartLineProgress"></canvas><div class="chart-empty" hidden id="empty-chartLineProgress">Pas de données</div></div>
+					<div class="chart-box sm"><canvas id="chartLineProgress"></canvas><div class="chart-empty" hidden id="empty-chartLineProgress" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Langues</h2>
-					<div class="chart-box sm"><canvas id="chartLang"></canvas><div class="chart-empty" hidden id="empty-chartLang">Pas de données</div></div>
+					<h2 data-i18n="product.languages">Languages</h2>
+					<div class="chart-box sm"><canvas id="chartLang"></canvas><div class="chart-empty" hidden id="empty-chartLang" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Camps</h2>
-					<div class="chart-box sm"><canvas id="chartCamp"></canvas><div class="chart-empty" hidden id="empty-chartCamp">Pas de données</div></div>
+					<h2 data-i18n="product.camps">Factions</h2>
+					<div class="chart-box sm"><canvas id="chartCamp"></canvas><div class="chart-empty" hidden id="empty-chartCamp" data-i18n="empty.noData">No data</div></div>
 				</article>
 			</div>
 			<div class="grid grid-2">
 				<article class="panel">
-					<h2>Notifications</h2>
-					<div class="chart-box"><canvas id="chartNotif"></canvas><div class="chart-empty" hidden id="empty-chartNotif">Pas de données</div></div>
+					<h2 data-i18n="product.notifications">Notifications</h2>
+					<div class="chart-box"><canvas id="chartNotif"></canvas><div class="chart-empty" hidden id="empty-chartNotif" data-i18n="empty.noData">No data</div></div>
 				</article>
 				<article class="panel">
-					<h2>Opérations (docs)</h2>
-					<div class="chart-box"><canvas id="chartOps"></canvas><div class="chart-empty" hidden id="empty-chartOps">Pas de données</div></div>
+					<h2 data-i18n="product.operations">Operations (docs)</h2>
+					<div class="chart-box"><canvas id="chartOps"></canvas><div class="chart-empty" hidden id="empty-chartOps" data-i18n="empty.noData">No data</div></div>
 				</article>
 			</div>
 		</section>
+		</div><!-- #statsChrome -->
 
-		<footer id="footer">Données live MongoDB · 127.0.0.1</footer>
+		<section class="view" id="view-profile" hidden>
+			<p class="profile-back">
+				<button type="button" id="profileBackBtn" data-i18n="action.backToStats">← Back to stats</button>
+			</p>
+			<article class="panel" style="max-width:480px">
+				<h2 data-i18n="profile.title">Admin profile</h2>
+				<p class="sub" data-i18n="profile.sub">Change username and / or password</p>
+				<form id="profileForm" class="profile-form">
+					<label class="field"><span data-i18n="profile.username">Username</span>
+						<input type="text" id="profileUser" name="username" required minlength="3" maxlength="64" autocomplete="username" />
+					</label>
+					<label class="field"><span data-i18n="profile.currentPassword">Current password</span>
+						<input type="password" id="profileCurrent" name="currentPassword" required autocomplete="current-password" />
+					</label>
+					<label class="field"><span data-i18n="profile.newPassword">New password</span>
+						<input type="password" id="profileNew" name="newPassword" minlength="10" maxlength="128" autocomplete="new-password" data-i18n-placeholder="profile.newPasswordPh" placeholder="Required if still on default account" />
+					</label>
+					<label class="field"><span data-i18n="profile.confirmPassword">Confirm new password</span>
+						<input type="password" id="profileNew2" name="newPassword2" minlength="10" maxlength="128" autocomplete="new-password" data-i18n-placeholder="profile.confirmPh" placeholder="Confirmation" />
+					</label>
+					<p class="error" id="profileError" hidden></p>
+					<p class="ok-msg" id="profileOk" hidden></p>
+					<button type="submit" data-i18n="profile.save">Save</button>
+				</form>
+			</article>
+		</section>
+
+		<footer id="footer" data-i18n="footer">Live MongoDB data · session auth</footer>
 	</div>
 
 	<div class="backdrop" id="backdrop"></div>
 	<aside class="drawer" id="drawer" aria-hidden="true">
 		<div class="actions" style="justify-content:space-between;margin-bottom:.7rem">
-			<strong>Détail serveur</strong>
-			<button type="button" id="drawerClose">Fermer</button>
+			<strong data-i18n="drawer.title">Server detail</strong>
+			<button type="button" id="drawerClose" data-i18n="drawer.close">Close</button>
 		</div>
 		<div id="drawerBody"></div>
 	</aside>
+	<script src="/assets/i18n.js"></script>
 	<script src="/assets/dashboard.js"></script>
 </body>
 </html>
