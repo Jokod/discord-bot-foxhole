@@ -24,6 +24,8 @@ describe('Slash command /war', () => {
 		jest.clearAllMocks();
 		mockFetch = jest.fn();
 		global.fetch = mockFetch;
+		const { resetCacheForTests } = require('../../utils/foxholeWarApi.js');
+		resetCacheForTests();
 		warCommand = require('../../interactions/slash/misc/war.js');
 	});
 
@@ -67,6 +69,7 @@ describe('Slash command /war', () => {
 			shortRequiredVictoryTowns: 4,
 			conquestStartTime: 1_770_663_602_746,
 			conquestEndTime: 1_770_663_702_746,
+			scheduledConquestEndTime: null,
 		};
 
 		mockFetch.mockImplementation((url) => {
@@ -75,6 +78,29 @@ describe('Slash command /war', () => {
 					ok: true,
 					status: 200,
 					json: () => Promise.resolve(warPayload),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve(['HexA']),
+					headers: createHeaders(),
+				});
+			}
+			if (String(url).includes('/dynamic/public')) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						mapItems: [
+							{ teamId: 'COLONIALS', flags: 1 },
+							{ teamId: 'WARDENS', flags: 1 },
+							{ teamId: 'WARDENS', flags: 1 },
+						],
+						scorchedVictoryTowns: 0,
+					}),
 					headers: createHeaders(),
 				});
 			}
@@ -105,7 +131,7 @@ describe('Slash command /war', () => {
 		const embed = embeds[0];
 		const embedData = embed.data ?? embed;
 
-		expect(embedData.title).toBe('FOXHOLE_TITLE');
+		expect(embedData.title).toBe('FOXHOLE_WAR_TITLE_ENDED');
 
 		const fields = embedData.fields ?? [];
 		const playersField = fields.find((f) => f.name === 'FOXHOLE_PLAYERS_CURRENT');
@@ -113,10 +139,13 @@ describe('Slash command /war', () => {
 		expect(playersField.value.replace(/\D/g, '')).toBe('15309');
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_NUMBER' && f.value === String(warPayload.warNumber))).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === String(warPayload.requiredVictoryTowns))).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS' && f.value === '1 / 32')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WARDEN_TOWNS' && f.value === '2 / 32')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SHORT_REQUIRED_TOWNS' && f.value === String(warPayload.shortRequiredVictoryTowns))).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_START')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_DAY')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_ELAPSED')).toBe(true);
 	});
 
 	it('status: affiche FOXHOLE_UNAVAILABLE pour les joueurs si Steam échoue', async () => {
@@ -125,7 +154,20 @@ describe('Slash command /war', () => {
 				return Promise.resolve({
 					ok: true,
 					status: 200,
-					json: () => Promise.resolve({ warNumber: 132, winner: 'NONE', requiredVictoryTowns: 32 }),
+					json: () => Promise.resolve({
+						warNumber: 132,
+						winner: 'NONE',
+						requiredVictoryTowns: 32,
+						conquestStartTime: Date.now() - 86400000,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
 					headers: createHeaders(),
 				});
 			}
@@ -281,7 +323,7 @@ describe('Slash command /war', () => {
 		});
 	});
 
-	it('status: utilise le cache 304 Not Modified quand l\'ETag est valide', async () => {
+	it('status: sert le cache mémoire 1j sans revalider à chaque appel', async () => {
 		const warPayload = {
 			warNumber: 133,
 			winner: 'NONE',
@@ -289,21 +331,12 @@ describe('Slash command /war', () => {
 			conquestStartTime: 1_770_663_602_746,
 			conquestEndTime: 1_770_663_702_746,
 		};
-		let warCallCount = 0;
 		mockFetch.mockImplementation((url) => {
 			if (url === WARAPI_WAR_URL) {
-				warCallCount++;
-				if (warCallCount === 1) {
-					return Promise.resolve({
-						ok: true,
-						status: 200,
-						json: () => Promise.resolve(warPayload),
-						headers: createHeaders('max-age=0', '"first-etag"'),
-					});
-				}
 				return Promise.resolve({
 					ok: true,
-					status: 304,
+					status: 200,
+					json: () => Promise.resolve(warPayload),
 					headers: createHeaders('max-age=60', '"first-etag"'),
 				});
 			}
@@ -321,29 +354,19 @@ describe('Slash command /war', () => {
 		await warCommand.execute(createInteraction('status'));
 		await warCommand.execute(createInteraction('status'));
 
-		expect(mockFetch).toHaveBeenCalledWith(WARAPI_WAR_URL, expect.objectContaining({
-			headers: expect.objectContaining({ 'If-None-Match': '"first-etag"' }),
-		}));
+		const warCalls = mockFetch.mock.calls.filter((c) => c[0] === WARAPI_WAR_URL);
+		expect(warCalls).toHaveLength(1);
 	});
 
-	it('maps: utilise le cache 304 Not Modified', async () => {
+	it('maps: sert le cache mémoire 1j sans revalider à chaque appel', async () => {
 		const mapsPayload = ['HexA', 'HexB'];
-		let callCount = 0;
 		mockFetch.mockImplementation((url) => {
 			if (url === WARAPI_MAPS_URL) {
-				callCount++;
-				if (callCount === 1) {
-					return Promise.resolve({
-						ok: true,
-						status: 200,
-						json: () => Promise.resolve(mapsPayload),
-						headers: createHeaders('max-age=0', '"maps-etag"'),
-					});
-				}
 				return Promise.resolve({
 					ok: true,
-					status: 304,
-					headers: createHeaders('max-age=600', '"maps-etag"'),
+					status: 200,
+					json: () => Promise.resolve(mapsPayload),
+					headers: createHeaders('max-age=60', '"maps-etag"'),
 				});
 			}
 			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
@@ -352,10 +375,7 @@ describe('Slash command /war', () => {
 		await warCommand.execute(createInteraction('maps'));
 		await warCommand.execute(createInteraction('maps'));
 
-		expect(mockFetch).toHaveBeenCalledTimes(2);
-		expect(mockFetch).toHaveBeenNthCalledWith(2, WARAPI_MAPS_URL, expect.objectContaining({
-			headers: expect.objectContaining({ 'If-None-Match': '"maps-etag"' }),
-		}));
+		expect(mockFetch).toHaveBeenCalledTimes(1);
 	});
 
 	it('report: utilise le cache 304 Not Modified', async () => {

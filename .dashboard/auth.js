@@ -78,6 +78,11 @@ function clearLoginRateLimit(req) {
 	loginAttempts.delete(clientIp(req));
 }
 
+/** Test helper — clears in-memory rate-limit buckets. */
+function resetLoginAttemptsForTests() {
+	loginAttempts.clear();
+}
+
 function validatePasswordStrength(password, username) {
 	const pwd = String(password || '');
 	if (pwd.length < PASSWORD_MIN) {
@@ -367,4 +372,5 @@ module.exports = {
 	cookieSecureFlag,
 	trustProxy,
 	isLoopbackAddress,
+	resetLoginAttemptsForTests,
 };

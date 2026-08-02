@@ -11,6 +11,7 @@ module.exports = {
 		'data/models/**/*.js',
 		'scripts/lib/wiki-sync/**/*.js',
 		'scripts/lib/migrate-v2/**/*.js',
+		'.dashboard/auth.js',
 		'!**/node_modules/**',
 		'!**/coverage/**',
 		'!**/__tests__/**',

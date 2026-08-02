@@ -1,5 +1,14 @@
 'use strict';
 
+jest.mock('mongoose', () => ({
+	connection: {
+		db: {
+			collection: jest.fn(),
+		},
+	},
+}));
+
+const mongoose = require('mongoose');
 const {
 	hashPassword,
 	verifyPassword,
@@ -9,6 +18,15 @@ const {
 	cookieSecureFlag,
 	trustProxy,
 	isLoopbackAddress,
+	ensureDefaultAdmin,
+	validateLogin,
+	updateCredentials,
+	createSession,
+	getSession,
+	destroySession,
+	destroyAllSessions,
+	resetLoginAttemptsForTests,
+	DEFAULT_USERNAME,
 } = require('../../.dashboard/auth');
 
 describe('dashboard auth', () => {
@@ -17,6 +35,27 @@ describe('dashboard auth', () => {
 		secure: process.env.DASHBOARD_COOKIE_SECURE,
 		trust: process.env.DASHBOARD_TRUST_PROXY,
 	};
+
+	let store;
+	let col;
+
+	beforeEach(() => {
+		resetLoginAttemptsForTests();
+		destroyAllSessions();
+		store = null;
+		col = {
+			findOne: jest.fn(async () => store),
+			insertOne: jest.fn(async (doc) => {
+				store = { ...doc };
+				return { acknowledged: true };
+			}),
+			updateOne: jest.fn(async (_q, update) => {
+				store = { ...(store || { _id: 'credentials' }), ...update.$set };
+				return { acknowledged: true };
+			}),
+		};
+		mongoose.connection.db.collection.mockReturnValue(col);
+	});
 
 	afterEach(() => {
 		for (const [key, envKey] of [
@@ -133,5 +172,87 @@ describe('dashboard auth', () => {
 		expect(isLoopbackAddress('::1')).toBe(true);
 		expect(isLoopbackAddress('::ffff:127.0.0.1')).toBe(true);
 		expect(isLoopbackAddress('10.0.0.1')).toBe(false);
+	});
+
+	it('ensureDefaultAdmin seeds admin/admin once', async () => {
+		const doc = await ensureDefaultAdmin();
+		expect(doc.username).toBe(DEFAULT_USERNAME);
+		expect(doc.isDefault).toBe(true);
+		expect(verifyPassword('admin', doc.salt, doc.hash)).toBe(true);
+		expect(col.insertOne).toHaveBeenCalledTimes(1);
+
+		const again = await ensureDefaultAdmin();
+		expect(again).toEqual(doc);
+		expect(col.insertOne).toHaveBeenCalledTimes(1);
+	});
+
+	it('validateLogin accepts default credentials and rejects bad password', async () => {
+		await ensureDefaultAdmin();
+		const req = { headers: {}, socket: { remoteAddress: '127.0.0.1' } };
+		const ok = await validateLogin('admin', 'admin', req);
+		expect(ok).toEqual({ username: 'admin', isDefault: true });
+		expect(await validateLogin('admin', 'wrong', req)).toBeNull();
+		expect(await validateLogin('nope', 'admin', req)).toBeNull();
+	});
+
+	it('validateLogin rate-limits after too many attempts', async () => {
+		await ensureDefaultAdmin();
+		const req = { headers: {}, socket: { remoteAddress: '10.9.8.7' } };
+		for (let i = 0; i < 8; i += 1) {
+			await validateLogin('admin', 'wrong', req);
+		}
+		await expect(validateLogin('admin', 'wrong', req)).rejects.toMatchObject({
+			status: 429,
+			code: 'AUTH_RATE_LIMIT',
+		});
+	});
+
+	it('updateCredentials requires new password while isDefault and clears sessions', async () => {
+		await ensureDefaultAdmin();
+		const sid = createSession({ username: 'admin', isDefault: true });
+		expect(getSession(sid)).toBeTruthy();
+
+		await expect(updateCredentials({
+			currentPassword: 'admin',
+			username: 'admin',
+			newPassword: '',
+		})).rejects.toMatchObject({ code: 'AUTH_PASS_REQUIRED' });
+
+		const updated = await updateCredentials({
+			currentPassword: 'admin',
+			username: 'ops',
+			newPassword: 'strong-pass-12',
+		});
+		expect(updated).toEqual({ username: 'ops', isDefault: false });
+		expect(store.isDefault).toBe(false);
+		expect(verifyPassword('strong-pass-12', store.salt, store.hash)).toBe(true);
+		expect(getSession(sid)).toBeNull();
+	});
+
+	it('updateCredentials rejects wrong current password and weak new password', async () => {
+		await ensureDefaultAdmin();
+		await expect(updateCredentials({
+			currentPassword: 'nope',
+			username: 'admin',
+			newPassword: 'strong-pass-12',
+		})).rejects.toMatchObject({ code: 'AUTH_FORBIDDEN_PASSWORD' });
+
+		await expect(updateCredentials({
+			currentPassword: 'admin',
+			username: 'opsleader1',
+			newPassword: 'opsleader1',
+		})).rejects.toMatchObject({ code: 'AUTH_PASS_WEAK' });
+	});
+
+	it('sessions create, expire check, and destroy', () => {
+		const sid = createSession({ username: 'admin', isDefault: false });
+		expect(sid).toMatch(/^[a-f0-9]{64}$/);
+		expect(getSession(sid).username).toBe('admin');
+		expect(getSession('not-a-sid')).toBeNull();
+		destroySession(sid);
+		expect(getSession(sid)).toBeNull();
+		const sid2 = createSession({ username: 'admin', isDefault: false });
+		destroyAllSessions();
+		expect(getSession(sid2)).toBeNull();
 	});
 });

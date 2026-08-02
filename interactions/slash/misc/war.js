@@ -1,195 +1,15 @@
 const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const Translate = require('../../../utils/translations.js');
 const { getRandomColor } = require('../../../utils/colors.js');
+const { discordTs, formatElapsed } = require('../../../utils/discord.js');
+const {
+	getMaps,
+	getSteamPlayers,
+	getWarReport,
+	getWarStatusSummary,
+} = require('../../../utils/foxholeWarApi.js');
 
-const WARAPI_ROOT = 'https://war-service-live.foxholeservices.com/api';
-const WARAPI_WAR_URL = `${WARAPI_ROOT}/worldconquest/war`;
-const WARAPI_MAPS_URL = `${WARAPI_ROOT}/worldconquest/maps`;
-const STEAM_PLAYERS_URL = 'https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=505460';
 const FOXHOLE_STATS_URL = 'https://foxholestats.com/';
-const FETCH_TIMEOUT_MS = 8000;
-
-// Simple in-memory cache with ETag + expiry
-const warCache = {
-	war: { data: null, etag: null, expiresAt: 0 },
-	maps: { data: null, etag: null, expiresAt: 0 },
-	steam: { data: null, expiresAt: 0 },
-	// mapName -> { data, etag, expiresAt }
-	reports: new Map(),
-};
-
-// Fallback TTLs when Cache-Control is absent or unparsable
-const TTL = {
-	// 60s – war state updates at most every 60s
-	war: 60_000,
-	// 10min – map list is very stable
-	maps: 10 * 60_000,
-	// 5s – per-map war report is fairly dynamic
-	report: 5_000,
-	// 60s – Steam players is poll-based
-	steam: 60_000,
-};
-
-function parseMaxAge(cacheControl) {
-	if (!cacheControl) return null;
-	const match = cacheControl.match(/max-age=(\d+)/);
-	if (!match) return null;
-	const seconds = Number(match[1]);
-	return Number.isFinite(seconds) ? seconds * 1000 : null;
-}
-
-async function fetchWithTimeout(url, options = {}) {
-	const controller = new AbortController();
-	const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-	try {
-		const res = await fetch(url, { ...options, signal: controller.signal });
-		clearTimeout(timeoutId);
-		return res;
-	}
-	catch {
-		clearTimeout(timeoutId);
-		return null;
-	}
-}
-
-async function getWar() {
-	const now = Date.now();
-	// Local expiry check to avoid unnecessary HTTP calls
-	if (warCache.war.data && now < warCache.war.expiresAt) {
-		return warCache.war.data;
-	}
-
-	const headers = {};
-	if (warCache.war.etag) headers['If-None-Match'] = warCache.war.etag;
-
-	const res = await fetchWithTimeout(WARAPI_WAR_URL, { headers });
-	if (!res) return warCache.war.data;
-
-	// 304 Not Modified -> keep cached data, refresh expiry
-	if (res.status === 304 && warCache.war.data) {
-		const cc = res.headers.get('cache-control');
-		const maxAgeMs = parseMaxAge(cc) ?? TTL.war;
-		warCache.war.expiresAt = now + maxAgeMs;
-		return warCache.war.data;
-	}
-
-	if (!res.ok) return warCache.war.data;
-
-	const data = await res.json().catch(() => null);
-	if (!data) return warCache.war.data;
-
-	const cc = res.headers.get('cache-control');
-	const etag = res.headers.get('etag');
-	const maxAgeMs = parseMaxAge(cc) ?? TTL.war;
-
-	warCache.war = {
-		data,
-		etag: etag || warCache.war.etag,
-		expiresAt: now + maxAgeMs,
-	};
-
-	return data;
-}
-
-async function getMaps() {
-	const now = Date.now();
-	if (warCache.maps.data && now < warCache.maps.expiresAt) {
-		return warCache.maps.data;
-	}
-
-	const headers = {};
-	if (warCache.maps.etag) headers['If-None-Match'] = warCache.maps.etag;
-
-	const res = await fetchWithTimeout(WARAPI_MAPS_URL, { headers });
-	if (!res) return warCache.maps.data;
-
-	if (res.status === 304 && warCache.maps.data) {
-		const cc = res.headers.get('cache-control');
-		const maxAgeMs = parseMaxAge(cc) ?? TTL.maps;
-		warCache.maps.expiresAt = now + maxAgeMs;
-		return warCache.maps.data;
-	}
-
-	if (!res.ok) return warCache.maps.data;
-
-	const data = await res.json().catch(() => null);
-	if (!data) return warCache.maps.data;
-
-	const cc = res.headers.get('cache-control');
-	const etag = res.headers.get('etag');
-	const maxAgeMs = parseMaxAge(cc) ?? TTL.maps;
-
-	warCache.maps = {
-		data,
-		etag: etag || warCache.maps.etag,
-		expiresAt: now + maxAgeMs,
-	};
-
-	return data;
-}
-
-async function getSteamPlayers() {
-	const now = Date.now();
-	if (warCache.steam.data && now < warCache.steam.expiresAt) {
-		return warCache.steam.data;
-	}
-
-	const res = await fetchWithTimeout(STEAM_PLAYERS_URL);
-	if (!res || !res.ok) return warCache.steam.data;
-
-	const data = await res.json().catch(() => null);
-	if (!data) return warCache.steam.data;
-
-	warCache.steam = {
-		data,
-		expiresAt: now + TTL.steam,
-	};
-
-	return data;
-}
-
-async function getWarReport(mapName) {
-	const key = mapName.toLowerCase();
-	const now = Date.now();
-	const cached = warCache.reports.get(key) || { data: null, etag: null, expiresAt: 0 };
-
-	if (cached.data && now < cached.expiresAt) {
-		return cached.data;
-	}
-
-	const headers = {};
-	if (cached.etag) headers['If-None-Match'] = cached.etag;
-
-	const url = `${WARAPI_ROOT}/worldconquest/warReport/${encodeURIComponent(mapName)}`;
-	const res = await fetchWithTimeout(url, { headers });
-	if (!res) return cached.data;
-
-	if (res.status === 304 && cached.data) {
-		const cc = res.headers.get('cache-control');
-		const maxAgeMs = parseMaxAge(cc) ?? TTL.report;
-		cached.expiresAt = now + maxAgeMs;
-		warCache.reports.set(key, cached);
-		return cached.data;
-	}
-
-	if (!res.ok) return cached.data;
-
-	const data = await res.json().catch(() => null);
-	if (!data) return cached.data;
-
-	const cc = res.headers.get('cache-control');
-	const etag = res.headers.get('etag');
-	const maxAgeMs = parseMaxAge(cc) ?? TTL.report;
-
-	const updated = {
-		data,
-		etag: etag || cached.etag,
-		expiresAt: now + maxAgeMs,
-	};
-	warCache.reports.set(key, updated);
-
-	return data;
-}
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -275,77 +95,146 @@ module.exports = {
 		await interaction.deferReply({ flags: 64 });
 
 		if (sub === 'status') {
-			const [warData, steamData] = await Promise.all([getWar(), getSteamPlayers()]);
+			const summary = await getWarStatusSummary();
 
-			const playerCount = steamData?.response?.player_count;
-			const hasWar = warData && typeof warData.warNumber === 'number';
-			const hasPlayers = typeof playerCount === 'number';
-
-			if (!hasWar && !hasPlayers) {
-				return interaction.editReply({
-					content: translations.translate('FOXHOLE_ALL_UNAVAILABLE'),
-				});
+			if (!summary.available) {
+				const steamData = await getSteamPlayers();
+				const playerCount = steamData?.response?.player_count;
+				if (typeof playerCount !== 'number') {
+					return interaction.editReply({
+						content: translations.translate('FOXHOLE_ALL_UNAVAILABLE'),
+					});
+				}
+				const embed = new EmbedBuilder()
+					.setColor(getRandomColor())
+					.setTitle(translations.translate('FOXHOLE_TITLE'))
+					.addFields(
+						{
+							name: translations.translate('FOXHOLE_PLAYERS_CURRENT'),
+							value: playerCount.toLocaleString(),
+							inline: true,
+						},
+						{
+							name: translations.translate('FOXHOLE_WAR_TITLE'),
+							value: translations.translate('FOXHOLE_UNAVAILABLE'),
+							inline: false,
+						},
+					);
+				return interaction.editReply({ embeds: [embed] });
 			}
 
+			const winnerKeys = {
+				NONE: 'FOXHOLE_WINNER_NONE',
+				WARDEN: 'FOXHOLE_WINNER_WARDEN',
+				COLONIAL: 'FOXHOLE_WINNER_COLONIAL',
+			};
+			const winnerKey = winnerKeys[summary.winner] || 'FOXHOLE_WINNER_NONE';
+			const need = summary.effectiveRequiredVictoryTowns ?? summary.requiredVictoryTowns;
+			const vt = summary.victoryTowns;
+
 			const embed = new EmbedBuilder()
-				.setColor(getRandomColor())
-				.setTitle(translations.translate('FOXHOLE_TITLE'));
+				.setColor(summary.ended ? 0x6b4f2f : getRandomColor())
+				.setTitle(translations.translate(
+					summary.ended ? 'FOXHOLE_WAR_TITLE_ENDED' : 'FOXHOLE_TITLE',
+				));
 
 			embed.addFields({
 				name: translations.translate('FOXHOLE_PLAYERS_CURRENT'),
-				value: hasPlayers
-					? playerCount.toLocaleString()
+				value: summary.playersOnline != null
+					? Number(summary.playersOnline).toLocaleString()
 					: translations.translate('FOXHOLE_UNAVAILABLE'),
 				inline: true,
 			});
 
-			if (hasWar) {
-				const winnerKeys = { NONE: 'FOXHOLE_WINNER_NONE', WARDEN: 'FOXHOLE_WINNER_WARDEN', COLONIAL: 'FOXHOLE_WINNER_COLONIAL' };
-				const winnerKey = winnerKeys[warData.winner] || 'FOXHOLE_WINNER_NONE';
-				const startTime = warData.conquestStartTime
-					? `<t:${Math.floor(warData.conquestStartTime / 1000)}:F>`
-					: '—';
-				const endTime = warData.conquestEndTime
-					? `<t:${Math.floor(warData.conquestEndTime / 1000)}:F>`
-					: '—';
+			embed.addFields(
+				{
+					name: translations.translate('FOXHOLE_WAR_NUMBER'),
+					value: String(summary.warNumber),
+					inline: true,
+				},
+				{
+					name: translations.translate('FOXHOLE_WAR_WINNER'),
+					value: translations.translate(winnerKey),
+					inline: true,
+				},
+			);
 
+			if (summary.dayOfWar != null) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_DAY'),
+					value: translations.translate('FOXHOLE_WAR_DAY_VALUE', { n: summary.dayOfWar }),
+					inline: true,
+				});
+			}
+			if (summary.elapsed) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_ELAPSED'),
+					value: formatElapsed(summary.elapsed, translations, 'FOXHOLE_WAR_ELAPSED_VALUE'),
+					inline: true,
+				});
+			}
+
+			if (vt) {
 				embed.addFields(
 					{
-						name: translations.translate('FOXHOLE_WAR_NUMBER'),
-						value: String(warData.warNumber),
+						name: translations.translate('FOXHOLE_WAR_COLONIAL_TOWNS'),
+						value: need != null ? `${vt.colonial} / ${need}` : String(vt.colonial),
 						inline: true,
 					},
 					{
-						name: translations.translate('FOXHOLE_WAR_WINNER'),
-						value: translations.translate(winnerKey),
+						name: translations.translate('FOXHOLE_WAR_WARDEN_TOWNS'),
+						value: need != null ? `${vt.warden} / ${need}` : String(vt.warden),
 						inline: true,
-					},
-					{
-						name: translations.translate('FOXHOLE_WAR_REQUIRED_TOWNS'),
-						value: String(warData.requiredVictoryTowns ?? '—'),
-						inline: true,
-					},
-					{
-						name: translations.translate('FOXHOLE_WAR_SHORT_REQUIRED_TOWNS'),
-						value: String(warData.shortRequiredVictoryTowns ?? '0'),
-						inline: true,
-					},
-					{
-						name: translations.translate('FOXHOLE_WAR_START'),
-						value: startTime,
-						inline: false,
-					},
-					{
-						name: translations.translate('FOXHOLE_WAR_END'),
-						value: endTime,
-						inline: false,
 					},
 				);
+				if (vt.scorched) {
+					embed.addFields({
+						name: translations.translate('FOXHOLE_WAR_SCORCHED_TOWNS'),
+						value: String(vt.scorched),
+						inline: true,
+					});
+				}
 			}
-			else {
+			else if (summary.requiredVictoryTowns != null) {
 				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_TITLE'),
-					value: translations.translate('FOXHOLE_UNAVAILABLE'),
+					name: translations.translate('FOXHOLE_WAR_REQUIRED_TOWNS'),
+					value: String(summary.requiredVictoryTowns),
+					inline: true,
+				});
+			}
+
+			if (summary.shortRequiredVictoryTowns != null) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_SHORT_REQUIRED_TOWNS'),
+					value: String(summary.shortRequiredVictoryTowns),
+					inline: true,
+				});
+			}
+
+			embed.addFields({
+				name: translations.translate('FOXHOLE_WAR_START'),
+				value: discordTs(summary.conquestStartTime),
+				inline: false,
+			});
+
+			if (summary.ended && summary.conquestEndTime) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_END'),
+					value: discordTs(summary.conquestEndTime),
+					inline: false,
+				});
+			}
+			else if (!summary.ended && summary.scheduledConquestEndTime) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_SCHEDULED_END'),
+					value: `${discordTs(summary.scheduledConquestEndTime)} (${discordTs(summary.scheduledConquestEndTime, 'R')})`,
+					inline: false,
+				});
+			}
+			else if (summary.conquestEndTime) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_END'),
+					value: discordTs(summary.conquestEndTime),
 					inline: false,
 				});
 			}
