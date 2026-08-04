@@ -151,9 +151,16 @@ async function validateLogin(username, password, req) {
 	const passOk = verifyPassword(password, salt, expected);
 	if (!userOk || !passOk) return null;
 	clearLoginRateLimit(req);
+	const now = new Date();
+	await authCollection().updateOne(
+		{ _id: 'credentials' },
+		{ $set: { lastLoginAt: now } },
+	);
 	return {
 		username: creds.username,
 		isDefault: Boolean(creds.isDefault),
+		lastLoginAt: now,
+		updatedAt: creds.updatedAt || null,
 	};
 }
 
@@ -212,17 +219,45 @@ async function updateCredentials({ currentPassword, username, newPassword }) {
 	return {
 		username: update.username,
 		isDefault: false,
+		updatedAt: update.updatedAt,
 	};
 }
 
-function createSession(user) {
+function pruneExpiredSessions() {
+	const now = Date.now();
+	for (const [sid, session] of sessions) {
+		if (session.expiresAt < now) sessions.delete(sid);
+	}
+}
+
+function activeSessionCount() {
+	pruneExpiredSessions();
+	return sessions.size;
+}
+
+function createSession(user, req = null) {
 	const sid = crypto.randomBytes(32).toString('hex');
+	const now = Date.now();
 	sessions.set(sid, {
 		username: user.username,
 		isDefault: Boolean(user.isDefault),
-		expiresAt: Date.now() + SESSION_TTL_MS,
+		createdAt: now,
+		lastSeenAt: now,
+		expiresAt: now + SESSION_TTL_MS,
+		ip: req ? clientIp(req) : null,
 	});
 	return sid;
+}
+
+function describeSession(session) {
+	if (!session) return null;
+	return {
+		started_at: session.createdAt ? new Date(session.createdAt).toISOString() : null,
+		expires_at: new Date(session.expiresAt).toISOString(),
+		ip: session.ip || null,
+		active_sessions: activeSessionCount(),
+		ttl_hours: Math.round(SESSION_TTL_MS / (60 * 60 * 1000)),
+	};
 }
 
 function destroySession(sid) {
@@ -241,7 +276,9 @@ function getSession(sid) {
 		sessions.delete(sid);
 		return null;
 	}
-	session.expiresAt = Date.now() + SESSION_TTL_MS;
+	const now = Date.now();
+	session.lastSeenAt = now;
+	session.expiresAt = now + SESSION_TTL_MS;
 	return session;
 }
 
@@ -351,6 +388,7 @@ function assertSameOrigin(req) {
 module.exports = {
 	COOKIE_NAME,
 	PASSWORD_MIN,
+	SESSION_TTL_MS,
 	DEFAULT_USERNAME,
 	hashPassword,
 	verifyPassword,
@@ -359,6 +397,8 @@ module.exports = {
 	validateLogin,
 	updateCredentials,
 	createSession,
+	describeSession,
+	activeSessionCount,
 	destroySession,
 	destroyAllSessions,
 	getSession,

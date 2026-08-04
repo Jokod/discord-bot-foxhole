@@ -27,26 +27,74 @@ function mapUser(user) {
 	};
 }
 
-async function discordFetch(apiPath) {
+/**
+ * @param {string} apiPath
+ * @param {{ method?: string, body?: object|null, _retry?: number }} [options]
+ */
+async function discordFetch(apiPath, options = {}) {
 	const token = process.env.TOKEN;
 	if (!token) return { ok: false, status: 0, data: null, error: 'TOKEN manquant' };
-	const res = await fetch(`https://discord.com/api/v10${apiPath}`, {
-		headers: {
-			Authorization: `Bot ${token}`,
-			'User-Agent': 'FoxBot-Dashboard (local)',
-		},
-	});
+
+	const method = (options.method || 'GET').toUpperCase();
+	const headers = {
+		Authorization: `Bot ${token}`,
+		'User-Agent': 'FoxBot-Dashboard (local)',
+	};
+	const init = { method, headers };
+	if (options.body != null && method !== 'GET' && method !== 'DELETE') {
+		headers['Content-Type'] = 'application/json';
+		init.body = JSON.stringify(options.body);
+	}
+
+	const res = await fetch(`https://discord.com/api/v10${apiPath}`, init);
 	if (res.status === 429) {
+		const retry = (options._retry || 0) + 1;
+		if (retry > 3) {
+			return { ok: false, status: 429, data: null, error: 'rate limited' };
+		}
 		const body = await res.json().catch(() => ({}));
 		const wait = Math.ceil(Number(body.retry_after || 1) * 1000);
 		await sleep(Math.min(wait, 5000));
-		return discordFetch(apiPath);
+		return discordFetch(apiPath, { ...options, _retry: retry });
+	}
+	if (res.status === 204) {
+		return { ok: true, status: 204, data: null, error: null };
 	}
 	if (!res.ok) {
 		const text = await res.text().catch(() => '');
 		return { ok: false, status: res.status, data: null, error: text.slice(0, 200) };
 	}
-	return { ok: true, status: res.status, data: await res.json(), error: null };
+	const text = await res.text().catch(() => '');
+	if (!text) return { ok: true, status: res.status, data: null, error: null };
+	try {
+		return { ok: true, status: res.status, data: JSON.parse(text), error: null };
+	}
+	catch {
+		return { ok: true, status: res.status, data: text, error: null };
+	}
+}
+
+/** @param {string} guildId */
+async function leaveGuildRest(guildId) {
+	return discordFetch(`/users/@me/guilds/${guildId}`, { method: 'DELETE' });
+}
+
+/** @param {string} channelId @param {string} content */
+async function sendChannelMessage(channelId, content) {
+	return discordFetch(`/channels/${channelId}/messages`, {
+		method: 'POST',
+		body: { content },
+	});
+}
+
+/** @param {string} guildId */
+async function fetchGuildChannels(guildId) {
+	return discordFetch(`/guilds/${guildId}/channels`);
+}
+
+/** @param {string} guildId */
+async function fetchGuild(guildId) {
+	return discordFetch(`/guilds/${guildId}`);
 }
 
 module.exports = {
@@ -54,4 +102,8 @@ module.exports = {
 	avatarUrl,
 	mapUser,
 	discordFetch,
+	leaveGuildRest,
+	sendChannelMessage,
+	fetchGuildChannels,
+	fetchGuild,
 };

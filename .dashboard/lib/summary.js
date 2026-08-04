@@ -3,6 +3,7 @@
 const path = require('path');
 const mongoose = require('mongoose');
 const { getWarStatusSummary } = require('../../utils/foxholeWarApi');
+const { getBlockedGuildDetails } = require('../../utils/blockedGuilds');
 
 const MS = {
 	h24: 24 * 60 * 60 * 1000,
@@ -162,8 +163,11 @@ function createLoadSummary(envPath) {
 			pct: Math.round((row.total / cmdTotal) * 1000) / 10,
 		}));
 
+		const blockedDetails = await getBlockedGuildDetails();
+
 		const mapGuild = (g) => {
 			const setup = serverByGuild.get(g.guild_id);
+			const blockedSource = blockedDetails.get(g.guild_id) || null;
 			return {
 				guild_id: g.guild_id,
 				name: g.name || g.guild_id,
@@ -183,6 +187,8 @@ function createLoadSummary(envPath) {
 				camp: setup?.camp || null,
 				logs: Boolean(setup?.logs),
 				activity: activityBucket(g.last_command_at, now),
+				blocked: Boolean(blockedSource),
+				blocked_source: blockedSource,
 				command_breakdown: g.command_breakdown && typeof g.command_breakdown === 'object'
 					? g.command_breakdown
 					: {},
@@ -230,6 +236,19 @@ function createLoadSummary(envPath) {
 			env_file: path.basename(envPath),
 			db_name: mongoose.connection.name || process.env.MONGODB_NAME || null,
 			war,
+			blocked_guilds: [...blockedDetails.entries()].map(([guild_id, source]) => {
+				const fromStats = allStats.find((g) => g.guild_id === guild_id);
+				return {
+					guild_id,
+					source,
+					name: fromStats?.name || guild_id,
+					member_count: fromStats?.member_count || 0,
+					command_count: fromStats?.command_count || 0,
+					left_at: fromStats?.left_at || null,
+					active: Boolean(fromStats && !fromStats.left_at),
+					can_unblacklist: source === 'mongo' || source === 'both',
+				};
+			}).sort((a, b) => String(a.name).localeCompare(String(b.name))),
 			kpis: {
 				active_guilds: active.length,
 				left_guilds: left.length,

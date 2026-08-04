@@ -45,7 +45,7 @@ module.exports = {
 			console.log(`[Stats] ${purgedStats} fiche(s) Stats sans nom supprimée(s).`);
 		}
 
-		const blockedGuildIds = getBlockedGuildIds();
+		const blockedGuildIds = await getBlockedGuildIds();
 		const currentGuildIds = Array.from(client.guilds.cache.keys());
 
 		for (const [id, guild] of client.guilds.cache) {

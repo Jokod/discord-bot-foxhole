@@ -11,7 +11,8 @@ module.exports = {
 	 * @param {import('discord.js').Guild} guild The guild the bot joined.
 	 */
 	async execute(guild) {
-		if (getBlockedGuildIds().has(guild.id)) {
+		const blockedGuildIds = await getBlockedGuildIds();
+		if (blockedGuildIds.has(guild.id)) {
 			try {
 				await cleanupGuildData(guild.id, {
 					reason: 'blocked_guild_join',

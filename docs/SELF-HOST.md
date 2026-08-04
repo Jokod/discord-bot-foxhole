@@ -123,7 +123,7 @@ Reference: [`.env.dist`](../.env.dist).
 | `APP_ENV` | yes | `dev` or `prod` |
 | `PREFIX` | no | Text command prefix (default `!`) |
 | `TZ` | no | Timezone (e.g. `Europe/Paris`) |
-| `BLOCKED_GUILD_IDS` | no | Comma-separated guild IDs to leave |
+| `BLOCKED_GUILD_IDS` | no | Comma-separated guild IDs the bot must leave / refuse (env blocklist; not removable from the dashboard UI) |
 | `GITHUB_URL` | no | Shown in `/about` |
 | `GITHUB_ISSUES_URL` | no | Issues link override (default `GITHUB_URL/issues/new`) |
 | `DISCORD_INVITE_URL` | no | Support invite + Follow Announcements text in `/about` |
@@ -156,7 +156,7 @@ Before any major version bump:
 3. Deploy code → **restart**  
 4. Check slash commands (re-registered at boot)
 
-Example **→ 1.0.0**: `node scripts/migrate-v2.js --dry-run` then `node scripts/migrate-v2.js`, then recreate boards with `/order` (no automatic logistics/stock → order conversion).
+Example **→ 1.0.0**: `node scripts/migrate-v2.js --dry-run` then `node scripts/migrate-v2.js`, then recreate boards with `/order` (no automatic `/logistics` / `/material` → order conversion).
 
 ---
 
@@ -248,11 +248,13 @@ The dashboard stays on **localhost** by default. Auth allows an optional reverse
 
 - Overview: activity, joins/leaves, sizes, top commands / servers  
 - Commands: global breakdown, filter to servers  
-- Servers: search, filters, sort, detail (language, faction, stats)  
+- Servers: search, filters, sort, detail drawer (language, faction, stats)  
+- **Server admin actions** (drawer): leave, blacklist, unblacklist, broadcast — each with a short explanation and a confirmation modal (`CONFIRM` for leave / blacklist / unblacklist)  
+- **Blacklisted servers**: list from Mongo `blocked_guilds` ∪ `BLOCKED_GUILD_IDS`; unblacklist only for Mongo (or `both`); env-only IDs stay until you edit the env  
 - Contacts: Discord owners + creators of ops / stockpiles / boards (resolved via `TOKEN`)  
 - Product: order boards, languages, factions, notifications, ops  
 
-The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the bot is still present**, and username resolution. `owner_id` is also stored on `Stats` at join / ready / leave so it remains after departure.
+The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the bot is still present**, and username resolution. `owner_id` is also stored on `Stats` at join / ready / leave so it remains after departure. Broadcast / leave / blacklist need a valid `TOKEN` as well (Discord REST).
 
 ### Security
 

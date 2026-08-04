@@ -19,6 +19,8 @@
 	D.cmdSortDir = 'desc';
 	D.selectedGuildId = null;
 	D.currentUser = null;
+	D.links = { discord: null, github: null };
+	D.sessionInfo = null;
 	D.state = {
 		search: '',
 		setup: 'all',
@@ -67,6 +69,9 @@
 
 	function showLogin() {
 		D.currentUser = null;
+		D.sessionInfo = null;
+		const footerMeta = document.getElementById('footerMeta');
+		if (footerMeta) footerMeta.textContent = '';
 		document.getElementById('app').hidden = true;
 		document.getElementById('loginGate').hidden = false;
 		clearInterval(D.timer);
@@ -74,8 +79,73 @@
 		document.getElementById('refreshTools').hidden = true;
 	}
 
+	function applyLinks(payload) {
+		const links = payload?.links || {};
+		D.links = {
+			discord: links.discord || null,
+			github: links.github || null,
+		};
+		const discordEl = document.getElementById('footerDiscord');
+		const githubEl = document.getElementById('footerGithub');
+		const wrap = document.getElementById('footerLinks');
+		if (D.links.discord) {
+			discordEl.href = D.links.discord;
+			discordEl.hidden = false;
+		}
+		else {
+			discordEl.removeAttribute('href');
+			discordEl.hidden = true;
+		}
+		if (D.links.github) {
+			githubEl.href = D.links.github;
+			githubEl.hidden = false;
+		}
+		else {
+			githubEl.removeAttribute('href');
+			githubEl.hidden = true;
+		}
+		wrap.hidden = !(D.links.discord || D.links.github);
+	}
+
+	function remainingLabel(expiresAt) {
+		if (!expiresAt) return '—';
+		const m = Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 60000));
+		if (m < 60) return t('rel.min', { n: m });
+		const h = Math.floor(m / 60);
+		if (h < 48) return t('rel.hours', { n: h });
+		return t('rel.days', { n: Math.floor(h / 24) });
+	}
+
+	function renderFooterSession(session) {
+		if (session) D.sessionInfo = session;
+		const el = document.getElementById('footerMeta');
+		const s = D.sessionInfo;
+		if (!el) return;
+		if (!s) {
+			el.textContent = '';
+			return;
+		}
+		const parts = [];
+		const started = s.started_at ? D.fmt.dt(s.started_at) : null;
+		const startedRel = s.started_at ? D.fmt.rel(s.started_at) : null;
+		if (started) {
+			parts.push(`<span title="${D.escapeHtml(started)}">${t('footer.since', { when: D.escapeHtml(startedRel) })}</span>`);
+		}
+		if (s.ip) {
+			parts.push(`<span>${t('footer.ip', { ip: `<strong>${D.escapeHtml(s.ip)}</strong>` })}</span>`);
+		}
+		if (s.expires_at) {
+			parts.push(`<span title="${D.escapeHtml(D.fmt.dt(s.expires_at))}">${t('footer.expires', { when: D.escapeHtml(remainingLabel(s.expires_at)) })}</span>`);
+		}
+		const n = Number(s.active_sessions) || 1;
+		parts.push(`<span>${t('footer.sessions', { n: D.escapeHtml(String(n)) })}</span>`);
+		el.innerHTML = parts.join('<span class="sep" aria-hidden="true">·</span>');
+	}
+
 	function showApp(user) {
 		D.currentUser = user;
+		applyLinks(user);
+		renderFooterSession(user.session);
 		document.getElementById('loginGate').hidden = true;
 		document.getElementById('app').hidden = false;
 		document.getElementById('userPill').textContent = user.username;
@@ -106,6 +176,7 @@
 	async function bootstrapAuth() {
 		try {
 			const me = await api('/api/me');
+			applyLinks(me);
 			if (!me?.authenticated) {
 				showLogin();
 				return false;
@@ -147,7 +218,7 @@
 		const envPill = `<span class="pill ${data.env_file === '.env.prod' ? 'prod' : ''}">${D.escapeHtml(data.env_file || '?')} · ${D.escapeHtml(data.db_name || '?')}</span>`;
 		document.getElementById('meta').innerHTML =
 		`${envPill} ${D.fmt.dt(data.generated_at)} · ${t('meta.activeSeen', { active: D.fmt.n(data.kpis.active_guilds), seen: D.fmt.n(data.kpis.total_seen_guilds) })}`;
-		document.getElementById('footer').textContent = t('footer');
+		if (data.session) renderFooterSession(data.session);
 		D.renderWar(data);
 		D.renderKpis(data);
 		D.fillCommandFilter(data);
@@ -184,6 +255,7 @@
 			document.getElementById('meta').innerHTML = `<span class="error">${D.escapeHtml(t('error.generic', { msg: err.message }))}</span>`;
 		}
 	}
+	D.load = load;
 
 	function scheduleAuto() {
 		clearInterval(D.timer);
@@ -401,6 +473,7 @@
 	});
 	document.getElementById('drawerClose').addEventListener('click', () => D.closeDrawer());
 	document.getElementById('backdrop').addEventListener('click', () => D.closeDrawer());
+	D.bindGuildActions?.();
 
 	function syncLangSelects(lang) {
 		for (const id of ['langSelect', 'loginLangSelect']) {
@@ -413,6 +486,7 @@
 		await loadLang(lang);
 		syncLangSelects(getLang());
 		if (D.raw) renderAll(D.raw);
+		else renderFooterSession();
 		if (D.contactsData || D.contactsLoading) D.renderContacts();
 	}
 

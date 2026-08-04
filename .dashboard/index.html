@@ -4,7 +4,7 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>FoxBot — Stats</title>
-	<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+	<link rel="icon" href="/favicon.ico" type="image/x-icon" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -153,7 +153,6 @@
 		<section class="view" id="view-guilds">
 			<article class="panel">
 				<h2 data-i18n="guilds.active">Active servers</h2>
-				<p class="sub" data-i18n="guilds.activeSub">Search, filters, column sort — click a row for details</p>
 				<div class="filters">
 					<label class="field"><span data-i18n="guilds.search">Search</span>
 						<input type="search" id="fSearch" data-i18n-placeholder="guilds.searchPh" placeholder="name or guild id" />
@@ -204,6 +203,26 @@
 							</tr>
 						</thead>
 						<tbody id="guilds"></tbody>
+					</table>
+				</div>
+			</article>
+			<article class="panel" style="margin-top:.85rem">
+				<h2 data-i18n="guilds.blockedTitle">Blacklisted servers</h2>
+				<p class="sub" data-i18n="guilds.blockedSub">Servers blocked from joining — env entries cannot be removed here</p>
+				<div class="summary-bar">
+					<span id="blockedCount"></span>
+				</div>
+				<div class="table-wrap" style="max-height:280px">
+					<table>
+						<thead>
+							<tr>
+								<th data-i18n="guilds.colServer">Server</th>
+								<th data-i18n="guilds.colSource">Source</th>
+								<th data-i18n="guilds.colStatus">Status</th>
+								<th data-i18n="guilds.colAction">Action</th>
+							</tr>
+						</thead>
+						<tbody id="blocked"></tbody>
 					</table>
 				</div>
 			</article>
@@ -355,7 +374,51 @@
 			</article>
 		</section>
 
-		<footer id="footer" data-i18n="footer">Live MongoDB data · session auth</footer>
+		<footer id="footer">
+			<p class="footer-meta" id="footerMeta"></p>
+			<nav class="footer-links" id="footerLinks" hidden aria-label="Links">
+				<a id="footerDiscord" class="footer-link" href="#" target="_blank" rel="noopener noreferrer" hidden>
+					<svg class="footer-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path fill="currentColor" d="M20.317 4.37a19.8 19.8 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.3 18.3 0 0 0-5.487 0 12.6 12.6 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.7 19.7 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.08.08 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .079.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.8 19.8 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418m7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418"/>
+					</svg>
+					<span data-i18n="footer.discord">Discord</span>
+				</a>
+				<a id="footerGithub" class="footer-link" href="#" target="_blank" rel="noopener noreferrer" hidden>
+					<svg class="footer-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+						<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+					</svg>
+					<span data-i18n="footer.github">GitHub</span>
+				</a>
+			</nav>
+		</footer>
+	</div>
+
+	<div class="modal-backdrop" id="guildModal" hidden>
+		<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="guildModalTitle">
+			<h3 id="guildModalTitle"></h3>
+			<p class="sub" id="guildModalSub"></p>
+			<ul class="modal-guild-list" id="guildModalList"></ul>
+			<div id="guildModalBroadcast" hidden>
+				<label class="field"><span data-i18n="guilds.broadcastMsg">Markdown message</span>
+					<textarea id="guildBroadcastMsg" rows="6" maxlength="2000" data-i18n-placeholder="guilds.broadcastPh" placeholder="Announcement…"></textarea>
+				</label>
+				<label class="check-row">
+					<input type="checkbox" id="guildBroadcastDry" checked />
+					<span data-i18n="guilds.broadcastDry">Dry-run (no send)</span>
+				</label>
+			</div>
+			<div id="guildModalConfirmWrap">
+				<label class="field"><span data-i18n="guilds.confirmLabel">Type CONFIRM</span>
+					<input type="text" id="guildConfirmInput" autocomplete="off" spellcheck="false" />
+				</label>
+			</div>
+			<p class="error" id="guildModalError" hidden></p>
+			<pre class="modal-report" id="guildModalReport" hidden></pre>
+			<div class="modal-actions">
+				<button type="button" id="guildModalCancel" data-i18n="guilds.modalCancel">Cancel</button>
+				<button type="button" id="guildModalSubmit" class="danger" data-i18n="guilds.modalConfirm">Confirm</button>
+			</div>
+		</div>
 	</div>
 
 	<div class="backdrop" id="backdrop"></div>
@@ -365,6 +428,37 @@
 			<button type="button" id="drawerClose" data-i18n="drawer.close">Close</button>
 		</div>
 		<div id="drawerBody"></div>
+		<div class="drawer-guild-actions" id="guildActionsBar" hidden>
+			<strong class="drawer-actions-title" data-i18n="drawer.actions">Actions</strong>
+			<div class="guild-action-row" data-action-row="leave">
+				<div class="guild-action-copy">
+					<strong data-i18n="guilds.actLeave">Leave</strong>
+					<p class="guild-action-hint" data-i18n="guilds.actLeaveHint">Leave this Discord server and clean bot data.</p>
+				</div>
+				<button type="button" id="guildActLeave" class="danger" data-i18n="guilds.actLeave">Leave</button>
+			</div>
+			<div class="guild-action-row" data-action-row="blacklist">
+				<div class="guild-action-copy">
+					<strong data-i18n="guilds.actBlacklist">Blacklist</strong>
+					<p class="guild-action-hint" data-i18n="guilds.actBlacklistHint">Block this server and leave it so the bot cannot rejoin.</p>
+				</div>
+				<button type="button" id="guildActBlacklist" class="danger" data-i18n="guilds.actBlacklist">Blacklist</button>
+			</div>
+			<div class="guild-action-row" data-action-row="unblacklist" hidden>
+				<div class="guild-action-copy">
+					<strong data-i18n="guilds.actUnblacklist">Unblacklist</strong>
+					<p class="guild-action-hint" data-i18n="guilds.actUnblacklistHint">Remove this server from the Mongo blacklist.</p>
+				</div>
+				<button type="button" id="guildActUnblacklist" data-i18n="guilds.actUnblacklist">Unblacklist</button>
+			</div>
+			<div class="guild-action-row" data-action-row="broadcast">
+				<div class="guild-action-copy">
+					<strong data-i18n="guilds.actBroadcast">Broadcast</strong>
+					<p class="guild-action-hint" data-i18n="guilds.actBroadcastHint">Send an announcement to a channel on this server.</p>
+				</div>
+				<button type="button" id="guildActBroadcast" data-i18n="guilds.actBroadcast">Broadcast</button>
+			</div>
+		</div>
 	</aside>
 	<script src="/assets/war-progress.js"></script>
 	<script src="/assets/i18n.js"></script>
@@ -373,6 +467,7 @@
 	<script src="/assets/war.js"></script>
 	<script src="/assets/views.js"></script>
 	<script src="/assets/contacts.js"></script>
+	<script src="/assets/guildActions.js"></script>
 	<script src="/assets/app.js"></script>
 </body>
 </html>

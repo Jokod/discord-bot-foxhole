@@ -25,6 +25,11 @@ const {
 	Events,
 } = require('discord.js');
 const mongoose = require('mongoose');
+const {
+	collectKnownChannels,
+	loadAnnounceChannelDocs,
+	listDiscordJsCandidateChannels,
+} = require('../utils/announceChannels');
 
 const DEFAULT_MESSAGE_FILE = path.join(__dirname, '../data/announce.md');
 
@@ -57,29 +62,6 @@ function loadEnv(envFile) {
 	return full;
 }
 
-function collectKnownChannels(dbDocs, guildId) {
-	const ids = [];
-	const push = (id) => {
-		if (id && !ids.includes(id)) ids.push(id);
-	};
-	for (const n of dbDocs.notifs) {
-		if (n.guild_id === guildId) push(n.channel_id);
-	}
-	for (const t of dbDocs.tracked) {
-		if (t.server_id === guildId) push(t.channel_id);
-	}
-	for (const b of dbDocs.boards) {
-		if (b.guild_id === guildId) push(b.channel_id);
-	}
-	for (const s of dbDocs.stockpiles) {
-		if (s.server_id === guildId) push(s.channel_id || s.group_id);
-	}
-	for (const o of dbDocs.operations) {
-		if (o.guild_id === guildId) push(o.channel_id);
-	}
-	return ids;
-}
-
 function canSend(channel, me) {
 	if (!channel || !channel.isTextBased()) return false;
 	if (!me) return channel.isSendable?.() === true;
@@ -88,35 +70,6 @@ function canSend(channel, me) {
 		perms?.has(PermissionFlagsBits.ViewChannel)
 		&& perms?.has(PermissionFlagsBits.SendMessages),
 	);
-}
-
-function listCandidateChannels(guild, preferredIds) {
-	const out = [];
-	const seen = new Set();
-	const me = guild.members.me;
-	const add = (channel, source) => {
-		if (!channel || seen.has(channel.id) || !canSend(channel, me)) return;
-		seen.add(channel.id);
-		out.push({ channel, source });
-	};
-
-	for (const id of preferredIds) {
-		const ch = guild.channels.cache.get(id);
-		add(ch, 'db');
-	}
-
-	if (guild.systemChannelId) {
-		add(guild.channels.cache.get(guild.systemChannelId), 'system');
-	}
-
-	const text = [...guild.channels.cache.values()]
-		.filter((c) => c.type === ChannelType.GuildText || c.type === ChannelType.GuildAnnouncement)
-		.sort((a, b) => a.rawPosition - b.rawPosition);
-	for (const ch of text) {
-		add(ch, 'first-text');
-	}
-
-	return out;
 }
 
 async function main() {
@@ -162,13 +115,7 @@ async function main() {
 	}).toArray();
 
 	const guildIds = guilds.map((g) => g.guild_id);
-	const dbDocs = {
-		notifs: await db.collection('notificationsubscriptions').find({ guild_id: { $in: guildIds } }).project({ guild_id: 1, channel_id: 1 }).toArray(),
-		tracked: await db.collection('trackedmessages').find({ server_id: { $in: guildIds } }).project({ server_id: 1, channel_id: 1 }).toArray(),
-		boards: await db.collection('orderboards').find({ guild_id: { $in: guildIds } }).project({ guild_id: 1, channel_id: 1 }).toArray(),
-		stockpiles: await db.collection('stockpiles').find({ server_id: { $in: guildIds }, deleted: { $ne: true } }).project({ server_id: 1, channel_id: 1, group_id: 1 }).toArray(),
-		operations: await db.collection('operations').find({ guild_id: { $in: guildIds }, channel_id: { $exists: true, $nin: [null, ''] } }).project({ guild_id: 1, channel_id: 1 }).toArray(),
-	};
+	const dbDocs = await loadAnnounceChannelDocs(guildIds);
 
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 	await client.login(token);
@@ -189,7 +136,12 @@ async function main() {
 		}
 		await discordGuild.channels.fetch().catch(() => null);
 		const preferred = collectKnownChannels(dbDocs, g.guild_id);
-		const candidates = listCandidateChannels(discordGuild, preferred);
+		const candidates = listDiscordJsCandidateChannels(
+			discordGuild,
+			preferred,
+			canSend,
+			ChannelType,
+		);
 		if (!candidates.length) {
 			console.log(`SKIP  ${g.name} — no sendable channel`);
 			report.push({ guild: g.name, guild_id: g.guild_id, status: 'SKIP', detail: 'no sendable channel' });

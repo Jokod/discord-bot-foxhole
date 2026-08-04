@@ -349,10 +349,14 @@
 			}
 		});
 
-		document.getElementById('guilds').innerHTML = guilds.length ? guilds.map((g) => `
+		document.getElementById('guilds').innerHTML = guilds.length ? guilds.map((g) => {
+			const blockedBadge = g.blocked
+				? `<span class="badge blocked" title="${escapeHtml(g.blocked_source || '')}">${t('guilds.blocked')}</span> `
+				: '';
+			return `
 		<tr class="row-click" data-gid="${g.guild_id}">
 			<td>
-				<strong>${escapeHtml(g.name)}</strong><br />
+				${blockedBadge}<strong>${escapeHtml(g.name)}</strong><br />
 				<span class="mono muted">${g.guild_id}</span>
 			</td>
 			<td><span class="badge ${g.setup ? 'ok' : 'warn'}">${g.setup ? t('yes') : t('no')}</span></td>
@@ -363,7 +367,35 @@
 			<td class="mono">${fmt.n(g.stock_board_count)}</td>
 			<td class="mono" title="${fmt.dt(g.last_command_at)}"><span class="badge info">${escapeHtml(activityLabel(g.activity))}</span> ${fmt.rel(g.last_command_at)}</td>
 			<td><div class="chips">${(g.top_commands || []).slice(0, 3).map((c) => `<span class="chip ${state.command === c.name ? 'active' : ''}" data-cmd="${escapeHtml(c.name)}">/${escapeHtml(c.name)} ${c.count}</span>`).join('') || '—'}</div></td>
-		</tr>`).join('') : '<tr><td colspan="9" class="muted">' + t('guilds.empty') + '</td></tr>';
+		</tr>`;
+		}).join('') : '<tr><td colspan="9" class="muted">' + t('guilds.empty') + '</td></tr>';
+
+		getStore().syncGuildActionsUi?.();
+
+		const blocked = raw.blocked_guilds || [];
+		const blockedCount = document.getElementById('blockedCount');
+		if (blockedCount) {
+			blockedCount.textContent = t('guilds.blockedCount', { n: fmt.n(blocked.length) });
+		}
+		const blockedBody = document.getElementById('blocked');
+		if (blockedBody) {
+			blockedBody.innerHTML = blocked.length ? blocked.map((g) => {
+				const can = g.can_unblacklist;
+				const status = g.active
+					? t('guilds.blockedStillIn')
+					: (g.left_at ? t('guilds.blockedLeft') : t('guilds.blockedUnknown'));
+				const action = can
+					? `<button type="button" data-unblacklist="${escapeHtml(g.guild_id)}">${t('guilds.actUnblacklist')}</button>`
+					: `<span class="muted" title="${escapeHtml(t('guilds.unblacklistEnvOnly'))}">${t('guilds.unblacklistEnvOnly')}</span>`;
+				return `
+		<tr>
+			<td><strong>${escapeHtml(g.name)}</strong><br /><span class="mono muted">${escapeHtml(g.guild_id)}</span></td>
+			<td><span class="badge blocked">${escapeHtml(g.source)}</span></td>
+			<td>${escapeHtml(status)}</td>
+			<td>${action}</td>
+		</tr>`;
+			}).join('') : `<tr><td colspan="4" class="muted">${t('guilds.emptyBlocked')}</td></tr>`;
+		}
 
 		const lq = state.leftSearch.trim().toLowerCase();
 		let left = (raw.left_guilds || []).filter((g) => !lq || (`${g.name} ${g.guild_id}`).toLowerCase().includes(lq));
@@ -389,6 +421,7 @@
 		<p class="mono muted">${g.guild_id}</p>
 		<div class="stat-list">
 			<div><span>${t('drawer.setup')}</span><strong>${g.setup ? t('yes') : t('no')}</strong></div>
+			<div><span>${t('guilds.blocked')}</span><strong>${g.blocked ? `${t('yes')} (${escapeHtml(g.blocked_source || '—')})` : t('no')}</strong></div>
 			<div><span>${t('drawer.lang')}</span><strong>${g.lang ? escapeHtml(g.lang) : '—'}</strong></div>
 			<div><span>${t('drawer.camp')}</span><strong>${g.camp ? escapeHtml(g.camp) : '—'}</strong></div>
 			<div><span>${t('drawer.members')}</span><strong>${fmt.n(g.member_count)}</strong></div>
@@ -407,6 +440,7 @@
 		document.getElementById('drawer').classList.add('open');
 		document.getElementById('drawer').setAttribute('aria-hidden', 'false');
 		document.getElementById('backdrop').classList.add('open');
+		getStore().syncGuildActionsUi?.();
 	}
 
 	function closeDrawer() {
@@ -414,6 +448,7 @@
 		document.getElementById('drawer').classList.remove('open');
 		document.getElementById('drawer').setAttribute('aria-hidden', 'true');
 		document.getElementById('backdrop').classList.remove('open');
+		getStore().syncGuildActionsUi?.();
 	}
 
 	function fillCommandFilter(data) {

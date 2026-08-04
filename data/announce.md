@@ -3,13 +3,13 @@
 A major update will ship **when this war ends**.
 
 **What changes**
-- `/logistics`, `/material`, and inventory `/stock` boards are **removed**
+- `/logistics` and `/material` are **removed**
 - Replaced by **`/order`** — production, front transfer, and scrap boards
 - `/stockpile` (depot codes) and `/operation` stay
 
 **After deploy**
 1. Recreate boards with `/order create`
-2. Delete leftover old logistics/inventory messages
+2. Delete leftover old logistics / material messages
 
 **Release notes on your Discord**
 1. Join https://discord.gg/bjkzG9YsX5

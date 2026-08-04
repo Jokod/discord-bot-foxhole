@@ -14,7 +14,7 @@ const OBSOLETE_SLASH_COMMANDS = [
 ];
 
 /**
- * Legacy logistics materials OR inventory-era materials (anything in `materials` collection).
+ * Legacy `/material` docs (anything in `materials` collection).
  * After the order pivot, OrderLine lives in `orderlines` — drop all `materials`.
  * @param {object} doc
  * @returns {boolean}

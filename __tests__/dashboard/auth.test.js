@@ -190,7 +190,12 @@ describe('dashboard auth', () => {
 		await ensureDefaultAdmin();
 		const req = { headers: {}, socket: { remoteAddress: '127.0.0.1' } };
 		const ok = await validateLogin('admin', 'admin', req);
-		expect(ok).toEqual({ username: 'admin', isDefault: true });
+		expect(ok).toEqual({
+			username: 'admin',
+			isDefault: true,
+			lastLoginAt: expect.any(Date),
+			updatedAt: expect.any(Date),
+		});
 		expect(await validateLogin('admin', 'wrong', req)).toBeNull();
 		expect(await validateLogin('nope', 'admin', req)).toBeNull();
 	});
@@ -223,7 +228,7 @@ describe('dashboard auth', () => {
 			username: 'ops',
 			newPassword: 'strong-pass-12',
 		});
-		expect(updated).toEqual({ username: 'ops', isDefault: false });
+		expect(updated).toEqual({ username: 'ops', isDefault: false, updatedAt: expect.any(Date) });
 		expect(store.isDefault).toBe(false);
 		expect(verifyPassword('strong-pass-12', store.salt, store.hash)).toBe(true);
 		expect(getSession(sid)).toBeNull();

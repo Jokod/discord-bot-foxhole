@@ -3,8 +3,8 @@
 const { isValidTrackedType } = require('./constants.js');
 
 /**
- * Purge inventory-era Stock/Material collections and obsolete tracked messages,
- * plus legacy groups if still present.
+ * Purge legacy logistics Material/Group data and obsolete tracked messages.
+ * Also clears an orphan `stocks` collection if present (defensive; no shipped `/stock` slash).
  * @param {import('mongodb').Db} db
  * @param {{ dryRun?: boolean }} options
  */

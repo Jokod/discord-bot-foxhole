@@ -6,7 +6,7 @@ Full ops guide (install, env, wiki): [SELF-HOST.md](SELF-HOST.md). Player usage:
 
 | From → to | Section |
 |-----------|---------|
-| Pre-1.0.0 (logistics / inventory `/stock`) → **1.0.0** | [below](#release-100--changes-migration-and-validation) |
+| Pre-1.0.0 (`/logistics` / `/material`) → **1.0.0** | [below](#release-100--changes-migration-and-validation) |
 
 ---
 
@@ -18,23 +18,21 @@ Full ops guide (install, env, wiki): [SELF-HOST.md](SELF-HOST.md). Player usage:
 
 | Data / UX (before 1.0.0) | After 1.0.0 upgrade |
 |--------------------------|---------------------|
-| Group logistics threads, `/logistics`, `/material` | **Deleted in DB** (`groups`, legacy materials). Dead buttons if Discord messages remain. |
-| Inventory boards `/stock` + `Material` lines | **Deleted in DB** (`stocks`, `materials`). Summary/panel Discord messages may remain orphaned → delete manually in the channel. |
-| Tracked `stock_summary:*` / `stock_panel:*` | **Purged** DB refs (no inventory resync). |
+| Group logistics threads, `/logistics`, `/material` | **Deleted in DB** (`groups`, `materials`). Dead buttons if Discord messages remain. |
 | `/stockpile` codes | **Kept**; `group_id` → `channel_id` if needed; list resyncs on ready. |
 | In-progress `/operation` | **Kept** (same collection). |
-| Slash stats keys `logistics` / `stock` / … | Obsolete keys **cleaned**. |
+| Slash stats keys `logistics` / `material` / … | Obsolete keys **cleaned**. |
 | New logistics need | Recreate with **`/order create`** (prod, transfer, or scrap); optional OP link. |
 
 **Who does what**
 
 1. **Bot ops (self-host / official instance)**: backup → `migrate-v2.js` → deploy 1.0.0 → restart.  
-2. **Each Discord server**: no DB action; after restart, slash commands change. Logistics leads **recreate** `/order` boards and **delete** old inventory/logistics messages still visible.  
-3. **Nothing is auto-migrated** inventory → order (inventory current/target ≠ OP order).
+2. **Each Discord server**: no DB action; after restart, slash commands change. Logistics leads **recreate** `/order` boards and **delete** old logistics / material messages still visible.  
+3. **Nothing is auto-migrated** material requests → order (`quantityAsk`/`quantityGiven` ≠ board `current/target`).
 
 ```mermaid
 flowchart LR
-  Old["Before: logistics and/or /stock"]
+  Old["Before: /logistics + /material"]
   Migrate["migrate-v2.js purge DB"]
   Deploy["Deploy 1.0.0 + restart"]
   Recreate["Staff: /order create + clean messages"]
@@ -50,8 +48,7 @@ flowchart LR
 | Before | After |
 |--------|--------|
 | `/logistics`, `/material`, Group threads | **Removed** |
-| Channel inventory `/stock` (selects, priority, ±qty) | **Removed** |
-| Ask/given / assignee requests | **Removed** |
+| Ask/given / assignee material requests | **Removed** |
 | `Stockpile.group_id` | **`channel_id`** |
 | `/create_operation`, `/notification`, `/foxhole` | **`/operation`**, **`/notify`**, merged into **`/war`** |
 
@@ -59,7 +56,7 @@ flowchart LR
 
 | Item | Detail |
 |------|--------|
-| Slash | **`/order`** — `create` / `remove` |
+| Slash | **`/order`** — `create` / `remove` (name chosen to avoid collision with `/stockpile`) |
 | Board kinds | **Production** · **Front transfer** · **Scrap / farm** |
 | Line | `current/target` + **priority** + auto **urgency** (URGENT / OK / LOW) |
 | Interaction | **Select** a line → **-1 / +1 / +4 / +9 / Max** · Priority · Add · Correct · Close |
@@ -99,7 +96,7 @@ node scripts/migrate-v2.js --dry-run
 
 Steps:
 
-1. **`purgeLogistics`** — drop `groups`; purge `materials` + `stocks`; obsolete tracked types; keep `stockpile_list` (+ `order_board:*` if already present)
+1. **`purgeLogistics`** — drop `groups`; purge `materials`; defensive purge of `stocks` if present; obsolete tracked types; keep `stockpile_list` (+ `order_board:*` if already present)
 2. **`migrateStockpileChannelId`** — `group_id` → `channel_id`
 3. **`cleanupStats`** — dead slash keys
 
@@ -109,10 +106,10 @@ For self-host operators: the script acts on **your** database (`MONGODB_NAME`). 
 
 | Collection | Script action |
 |------------|---------------|
-| **`materials`** | `deleteMany` — emptied |
-| **`stocks`** | `deleteMany` — inventory `/stock` emptied |
-| **`groups`** | **`drop`** collection (legacy logistics) |
-| **`trackedmessages`** | **partial** delete: obsolete types (`stock_summary:*`, `stock_panel:*`, logistics, …); **keeps** `stockpile_list` (and `order_board:*` if present) |
+| **`materials`** | `deleteMany` — emptied (legacy `/material` docs) |
+| **`stocks`** | `deleteMany` — defensive cleanup if an orphan collection exists (no shipped `/stock` slash) |
+| **`groups`** | **`drop`** collection (legacy `/logistics`) |
+| **`trackedmessages`** | **partial** delete: types that are not `stockpile_list` or `order_board:*`; **keeps** those |
 | **`stockpiles`** | **kept** — `group_id` → `channel_id` only |
 | **`operations`**, **`servers`**, **`notificationsubscriptions`** | **kept** |
 | **`stats`** | **kept** — prune obsolete slash command keys |
@@ -130,16 +127,16 @@ node scripts/migrate-v2.js
 
 On `ready`:
 
-- registers **`/order`**, removes **`/stock`**
+- registers **`/order`** (Discord drops **`/logistics`** / **`/material`** when the command set is re-pushed)
 - `syncAllOrderBoards` + `syncAllStockpileLists`
 
 With `APP_ENV=dev`, only **guild** slash commands are pushed: clear leftover **global** Discord commands if old ones still appear.
 
 ### 2.5 Server staff (after restart)
 
-- Manually delete old inventory / logistics messages still in channels (migrate does not delete Discord messages, only DB refs).
+- Manually delete old logistics / material messages still in channels (migrate does not delete Discord messages, only DB refs).
 - Recreate useful boards: `/order create` …
-- Tell users `/stock` / logistics are gone.
+- Tell users `/logistics` / `/material` are gone; use `/order`.
 
 ---
 
@@ -175,7 +172,7 @@ Order coverage: models, services, embeds, slash, autocomplete, buttons, modals, 
 - [ ] `/stockpile` add / list / reset
 - [ ] `/operation` create / start / finish / cancel
 - [ ] `/notify`, `/war`
-- [ ] `/stock` / logistics / material **absent**
+- [ ] `/logistics` / `/material` **absent**
 - [ ] `/help` → order
 - [ ] Ready logs: OrderBoard + StockpileList OK
 - [ ] Bot permissions: Create Public Threads + Send Messages in Threads
