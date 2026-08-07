@@ -55,7 +55,16 @@ function mapDuplicateKeyError(err) {
 }
 
 async function createBoard({
-	guildId, channelId, ownerId, name, kind, operationId = null, client, channel,
+	guildId,
+	channelId,
+	ownerId,
+	name,
+	kind,
+	operationId = null,
+	from = null,
+	to = null,
+	client,
+	channel,
 }) {
 	if (!isValidOrderKind(kind)) {
 		const err = new Error('ORDER_INVALID_KIND');
@@ -71,6 +80,9 @@ async function createBoard({
 		throw err;
 	}
 
+	const fromValue = typeof from === 'string' ? from.trim() || null : null;
+	const toValue = typeof to === 'string' ? to.trim() || null : null;
+
 	let board;
 	try {
 		board = await OrderBoard.create({
@@ -80,6 +92,8 @@ async function createBoard({
 			owner_id: ownerId,
 			kind,
 			operation_id: operationId || null,
+			from: fromValue,
+			to: toValue,
 			status: 'open',
 			page: 0,
 			selected_line_id: null,

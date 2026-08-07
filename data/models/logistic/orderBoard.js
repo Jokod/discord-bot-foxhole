@@ -32,6 +32,16 @@ const OrderBoard = mongoose.Schema({
 		type: String,
 		default: null,
 	},
+	from: {
+		type: String,
+		default: null,
+		maxlength: 100,
+	},
+	to: {
+		type: String,
+		default: null,
+		maxlength: 100,
+	},
 	status: {
 		type: String,
 		enum: ['open', 'closed'],

@@ -57,10 +57,14 @@ describe('OrderBoard Model', () => {
 			owner_id: 'u1',
 			kind: 'transfer',
 			operation_id: 'op1',
+			from: 'Home Base',
+			to: 'Front',
 		});
 		expect(doc.validateSync()).toBeUndefined();
 		expect(doc.kind).toBe('transfer');
 		expect(doc.operation_id).toBe('op1');
+		expect(doc.from).toBe('Home Base');
+		expect(doc.to).toBe('Front');
 	});
 });
 

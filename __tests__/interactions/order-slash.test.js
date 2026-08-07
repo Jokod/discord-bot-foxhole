@@ -129,6 +129,33 @@ describe('Slash /order', () => {
 			await orderCommand.execute(i);
 			expect(mockCreateBoard).toHaveBeenCalledWith(expect.objectContaining({ operationId: 'op1' }));
 		});
+
+		it('passe from et to optionnels', async () => {
+			mockCreateBoard.mockResolvedValue({ name: 'OP', kind: 'transfer' });
+			const i = interaction('create', {
+				strings: {
+					name: 'OP',
+					type: 'transfer',
+					from: '  Home Base  ',
+					to: 'Front Hex',
+				},
+			});
+			await orderCommand.execute(i);
+			expect(mockCreateBoard).toHaveBeenCalledWith(expect.objectContaining({
+				from: 'Home Base',
+				to: 'Front Hex',
+			}));
+		});
+
+		it('passe from/to null si absents', async () => {
+			mockCreateBoard.mockResolvedValue({ name: 'OP', kind: 'prod' });
+			const i = interaction('create', { strings: { name: 'OP', type: 'prod' } });
+			await orderCommand.execute(i);
+			expect(mockCreateBoard).toHaveBeenCalledWith(expect.objectContaining({
+				from: null,
+				to: null,
+			}));
+		});
 	});
 
 	describe('remove', () => {

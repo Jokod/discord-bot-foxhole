@@ -97,9 +97,29 @@ describe('services/order', () => {
 				kind: 'prod',
 				name: 'OP',
 				operation_id: null,
+				from: null,
+				to: null,
 			}));
 			expect(mockBootstrap).toHaveBeenCalledWith(channel, client, created);
 			expect(board).toBe(created);
+		});
+
+		it('persiste from et to', async () => {
+			OrderBoard.findOne.mockResolvedValue(null);
+			OrderBoard.create.mockResolvedValue({ _id: 'b1' });
+			await createBoard({
+				guildId: 'g1',
+				channelId: 'c1',
+				ownerId: 'u1',
+				name: 'Haul',
+				kind: 'transfer',
+				from: '  Depot  ',
+				to: 'FOB',
+			});
+			expect(OrderBoard.create).toHaveBeenCalledWith(expect.objectContaining({
+				from: 'Depot',
+				to: 'FOB',
+			}));
 		});
 
 		it('refuse un doublon de nom', async () => {

@@ -91,6 +91,34 @@ module.exports = {
 						})
 						.setRequired(false)
 						.setAutocomplete(true),
+				)
+				.addStringOption((option) =>
+					option
+						.setName('from')
+						.setNameLocalizations({ fr: 'de', ru: 'откуда', 'zh-CN': '起点' })
+						.setDescription('Origin (base, hex, stockpile…).')
+						.setDescriptionLocalizations({
+							fr: 'Origine (base, hex, stockpile…).',
+							ru: 'Откуда (база, хекс, склад…).',
+							'zh-CN': '起点（基地、地块、仓库…）。',
+						})
+						.setRequired(false)
+						.setMinLength(1)
+						.setMaxLength(100),
+				)
+				.addStringOption((option) =>
+					option
+						.setName('to')
+						.setNameLocalizations({ fr: 'vers', ru: 'куда', 'zh-CN': '终点' })
+						.setDescription('Destination (base, hex, stockpile…).')
+						.setDescriptionLocalizations({
+							fr: 'Destination (base, hex, stockpile…).',
+							ru: 'Куда (база, хекс, склад…).',
+							'zh-CN': '终点（基地、地块、仓库…）。',
+						})
+						.setRequired(false)
+						.setMinLength(1)
+						.setMaxLength(100),
 				),
 		)
 		.addSubcommand((subcommand) =>
@@ -130,6 +158,8 @@ module.exports = {
 			const name = options.getString('name').trim();
 			const kind = options.getString('type');
 			const operationId = options.getString('operation')?.trim() || null;
+			const from = options.getString('from')?.trim() || null;
+			const to = options.getString('to')?.trim() || null;
 
 			if (!name) {
 				return interaction.reply({
@@ -164,6 +194,8 @@ module.exports = {
 					name,
 					kind,
 					operationId,
+					from,
+					to,
 					client,
 					channel,
 				});

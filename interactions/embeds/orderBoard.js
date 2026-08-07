@@ -108,6 +108,25 @@ function buildDescriptionParts(board, list, translations, operationTitle, select
 	const full = isOrderBoardFull(list.length);
 	const parts = [];
 
+	const from = typeof board.from === 'string' ? board.from.trim() : '';
+	const to = typeof board.to === 'string' ? board.to.trim() : '';
+	if (from && to) {
+		parts.push(translations.translate('ORDER_ROUTE', {
+			from: safeEscapeMarkdown(from),
+			to: safeEscapeMarkdown(to),
+		}));
+	}
+	else if (from) {
+		parts.push(translations.translate('ORDER_FROM', {
+			from: safeEscapeMarkdown(from),
+		}));
+	}
+	else if (to) {
+		parts.push(translations.translate('ORDER_TO', {
+			to: safeEscapeMarkdown(to),
+		}));
+	}
+
 	if (operationTitle) {
 		parts.push(translations.translate('ORDER_LINKED_OPERATION', {
 			title: safeEscapeMarkdown(operationTitle),

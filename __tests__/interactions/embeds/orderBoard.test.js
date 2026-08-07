@@ -166,6 +166,25 @@ describe('orderBoard embeds', () => {
 		expect(data.description).toContain('ORDER_LINKED_OPERATION:Raid Night');
 	});
 
+	it('buildOrderEmbed shows from/to route at top of description', () => {
+		const routed = { ...board, from: 'Home Base', to: 'Front Hex' };
+		const embed = buildOrderEmbed(routed, [], translations, 'Raid Night');
+		const description = embed.toJSON().description;
+		expect(description.indexOf('ORDER_ROUTE:')).toBe(0);
+		expect(description).toContain('ORDER_ROUTE:Home Base:Front Hex');
+		expect(description).toContain('ORDER_LINKED_OPERATION:Raid Night');
+	});
+
+	it('buildOrderEmbed shows only from or only to when partial', () => {
+		const fromOnly = buildOrderEmbed({ ...board, from: 'Depot' }, [], translations);
+		expect(fromOnly.toJSON().description).toContain('ORDER_FROM:Depot');
+		expect(fromOnly.toJSON().description).not.toContain('ORDER_ROUTE');
+
+		const toOnly = buildOrderEmbed({ ...board, to: 'FOB' }, [], translations);
+		expect(toOnly.toJSON().description).toContain('ORDER_TO:FOB');
+		expect(toOnly.toJSON().description).not.toContain('ORDER_ROUTE');
+	});
+
 	it('disables tools when board closed and shows reopen', () => {
 		const closed = { ...board, status: 'closed' };
 		const rows = buildOrderComponents(closed, lines.slice(0, 1), translations);
