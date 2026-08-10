@@ -30,7 +30,6 @@ x-security: &security
 
 x-resources: &resources
   mem_limit: 512m
-  pids_limit: 256
 
 services:
   discord-bot:
@@ -95,22 +94,17 @@ services:
 
   # Local/dev Mongo only — prefer Atlas (TLS + auth) in production.
   # Set MONGO_ROOT_USERNAME / MONGO_ROOT_PASSWORD before enabling this profile.
+  # CPUs without AVX (many NAS/older Intel): MONGO_IMAGE=mongo:4.4
   mongo:
     profiles:
       - with-mongo
-    image: mongo:7
+    image: ${MONGO_IMAGE:-mongo:7}
+    container_name: foxbot-mongo
     pull_policy: always
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - SETUID
-      - SETGID
+    ports:
+      - "27017:27017"
     mem_limit: 1g
-    pids_limit: 512
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-}
@@ -125,7 +119,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "if [ -n \"$$MONGO_INITDB_ROOT_USERNAME\" ]; then mongosh -u \"$$MONGO_INITDB_ROOT_USERNAME\" -p \"$$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --quiet --eval \"db.adminCommand('ping').ok\"; else mongosh --quiet --eval \"db.adminCommand('ping').ok\"; fi",
+          "auth=; if [ -n \"$$MONGO_INITDB_ROOT_USERNAME\" ]; then auth=\"-u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin\"; fi; if command -v mongosh >/dev/null 2>&1; then mongosh $$auth --quiet --eval \"db.adminCommand('ping').ok\"; else mongo $$auth --quiet --eval \"db.adminCommand('ping').ok\"; fi",
         ]
       interval: 15s
       timeout: 5s

@@ -68,8 +68,15 @@ MONGODB_NAME=foxhole-bot
 COMPOSE_PROFILES=with-mongo
 ```
 
-Then: `docker compose up -d` (or `docker compose --profile with-mongo up -d`). Compose pulls **both** `ghcr.io/jokod/foxbot` and `mongo:7`.
+Then: `docker compose up -d` (or `docker compose --profile with-mongo up -d`). Compose pulls **both** `ghcr.io/jokod/foxbot` and `mongo:7` (override with `MONGO_IMAGE`).
 
+**CPU without AVX** (common on NAS / older Intel — `Illegal instruction` / “requires AVX”): official **MongoDB 5+ will not run**. Prefer **Atlas**. For local only, pin the last official image without AVX:
+
+```bash
+MONGO_IMAGE=mongo:4.4
+```
+
+Then recreate the volume (`docker compose down` → `docker volume rm foxbot-mongo-data` → `docker compose up -d`).
 **Complete local stack** (bot + Mongo + dashboard on localhost):
 
 ```bash
