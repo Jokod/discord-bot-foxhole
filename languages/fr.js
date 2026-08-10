@@ -7,7 +7,6 @@ module.exports = {
 	NONE: 'Aucun',
 	NAME: 'Nom',
 	PASSWORD: 'Mot de passe',
-	QUANTITY: 'Quantité',
 	DELETE: 'Supprimer',
 	DATE: 'Date',
 	HOURS: 'Heure',
@@ -20,8 +19,6 @@ module.exports = {
 	BACK: 'Retour',
 	INTERACTION_ERROR: 'Aucune intéraction n\'a été trouvée pour cette action.',
 	PREFIX_MESSAGE: 'Salut %author%! Mon prefix est %prefix%, pour avoir de l\'aide %prefix%help',
-	STATUS: 'Statut',
-
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub :** %url%',
 	ABOUT_DISCORD: '**Discord de support :** %url%',
@@ -52,11 +49,12 @@ module.exports = {
 	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: 'Villes (objectif court)',
 	FOXHOLE_WAR_COLONIAL_TOWNS: 'VT Colonial',
 	FOXHOLE_WAR_WARDEN_TOWNS: 'VT Warden',
-	FOXHOLE_WAR_SCORCHED_TOWNS: 'VT scorched',
+	FOXHOLE_WAR_SCORCHED_TOWNS: 'VT brûlées',
 	FOXHOLE_WAR_START: 'Début de la conquête',
 	FOXHOLE_WAR_END: 'Fin de la conquête',
 	FOXHOLE_WAR_SCHEDULED_END: 'Fin prévue',
 	FOXHOLE_WINNER_NONE: 'En cours',
+	FOXHOLE_WINNER_ENDED: 'Terminée',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Données indisponibles',
@@ -71,16 +69,21 @@ module.exports = {
 	FOXHOLE_REPORT_DAY: 'Jour de guerre',
 
 	HELP_NO_SUBCOMMANDS: 'Cette commande n\'a pas de sous-commandes.',
-	HELP_NO_PARAMS: 'Cette commande n\'a pas de paramètres.',
-
 	HELP_TITLE_LIST: 'Liste des commandes',
 	HELP_TITLE_COMMAND: 'Aide pour la commande `%command%`',
 
 	HELP_SECTION_SUBCOMMANDS: 'Sous-commandes',
 	HELP_SECTION_PARAMETERS: 'Paramètres',
+	HELP_SECTION_USAGE: 'Utilisation',
 	HELP_COMMAND_NOT_FOUND: 'La commande `%command%` n\'existe pas !',
 	HELP_PARAM_REQUIRED_SUFFIX: ' (obligatoire)',
 	HELP_PARAM_HELP_COMMAND_VALUES: 'Valeurs possibles : %commands%',
+	HELP_PARAM_CHOICES: 'Choix : %choices%',
+	HELP_PARAM_AUTOCOMPLETE: 'autocomplétion',
+	HELP_PARAM_LENGTH: 'longueur %min%–%max%',
+	HELP_PARAM_BOOLEAN: 'vrai/faux',
+	HELP_LIST_HINT: 'Utilisez `/aide <commande>` ou `/aide commande créer` pour le détail.',
+	HELP_NOT_FOUND_HINT: 'Commandes disponibles : %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Une erreur est survenue lors de l\'exécution de la commande.',
 	OWNER_ONLY: 'Cette commande est uniquement disponible pour le propriétaire du bot.',
@@ -106,17 +109,16 @@ module.exports = {
 	SERVER_FIELD_GUILD_ID: 'ID du serveur',
 	SERVER_FIELD_GUILD_LANG: 'Langue du serveur',
 	SERVER_FIELD_GUILD_CAMP: 'Camp du serveur',
-	SERVER_FIELD_GUILD_LOGS: 'Threads Logs des commandes',
+	SERVER_FIELD_GUILD_LOGS: 'Fils Journal des commandes',
 	SERVER_LOGS_ENABLED: 'Activé',
 	SERVER_LOGS_DISABLED: 'Désactivé',
 
 	// SERVER SETUP
 	SERVER_SET_LANG_REPLY: 'La langue du serveur a été changée en **%lang%**.',
 	SERVER_SET_CAMP_REPLY: 'Le camp du serveur a été changé en **%camp%**.',
-	SERVER_SET_LOGS_ON_REPLY: 'Les threads Logs des tableaux de commandes sont **activés**. Les nouveaux tableaux créeront un thread Logs verrouillé.',
-	SERVER_SET_LOGS_OFF_REPLY: 'Les threads Logs des tableaux de commandes sont **désactivés**. Les threads Logs existants ont été supprimés.',
+	SERVER_SET_LOGS_ON_REPLY: 'Les fils Journal des tableaux de commandes sont **activés**. Les nouveaux tableaux créeront un fil Journal verrouillé.',
+	SERVER_SET_LOGS_OFF_REPLY: 'Les fils Journal des tableaux de commandes sont **désactivés**. Les fils Journal existants ont été supprimés.',
 	SERVER_RESET_PREVIEW: 'Aperçu reset — supprimerait **%boards%** tableau(x), **%stockpiles%** stock(s), **%operations%** opération(s). Relancez avec **confirmer:true** pour confirmer.',
-	SERVER_RESET_CONFIRM_REQUIRED: 'Passez **confirmer:true** pour effacer tableaux de commandes, stocks et opérations pour une nouvelle guerre. Irréversible.',
 	SERVER_RESET_SUCCESS: 'Reset serveur terminé — **%boards%** tableau(x), **%stockpiles%** stock(s), **%operations%** opération(s) supprimé(s). Config serveur et notifications conservées.',
 
 	// OPERATION ---------------------------------------------
@@ -133,8 +135,6 @@ module.exports = {
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'Cette opération n\'existe pas.',
-	OPERATION_NOT_HAVE_GROUPS: 'Cette opération n\'a pas de groupes.',
-
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'L\'opération %title% a été créée.',
 	OPERATION_LAUNCH_SUCCESS: 'L\'opération %title% a été lancée !',
@@ -155,7 +155,6 @@ module.exports = {
 
 	// MATERIAL ---------------------------------------------
 
-	MATERIAL: 'Matériel',
 	MATERIAL_PRIORITY: 'Priorité',
 	MATERIAL_PRIORITY_LOW: 'Faible',
 	MATERIAL_PRIORITY_NEUTRAL: 'Neutre',
@@ -176,7 +175,6 @@ module.exports = {
 	ORDER_STATUS_CLOSED: 'Ce tableau de commande est clôturé. Un propriétaire ou un modo peut le rouvrir avec **Rouvrir**.',
 	ORDER_STATUS_ALREADY_OPEN: 'Ce tableau de commande est déjà ouvert.',
 	ORDER_SUMMARY: '**%done%/%total%** terminées · **%current%/%target%** caisses · reste **%remaining%**',
-	ORDER_LINE_LEFT: 'reste %n%',
 	ORDER_STOCK: 'Stock : %current%/%target%',
 	ORDER_FOOTER: '%lines% ligne(s) · %status%',
 	ORDER_STATUS_LABEL_OPEN: 'Ouvert',
@@ -192,8 +190,8 @@ module.exports = {
 	ORDER_MAX: 'Max',
 	ORDER_CORRECT_TITLE: 'Corriger la ligne',
 	ORDER_ADD_TARGET_TITLE: 'Quantité cible',
-	ORDER_FULL: 'Ce tableau est plein (**%max%/%max%** lignes — limite : 2×25 selects). Utilisez **Supprimer** avant d\'en ajouter.',
-	ORDER_FULL_BANNER: '⚠️ **PLEIN — %count%/%max% lignes** (limite : 2×25 selects). Ajout impossible.',
+	ORDER_FULL: 'Ce tableau est plein (**%max%/%max%** lignes — limite : 2×25 menus). Utilisez **Supprimer** avant d\'en ajouter.',
+	ORDER_FULL_BANNER: '⚠️ **PLEIN — %count%/%max% lignes** (limite : 2×25 menus). Ajout impossible.',
 	ORDER_CURRENT: 'Actuel',
 	ORDER_TARGET: 'Objectif',
 	ORDER_NOT_EXIST: 'Aucun tableau nommé **%name%** dans ce salon. Utilisez `/commande créer`.',
@@ -201,12 +199,11 @@ module.exports = {
 	ORDER_ALREADY_EXISTS: 'Un tableau nommé **%name%** existe déjà dans ce salon.',
 	ORDER_INVALID_NAME: 'Nom de tableau invalide.',
 	ORDER_INVALID_TARGET: 'Entrez une quantité valide (actuel ≥ 0, objectif ≥ 1).',
-	ORDER_EMBED_TRUNCATED: '…et plus (affichage partiel de %count% lignes — utilisez les selects).',
+	ORDER_EMBED_TRUNCATED: '…et plus (affichage partiel de %count% lignes — utilisez les menus).',
 	ORDER_CANNOT_MANAGE_ERROR: 'Vous ne pouvez pas gérer cet ordre (propriétaire de la ligne/du tableau ou gestionnaire serveur/salon).',
 	ORDER_OPERATION_FINISHED: 'Cette opération est terminée — choisissez-en une active (autocomplétion).',
 	ORDER_LINE_NOT_EXIST: 'Cette ligne n\'existe plus.',
-	ORDER_LIST_COMMANDS: 'Commandes order',
-	ORDER_LOG_THREAD: 'Logs — %name%',
+	ORDER_LOG_THREAD: 'Journal — %name%',
 	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
 	ORDER_LOG_MAX: '%user% **%name%** Max %from%→%to%',
 	ORDER_LOG_PRIORITY: '%user% **%name%** priorité → %priority%',
@@ -257,7 +254,7 @@ module.exports = {
 	SUBCATEGORY_EMAT: 'emat',
 	SUBCATEGORY_HEMAT: 'HEmat',
 	SUBCATEGORY_RMAT: 'Rmat',
-	SUBCATEGORY_GRAVEL: 'Gravel',
+	SUBCATEGORY_GRAVEL: 'Gravier',
 	SUBCATEGORY_SALVAGE: 'Salvage',
 	SUBCATEGORY_COMPONENTS: 'Compos',
 	SUBCATEGORY_SULFUR: 'Soufre',
@@ -276,8 +273,6 @@ module.exports = {
 	// STOCKPILE ---------------------------------------------
 
 	STOCKPILE: 'Stock',
-	STOCKPILE_LIST_COMMANDS: 'Liste des commandes de stock',
-	STOCKPILE_LIST: 'Liste des stocks',
 	STOCKPILE_LIST_CODES: 'Liste des codes de stockpile',
 	STOCKPILE_TABLE_HEADER_STOCK: 'Stockpile',
 	STOCKPILE_TABLE_HEADER_CODE: 'Code',
@@ -289,12 +284,8 @@ module.exports = {
 	STOCKPILE_PLACEHOLDER_NAME: '3-50 caractères, alphanumériques',
 	STOCKPILE_PLACEHOLDER_CODE: '6 chiffres, ex: 123456',
 
-	STOCKPILE_TIME_REMAINING: 'Temps restant',
-	STOCKPILE_CREATOR: 'Créateur',
-
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: 'Le stock #%id% a été créé.',
-	STOCKPILE_DELETE_SUCCESS: 'Le stock #%id% a été supprimé.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Le stock #%id% a été marqué comme supprimé.',
 	STOCKPILE_RESET_SUCCESS: 'Le délai du stock #%id% a été remis à 2 jours et 2 heures.',
 	STOCKPILE_CLEANUP_SUCCESS: '%count% stock(s) marqué(s) définitivement supprimé(s) sur ce serveur.',
@@ -310,16 +301,12 @@ module.exports = {
 	STOCKPILE_INVALID_ID: 'L\'ID du stock est invalide.',
 	STOCKPILE_MAX_REACHED: 'Vous avez atteint le nombre maximal de stocks actifs autorisés.',
 	STOCKPILE_CREATE_ERROR: 'Une erreur est survenue lors de la création du stock.',
-	STOCKPILE_DELETE_ERROR: 'Une erreur est survenue lors de la suppression du stock.',
 	STOCKPILE_INVALID_NAME: 'Le nom du stock est invalide.',
 	STOCKPILE_INVALID_PASSWORD: 'Le code doit contenir exactement 6 chiffres.',
 	STOCKPILE_INVALID_REGION: 'La région du stock est invalide.',
 	STOCKPILE_INVALID_CITY: 'La ville du stock est invalide.',
 	STOCKPILE_ALREADY_DELETED: 'Ce stock est déjà marqué comme supprimé.',
 	STOCKPILE_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le créateur de ce stock.',
-	STOCKPILE_NOT_DELETED: 'Ce stock n\'est pas marqué comme supprimé.',
-	STOCKPILE_RESTORE_SUCCESS: 'Le stock a été réactivé.',
-
 	// NOTIFICATIONS
 	NOTIFICATION_TYPE_STOCKPILE_ACTIVITY: 'Activité des stocks',
 	NOTIFICATION_NO_PERMS: 'Il faut la permission « Gérer les salons » pour abonner ou désabonner.',
@@ -331,15 +318,11 @@ module.exports = {
 	NOTIFICATION_LIST_HEADER: '**Abonnements aux notifications**',
 	NOTIFICATION_STOCKPILE_ADDED: '📦 %user% a ajouté le stock **%name%** (#%id%) en %region% / %city%.',
 	NOTIFICATION_STOCKPILE_REMOVED: '🗑️ %user% a marqué le stock **%name%** (#%id%) comme supprimé.',
-	NOTIFICATION_STOCKPILE_RESTORED: '♻️ %user% a réactivé le stock **%name%** (#%id%).',
-	NOTIFICATION_STOCKPILE_RESET: '🔄 %user% a remis le délai du stock **%name%** (#%id%).',
 	NOTIFICATION_TYPE_STOCKPILE_EXPIRING: 'Stocks bientôt expirés',
 	NOTIFICATION_STOCKPILE_EXPIRING_ALERT: '⏰ **Rappel stocks**',
 	NOTIFICATION_STOCKPILE_EXPIRING_LINE: '• %creator%#%id% **%name%** — %region% / %city% — %window%',
 	NOTIFICATION_EXPIRING_IN_12H: 'dans 12 h',
 	NOTIFICATION_EXPIRING_IN_6H: 'dans 6 h',
-	NOTIFICATION_EXPIRING_IN_3H: 'dans 3 h',
-	NOTIFICATION_EXPIRING_IN_2H: 'dans 2 h',
 	NOTIFICATION_EXPIRING_IN_1H: 'dans 1 h',
 	NOTIFICATION_EXPIRING_IN_30M: 'dans 30 min',
 

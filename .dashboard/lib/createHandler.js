@@ -58,6 +58,7 @@ function createRequestHandler(deps) {
 		sendAsset,
 		loadSummary,
 		loadContacts,
+		loadMaterials,
 		guildActions,
 		authPayload,
 		publicLinks: linksFn = publicLinks,
@@ -177,6 +178,9 @@ function createRequestHandler(deps) {
 		if (urlPath === '/api/contacts' && method === 'GET') {
 			const force = (req.url || '').includes('force=1');
 			return sendJson(res, 200, await loadContacts({ force }));
+		}
+		if (urlPath === '/api/materials' && method === 'GET') {
+			return sendJson(res, 200, await loadMaterials());
 		}
 
 		const guildActionRoutes = {

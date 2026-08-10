@@ -21,7 +21,7 @@ Same steps in **`/about`**.
 
 ## General
 
-- `/help [command]` — List commands or detail one command.
+- `/help [command]` — List commands (with short descriptions) or detail one command / subcommand (e.g. `/help order create`). Autocomplete on the command option.
 - `/about` — Support Discord + **Follow Announcements** steps, GitHub, issues (ephemeral).
 
 ## Server

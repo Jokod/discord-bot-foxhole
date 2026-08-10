@@ -44,6 +44,16 @@ describe('dashboard http helpers', () => {
 		sharedWarProgressPath: warPath,
 	});
 
+	const iconsDir = path.join(tmp, 'material-icons');
+	fs.mkdirSync(iconsDir, { recursive: true });
+	fs.writeFileSync(path.join(iconsDir, 'BasicMaterialsIcon.png'), Buffer.from([137, 80, 78, 71]));
+	const helpersWithIcons = createHttpHelpers({
+		indexPath,
+		assetsDir,
+		sharedWarProgressPath: warPath,
+		materialIconsDir: iconsDir,
+	});
+
 	it('sendJson writes secured json headers', () => {
 		const res = mockRes();
 		helpers.sendJson(res, 200, { ok: true });
@@ -81,6 +91,22 @@ describe('dashboard http helpers', () => {
 		const bad = mockRes();
 		helpers.sendAsset(bad, '/assets/../index.html');
 		expect(bad.statusCode).toBe(404);
+	});
+
+	it('sendAsset serves material icons from materialIconsDir', () => {
+		const ok = mockRes();
+		helpersWithIcons.sendAsset(ok, '/assets/icons/materials/BasicMaterialsIcon.png');
+		expect(ok.statusCode).toBe(200);
+		expect(ok.headers['Content-Type']).toBe('image/png');
+		expect(ok.headers['Cache-Control']).toContain('max-age');
+
+		const traversal = mockRes();
+		helpersWithIcons.sendAsset(traversal, '/assets/icons/materials/../app.js');
+		expect(traversal.statusCode).toBe(404);
+
+		const missing = mockRes();
+		helpersWithIcons.sendAsset(missing, '/assets/icons/materials/Nope.png');
+		expect(missing.statusCode).toBe(404);
 	});
 
 	it('readJsonBody parses, rejects invalid json and oversized body', async () => {

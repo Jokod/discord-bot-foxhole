@@ -10,7 +10,6 @@ Public instance / support: [discord.gg/bjkzG9YsX5](https://discord.gg/bjkzG9YsX5
 | Commands (usage) | [USAGE.md](USAGE.md) |
 | Version migrations | [MIGRATION.md](MIGRATION.md) |
 | Tests | [TESTING.md](TESTING.md) |
-| Release notes | [CHANGELOG.md](../CHANGELOG.md) |
 | Privacy | [PRIVACY_POLICY.md](../PRIVACY_POLICY.md) |
 | Contributing | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 
@@ -83,7 +82,7 @@ Then recreate the volume (`docker compose down` → `docker volume rm foxbot-mon
 COMPOSE_PROFILES=with-mongo,dashboard
 ```
 
-Dashboard URL: http://127.0.0.1:3847 (localhost only by default — see [Dashboard](#dashboard-stats-localhost)).
+Dashboard URL: http://127.0.0.1:3847 (or host LAN IP if published — see [Dashboard](#dashboard-stats-localhost)).
 
 ### From source (Node)
 
@@ -202,8 +201,8 @@ Message body: `data/announce.md` (or `--message-file=…`). Writes a per-guild s
 
 ## Dashboard (stats, localhost)
 
-Small dashboard (KPIs, charts, guild list, Discord contacts) that reads **your** MongoDB.  
-**By default it binds to localhost only** (`127.0.0.1:3847`) — it is **not** published on the public web. Remote access is optional via a reverse proxy (see below).
+Small dashboard (KPIs, charts, guild list, Discord contacts, materials catalog) that reads **your** MongoDB.  
+**By default Compose publishes port `3847` on the host** (all interfaces). For localhost-only, set `DASHBOARD_PUBLISH=127.0.0.1:3847`. Prefer a reverse proxy for HTTPS; do not expose the raw port on the public internet.
 
 Protected by **login**. First seed creates `admin` / `admin` (`isDefault`). Data APIs stay locked until **you** change the password in **Profile** — the server never rotates credentials and never logs passwords. Stored hashed in MongoDB (`dashboard_auth`).
 
@@ -259,6 +258,7 @@ The dashboard stays on **localhost** by default. Auth allows an optional reverse
 - **Server admin actions** (drawer): leave, blacklist, unblacklist, broadcast — each with a short explanation and a confirmation modal (`CONFIRM` for leave / blacklist / unblacklist)  
 - **Blacklisted servers**: list from Mongo `blocked_guilds` ∪ `BLOCKED_GUILD_IDS`; unblacklist only for Mongo (or `both`); env-only IDs stay until you edit the env  
 - Contacts: Discord owners + creators of ops / stockpiles / boards (resolved via `TOKEN`)  
+- **Materials**: full catalogue from `data/materials/` with search, category / subcategory / faction filters, grid or table view; icons served from `assets/icons/materials/` (emoji fallback)  
 - Product: order boards, languages, factions, notifications, ops  
 
 The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the bot is still present**, and username resolution. `owner_id` is also stored on `Stats` at join / ready / leave so it remains after departure. Broadcast / leave / blacklist need a valid `TOKEN` as well (Discord REST).
@@ -276,7 +276,7 @@ The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the b
 
 ## Wiki sync (materials)
 
-JSON under `data/materials/` feeds **Add** on `/order` boards.
+JSON under `data/materials/` feeds **Add** on `/order` boards. Item icons for the dashboard live under `assets/icons/materials/` (committed PNGs + `manifest.json`). The dashboard does **not** call the wiki at runtime — refresh icons with the sync script and commit the files.
 
 | npm script | Effect |
 |------------|--------|
@@ -284,6 +284,11 @@ JSON under `data/materials/` feeds **Add** on `/order` boards.
 | `npm run wiki:sync-materials:dry` | Dry-run |
 | `npm run wiki:sync-materials:add-missing` | Import missing wiki pages |
 | `npm run wiki:sync-materials:add-missing:and-sync` | Import + full sync |
+| `npm run wiki:sync-icons` | Download item icons from wiki into `assets/icons/materials/` |
+| `npm run wiki:sync-icons:dry` | Dry-run icon sync |
+| `npm run wiki:sync-icons:force` | Re-download all icons |
+
+Icon downloads are maintainer-only (not used by the dashboard at runtime). The sync script only accepts `https://foxhole.wiki.gg/images/…`, checks raster magic bytes (PNG/JPEG/GIF/WebP), caps size (~512 KiB), and rejects path traversal in filenames. Served icons are static files under `assets/icons/materials/` with CSP `img-src 'self'`.
 
 Source: [foxhole.wiki.gg](https://foxhole.wiki.gg). Prefer the script / routing under `scripts/lib/wiki-sync/` over large manual edits.
 

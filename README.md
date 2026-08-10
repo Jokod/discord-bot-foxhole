@@ -2,7 +2,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Jokod/discord-bot-foxhole/integration.yaml?branch=main&label=CI)](https://github.com/Jokod/discord-bot-foxhole/actions/workflows/integration.yaml)
 [![GHCR](https://img.shields.io/badge/ghcr.io-jokod%2Ffoxbot-blue?logo=docker&label=image)](https://github.com/Jokod/discord-bot-foxhole/pkgs/container/foxbot)
-[![Version](https://img.shields.io/github/package-json/v/Jokod/discord-bot-foxhole?label=version)](CHANGELOG.md)
+[![Version](https://img.shields.io/github/package-json/v/Jokod/discord-bot-foxhole?label=version)](https://github.com/Jokod/discord-bot-foxhole)
 [![License](https://img.shields.io/github/license/Jokod/discord-bot-foxhole)](LICENSE)
 [![Node](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FJokod%2Fdiscord-bot-foxhole%2Fmain%2Fpackage.json&query=%24.engines.node&label=node&color=brightgreen)](https://nodejs.org/)
 [![discord.js](https://img.shields.io/github/package-json/dependency-version/Jokod/discord-bot-foxhole/discord.js)](https://discord.js.org/)
@@ -76,7 +76,6 @@ When the bot leaves a guild, is blocked (`BLOCKED_GUILD_IDS`), or is missing at 
 | [docs/MIGRATION.md](docs/MIGRATION.md) | Version upgrades |
 | [docs/TESTING.md](docs/TESTING.md) | Tests & CI |
 | [docs/README.md](docs/README.md) | Full docs index |
-| [CHANGELOG.md](CHANGELOG.md) | Release notes |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contributors |
 
 ## Contribute

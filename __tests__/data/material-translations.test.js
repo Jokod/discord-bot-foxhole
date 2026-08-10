@@ -222,7 +222,7 @@ describe('Material Categories Translations', () => {
 			expect(fr.SUBCATEGORY_EMAT).toBe('emat');
 			expect(fr.SUBCATEGORY_HEMAT).toBe('HEmat');
 			expect(fr.SUBCATEGORY_RMAT).toBe('Rmat');
-			expect(fr.SUBCATEGORY_GRAVEL).toBe('Gravel');
+			expect(fr.SUBCATEGORY_GRAVEL).toBe('Gravier');
 			expect(fr.SUBCATEGORY_SALVAGE).toBe('Salvage');
 			expect(fr.SUBCATEGORY_COMPONENTS).toBe('Compos');
 			expect(fr.SUBCATEGORY_SULFUR).toBe('Soufre');

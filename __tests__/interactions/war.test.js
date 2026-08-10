@@ -138,7 +138,7 @@ describe('Slash command /war', () => {
 		expect(playersField).toBeDefined();
 		expect(playersField.value.replace(/\D/g, '')).toBe('15309');
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_NUMBER' && f.value === String(warPayload.warNumber))).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER' && f.value === 'FOXHOLE_WINNER_WARDEN')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS' && f.value === '1 / 32')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WARDEN_TOWNS' && f.value === '2 / 32')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SHORT_REQUIRED_TOWNS' && f.value === String(warPayload.shortRequiredVictoryTowns))).toBe(true);
@@ -146,6 +146,53 @@ describe('Slash command /war', () => {
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_DAY')).toBe(true);
 		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_ELAPSED')).toBe(true);
+	});
+
+	it('status: guerre terminée sans vainqueur → FOXHOLE_WINNER_ENDED (pas NONE)', async () => {
+		const warPayload = {
+			warNumber: 133,
+			winner: 'NONE',
+			requiredVictoryTowns: 32,
+			conquestStartTime: 1_770_663_602_746,
+			conquestEndTime: 1_770_663_702_746,
+		};
+
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve(warPayload),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const { embeds } = interaction.editReply.mock.calls[0][0];
+		const embedData = embeds[0].data ?? embeds[0];
+		expect(embedData.title).toBe('FOXHOLE_WAR_TITLE_ENDED');
+		const fields = embedData.fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER' && f.value === 'FOXHOLE_WINNER_ENDED')).toBe(true);
 	});
 
 	it('status: affiche FOXHOLE_UNAVAILABLE pour les joueurs si Steam échoue', async () => {

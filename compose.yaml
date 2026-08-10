@@ -69,10 +69,7 @@ services:
       DASHBOARD_HOST: 0.0.0.0
       DASHBOARD_PORT: "3847"
     ports:
-      - target: 3847
-        published: ${DASHBOARD_PORT:-3847}
-        host_ip: 127.0.0.1
-        protocol: tcp
+      - "${DASHBOARD_PUBLISH:-3847}:3847"
     networks:
       - dashboard
     depends_on:

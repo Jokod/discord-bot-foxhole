@@ -44,13 +44,15 @@ describe('Slash command /help', () => {
 		};
 	}
 
-	it('a la structure data avec option command', () => {
+	it('a la structure data avec option command autocomplete', () => {
 		expect(helpCommand.data.name).toBe('help');
 		const options = helpCommand.data.options ?? [];
-		expect(options.some((opt) => opt.name === 'command')).toBe(true);
+		const commandOpt = options.find((opt) => opt.name === 'command');
+		expect(commandOpt).toBeDefined();
+		expect(commandOpt.autocomplete).toBe(true);
 	});
 
-	it('sans option: affiche la liste de toutes les commandes', async () => {
+	it('sans option: affiche la liste enrichie avec descriptions et hint', async () => {
 		const interaction = createInteraction(null);
 
 		await helpCommand.execute(interaction);
@@ -59,20 +61,25 @@ describe('Slash command /help', () => {
 			embeds: [expect.objectContaining({
 				data: expect.objectContaining({
 					title: 'HELP_TITLE_LIST',
-					description: expect.stringContaining('about'),
+					description: expect.stringMatching(/about[\s\S]*HELP_LIST_HINT/),
 				}),
 			})],
 			flags: 64,
 		});
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const desc = embed.data?.description ?? embed.description;
+		expect(desc).toContain('Bot links');
 	});
 
-	it('avec commande inconnue: HELP_COMMAND_NOT_FOUND', async () => {
+	it('avec commande inconnue: HELP_COMMAND_NOT_FOUND + hint', async () => {
 		const interaction = createInteraction('nonexistent');
 
 		await helpCommand.execute(interaction);
 
 		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
+		const desc = embed.data?.description ?? embed.description;
+		expect(desc).toContain('HELP_COMMAND_NOT_FOUND');
+		expect(desc).toContain('HELP_NOT_FOUND_HINT');
 		expect(embed.data?.color ?? embed.color).toBe(0xFF0000);
 	});
 
@@ -138,7 +145,6 @@ describe('Slash command /help', () => {
 		const embed = interaction.reply.mock.calls[0][0].embeds[0];
 		const desc = embed.data?.description ?? embed.description;
 		expect(desc).toContain('Displays the server configuration');
-		expect(desc).toContain('HELP_SECTION_PARAMETERS');
 	});
 
 	it('affiche HELP_COMMAND_NOT_FOUND quand la sous-commande n\'existe pas', async () => {
@@ -161,9 +167,11 @@ describe('Slash command /help', () => {
 		await helpCommand.execute(interaction);
 
 		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const desc = embed.data?.description ?? embed.description;
-		expect(desc).toContain('HELP_SECTION_PARAMETERS');
-		expect(desc).toContain('lang');
+		const fields = embed.data?.fields ?? embed.fields ?? [];
+		const paramsField = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		expect(paramsField).toBeDefined();
+		expect(paramsField.value).toContain('lang');
+		expect(fields.some((f) => f.name === 'HELP_SECTION_USAGE')).toBe(true);
 	});
 
 	it('résout une sous-commande dans un SubcommandGroup (group sub)', async () => {
@@ -197,17 +205,113 @@ describe('Slash command /help', () => {
 		const embed = interaction.reply.mock.calls[0][0].embeds[0];
 		const desc = embed.data?.description ?? embed.description;
 		expect(desc).toContain('Sub in group');
-		expect(desc).toContain('HELP_NO_PARAMS');
+		const fields = embed.data?.fields ?? [];
+		expect(fields.every((f) => f.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
 	});
 
-	it('affiche l\'aide de base avec sous-commandes et paramètres pour la commande help elle-même', async () => {
+	it('affiche l\'aide de base avec paramètres pour la commande help elle-même', async () => {
 		const interaction = createInteraction('help');
 
 		await helpCommand.execute(interaction);
 
 		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = embed.data?.fields ?? embed.fields ?? [];
+		expect(fields.some((f) => f.name === 'HELP_SECTION_PARAMETERS')).toBe(true);
+		expect(fields.some((f) => f.name === 'HELP_SECTION_USAGE')).toBe(true);
+		expect(fields.every((f) => f.name !== 'HELP_SECTION_SUBCOMMANDS')).toBe(true);
+	});
+
+	it('order create: affiche choices, required, autocomplete et usage', async () => {
+		const orderCmd = require('../../interactions/slash/order/order.js');
+		const interaction = createInteraction('order create');
+		interaction.client.slashCommands.set('order', orderCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = embed.data?.fields ?? [];
+		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		const usage = fields.find((f) => f.name === 'HELP_SECTION_USAGE');
+		expect(params).toBeDefined();
+		expect(params.value).toContain('type');
+		expect(params.value).toContain('name');
+		expect(params.value).toContain('HELP_PARAM_CHOICES');
+		expect(params.value).toContain('HELP_PARAM_REQUIRED_SUFFIX');
+		expect(params.value).toContain('HELP_PARAM_AUTOCOMPLETE');
+		expect(usage?.value).toContain('/order');
+		expect(usage?.value).toContain('create');
+	});
+
+	it('order créer (FR): résout la sous-commande localisée', async () => {
+		const orderCmd = require('../../interactions/slash/order/order.js');
+		const interaction = createInteraction('commande créer');
+		interaction.client.traductions.set('guild-123', 'fr');
+		interaction.client.slashCommands.set('order', orderCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
 		const desc = embed.data?.description ?? embed.description;
-		expect(desc).toContain('HELP_SECTION_SUBCOMMANDS');
-		expect(desc).toContain('HELP_SECTION_PARAMETERS');
+		expect(desc).toMatch(/tableau|Créer|create/i);
+		const fields = embed.data?.fields ?? [];
+		expect(fields.some((f) => f.name === 'HELP_SECTION_PARAMETERS')).toBe(true);
+	});
+
+	it('order parent: sous-commandes avec hint params, sans section params vide', async () => {
+		const orderCmd = require('../../interactions/slash/order/order.js');
+		const interaction = createInteraction('order');
+		interaction.client.slashCommands.set('order', orderCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = embed.data?.fields ?? [];
+		const subs = fields.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
+		expect(subs).toBeDefined();
+		expect(subs.value).toContain('create');
+		expect(subs.value).toContain('`type`*');
+		expect(fields.every((f) => f.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
+	});
+});
+
+describe('Autocomplete /help', () => {
+	let helpAutocomplete;
+
+	beforeEach(() => {
+		jest.resetModules();
+		helpAutocomplete = require('../../interactions/autocomplete/help.js');
+	});
+
+	it('suggère commandes et sous-commandes (max 25)', async () => {
+		const orderCmd = require('../../interactions/slash/order/order.js');
+		const slashCommands = new Collection();
+		slashCommands.set('order', orderCmd);
+		slashCommands.set('about', {
+			data: {
+				toJSON: () => ({
+					name: 'about',
+					description: 'links',
+					options: [],
+				}),
+			},
+		});
+
+		const respond = jest.fn().mockResolvedValue(undefined);
+		await helpAutocomplete.execute({
+			guild: { id: 'g1' },
+			client: {
+				slashCommands,
+				traductions: new Map([['g1', 'en']]),
+				languages: new Map([['en', {}]]),
+			},
+			options: { getFocused: () => 'ord' },
+			respond,
+		});
+
+		expect(respond).toHaveBeenCalled();
+		const choices = respond.mock.calls[0][0];
+		expect(choices.length).toBeGreaterThan(0);
+		expect(choices.length).toBeLessThanOrEqual(25);
+		expect(choices.some((c) => c.value.includes('order'))).toBe(true);
 	});
 });

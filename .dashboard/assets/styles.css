@@ -104,6 +104,7 @@ th .arrow { font-size: .65rem; margin-left: .2rem; }
 .badge.ok { background: #d7ebe0; color: var(--ok); }
 .badge.warn { background: #f3e5c1; color: var(--warn); }
 .badge.info { background: #d9e4ef; color: var(--info); }
+.badge.muted { background: #ebe6dc; color: var(--muted); }
 .badge.blocked { background: #ebd4d0; color: var(--accent); }
 
 .drawer-guild-actions {
@@ -383,3 +384,55 @@ footer {
 .lang-field.compact { margin: 0; }
 .lang-field select { min-width: 7rem; }
 .login-card .lang-field { margin-bottom: .15rem; }
+
+.mat-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: .75rem;
+}
+.mat-card {
+	display: flex; gap: .7rem; align-items: flex-start; text-align: left;
+	padding: .75rem; border: 1px solid var(--line); border-radius: .55rem;
+	background: var(--panel); color: inherit; cursor: pointer; width: 100%;
+	font: inherit; transition: border-color .15s ease, box-shadow .15s ease;
+}
+.mat-card:hover, .mat-card:focus-visible {
+	border-color: var(--info); box-shadow: 0 0 0 1px color-mix(in srgb, var(--info) 35%, transparent);
+	outline: none;
+}
+.mat-card-icon { flex: 0 0 auto; }
+.mat-icon, .mat-icon-fallback {
+	width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+	object-fit: contain; border-radius: .4rem; padding: 2px;
+	background: #61605f;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.mat-icon-fallback {
+	font-size: 1.25rem;
+	background: #61605f;
+	color: #f2efe8;
+}
+.mat-card-body { min-width: 0; flex: 1; }
+.mat-card-title { display: block; line-height: 1.2; margin-bottom: .35rem; }
+.mat-card-meta {
+	display: flex; flex-direction: column; align-items: flex-start; gap: .35rem;
+	margin-bottom: .35rem;
+}
+.mat-camp-line, .mat-cat-line {
+	display: flex; flex-wrap: wrap; align-items: center; gap: .35rem;
+}
+.mat-camp-label {
+	font-size: .78rem; font-weight: 700; color: var(--muted);
+	letter-spacing: .02em;
+}
+.mat-card-desc { margin: 0; font-size: .82rem; line-height: 1.35; }
+.mat-icon-cell { width: 52px; }
+.mat-desc-cell { max-width: 28rem; }
+.mat-drawer-head { display: flex; gap: .75rem; align-items: center; margin-bottom: .75rem; }
+.mat-drawer-head h3 { margin: 0 0 .35rem; }
+.mat-drawer-desc { white-space: pre-wrap; line-height: 1.45; }
+#materialsTableBody tr[data-mat-name] { cursor: pointer; }
+#materialsTableBody tr[data-mat-name]:hover { background: color-mix(in srgb, var(--info) 8%, transparent); }
+@media (max-width: 1100px) {
+	#view-materials .filters { grid-template-columns: 1fr 1fr !important; }
+}

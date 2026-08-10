@@ -12,7 +12,7 @@ const ASSET_TYPES = {
 	'.ico': 'image/x-icon',
 };
 
-function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath }) {
+function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath, materialIconsDir }) {
 	function sendJson(res, status, body, extraHeaders = {}) {
 		res.writeHead(status, {
 			'Content-Type': 'application/json; charset=utf-8',
@@ -69,27 +69,7 @@ function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath }) {
 		res.end(fs.readFileSync(indexPath, 'utf8'));
 	}
 
-	function sendAsset(res, urlPath) {
-		const rel = urlPath.replace(/^\/assets\/?/, '');
-		if (!rel || rel.includes('..') || path.isAbsolute(rel)) {
-			res.writeHead(404, { 'Content-Type': 'text/plain' });
-			res.end('Not found');
-			return;
-		}
-
-		let filePath;
-		if (rel === 'war-progress.js') {
-			filePath = sharedWarProgressPath;
-		}
-		else {
-			filePath = path.join(assetsDir, rel);
-			if (!filePath.startsWith(assetsDir)) {
-				res.writeHead(404, { 'Content-Type': 'text/plain' });
-				res.end('Not found');
-				return;
-			}
-		}
-
+	function sendFile(res, filePath, { cache = 'no-store' } = {}) {
 		if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
 			res.writeHead(404, { 'Content-Type': 'text/plain' });
 			res.end('Not found');
@@ -98,12 +78,49 @@ function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath }) {
 		const ext = path.extname(filePath).toLowerCase();
 		res.writeHead(200, {
 			'Content-Type': ASSET_TYPES[ext] || 'application/octet-stream',
-			'Cache-Control': 'no-store',
+			'Cache-Control': cache,
 			'X-Content-Type-Options': 'nosniff',
 			'X-Frame-Options': 'DENY',
 			'Referrer-Policy': 'no-referrer',
 		});
 		res.end(fs.readFileSync(filePath));
+	}
+
+	function sendAsset(res, urlPath) {
+		const rel = urlPath.replace(/^\/assets\/?/, '');
+		if (!rel || rel.includes('..') || path.isAbsolute(rel)) {
+			res.writeHead(404, { 'Content-Type': 'text/plain' });
+			res.end('Not found');
+			return;
+		}
+
+		if (rel === 'war-progress.js') {
+			return sendFile(res, sharedWarProgressPath);
+		}
+
+		if (rel.startsWith('icons/materials/') && materialIconsDir) {
+			const name = rel.slice('icons/materials/'.length);
+			if (!name || name.includes('/') || name.includes('\\') || name.includes('..')) {
+				res.writeHead(404, { 'Content-Type': 'text/plain' });
+				res.end('Not found');
+				return;
+			}
+			const filePath = path.join(materialIconsDir, name);
+			if (!filePath.startsWith(materialIconsDir)) {
+				res.writeHead(404, { 'Content-Type': 'text/plain' });
+				res.end('Not found');
+				return;
+			}
+			return sendFile(res, filePath, { cache: 'public, max-age=86400' });
+		}
+
+		const filePath = path.join(assetsDir, rel);
+		if (!filePath.startsWith(assetsDir)) {
+			res.writeHead(404, { 'Content-Type': 'text/plain' });
+			res.end('Not found');
+			return;
+		}
+		return sendFile(res, filePath);
 	}
 
 	return {

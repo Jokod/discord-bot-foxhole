@@ -7,7 +7,6 @@ module.exports = {
 	NONE: 'Нет',
 	NAME: 'Имя',
 	PASSWORD: 'Пароль',
-	QUANTITY: 'Количество',
 	DELETE: 'Удалить',
 	DATE: 'Дата',
 	HOURS: 'Часы',
@@ -20,8 +19,6 @@ module.exports = {
 	BACK: 'Назад',
 	INTERACTION_ERROR: 'Для этого действия не найдено взаимодействия.',
 	PREFIX_MESSAGE: 'Привет %author%! Мой префикс - %prefix%, для справки %prefix%help',
-	STATUS: 'Статус',
-
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
 	ABOUT_DISCORD: '**Discord поддержки:** %url%',
@@ -57,6 +54,7 @@ module.exports = {
 	FOXHOLE_WAR_END: 'Конец завоевания',
 	FOXHOLE_WAR_SCHEDULED_END: 'Плановый конец',
 	FOXHOLE_WINNER_NONE: 'В процессе',
+	FOXHOLE_WINNER_ENDED: 'Завершена',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Данные недоступны',
@@ -71,16 +69,21 @@ module.exports = {
 	FOXHOLE_REPORT_DAY: 'День войны',
 
 	HELP_NO_SUBCOMMANDS: 'У этой команды нет подкоманд.',
-	HELP_NO_PARAMS: 'У этой команды нет параметров.',
-
 	HELP_TITLE_LIST: 'Список команд',
 	HELP_TITLE_COMMAND: 'Справка по команде `%command%`',
 
 	HELP_SECTION_SUBCOMMANDS: 'Подкоманды',
 	HELP_SECTION_PARAMETERS: 'Параметры',
+	HELP_SECTION_USAGE: 'Использование',
 	HELP_COMMAND_NOT_FOUND: 'Команда `%command%` не существует!',
 	HELP_PARAM_REQUIRED_SUFFIX: ' (обязательно)',
 	HELP_PARAM_HELP_COMMAND_VALUES: 'Доступные значения: %commands%',
+	HELP_PARAM_CHOICES: 'Варианты: %choices%',
+	HELP_PARAM_AUTOCOMPLETE: 'автодополнение',
+	HELP_PARAM_LENGTH: 'длина %min%–%max%',
+	HELP_PARAM_BOOLEAN: 'да/нет',
+	HELP_LIST_HINT: 'Используйте `/помощь <команда>` или `/помощь заказ создать` для подробностей.',
+	HELP_NOT_FOUND_HINT: 'Доступные команды: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Произошла ошибка при выполнении команды.',
 	OWNER_ONLY: 'Эта команда доступна только владельцу бота.',
@@ -116,7 +119,6 @@ module.exports = {
 	SERVER_SET_LOGS_ON_REPLY: 'Треды логов досок заказов **включены**. Новые доски будут создавать заблокированный тред логов.',
 	SERVER_SET_LOGS_OFF_REPLY: 'Треды логов досок заказов **отключены**. Существующие треды логов удалены.',
 	SERVER_RESET_PREVIEW: 'Предпросмотр сброса — будет удалено **%boards%** доск(и), **%stockpiles%** склад(ов), **%operations%** операци(й). Повторите с **подтвердить:true**.',
-	SERVER_RESET_CONFIRM_REQUIRED: 'Укажите **подтвердить:true**, чтобы удалить доски заказов, склады и операции для новой войны. Это необратимо.',
 	SERVER_RESET_SUCCESS: 'Сброс сервера выполнен — удалено **%boards%** доск(и), **%stockpiles%** склад(ов), **%operations%** операци(й). Конфиг сервера и уведомления сохранены.',
 
 	// OPERATION ---------------------------------------------
@@ -133,8 +135,6 @@ module.exports = {
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'Эта операция не существует.',
-	OPERATION_NOT_HAVE_GROUPS: 'У этой операции нет групп.',
-
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'Операция %title% была создана.',
 	OPERATION_LAUNCH_SUCCESS: 'Операция %title% была запущена!.',
@@ -155,7 +155,6 @@ module.exports = {
 
 	// MATERIAL ---------------------------------------------
 
-	MATERIAL: 'Материал',
 	MATERIAL_PRIORITY: 'Приоритет',
 	MATERIAL_PRIORITY_LOW: 'Низкий',
 	MATERIAL_PRIORITY_NEUTRAL: 'Нейтральный',
@@ -176,7 +175,6 @@ module.exports = {
 	ORDER_STATUS_CLOSED: 'Эта доска заказа закрыта. Владелец или модератор может открыть её снова кнопкой **Открыть снова**.',
 	ORDER_STATUS_ALREADY_OPEN: 'Эта доска заказа уже открыта.',
 	ORDER_SUMMARY: '**%done%/%total%** готово · **%current%/%target%** ящиков · осталось **%remaining%**',
-	ORDER_LINE_LEFT: 'осталось %n%',
 	ORDER_STOCK: 'Сток: %current%/%target%',
 	ORDER_FOOTER: '%lines% строк(и) · %status%',
 	ORDER_STATUS_LABEL_OPEN: 'Открыт',
@@ -205,7 +203,6 @@ module.exports = {
 	ORDER_CANNOT_MANAGE_ERROR: 'Вы не можете управлять этим заказом (владелец строки/доски или управляющий сервером/каналом).',
 	ORDER_OPERATION_FINISHED: 'Эта операция завершена — выберите активную (автодополнение).',
 	ORDER_LINE_NOT_EXIST: 'Эта строка больше не существует.',
-	ORDER_LIST_COMMANDS: 'Команды заказов',
 	ORDER_LOG_THREAD: 'Лог — %name%',
 	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
 	ORDER_LOG_MAX: '%user% **%name%** Макс %from%→%to%',
@@ -219,7 +216,6 @@ module.exports = {
 	MATERIAL_SELECT_TYPE: 'Выберите тип материала для добавления',
 	MATERIAL_SELECT_CATEGORY: 'Выберите категорию',
 	MATERIAL_SELECT_SUBCATEGORY: 'Выберите подкатегорию',
-
 
 	// Новые категории
 	CATEGORY_UTILITIES: 'Утилиты',
@@ -277,8 +273,6 @@ module.exports = {
 	// STOCKPILE ---------------------------------------------
 
 	STOCKPILE: 'Склад',
-	STOCKPILE_LIST_COMMANDS: 'Список команд склада',
-	STOCKPILE_LIST: 'Список запасов',
 	STOCKPILE_LIST_CODES: 'Список кодов складов',
 	STOCKPILE_TABLE_HEADER_STOCK: 'Склад',
 	STOCKPILE_TABLE_HEADER_CODE: 'Код',
@@ -290,12 +284,8 @@ module.exports = {
 	STOCKPILE_PLACEHOLDER_NAME: '3-50 символов, буквы и цифры',
 	STOCKPILE_PLACEHOLDER_CODE: '6 цифр, напр. 123456',
 
-	STOCKPILE_TIME_REMAINING: 'Оставшееся время',
-	STOCKPILE_CREATOR: 'Создатель',
-
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: 'Склад #%id% был создан.',
-	STOCKPILE_DELETE_SUCCESS: 'Склад #%id% был удален.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Склад #%id% был помечен как удалён.',
 	STOCKPILE_RESET_SUCCESS: 'Таймер склада #%id% сброшен на 2 дня и 2 часа.',
 	STOCKPILE_CLEANUP_SUCCESS: 'Окончательно удалено %count% помеченных складов на этом сервере.',
@@ -311,16 +301,12 @@ module.exports = {
 	STOCKPILE_INVALID_ID: 'Идентификатор склада недействителен.',
 	STOCKPILE_MAX_REACHED: 'Достигнуто максимальное количество активных складов.',
 	STOCKPILE_CREATE_ERROR: 'Произошла ошибка при создании склада.',
-	STOCKPILE_DELETE_ERROR: 'Произошла ошибка при удалении склада.',
 	STOCKPILE_INVALID_NAME: 'Недопустимое имя склада.',
 	STOCKPILE_INVALID_PASSWORD: 'Код должен содержать ровно 6 цифр.',
 	STOCKPILE_INVALID_REGION: 'Недопустимый регион склада.',
 	STOCKPILE_INVALID_CITY: 'Недопустимый город склада.',
 	STOCKPILE_ALREADY_DELETED: 'Этот склад уже помечен как удалён.',
 	STOCKPILE_ARE_NO_OWNER_ERROR: 'Вы не являетесь создателем этого склада.',
-	STOCKPILE_NOT_DELETED: 'Этот склад не помечен как удалённый.',
-	STOCKPILE_RESTORE_SUCCESS: 'Склад восстановлен.',
-
 	// NOTIFICATIONS
 	NOTIFICATION_TYPE_STOCKPILE_ACTIVITY: 'Активность складов',
 	NOTIFICATION_NO_PERMS: 'Нужно право «Управление каналами» для подписки или отписки.',
@@ -332,15 +318,11 @@ module.exports = {
 	NOTIFICATION_LIST_HEADER: '**Подписки на уведомления**',
 	NOTIFICATION_STOCKPILE_ADDED: '📦 %user% добавил склад **%name%** (#%id%) в %region% / %city%.',
 	NOTIFICATION_STOCKPILE_REMOVED: '🗑️ %user% помечен склад **%name%** (#%id%) как удалённый.',
-	NOTIFICATION_STOCKPILE_RESTORED: '♻️ %user% восстановил склад **%name%** (#%id%).',
-	NOTIFICATION_STOCKPILE_RESET: '🔄 %user% сбросил таймер склада **%name%** (#%id%).',
 	NOTIFICATION_TYPE_STOCKPILE_EXPIRING: 'Склады скоро истекают',
 	NOTIFICATION_STOCKPILE_EXPIRING_ALERT: '⏰ **Напоминание о складах**',
 	NOTIFICATION_STOCKPILE_EXPIRING_LINE: '• %creator%#%id% **%name%** — %region% / %city% — %window%',
 	NOTIFICATION_EXPIRING_IN_12H: 'через 12 ч',
 	NOTIFICATION_EXPIRING_IN_6H: 'через 6 ч',
-	NOTIFICATION_EXPIRING_IN_3H: 'через 3 ч',
-	NOTIFICATION_EXPIRING_IN_2H: 'через 2 ч',
 	NOTIFICATION_EXPIRING_IN_1H: 'через 1 ч',
 	NOTIFICATION_EXPIRING_IN_30M: 'через 30 мин',
 

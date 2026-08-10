@@ -2,7 +2,7 @@
 
 Upgrade guides for **self-host** instances. Always **backup MongoDB** before running a script.
 
-Full ops guide (install, env, wiki): [SELF-HOST.md](SELF-HOST.md). Player usage: [USAGE.md](USAGE.md). Product notes: [CHANGELOG.md](../CHANGELOG.md).
+Full ops guide (install, env, wiki): [SELF-HOST.md](SELF-HOST.md). Player usage: [USAGE.md](USAGE.md).
 
 | From → to | Section |
 |-----------|---------|

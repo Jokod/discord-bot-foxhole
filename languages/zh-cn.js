@@ -7,7 +7,6 @@ module.exports = {
 	NONE: '无',
 	NAME: '名称',
 	PASSWORD: '密码',
-	QUANTITY: '数量',
 	DELETE: '删除',
 	DATE: '日期',
 	HOURS: '小时',
@@ -20,8 +19,6 @@ module.exports = {
 	BACK: '返回',
 	INTERACTION_ERROR: '未找到此操作的交互。',
 	PREFIX_MESSAGE: '嗨%author%！我的前缀是%prefix%，要获取帮助%prefix%help',
-	STATUS: '状态',
-
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub：** %url%',
 	ABOUT_DISCORD: '**支持 Discord：** %url%',
@@ -57,6 +54,7 @@ module.exports = {
 	FOXHOLE_WAR_END: '征服结束',
 	FOXHOLE_WAR_SCHEDULED_END: '预定结束',
 	FOXHOLE_WINNER_NONE: '进行中',
+	FOXHOLE_WINNER_ENDED: '已结束',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: '数据不可用',
@@ -71,16 +69,21 @@ module.exports = {
 	FOXHOLE_REPORT_DAY: '战争日',
 
 	HELP_NO_SUBCOMMANDS: '此命令没有子命令。',
-	HELP_NO_PARAMS: '此命令没有参数。',
-
 	HELP_TITLE_LIST: '命令列表',
 	HELP_TITLE_COMMAND: '命令 `%command%` 的帮助',
 
 	HELP_SECTION_SUBCOMMANDS: '子命令',
 	HELP_SECTION_PARAMETERS: '参数',
+	HELP_SECTION_USAGE: '用法',
 	HELP_COMMAND_NOT_FOUND: '命令 `%command%` 不存在！',
 	HELP_PARAM_REQUIRED_SUFFIX: '（必填）',
 	HELP_PARAM_HELP_COMMAND_VALUES: '可用值：%commands%',
+	HELP_PARAM_CHOICES: '选项：%choices%',
+	HELP_PARAM_AUTOCOMPLETE: '自动完成',
+	HELP_PARAM_LENGTH: '长度 %min%–%max%',
+	HELP_PARAM_BOOLEAN: '是/否',
+	HELP_LIST_HINT: '使用 `/帮助 <命令>` 或 `/帮助 订单 创建` 查看详情。',
+	HELP_NOT_FOUND_HINT: '可用命令：%commands%',
 
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
 	OWNER_ONLY: '此命令仅适用于机器人所有者。',
@@ -116,7 +119,6 @@ module.exports = {
 	SERVER_SET_LOGS_ON_REPLY: '订单面板日志讨论串已**启用**。新建面板将创建只读日志讨论串。',
 	SERVER_SET_LOGS_OFF_REPLY: '订单面板日志讨论串已**禁用**。现有日志讨论串已删除。',
 	SERVER_RESET_PREVIEW: '重置预览 — 将删除 **%boards%** 个订单面板、**%stockpiles%** 个库存、**%operations%** 个行动。请再次运行并设置 **确认:true**。',
-	SERVER_RESET_CONFIRM_REQUIRED: '将 **确认:true** 设为 true 以清空订单面板、库存与行动（新战争）。此操作不可撤销。',
 	SERVER_RESET_SUCCESS: '服务器重置完成 — 已删除 **%boards%** 个订单面板、**%stockpiles%** 个库存、**%operations%** 个行动。服务器配置与通知已保留。',
 
 	// OPERATION ---------------------------------------------
@@ -133,8 +135,6 @@ module.exports = {
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: '此操作不存在。',
-	OPERATION_NOT_HAVE_GROUPS: '此操作没有分组。',
-
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: '已创建操作%title%。',
 	OPERATION_LAUNCH_SUCCESS: '操作%title%已启动！',
@@ -155,7 +155,6 @@ module.exports = {
 
 	// MATERIAL ---------------------------------------------
 
-	MATERIAL: '材料',
 	MATERIAL_PRIORITY: '优先级',
 	MATERIAL_PRIORITY_LOW: '低',
 	MATERIAL_PRIORITY_NEUTRAL: '中性',
@@ -176,7 +175,6 @@ module.exports = {
 	ORDER_STATUS_CLOSED: '此订单面板已关闭。所有者或管理员可用 **重新打开** 重新开启。',
 	ORDER_STATUS_ALREADY_OPEN: '此订单面板已处于打开状态。',
 	ORDER_SUMMARY: '**%done%/%total%** 完成 · **%current%/%target%** 箱 · 剩余 **%remaining%**',
-	ORDER_LINE_LEFT: '剩余 %n%',
 	ORDER_STOCK: '库存：%current%/%target%',
 	ORDER_FOOTER: '%lines% 条 · %status%',
 	ORDER_STATUS_LABEL_OPEN: '进行中',
@@ -205,7 +203,6 @@ module.exports = {
 	ORDER_CANNOT_MANAGE_ERROR: '您无法管理此订单（条目/面板所有者或服务器/频道管理员）。',
 	ORDER_OPERATION_FINISHED: '该行动已结束 — 请选择进行中的行动（自动完成）。',
 	ORDER_LINE_NOT_EXIST: '此条目已不存在。',
-	ORDER_LIST_COMMANDS: '订单命令',
 	ORDER_LOG_THREAD: '日志 — %name%',
 	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
 	ORDER_LOG_MAX: '%user% **%name%** 满 %from%→%to%',
@@ -219,7 +216,6 @@ module.exports = {
 	MATERIAL_SELECT_TYPE: '选择要添加的材料类型',
 	MATERIAL_SELECT_CATEGORY: '选择类别',
 	MATERIAL_SELECT_SUBCATEGORY: '选择子类别',
-
 
 	// 新类别
 	CATEGORY_UTILITIES: '实用工具',
@@ -277,8 +273,6 @@ module.exports = {
 	// STOCKPILE ---------------------------------------------
 
 	STOCKPILE: '储备',
-	STOCKPILE_LIST_COMMANDS: '库存命令列表',
-	STOCKPILE_LIST: '库存列表',
 	STOCKPILE_LIST_CODES: '库存代码列表',
 	STOCKPILE_TABLE_HEADER_STOCK: '库存',
 	STOCKPILE_TABLE_HEADER_CODE: '代码',
@@ -290,12 +284,8 @@ module.exports = {
 	STOCKPILE_PLACEHOLDER_NAME: '3-50个字符，字母数字',
 	STOCKPILE_PLACEHOLDER_CODE: '6位数字，例如 123456',
 
-	STOCKPILE_TIME_REMAINING: '剩余时间',
-	STOCKPILE_CREATOR: '创建者',
-
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: '库存 #%id% 已创建。',
-	STOCKPILE_DELETE_SUCCESS: '库存 #%id% 已删除。',
 	STOCKPILE_MARK_DELETED_SUCCESS: '库存 #%id% 已标记为删除。',
 	STOCKPILE_RESET_SUCCESS: '库存 #%id% 的计时已重置为 2 天 2 小时。',
 	STOCKPILE_CLEANUP_SUCCESS: '已在此服务器永久删除 %count% 个已标记库存。',
@@ -311,16 +301,12 @@ module.exports = {
 	STOCKPILE_INVALID_ID: '库存ID无效。',
 	STOCKPILE_MAX_REACHED: '已达到允许的最大活动库存数量。',
 	STOCKPILE_CREATE_ERROR: '创建库存时发生错误。',
-	STOCKPILE_DELETE_ERROR: '删除库存时发生错误。',
 	STOCKPILE_INVALID_NAME: '库存名称无效。',
 	STOCKPILE_INVALID_PASSWORD: '代码必须为6位数字。',
 	STOCKPILE_INVALID_REGION: '库存地区无效。',
 	STOCKPILE_INVALID_CITY: '库存城市无效。',
 	STOCKPILE_ALREADY_DELETED: '此库存已被标记为删除。',
 	STOCKPILE_ARE_NO_OWNER_ERROR: '您不是此库存的创建者。',
-	STOCKPILE_NOT_DELETED: '此库存未被标记为删除。',
-	STOCKPILE_RESTORE_SUCCESS: '库存已恢复。',
-
 	// NOTIFICATIONS
 	NOTIFICATION_TYPE_STOCKPILE_ACTIVITY: '库存活动',
 	NOTIFICATION_NO_PERMS: '需要「管理频道」权限才能订阅或取消订阅。',
@@ -332,15 +318,11 @@ module.exports = {
 	NOTIFICATION_LIST_HEADER: '**通知订阅**',
 	NOTIFICATION_STOCKPILE_ADDED: '📦 %user% 添加了库存 **%name%**（#%id%）于 %region% / %city%。',
 	NOTIFICATION_STOCKPILE_REMOVED: '🗑️ %user% 将库存 **%name%**（#%id%）标记为已删除。',
-	NOTIFICATION_STOCKPILE_RESTORED: '♻️ %user% 恢复了库存 **%name%**（#%id%）。',
-	NOTIFICATION_STOCKPILE_RESET: '🔄 %user% 重置了库存 **%name%**（#%id%）的计时。',
 	NOTIFICATION_TYPE_STOCKPILE_EXPIRING: '库存即将过期',
 	NOTIFICATION_STOCKPILE_EXPIRING_ALERT: '⏰ **库存提醒**',
 	NOTIFICATION_STOCKPILE_EXPIRING_LINE: '• %creator%#%id% **%name%** — %region% / %city% — %window%',
 	NOTIFICATION_EXPIRING_IN_12H: '12 小时后',
 	NOTIFICATION_EXPIRING_IN_6H: '6 小时后',
-	NOTIFICATION_EXPIRING_IN_3H: '3 小时后',
-	NOTIFICATION_EXPIRING_IN_2H: '2 小时后',
 	NOTIFICATION_EXPIRING_IN_1H: '1 小时后',
 	NOTIFICATION_EXPIRING_IN_30M: '30 分钟后',
 

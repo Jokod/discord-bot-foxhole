@@ -104,8 +104,24 @@ function parseItemOrVehicleInfobox(wikitext) {
 	return { kind, fields };
 }
 
+function extractInfoboxImage(wikitext) {
+	const parsed = parseItemOrVehicleInfobox(wikitext);
+	if (!parsed?.fields?.image) {
+		return null;
+	}
+	let name = parsed.fields.image.trim();
+	if (!name) {
+		return null;
+	}
+	name = name.replace(/^\[\[(?:File|Image):/i, '').replace(/\]\]$/, '').trim();
+	name = name.replace(/^(?:File|Image):/i, '').trim();
+	name = name.split('|')[0].trim();
+	return name || null;
+}
+
 module.exports = {
 	extractFirstInfoboxFaction,
 	descriptionFromWikitext,
 	parseItemOrVehicleInfobox,
+	extractInfoboxImage,
 };

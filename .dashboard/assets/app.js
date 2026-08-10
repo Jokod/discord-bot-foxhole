@@ -11,6 +11,9 @@
 	D.raw = null;
 	D.contactsData = null;
 	D.contactsLoading = false;
+	D.materialsData = null;
+	D.materialsLoading = false;
+	D.selectedMaterialName = null;
 	D.autoRefresh = true;
 	D.timer = null;
 	D.sortKey = 'command_count';
@@ -31,6 +34,13 @@
 		leftSort: 'left_at',
 		contactSearch: '',
 		contactView: 'guilds',
+		matSearch: '',
+		matCategory: 'all',
+		matSubcategory: 'all',
+		matFaction: 'all',
+		matSort: 'name',
+		matSortDir: 'asc',
+		matView: 'grid',
 	};
 
 	async function api(path, options = {}) {
@@ -205,6 +215,7 @@
 				Object.values(D.charts).forEach((c) => c.resize());
 			});
 			if (name === 'contacts' && !D.contactsData && !D.contactsLoading) D.loadContacts(false);
+			if (name === 'materials' && !D.materialsData && !D.materialsLoading) D.loadMaterials(false);
 		}
 		else {
 			document.querySelectorAll('.tab').forEach((tab) => tab.classList.remove('active'));
@@ -426,6 +437,59 @@
 		catch {
 			btn.textContent = t('contacts.copyFallback');
 		}
+	});
+
+	document.getElementById('fMatSearch').addEventListener('input', (e) => {
+		D.state.matSearch = e.target.value;
+		D.renderMaterials();
+	});
+	document.getElementById('fMatCategory').addEventListener('change', (e) => {
+		D.state.matCategory = e.target.value;
+		D.fillSubcategoryOptions(e.target.value, 'all');
+		D.state.matSubcategory = document.getElementById('fMatSubcategory').value;
+		D.renderMaterials();
+	});
+	document.getElementById('fMatSubcategory').addEventListener('change', (e) => {
+		D.state.matSubcategory = e.target.value;
+		D.renderMaterials();
+	});
+	document.getElementById('fMatFaction').addEventListener('change', (e) => {
+		D.state.matFaction = e.target.value;
+		D.renderMaterials();
+	});
+	document.getElementById('fMatSort').addEventListener('change', (e) => {
+		D.state.matSort = e.target.value;
+		D.renderMaterials();
+	});
+	document.getElementById('fMatView').addEventListener('change', (e) => {
+		D.state.matView = e.target.value;
+		D.renderMaterials();
+	});
+	document.getElementById('fMatReset').addEventListener('click', () => {
+		D.state.matSearch = '';
+		D.state.matCategory = 'all';
+		D.state.matSubcategory = 'all';
+		D.state.matFaction = 'all';
+		D.state.matSort = 'name';
+		D.state.matView = 'grid';
+		document.getElementById('fMatSearch').value = '';
+		document.getElementById('fMatFaction').value = 'all';
+		document.getElementById('fMatSort').value = 'name';
+		document.getElementById('fMatView').value = 'grid';
+		D.fillCategoryOptions();
+		D.renderMaterials();
+	});
+	document.getElementById('materialsGrid').addEventListener('click', (e) => {
+		const card = e.target.closest('[data-mat-name]');
+		if (!card) return;
+		const item = D.findMaterial(card.dataset.matName);
+		if (item) D.openMaterialDrawer(item);
+	});
+	document.getElementById('materialsTableBody').addEventListener('click', (e) => {
+		const row = e.target.closest('tr[data-mat-name]');
+		if (!row) return;
+		const item = D.findMaterial(row.dataset.matName);
+		if (item) D.openMaterialDrawer(item);
 	});
 
 	document.querySelector('#view-guilds thead').addEventListener('click', (e) => {

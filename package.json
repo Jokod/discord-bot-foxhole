@@ -1,6 +1,6 @@
 {
 	"name": "discord-foxhole-bot",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Discord bot for Foxhole",
 	"engines": {
 		"node": ">=20"
@@ -23,6 +23,9 @@
 		"wiki:sync-materials:add-missing:dry": "node scripts/sync-wiki-materials.js --add-missing-only --dry-run",
 		"wiki:sync-materials:add-missing:and-sync": "node scripts/sync-wiki-materials.js --add-missing",
 		"wiki:sync-materials:add-missing:and-sync:dry": "node scripts/sync-wiki-materials.js --add-missing --dry-run",
+		"wiki:sync-icons": "node scripts/sync-wiki-material-icons.js",
+		"wiki:sync-icons:dry": "node scripts/sync-wiki-material-icons.js --dry-run",
+		"wiki:sync-icons:force": "node scripts/sync-wiki-material-icons.js --force",
 		"dashboard": "node .dashboard/server.js"
 	},
 	"dependencies": {

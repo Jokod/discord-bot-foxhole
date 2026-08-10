@@ -1,19 +1,23 @@
-**FoxBot 1.0.0 — coming at the end of the current Foxhole war**
+**FoxBot 1.0.0 is live**
 
-A major update will ship **when this war ends**.
+Major update: logistics threads are gone — **order boards** take over.
 
-**What changes**
-- `/logistics` and `/material` are **removed**
-- Replaced by **`/order`** — production, front transfer, and scrap boards
-- `/stockpile` (depot codes) and `/operation` stay
+**What changed**
+- `/logistics` and `/material` **removed**
+- New **`/order`** — production, front transfer, scrap/farm boards
+- `/stockpile`, `/operation`, `/war`, `/notify` stay (some renames: `/notify`, `/about`)
+- Optional stats dashboard for self-host
 
-**After deploy**
-1. Recreate boards with `/order create`
+**What you should do**
+1. Recreate useful boards with `/order create`
 2. Delete leftover old logistics / material messages
+3. Self-host: backup Mongo → `migrate-v2.js` → restart (see docs)
 
-**Release notes on your Discord**
-1. Join https://discord.gg/bjkzG9YsX5
-2. Open **Announcements** → **Follow** (needs Manage Webhooks)
-3. Pick a channel on your server
+**News, bugs & support** — join the Discord and Follow Announcements:
+https://discord.gg/bjkzG9YsX5
+1. Open **Announcements** → **Follow** (needs Manage Webhooks)
+2. Pick a channel on your server
 
-Changelog: https://github.com/Jokod/discord-bot-foxhole/blob/main/CHANGELOG.md
+**GitHub** (source, issues):
+https://github.com/Jokod/discord-bot-foxhole
+Issues: https://github.com/Jokod/discord-bot-foxhole/issues/new

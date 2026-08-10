@@ -81,6 +81,7 @@
 				<button type="button" class="tab" data-view="commands" data-i18n="nav.commands">Commands</button>
 				<button type="button" class="tab" data-view="guilds" data-i18n="nav.guilds">Servers</button>
 				<button type="button" class="tab" data-view="contacts" data-i18n="nav.contacts">Contacts</button>
+				<button type="button" class="tab" data-view="materials" data-i18n="nav.materials">Materials</button>
 				<button type="button" class="tab" data-view="product" data-i18n="nav.product">Product</button>
 			</nav>
 
@@ -304,6 +305,69 @@
 			</article>
 		</section>
 
+		<section class="view" id="view-materials">
+			<article class="panel" style="margin-bottom:.85rem">
+				<h2 data-i18n="materials.title">Materials catalog</h2>
+				<p class="sub" data-i18n="materials.sub">Local catalogue from data/materials — icons from assets/icons/materials</p>
+				<div class="filters" style="grid-template-columns:1.4fr repeat(4, minmax(0,1fr)) auto auto">
+					<label class="field"><span data-i18n="guilds.search">Search</span>
+						<input type="search" id="fMatSearch" data-i18n-placeholder="materials.searchPh" placeholder="name or description…" />
+					</label>
+					<label class="field"><span data-i18n="materials.colCategory">Category</span>
+						<select id="fMatCategory"><option value="all" data-i18n="materials.all">All</option></select>
+					</label>
+					<label class="field"><span data-i18n="materials.colSubcategory">Subcategory</span>
+						<select id="fMatSubcategory"><option value="all" data-i18n="materials.all">All</option></select>
+					</label>
+					<label class="field"><span data-i18n="materials.colFaction">Faction</span>
+						<select id="fMatFaction">
+							<option value="all" data-i18n="materials.all">All</option>
+							<option value="both" data-i18n="materials.factionBoth">Both</option>
+							<option value="colonial" data-i18n="materials.factionColonial">Colonial</option>
+							<option value="warden" data-i18n="materials.factionWarden">Warden</option>
+						</select>
+					</label>
+					<label class="field"><span data-i18n="materials.sort">Sort</span>
+						<select id="fMatSort">
+							<option value="name" data-i18n="materials.sortName">Name</option>
+							<option value="category" data-i18n="materials.sortCategory">Category</option>
+							<option value="subcategory" data-i18n="materials.sortSubcategory">Subcategory</option>
+						</select>
+					</label>
+					<label class="field"><span data-i18n="materials.view">View</span>
+						<select id="fMatView">
+							<option value="grid" data-i18n="materials.viewGrid">Grid</option>
+							<option value="table" data-i18n="materials.viewTable">Table</option>
+						</select>
+					</label>
+					<button type="button" id="fMatReset" data-i18n="guilds.reset">Reset</button>
+				</div>
+				<div class="summary-bar">
+					<span id="materialsMeta" data-i18n="materials.metaIdle">Open this tab to load materials…</span>
+				</div>
+			</article>
+			<article class="panel" id="materialsGridPanel">
+				<div class="mat-grid" id="materialsGrid"></div>
+			</article>
+			<article class="panel" id="materialsTablePanel" hidden>
+				<div class="table-wrap">
+					<table>
+						<thead>
+							<tr>
+								<th data-i18n="materials.colIcon">Icon</th>
+								<th data-i18n="materials.colName">Name</th>
+								<th data-i18n="materials.colFaction">Faction</th>
+								<th data-i18n="materials.colCategory">Category</th>
+								<th data-i18n="materials.colSubcategory">Subcategory</th>
+								<th data-i18n="materials.colDesc">Description</th>
+							</tr>
+						</thead>
+						<tbody id="materialsTableBody"></tbody>
+					</table>
+				</div>
+			</article>
+		</section>
+
 		<section class="view" id="view-product">
 			<div class="grid grid-3">
 				<article class="panel">
@@ -467,6 +531,7 @@
 	<script src="/assets/war.js"></script>
 	<script src="/assets/views.js"></script>
 	<script src="/assets/contacts.js"></script>
+	<script src="/assets/materials.js"></script>
 	<script src="/assets/guildActions.js"></script>
 	<script src="/assets/app.js"></script>
 </body>

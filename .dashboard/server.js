@@ -11,12 +11,14 @@ const { createLoadSummary } = require('./lib/summary');
 const { loadContacts } = require('./lib/contacts');
 const guildActions = require('./lib/guildActions');
 const { createAuthPayload, createRequestHandler, publicLinks } = require('./lib/createHandler');
+const { listCatalog } = require('./lib/materials');
 
 const PORT = Number(process.env.DASHBOARD_PORT) || 3847;
 const HOST = process.env.DASHBOARD_HOST || '127.0.0.1';
 const INDEX = path.join(__dirname, 'index.html');
 const FAVICON = path.join(__dirname, 'favicon.ico');
 const ASSETS_DIR = path.join(__dirname, 'assets');
+const MATERIAL_ICONS_DIR = path.join(__dirname, '..', 'assets', 'icons', 'materials');
 const I18N_DIR = path.join(__dirname, 'i18n');
 const I18N_FILES = new Set(['en.json', 'fr.json', 'ru.json', 'zh-CN.json']);
 const ROOT = path.join(__dirname, '..');
@@ -37,10 +39,12 @@ const {
 	indexPath: INDEX,
 	assetsDir: ASSETS_DIR,
 	sharedWarProgressPath: SHARED_WAR_PROGRESS,
+	materialIconsDir: MATERIAL_ICONS_DIR,
 });
 
 const loadSummary = createLoadSummary(ENV_PATH);
 const authPayload = createAuthPayload({ auth, envPath: ENV_PATH });
+const loadMaterials = async () => listCatalog();
 
 const requestHandler = createRequestHandler({
 	auth,
@@ -51,6 +55,7 @@ const requestHandler = createRequestHandler({
 	sendAsset,
 	loadSummary,
 	loadContacts,
+	loadMaterials,
 	guildActions,
 	authPayload,
 	publicLinks,

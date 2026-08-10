@@ -416,6 +416,9 @@
 		const { fmt, escapeHtml, activityLabel } = getStore();
 		if (!g) return;
 		getStore().selectedGuildId = g.guild_id;
+		getStore().selectedMaterialName = null;
+		const titleEl = document.querySelector('#drawer > .actions strong');
+		if (titleEl) titleEl.textContent = t('drawer.title');
 		document.getElementById('drawerBody').innerHTML = `
 		<h3>${escapeHtml(g.name)}</h3>
 		<p class="mono muted">${g.guild_id}</p>

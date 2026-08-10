@@ -98,11 +98,10 @@
 		warState = war;
 		const timers = computeWarTimers(war);
 		const ended = timers.ended;
-		const winnerKey = {
-			NONE: 'war.winnerNone',
-			WARDEN: 'war.winnerWarden',
-			COLONIAL: 'war.winnerColonial',
-		}[war.winner] || 'war.winnerNone';
+		let winnerKey = 'war.winnerNone';
+		if (war.winner === 'WARDEN') winnerKey = 'war.winnerWarden';
+		else if (war.winner === 'COLONIAL') winnerKey = 'war.winnerColonial';
+		else if (ended) winnerKey = 'war.ended';
 
 		const winner = war.winner && war.winner !== 'NONE' ? war.winner : null;
 		const statusClass = ended

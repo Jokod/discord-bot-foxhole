@@ -123,12 +123,10 @@ module.exports = {
 				return interaction.editReply({ embeds: [embed] });
 			}
 
-			const winnerKeys = {
-				NONE: 'FOXHOLE_WINNER_NONE',
-				WARDEN: 'FOXHOLE_WINNER_WARDEN',
-				COLONIAL: 'FOXHOLE_WINNER_COLONIAL',
-			};
-			const winnerKey = winnerKeys[summary.winner] || 'FOXHOLE_WINNER_NONE';
+			let winnerKey = 'FOXHOLE_WINNER_NONE';
+			if (summary.winner === 'WARDEN') winnerKey = 'FOXHOLE_WINNER_WARDEN';
+			else if (summary.winner === 'COLONIAL') winnerKey = 'FOXHOLE_WINNER_COLONIAL';
+			else if (summary.ended) winnerKey = 'FOXHOLE_WINNER_ENDED';
 			const need = summary.effectiveRequiredVictoryTowns ?? summary.requiredVictoryTowns;
 			const vt = summary.victoryTowns;
 

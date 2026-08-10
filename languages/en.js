@@ -7,7 +7,6 @@ module.exports = {
 	NONE: 'None',
 	NAME: 'Name',
 	PASSWORD: 'Password',
-	QUANTITY: 'Quantity',
 	DELETE: 'Delete',
 	DATE: 'Date',
 	HOURS: 'Hours',
@@ -20,8 +19,6 @@ module.exports = {
 	BACK: 'Back',
 	INTERACTION_ERROR: 'No interaction was found for this action.',
 	PREFIX_MESSAGE: 'Hi %author%! My prefix is %prefix%, for help %prefix%help',
-	STATUS: 'Status',
-
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
 	ABOUT_DISCORD: '**Support Discord:** %url%',
@@ -57,6 +54,7 @@ module.exports = {
 	FOXHOLE_WAR_END: 'Conquest end',
 	FOXHOLE_WAR_SCHEDULED_END: 'Scheduled end',
 	FOXHOLE_WINNER_NONE: 'In progress',
+	FOXHOLE_WINNER_ENDED: 'Ended',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Data unavailable',
@@ -71,16 +69,21 @@ module.exports = {
 	FOXHOLE_REPORT_DAY: 'Day of war',
 
 	HELP_NO_SUBCOMMANDS: 'This command has no subcommands.',
-	HELP_NO_PARAMS: 'This command has no parameters.',
-
 	HELP_TITLE_LIST: 'List of commands',
 	HELP_TITLE_COMMAND: 'Help for the command `%command%`',
 
 	HELP_SECTION_SUBCOMMANDS: 'Subcommands',
 	HELP_SECTION_PARAMETERS: 'Parameters',
+	HELP_SECTION_USAGE: 'Usage',
 	HELP_COMMAND_NOT_FOUND: 'The command `%command%` doesn\'t exist!',
 	HELP_PARAM_REQUIRED_SUFFIX: ' (required)',
 	HELP_PARAM_HELP_COMMAND_VALUES: 'Available values: %commands%',
+	HELP_PARAM_CHOICES: 'Choices: %choices%',
+	HELP_PARAM_AUTOCOMPLETE: 'autocomplete',
+	HELP_PARAM_LENGTH: 'length %min%–%max%',
+	HELP_PARAM_BOOLEAN: 'true/false',
+	HELP_LIST_HINT: 'Use `/help <command>` or `/help order create` for details.',
+	HELP_NOT_FOUND_HINT: 'Available commands: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
 	OWNER_ONLY: 'This command is only available to the owner of the bot.',
@@ -116,7 +119,6 @@ module.exports = {
 	SERVER_SET_LOGS_ON_REPLY: 'Order board Logs threads are now **enabled**. New boards will create a locked Logs thread.',
 	SERVER_SET_LOGS_OFF_REPLY: 'Order board Logs threads are now **disabled**. Existing Logs threads have been deleted.',
 	SERVER_RESET_PREVIEW: 'Reset preview — would remove **%boards%** order board(s), **%stockpiles%** stockpile(s), **%operations%** operation(s). Run again with **confirm:true** to proceed.',
-	SERVER_RESET_CONFIRM_REQUIRED: 'Set **confirm:true** to wipe order boards, stockpiles and operations for a new war. This cannot be undone.',
 	SERVER_RESET_SUCCESS: 'Server reset done — **%boards%** order board(s), **%stockpiles%** stockpile(s), **%operations%** operation(s) removed. Server config and notifications were kept.',
 
 	// OPERATION ---------------------------------------------
@@ -133,8 +135,6 @@ module.exports = {
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'This operation does not exist.',
-	OPERATION_NOT_HAVE_GROUPS: 'This operation has no groups.',
-
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'Operation %title% has been created.',
 	OPERATION_LAUNCH_SUCCESS: 'Operation %title% has been launched',
@@ -155,7 +155,6 @@ module.exports = {
 
 	// MATERIAL ---------------------------------------------
 
-	MATERIAL: 'Material',
 	MATERIAL_PRIORITY: 'Priority',
 	MATERIAL_PRIORITY_LOW: 'Low',
 	MATERIAL_PRIORITY_NEUTRAL: 'Neutral',
@@ -176,7 +175,6 @@ module.exports = {
 	ORDER_STATUS_CLOSED: 'This order board is closed. An owner or moderator can reopen it with **Reopen**.',
 	ORDER_STATUS_ALREADY_OPEN: 'This order board is already open.',
 	ORDER_SUMMARY: '**%done%/%total%** done · **%current%/%target%** crates · **%remaining%** left',
-	ORDER_LINE_LEFT: '%n% left',
 	ORDER_STOCK: 'Stock: %current%/%target%',
 	ORDER_FOOTER: '%lines% line(s) · %status%',
 	ORDER_STATUS_LABEL_OPEN: 'Open',
@@ -205,7 +203,6 @@ module.exports = {
 	ORDER_CANNOT_MANAGE_ERROR: 'You cannot manage this order (line/board owner or server/channel manager only).',
 	ORDER_OPERATION_FINISHED: 'That operation is finished — pick an active one (autocomplete).',
 	ORDER_LINE_NOT_EXIST: 'This line no longer exists.',
-	ORDER_LIST_COMMANDS: 'Order commands',
 	ORDER_LOG_THREAD: 'Logs — %name%',
 	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
 	ORDER_LOG_MAX: '%user% **%name%** Max %from%→%to%',
@@ -276,8 +273,6 @@ module.exports = {
 	// STOCKPILE ---------------------------------------------
 
 	STOCKPILE: 'Stockpile',
-	STOCKPILE_LIST_COMMANDS: 'List of stock commands',
-	STOCKPILE_LIST: 'List of stocks',
 	STOCKPILE_LIST_CODES: 'List of stockpile codes',
 	STOCKPILE_TABLE_HEADER_STOCK: 'Stockpile',
 	STOCKPILE_TABLE_HEADER_CODE: 'Code',
@@ -289,12 +284,8 @@ module.exports = {
 	STOCKPILE_PLACEHOLDER_NAME: '3-50 characters, alphanumeric',
 	STOCKPILE_PLACEHOLDER_CODE: '6 digits, e.g. 123456',
 
-	STOCKPILE_TIME_REMAINING: 'Time remaining',
-	STOCKPILE_CREATOR: 'Creator',
-
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: 'Stock #%id% has been created.',
-	STOCKPILE_DELETE_SUCCESS: 'Stock #%id% has been deleted.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Stock #%id% has been marked as deleted.',
 	STOCKPILE_RESET_SUCCESS: 'The timer for stock #%id% has been reset to 2 days and 2 hours.',
 	STOCKPILE_CLEANUP_SUCCESS: '%count% marked stock(s) permanently deleted on this server.',
@@ -310,16 +301,12 @@ module.exports = {
 	STOCKPILE_INVALID_ID: 'The stock ID is invalid.',
 	STOCKPILE_MAX_REACHED: 'You have reached the maximum number of active stockpiles allowed.',
 	STOCKPILE_CREATE_ERROR: 'An error occurred while creating the stock.',
-	STOCKPILE_DELETE_ERROR: 'An error occurred while deleting the stock.',
 	STOCKPILE_INVALID_NAME: 'The stock name is invalid.',
 	STOCKPILE_INVALID_PASSWORD: 'The code must be exactly 6 digits.',
 	STOCKPILE_INVALID_REGION: 'The region is invalid.',
 	STOCKPILE_INVALID_CITY: 'The city is invalid.',
 	STOCKPILE_ALREADY_DELETED: 'This stock is already marked as deleted.',
 	STOCKPILE_ARE_NO_OWNER_ERROR: 'You are not the creator of this stockpile.',
-	STOCKPILE_NOT_DELETED: 'This stock is not marked as deleted.',
-	STOCKPILE_RESTORE_SUCCESS: 'The stockpile has been restored.',
-
 	// NOTIFICATIONS
 	NOTIFICATION_TYPE_STOCKPILE_ACTIVITY: 'Stockpile activity',
 	NOTIFICATION_NO_PERMS: 'You need the "Manage Channels" permission to subscribe or unsubscribe.',
@@ -331,15 +318,11 @@ module.exports = {
 	NOTIFICATION_LIST_HEADER: '**Notification subscriptions**',
 	NOTIFICATION_STOCKPILE_ADDED: '📦 %user% added stockpile **%name%** (#%id%) in %region% / %city%.',
 	NOTIFICATION_STOCKPILE_REMOVED: '🗑️ %user% marked stockpile **%name%** (#%id%) as deleted.',
-	NOTIFICATION_STOCKPILE_RESTORED: '♻️ %user% restored stockpile **%name%** (#%id%).',
-	NOTIFICATION_STOCKPILE_RESET: '🔄 %user% reset the timer for stockpile **%name%** (#%id%).',
 	NOTIFICATION_TYPE_STOCKPILE_EXPIRING: 'Stockpile expiring soon',
 	NOTIFICATION_STOCKPILE_EXPIRING_ALERT: '⏰ **Stockpile reminder**',
 	NOTIFICATION_STOCKPILE_EXPIRING_LINE: '• %creator%#%id% **%name%** — %region% / %city% — %window%',
 	NOTIFICATION_EXPIRING_IN_12H: 'in 12h',
 	NOTIFICATION_EXPIRING_IN_6H: 'in 6h',
-	NOTIFICATION_EXPIRING_IN_3H: 'in 3h',
-	NOTIFICATION_EXPIRING_IN_2H: 'in 2h',
 	NOTIFICATION_EXPIRING_IN_1H: 'in 1h',
 	NOTIFICATION_EXPIRING_IN_30M: 'in 30min',
 

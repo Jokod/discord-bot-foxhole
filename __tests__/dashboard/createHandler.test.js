@@ -97,6 +97,7 @@ describe('dashboard createHandler', () => {
 		let sendAsset;
 		let loadSummary;
 		let loadContacts;
+		let loadMaterials;
 		let guildActions;
 		let authPayload;
 		let handler;
@@ -132,6 +133,7 @@ describe('dashboard createHandler', () => {
 			});
 			loadSummary = jest.fn().mockResolvedValue({ kpis: { active_guilds: 1 } });
 			loadContacts = jest.fn().mockResolvedValue({ people: [] });
+			loadMaterials = jest.fn().mockResolvedValue({ categories: [], items: [] });
 			guildActions = {
 				handleLeave: jest.fn().mockResolvedValue({ results: [] }),
 				handleBlacklist: jest.fn().mockResolvedValue({ results: [] }),
@@ -158,6 +160,7 @@ describe('dashboard createHandler', () => {
 				sendAsset,
 				loadSummary,
 				loadContacts,
+				loadMaterials,
 				guildActions,
 				authPayload,
 				publicLinks: () => ({ discord: null, github: null }),
@@ -230,6 +233,7 @@ describe('dashboard createHandler', () => {
 				sendAsset,
 				loadSummary,
 				loadContacts,
+				loadMaterials,
 				guildActions,
 				authPayload,
 				publicLinks: () => ({ discord: null, github: null }),
@@ -286,6 +290,18 @@ describe('dashboard createHandler', () => {
 			expect(loadContacts).toHaveBeenCalledWith({ force: true });
 			await handler({ method: 'GET', url: '/api/contacts' }, mockRes());
 			expect(loadContacts).toHaveBeenCalledWith({ force: false });
+		});
+
+		it('GET /api/materials returns catalog', async () => {
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			loadMaterials.mockResolvedValue({
+				categories: [{ id: 'resources', icon: '📦', subcategories: ['bmat'] }],
+				items: [{ itemName: 'Basic Materials' }],
+			});
+			const res = mockRes();
+			await handler({ method: 'GET', url: '/api/materials' }, res);
+			expect(loadMaterials).toHaveBeenCalled();
+			expect(jsonBody(res).items[0].itemName).toBe('Basic Materials');
 		});
 
 		it('POST guild action routes', async () => {
