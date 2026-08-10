@@ -1,12 +1,13 @@
-const { Operation, Group, Material } = require('../../../data/models.js');
+const { Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
+const { deleteBoardsByOperation } = require('../../../services/order/index.js');
 
 module.exports = {
 	id: 'button_create_operation_cancel',
 
 	async execute(interaction) {
-		const { client, guild, message, user, channel } = interaction;
+		const { client, guild, message, user } = interaction;
 		const operationId = message.id;
 		const translations = new Translate(client, guild.id);
 
@@ -27,25 +28,10 @@ module.exports = {
 				});
 			}
 
-			// Defer the reply to prevent interaction timeout
 			await interaction.deferReply({ flags: 64 });
 
-			const threads = await Group.find({ guild_id: guild.id, operation_id: `${operationId}` });
-			for (const group of threads) {
-				let threadChannel = channel.threads.cache.get(group.threadId);
-				if (!threadChannel) {
-					threadChannel = await channel.threads.fetch(group.threadId).catch(() => null);
-				}
-
-				if (threadChannel) {
-					await Material.deleteMany({ guild_id: guild.id, group_id: `${group.threadId}` });
-					await threadChannel.delete().catch(console.error);
-					await group.deleteOne();
-				}
-			}
-
+			await deleteBoardsByOperation(guild.id, operationId, client);
 			await Operation.deleteOne({ guild_id: guild.id, operation_id: `${operationId}` });
-
 			await message.delete().catch(console.error);
 
 			await interaction.editReply({
@@ -60,11 +46,9 @@ module.exports = {
 					flags: 64,
 				});
 			}
-			else {
-				return await interaction.editReply({
-					content: translations.translate('OPERATION_CANCELED_ERROR'),
-				});
-			}
+			return await interaction.editReply({
+				content: translations.translate('OPERATION_CANCELED_ERROR'),
+			});
 		}
 	},
 };

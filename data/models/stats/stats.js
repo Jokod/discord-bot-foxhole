@@ -22,6 +22,10 @@ const Stats = mongoose.Schema({
 		type: Date,
 		default: null,
 	},
+	owner_id: {
+		type: String,
+		default: null,
+	},
 	member_count: {
 		type: Number,
 		default: 0,
@@ -54,7 +58,12 @@ const Stats = mongoose.Schema({
 		type: Number,
 		default: 0,
 	},
+	/** @deprecated logistics validation; kept for historical stats only */
 	material_validated_count: {
+		type: Number,
+		default: 0,
+	},
+	stock_board_count: {
 		type: Number,
 		default: 0,
 	},

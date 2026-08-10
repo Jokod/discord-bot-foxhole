@@ -1,8 +1,15 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const {
+	EmbedBuilder,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
+} = require('discord.js');
 const { getRandomColor } = require('../../utils/colors.js');
-const { DISCORD_MAX_BUTTONS_PER_MESSAGE } = require('../../utils/constants.js');
 const { formatForDisplay } = require('../../utils/formatLocation.js');
 const { safeEscapeMarkdown } = require('../../utils/markdown.js');
+const { STOCKPILE_MAX_ACTIVE } = require('../../utils/constants.js');
 
 /**
  * Construit l'embed de la liste des stockpiles pour un serveur.
@@ -10,7 +17,7 @@ const { safeEscapeMarkdown } = require('../../utils/markdown.js');
  * @param {import('mongoose').Model} Stockpile - Modèle Stockpile
  * @param {string} guildId - ID du serveur
  * @param {Translate} translations - Instance des traductions
- * @returns {Promise<{ embed: EmbedBuilder | null, isEmpty: boolean }>}
+ * @returns {Promise<{ embed: EmbedBuilder | null, isEmpty: boolean, stocks: object[] }>}
  */
 async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 	await Stockpile.deleteMany({
@@ -114,17 +121,14 @@ function buildStockpileButtonLabel(stock, idCounts) {
 }
 
 /**
- * Construit les boutons de reset pour la liste des stockpiles d'un serveur.
- * @param {import('mongoose').Model} Stockpile - Modèle Stockpile
- * @param {string} guildId - ID du serveur
- * @returns {Promise<import('discord.js').ActionRowBuilder[]>}
+ * Stocks actifs uniques, triés par id numérique.
+ * @param {import('mongoose').Model} Stockpile
+ * @param {string} guildId
  */
-async function buildStockpileListComponents(Stockpile, guildId) {
+async function loadUniqueActiveStocks(Stockpile, guildId) {
 	const stocks = await Stockpile.find({ server_id: guildId, deleted: false }).lean();
-	if (!stocks || stocks.length === 0) return [];
-
 	const seen = new Set();
-	const uniqueStocks = stocks
+	return (stocks || [])
 		.filter((stock) => {
 			const ref = String(stock._id);
 			if (seen.has(ref)) return false;
@@ -132,26 +136,116 @@ async function buildStockpileListComponents(Stockpile, guildId) {
 			return true;
 		})
 		.sort((a, b) => Number(a.id) - Number(b.id));
+}
+
+/**
+ * Composants de la liste publique : boutons de reset uniquement.
+ * @param {import('mongoose').Model} Stockpile
+ * @param {string} guildId
+ * @param {{ translate: (key: string, vars?: object) => string }} [translations]
+ * @returns {Promise<import('discord.js').ActionRowBuilder[]>}
+ */
+async function buildStockpileListComponents(Stockpile, guildId, translations) {
+	void translations;
+	const uniqueStocks = await loadUniqueActiveStocks(Stockpile, guildId);
+	const rows = [];
+
+	if (uniqueStocks.length === 0) {
+		return rows;
+	}
 
 	const idCounts = countStockIds(uniqueStocks);
-
-	const buttons = uniqueStocks.slice(0, DISCORD_MAX_BUTTONS_PER_MESSAGE).map((stock) =>
+	const buttons = uniqueStocks.slice(0, STOCKPILE_MAX_ACTIVE).map((stock) =>
 		new ButtonBuilder()
 			.setCustomId(`stockpile_reset-${stock._id}`)
 			.setLabel(buildStockpileButtonLabel(stock, idCounts))
 			.setStyle(ButtonStyle.Primary),
 	);
 
-	const rows = [];
 	for (let i = 0; i < buttons.length; i += 5) {
 		rows.push(new ActionRowBuilder().addComponents(...buttons.slice(i, i + 5)));
 	}
+
 	return rows;
+}
+
+/**
+ * Composants du panneau `/stockpile manage` : select remove + cleanup / delete all.
+ * @param {import('mongoose').Model} Stockpile
+ * @param {string} guildId
+ * @param {{ translate: (key: string, vars?: object) => string }} [translations]
+ * @returns {Promise<import('discord.js').ActionRowBuilder[]>}
+ */
+async function buildStockpileManageComponents(Stockpile, guildId, translations) {
+	const uniqueStocks = await loadUniqueActiveStocks(Stockpile, guildId);
+	const rows = [];
+	const t = (key) => (translations?.translate ? translations.translate(key) : key);
+
+	if (uniqueStocks.length > 0) {
+		const idCounts = countStockIds(uniqueStocks);
+		const removeOptions = uniqueStocks.slice(0, 25).map((stock) =>
+			new StringSelectMenuOptionBuilder()
+				.setLabel(buildStockpileButtonLabel(stock, idCounts).slice(0, 100))
+				.setDescription(String(stock.name || '').slice(0, 100) || `#${stock.id}`)
+				.setValue(String(stock._id)),
+		);
+
+		rows.push(
+			new ActionRowBuilder().addComponents(
+				new StringSelectMenuBuilder()
+					.setCustomId('select_stockpile_remove')
+					.setPlaceholder(t('STOCKPILE_REMOVE_PLACEHOLDER').slice(0, 150))
+					.addOptions(removeOptions),
+			),
+		);
+	}
+
+	rows.push(
+		new ActionRowBuilder().addComponents(
+			new ButtonBuilder()
+				.setCustomId('stockpile_cleanup')
+				.setLabel(t('STOCKPILE_BTN_CLEANUP').slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH))
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId('stockpile_deleteall')
+				.setLabel(t('STOCKPILE_BTN_DELETEALL').slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH))
+				.setStyle(ButtonStyle.Danger),
+		),
+	);
+
+	return rows;
+}
+
+/**
+ * Payload du panneau manage (embed + composants admin).
+ * @param {import('mongoose').Model} Stockpile
+ * @param {string} guildId
+ * @param {{ translate: (key: string, vars?: object) => string }} translations
+ */
+async function buildStockpileManagePayload(Stockpile, guildId, translations) {
+	const { embed, isEmpty } = await buildStockpileListEmbed(Stockpile, guildId, translations);
+	const components = await buildStockpileManageComponents(Stockpile, guildId, translations);
+
+	if (isEmpty) {
+		return {
+			content: translations.translate('STOCKPILE_LIST_EMPTY'),
+			embeds: [],
+			components,
+		};
+	}
+
+	return {
+		content: '',
+		embeds: [embed],
+		components,
+	};
 }
 
 module.exports = {
 	buildStockpileListEmbed,
 	buildStockpileListComponents,
+	buildStockpileManageComponents,
+	buildStockpileManagePayload,
 	buildStockpileButtonLabel,
 	countStockIds,
 };

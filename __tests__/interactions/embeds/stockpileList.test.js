@@ -11,7 +11,11 @@ const createStockpileMock = (findResult) => ({
 	find: jest.fn().mockResolvedValue(findResult),
 });
 
-const { buildStockpileListEmbed, buildStockpileListComponents } = require('../../../interactions/embeds/stockpileList.js');
+const {
+	buildStockpileListEmbed,
+	buildStockpileListComponents,
+	buildStockpileManageComponents,
+} = require('../../../interactions/embeds/stockpileList.js');
 
 describe('stockpileList embed', () => {
 	beforeEach(() => {
@@ -68,25 +72,27 @@ describe('stockpileList embed', () => {
 	});
 
 	describe('buildStockpileListComponents', () => {
+		const translations = { translate: mockTranslate };
+
 		const createComponentsMock = (findResult) => ({
 			find: jest.fn().mockReturnValue({
 				lean: jest.fn().mockResolvedValue(findResult),
 			}),
 		});
 
-		it('retourne [] si aucun stock actif', async () => {
-			const result = await buildStockpileListComponents(createComponentsMock([]), 'guild-1');
+		it('retourne aucun composant si aucun stock actif', async () => {
+			const result = await buildStockpileListComponents(createComponentsMock([]), 'guild-1', translations);
 
 			expect(result).toEqual([]);
 		});
 
-		it('retourne des ActionRows avec boutons pour chaque stock', async () => {
+		it('retourne uniquement les boutons reset (pas de remove ni admin)', async () => {
 			const stocks = [
 				{ _id: '507f1f77bcf86cd799439011', id: '1', server_id: 'guild-1', deleted: false },
 				{ _id: '507f1f77bcf86cd799439012', id: '2', server_id: 'guild-1', deleted: false },
 			];
 
-			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1', translations);
 
 			expect(result.length).toBe(1);
 			expect(result[0].components.length).toBe(2);
@@ -102,7 +108,7 @@ describe('stockpileList embed', () => {
 				{ _id: '507f1f77bcf86cd799439011', id: '11', server_id: 'guild-1', deleted: false },
 			];
 
-			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1', translations);
 
 			expect(result[0].components.map((b) => b.data.label)).toEqual(['#1', '#2', '#10', '#11']);
 		});
@@ -114,7 +120,7 @@ describe('stockpileList embed', () => {
 				{ _id: '507f1f77bcf86cd799439012', id: '2', server_id: 'guild-1', deleted: false },
 			];
 
-			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1', translations);
 
 			expect(result[0].components.length).toBe(2);
 		});
@@ -125,10 +131,45 @@ describe('stockpileList embed', () => {
 				{ _id: '507f1f77bcf86cd799439012', id: '5', name: 'Bravo', server_id: 'guild-1', deleted: false },
 			];
 
-			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1');
+			const result = await buildStockpileListComponents(createComponentsMock(stocks), 'guild-1', translations);
 
 			expect(result[0].components[0].data.label).toBe('#5 Alpha');
 			expect(result[0].components[1].data.label).toBe('#5 Bravo');
+		});
+	});
+
+	describe('buildStockpileManageComponents', () => {
+		const translations = { translate: mockTranslate };
+
+		const createComponentsMock = (findResult) => ({
+			find: jest.fn().mockReturnValue({
+				lean: jest.fn().mockResolvedValue(findResult),
+			}),
+		});
+
+		it('retourne uniquement la rangée admin si aucun stock actif', async () => {
+			const result = await buildStockpileManageComponents(createComponentsMock([]), 'guild-1', translations);
+
+			expect(result.length).toBe(1);
+			expect(result[0].components.length).toBe(2);
+			expect(result[0].components[0].data.custom_id).toBe('stockpile_cleanup');
+			expect(result[0].components[1].data.custom_id).toBe('stockpile_deleteall');
+		});
+
+		it('retourne select remove + rangée admin', async () => {
+			const stocks = [
+				{ _id: '507f1f77bcf86cd799439011', id: '1', name: 'Alpha', server_id: 'guild-1', deleted: false },
+				{ _id: '507f1f77bcf86cd799439012', id: '2', name: 'Bravo', server_id: 'guild-1', deleted: false },
+			];
+
+			const result = await buildStockpileManageComponents(createComponentsMock(stocks), 'guild-1', translations);
+
+			expect(result.length).toBe(2);
+			expect(result[0].components[0].data.custom_id).toBe('select_stockpile_remove');
+			expect(result[1].components[0].data.custom_id).toBe('stockpile_cleanup');
+			expect(result[1].components[1].data.custom_id).toBe('stockpile_deleteall');
+			expect(mockTranslate).toHaveBeenCalledWith('STOCKPILE_BTN_CLEANUP');
+			expect(mockTranslate).toHaveBeenCalledWith('STOCKPILE_BTN_DELETEALL');
 		});
 	});
 });

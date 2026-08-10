@@ -5,11 +5,11 @@ const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 module.exports = {
 	init: true,
 	data: new SlashCommandBuilder()
-		.setName('create_operation')
+		.setName('operation')
 		.setNameLocalizations({
-			fr: 'créer_opération',
-			ru: 'создать_операцию',
-			'zh-CN': '创建操作',
+			fr: 'operation',
+			ru: 'операция',
+			'zh-CN': '操作',
 		})
 		.setDescription('Create a new operation')
 		.setDescriptionLocalizations({
@@ -58,7 +58,7 @@ module.exports = {
 		const dateField = new TextInputBuilder()
 			.setCustomId('date')
 			.setLabel(translations.translate('OPERATION_CREATE_LABEL_DATE'))
-			.setPlaceholder('dd/mm/yyyy')
+			.setPlaceholder(translations.translate('OPERATION_CREATE_PLACEHOLDER_DATE'))
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(10)
 			.setMaxLength(10)
@@ -67,7 +67,7 @@ module.exports = {
 		const timeField = new TextInputBuilder()
 			.setCustomId('time')
 			.setLabel(translations.translate('OPERATION_CREATE_LABEL_TIME'))
-			.setPlaceholder('hh:mm')
+			.setPlaceholder(translations.translate('OPERATION_CREATE_PLACEHOLDER_TIME'))
 			.setStyle(TextInputStyle.Short)
 			.setMinLength(5)
 			.setMaxLength(5)

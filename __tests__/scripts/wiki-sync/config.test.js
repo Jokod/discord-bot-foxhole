@@ -16,6 +16,7 @@ describe('wiki-sync / config', () => {
 	it('WIKI_HUB_TITLES exclut les pages hub connues', () => {
 		expect(WIKI_HUB_TITLES.has('Aircraft')).toBe(true);
 		expect(WIKI_HUB_TITLES.has('Flamethrower Ammo')).toBe(true);
+		expect(WIKI_HUB_TITLES.has('R-Series Vehicles')).toBe(true);
 	});
 
 	it('PRUNE_CATALOG_ITEM_NAMES contient les alias RPG ASCII', () => {

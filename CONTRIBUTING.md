@@ -27,6 +27,8 @@ Thank you for your interest in contributing to the Discord Bot for Foxhole! This
 - MongoDB (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
 - A Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
 
+Full self-host guide (env, migrations, wiki, ops, dashboard): [docs/SELF-HOST.md](docs/SELF-HOST.md).
+
 ### Installation
 
 ```bash
@@ -69,15 +71,17 @@ npm run start   # Production
 │   ├── modals/                 # Modal handlers
 │   ├── select-menus/           # Select menu handlers
 │   └── slash/                  # Slash command handlers
-│       ├── logistics/
 │       ├── misc/
 │       ├── notification/
 │       ├── operation/
+│       ├── order/
 │       ├── server/
 │       └── stockpile/
+├── services/                   # Domain services (e.g. order)
+├── shared/                     # Shared helpers (customId, permissions, wizards)
 ├── data/
 │   ├── models.js               # Mongoose models
-│   └── materials/              # Material JSON files by category
+│   └── materials/              # Material JSON files by category (order catalog)
 ├── languages/                  # Translation files (en, fr, ru, zh-cn)
 ├── utils/                      # Shared utilities
 ├── messages/                   # Default error/fallback messages
@@ -159,7 +163,7 @@ module.exports = {
 
 ## Adding Materials
 
-Materials are stored as JSON files in `data/materials/<category>/`.
+Materials are stored as JSON files in `data/materials/<category>/`. They feed the **Add** catalog on `/order` boards (not a live Foxhole inventory).
 
 Each entry must follow this structure:
 
@@ -207,7 +211,13 @@ Unit tests live in `__tests__/` and mirror the source structure. The project use
 npm test                # Run all tests
 npm run test:watch      # Watch mode
 npm run test:coverage   # Coverage report
+npm run test:ci         # lint + i18n parity + coverage (same as CI)
+npm run i18n:check      # en/fr/ru/zh-cn key parity
 ```
+
+CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then Jest with coverage. New tests under `__tests__/` are picked up automatically.
+
+Manual smoke after upgrades: checklist in [docs/MIGRATION.md](docs/MIGRATION.md).
 
 When adding new features, please add or update the corresponding test file. Tests should mock all external dependencies (database, Discord API, translations) and test the handler logic in isolation.
 
@@ -238,6 +248,6 @@ npm run fix     # Auto-fix
 - Keep your PR focused: one feature or fix per PR.
 - Write a clear description of what the PR does and why.
 - Make sure all tests pass and there are no lint errors.
-- If your PR adds or changes user-facing behaviour, update the relevant section in `README.md`.
+- If your PR adds or changes user-facing behaviour, update the relevant section in `README.md` and [docs/USAGE.md](docs/USAGE.md) when needed.
 
 We review all contributions and will provide feedback as soon as possible. Thank you!

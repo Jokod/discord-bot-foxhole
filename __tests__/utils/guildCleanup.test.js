@@ -5,8 +5,8 @@ const mockStatsDeleteOne = jest.fn().mockResolvedValue({});
 const mockStatsDeleteMany = jest.fn().mockResolvedValue({ deletedCount: 0 });
 
 jest.mock('../../data/models.js', () => ({
-	Material: { deleteMany: mockDeleteMany },
-	Group: { deleteMany: mockDeleteMany },
+	OrderLine: { deleteMany: mockDeleteMany },
+	OrderBoard: { deleteMany: mockDeleteMany },
 	Operation: { deleteMany: mockDeleteMany },
 	NotificationSubscription: { deleteMany: mockDeleteMany },
 	TrackedMessage: { deleteMany: mockDeleteMany },

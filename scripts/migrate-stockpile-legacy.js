@@ -17,7 +17,8 @@ const MONGODB_NAME = process.env.MONGODB_NAME || 'foxhole-bot';
 
 const LEGACY_REGION = 'Unknown';
 const LEGACY_CITY = 'Unknown';
-const LEGACY_GROUP_ID = 'legacy';
+/** Legacy placeholder; formerly written as group_id, now channel_id */
+const LEGACY_CHANNEL_ID = 'legacy';
 const LEGACY_OWNER_ID = '0';
 
 async function run() {
@@ -34,7 +35,7 @@ async function run() {
 			$set: {
 				region: LEGACY_REGION,
 				city: LEGACY_CITY,
-				group_id: LEGACY_GROUP_ID,
+				channel_id: LEGACY_CHANNEL_ID,
 				owner_id: LEGACY_OWNER_ID,
 				lastResetAt: now,
 				expiresAt,
@@ -46,7 +47,7 @@ async function run() {
 
 	console.log(`Done: ${result.modifiedCount} stockpile(s) updated.`);
 	if (result.matchedCount > 0) {
-		console.log(`Legacy stocks: region/city="${LEGACY_REGION}", group_id="${LEGACY_GROUP_ID}", owner_id="${LEGACY_OWNER_ID}".`);
+		console.log(`Legacy stocks: region/city="${LEGACY_REGION}", channel_id="${LEGACY_CHANNEL_ID}" (was group_id), owner_id="${LEGACY_OWNER_ID}".`);
 		console.log('Anyone can remove or restore these (no creator). To set real region/city: remove then re-add via /stockpile add.');
 	}
 	else {

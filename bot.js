@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
-const { Server } = require('./data/models.js');
+const { Server, OrderBoard } = require('./data/models.js');
 const Translate = require('./utils/translations.js');
 
 const configureDns = () => {
@@ -22,6 +22,21 @@ const configureDns = () => {
 		console.warn('Unable to set DNS result order, continuing with default behavior.');
 	}
 };
+
+const REQUIRED_ENV = ['TOKEN', 'CLIENT_ID', 'OWNER', 'MONGODB_URL', 'MONGODB_NAME'];
+
+/** Fail fast with a clear log when runtime config is missing (Docker without env_file, empty .env, etc.). */
+const assertRequiredEnv = () => {
+	const missing = REQUIRED_ENV.filter((key) => !process.env[key] || String(process.env[key]).trim() === '');
+	if (missing.length === 0) return;
+
+	console.error(
+		`[foxbot] Missing required environment variable(s): ${missing.join(', ')}. `
+		+ 'Copy .env.dist to .env and fill values, or pass them to the container (Compose env_file / runtime env).',
+	);
+	process.exit(1);
+};
+
 
 /** ********************************************************************/
 // Connect to MongoDB, then load languages/traductions and login
@@ -63,6 +78,7 @@ client.slashCommands = new Collection();
 client.buttonCommands = new Collection();
 client.selectCommands = new Collection();
 client.modalCommands = new Collection();
+client.autocompleteInteractions = new Collection();
 client.cooldowns = new Collection();
 client.languages = new Collection();
 client.traductions = new Collection();
@@ -103,6 +119,13 @@ getFiles('./interactions/modals', (command) => {
 
 getFiles('./interactions/select-menus', (command) => {
 	client.selectCommands.set(command.id, command);
+});
+
+/** ********************************************************************/
+// Registration of Autocomplete Interactions.
+
+getFiles('./interactions/autocomplete', (command) => {
+	client.autocompleteInteractions.set(command.name, command);
 });
 
 /** ********************************************************************/
@@ -172,6 +195,12 @@ const connectToMongoWithRetry = async () => {
 				serverSelectionTimeoutMS: 15000,
 			});
 			console.log('Connected to MongoDB');
+			try {
+				await OrderBoard.syncIndexes();
+			}
+			catch (indexErr) {
+				console.error('Failed to sync OrderBoard indexes:', indexErr.message);
+			}
 			return;
 		}
 		catch (error) {
@@ -202,6 +231,7 @@ const startBot = async () => {
 };
 
 const boot = async () => {
+	assertRequiredEnv();
 	configureDns();
 	void registerSlashCommands();
 	await startBot();
@@ -214,6 +244,7 @@ if (require.main === module) {
 module.exports = {
 	client,
 	configureDns,
+	assertRequiredEnv,
 	registerSlashCommands,
 	connectToMongoWithRetry,
 	startBot,

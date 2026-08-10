@@ -66,14 +66,48 @@ function getPriorityEmbedColor(priority) {
 	return PRIORITY_EMBED_COLOR[normalizePriority(priority)] ?? PRIORITY_EMBED_COLOR[PRIORITY_NEUTRAL];
 }
 
+/**
+ * @param {string|null|undefined} priority
+ * @returns {string} emoji
+ */
+function getPriorityArrow(priority) {
+	return PRIORITY_ARROW[normalizePriority(priority)] ?? PRIORITY_ARROW[PRIORITY_NEUTRAL];
+}
+
+/** Cycle low → neutral → high → low */
+function nextPriority(priority) {
+	const current = normalizePriority(priority);
+	const idx = PRIORITIES.indexOf(current);
+	return PRIORITIES[(idx + 1) % PRIORITIES.length];
+}
+
+/** high first, then neutral, then low */
+const PRIORITY_SORT_RANK = {
+	[PRIORITY_HIGH]: 0,
+	[PRIORITY_NEUTRAL]: 1,
+	[PRIORITY_LOW]: 2,
+};
+
+/**
+ * @param {string|null|undefined} priority
+ * @returns {number}
+ */
+function getPrioritySortRank(priority) {
+	return PRIORITY_SORT_RANK[normalizePriority(priority)] ?? 1;
+}
+
 module.exports = {
 	PRIORITY_LOW,
 	PRIORITY_NEUTRAL,
 	PRIORITY_HIGH,
 	PRIORITIES,
 	DEFAULT_PRIORITY,
+	PRIORITY_ARROW,
 	getPriorityTranslationKey,
 	getPriorityColoredText,
 	getPriorityEmbedColor,
+	getPriorityArrow,
+	nextPriority,
+	getPrioritySortRank,
 	normalizePriority,
 };

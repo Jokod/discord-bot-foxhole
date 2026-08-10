@@ -9,6 +9,56 @@ function routeResourceInfobox(name) {
 	return null;
 }
 
+function isHeavyAmmoItem(fields) {
+	const profile = (fields.ItemProfileType || '').trim();
+	const itemCat = (fields.ItemCategory || '').trim();
+	const cat = (fields.category || '').trim();
+	const flags = (fields.ItemFlags || '').trim();
+	return profile === 'HeavyAmmo'
+		|| itemCat === 'HeavyAmmo'
+		|| cat === 'Heavy Ammunition'
+		|| flags.split(',').map((s) => s.trim()).includes('HeavyAmmo');
+}
+
+function routeHeavyAmmo(fields) {
+	const type = (fields.type || '').trim();
+	const chassis = (fields.ChassisName || '').trim();
+	const dmg = (fields.damage_type || '').trim().toLowerCase();
+	const cat = (fields.category || '').trim();
+
+	if (chassis.includes('Mortar')) {
+		return { relPath: 'ammunition/artillery_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (chassis.includes('Storm Cannon') || chassis.includes('Rocket Pod')) {
+		return { relPath: 'ammunition/artillery_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (type === 'Torpedo' || chassis.includes('Torpedo')) {
+		return { relPath: 'ammunition/misc_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (chassis.includes('Anti-Aircraft') || chassis.includes('Anti-Air')) {
+		if (type === 'Magazine' || dmg === 'shrapnel') {
+			return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
+		}
+		return { relPath: 'ammunition/tank_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (chassis.includes('Anti-Air Machine Gun')) {
+		return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (dmg === 'shrapnel' && type === 'Magazine') {
+		return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (dmg === 'incendiary' && (chassis.includes('Flamethrower') || chassis.includes('Flame'))) {
+		return { relPath: 'ammunition/flamethrower_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (type === 'Shell' && cat === 'Heavy Ammunition') {
+		return { relPath: 'ammunition/tank_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	if (type === 'Propelled Explosive' || chassis.includes('RPG')) {
+		return { relPath: 'ammunition/misc_ammo.json', itemCategory: 'heavy_arms' };
+	}
+	return { relPath: 'ammunition/misc_ammo.json', itemCategory: 'heavy_arms' };
+}
+
 function routeWikiInfoboxToMaterialFile(parsed) {
 	if (!parsed) {
 		return null;
@@ -50,32 +100,8 @@ function routeWikiInfoboxToMaterialFile(parsed) {
 		return { relPath: 'ammunition/light_ammo.json', itemCategory: 'small_arms' };
 	}
 
-	if (profile === 'HeavyAmmo') {
-		if (chassis.includes('Mortar')) {
-			return { relPath: 'ammunition/artillery_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		if (chassis.includes('Storm Cannon') || chassis.includes('Rocket Pod')) {
-			return { relPath: 'ammunition/artillery_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		if (chassis.includes('Anti-Aircraft') && type === 'Shell') {
-			return { relPath: 'ammunition/tank_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		if (chassis.includes('Anti-Air Machine Gun')) {
-			return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		if (dmg === 'Shrapnel' && type === 'Magazine') {
-			return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		if (dmg === 'Incendiary' && (chassis.includes('Flamethrower') || chassis.includes('Flame'))) {
-			return { relPath: 'ammunition/flamethrower_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		if (type === 'Shell' && cat === 'Heavy Ammunition') {
-			return { relPath: 'ammunition/tank_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		if (type === 'Propelled Explosive' || chassis.includes('RPG')) {
-			return { relPath: 'ammunition/misc_ammo.json', itemCategory: 'heavy_arms' };
-		}
-		return { relPath: 'ammunition/misc_ammo.json', itemCategory: 'heavy_arms' };
+	if (isHeavyAmmoItem(f)) {
+		return routeHeavyAmmo(f);
 	}
 
 	if (cat === 'Heavy Arms') {
@@ -117,4 +143,5 @@ function routeWikiInfoboxToMaterialFile(parsed) {
 
 module.exports = {
 	routeWikiInfoboxToMaterialFile,
+	isHeavyAmmoItem,
 };

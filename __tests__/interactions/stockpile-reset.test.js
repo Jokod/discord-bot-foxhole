@@ -118,7 +118,7 @@ describe('Stockpile reset button', () => {
 		expect(doc.expiry_reminders_sent).toEqual([]);
 		expect(doc.save).toHaveBeenCalled();
 		expect(mockBuildStockpileListEmbed).toHaveBeenCalledWith(Stockpile, 'guild-123', expect.anything());
-		expect(mockBuildStockpileListComponents).toHaveBeenCalledWith(Stockpile, 'guild-123');
+		expect(mockBuildStockpileListComponents).toHaveBeenCalledWith(Stockpile, 'guild-123', expect.anything());
 		expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({ embeds: [expect.anything()] }));
 		expect(interaction.followUp).toHaveBeenCalledWith(expect.objectContaining({ content: 'STOCKPILE_RESET_SUCCESS#1', flags: 64 }));
 	});

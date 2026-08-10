@@ -8,8 +8,8 @@ const mockPurgeEmptyStatsRecords = jest.fn().mockResolvedValue(0);
 
 jest.mock('../../data/models.js', () => ({
 	Server: { findOne: jest.fn().mockResolvedValue({}), distinct: mockDistinctEmpty },
-	Material: { distinct: mockDistinctEmpty },
-	Group: { distinct: mockDistinctEmpty },
+	OrderLine: { distinct: mockDistinctEmpty },
+	OrderBoard: { distinct: mockDistinctEmpty },
 	Operation: { distinct: mockDistinctEmpty },
 	NotificationSubscription: { distinct: mockDistinctEmpty },
 	TrackedMessage: { distinct: mockDistinctEmpty },
@@ -29,6 +29,10 @@ jest.mock('../../utils/guildCleanup.js', () => ({
 
 jest.mock('../../utils/stockpileListSync.js', () => ({
 	syncAllStockpileLists: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../utils/orderBoardSync.js', () => ({
+	syncAllOrderBoards: jest.fn().mockResolvedValue({ ok: 0, fail: 0, total: 0 }),
 }));
 
 jest.mock('../../utils/translations.js', () => {
@@ -107,18 +111,20 @@ describe('Stats events', () => {
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 
 			const slashCreate = require('../../events/slashCreate.js');
+			const execute = jest.fn().mockResolvedValue(undefined);
 			const interaction = {
 				isChatInputCommand: () => true,
 				guild: null,
 				commandName: 'help',
 				client: {
 					slashCommands: new Map([
-						['help', { execute: jest.fn().mockResolvedValue(undefined), init: false }],
+						['help', { execute, init: false }],
 					]),
 				},
 			};
 
-			await expect(slashCreate.execute(interaction)).rejects.toThrow();
+			await slashCreate.execute(interaction);
+			expect(execute).toHaveBeenCalled();
 			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
 		});
 	});
@@ -410,14 +416,14 @@ describe('Stats events', () => {
 
 		it('should clean orphaned guild found via Server.distinct', async () => {
 			jest.resetModules();
-			const { Stats, Server, Material, Group, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
 			Stats.distinct = mockStatsDistinct;
 			// Server.distinct returns an orphaned guild_id
 			Server.distinct = jest.fn().mockResolvedValue(['old-guild-123']);
-			Material.distinct = jest.fn().mockResolvedValue([]);
-			Group.distinct = jest.fn().mockResolvedValue([]);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
 			Operation.distinct = jest.fn().mockResolvedValue([]);
 			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
 			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
@@ -458,13 +464,13 @@ describe('Stats events', () => {
 
 		it('should not re-clean guilds already marked left with no app data', async () => {
 			jest.resetModules();
-			const { Stats, Server, Material, Group, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
 			Stats.distinct = mockStatsDistinct;
 			Server.distinct = jest.fn().mockResolvedValue([]);
-			Material.distinct = jest.fn().mockResolvedValue([]);
-			Group.distinct = jest.fn().mockResolvedValue([]);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
 			Operation.distinct = jest.fn().mockResolvedValue([]);
 			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
 			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
@@ -492,13 +498,13 @@ describe('Stats events', () => {
 
 		it('should leave blacklisted guilds on ready', async () => {
 			jest.resetModules();
-			const { Stats, Server, Material, Group, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			Stats.find = mockStatsFind;
 			Stats.distinct = mockStatsDistinct;
 			Server.distinct = jest.fn().mockResolvedValue([]);
-			Material.distinct = jest.fn().mockResolvedValue([]);
-			Group.distinct = jest.fn().mockResolvedValue([]);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
 			Operation.distinct = jest.fn().mockResolvedValue([]);
 			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
 			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);

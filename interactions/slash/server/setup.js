@@ -5,6 +5,11 @@ const Translate = require('../../../utils/translations.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('setup')
+		.setNameLocalizations({
+			fr: 'configurer',
+			ru: 'настройка',
+			'zh-CN': '初始化',
+		})
 		.setDescription('Command to init the server configuration.')
 		.setDescriptionLocalizations({
 			fr: 'Commande pour initialiser la configuration du serveur.',
@@ -52,6 +57,22 @@ module.exports = {
 					{ name: 'Warden', value: 'warden' },
 					{ name: 'Colonial', value: 'colonial' },
 				),
+		)
+		.addBooleanOption(option =>
+			option
+				.setName('logs')
+				.setNameLocalizations({
+					fr: 'logs',
+					ru: 'логи',
+					'zh-CN': '日志',
+				})
+				.setDescription('Create locked Logs threads for order boards (default: false).')
+				.setDescriptionLocalizations({
+					fr: 'Créer des threads Logs verrouillés pour les tableaux de commandes (défaut : faux).',
+					ru: 'Создавать заблокированные треды логов для досок заказов (по умолчанию: нет).',
+					'zh-CN': '为订单面板创建只读日志讨论串（默认：否）。',
+				})
+				.setRequired(false),
 		),
 	async execute(interaction) {
 		const guild = interaction.guild;
@@ -68,11 +89,13 @@ module.exports = {
 
 		const lang = interaction.options.getString('lang');
 		const camp = interaction.options.getString('camp');
+		const logs = interaction.options.getBoolean('logs') ?? false;
 
 		const newServer = new Server({
 			guild_id: guild.id,
 			lang: lang,
 			camp,
+			logs,
 		});
 
 		await newServer.save();
@@ -86,6 +109,11 @@ module.exports = {
 				{ name: translations.translate('SERVER_FIELD_GUILD_ID'), value: guild.id, inline: false },
 				{ name: translations.translate('SERVER_FIELD_GUILD_LANG'), value: newServer.lang, inline: false },
 				{ name: translations.translate('SERVER_FIELD_GUILD_CAMP'), value: newServer.camp, inline: false },
+				{
+					name: translations.translate('SERVER_FIELD_GUILD_LOGS'),
+					value: translations.translate(logs ? 'SERVER_LOGS_ENABLED' : 'SERVER_LOGS_DISABLED'),
+					inline: false,
+				},
 			);
 
 		return interaction.reply({

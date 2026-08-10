@@ -1,12 +1,13 @@
-const { Operation, Group } = require('../../../data/models.js');
+const { Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
+const { deleteBoardsByOperation } = require('../../../services/order/index.js');
 
 module.exports = {
 	id: 'button_create_operation_finished',
 
 	async execute(interaction) {
-		const { client, guild, message, user, channel } = interaction;
+		const { client, guild, message, user } = interaction;
 		const operationId = message.id;
 		const translations = new Translate(client, guild.id);
 
@@ -31,15 +32,7 @@ module.exports = {
 				operation.description,
 			)}`;
 
-			Group.find({ guild_id: guild.id, operation_id: `${operationId}` }).exec()
-				.then(threads => {
-					threads.forEach(async thread => {
-						const result = channel.threads.cache.find(t => t.id === thread.threadId);
-						await result.setLocked(true);
-						await result.setArchived(true);
-					});
-				}).catch(err => console.error(err));
-
+			await deleteBoardsByOperation(guild.id, operationId, client);
 			await Operation.updateOne({ guild_id: guild.id, operation_id: `${operationId}` }, { status: 'finished' });
 
 			await interaction.update({

@@ -48,6 +48,9 @@ jest.mock('../data/models.js', () => ({
 	Server: {
 		find: jest.fn().mockResolvedValue([]),
 	},
+	OrderBoard: {
+		syncIndexes: jest.fn().mockResolvedValue(undefined),
+	},
 }));
 jest.mock('../utils/translations.js', () => {
 	function MockTranslate() {
@@ -70,6 +73,24 @@ describe('bot.js', () => {
 		configureDns();
 
 		expect(dns.setDefaultResultOrder).toHaveBeenCalledWith('ipv4first');
+	});
+
+	it('assertRequiredEnv exits when TOKEN is missing', () => {
+		const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => undefined);
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const { assertRequiredEnv } = require('../bot.js');
+		const prev = process.env.TOKEN;
+		// bot.js loads dotenv on require — clear TOKEN after that injection
+		delete process.env.TOKEN;
+
+		assertRequiredEnv();
+
+		expect(exitSpy).toHaveBeenCalledWith(1);
+		expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('TOKEN'));
+		exitSpy.mockRestore();
+		errSpy.mockRestore();
+		if (prev !== undefined) process.env.TOKEN = prev;
+		else delete process.env.TOKEN;
 	});
 
 	it('connectToMongoWithRetry retries after first failure', async () => {

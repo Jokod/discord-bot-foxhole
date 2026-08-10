@@ -28,6 +28,18 @@ describe('Server Model', () => {
 			expect(server.guild_id).toBe(serverData.guild_id);
 			expect(server.lang).toBe(serverData.lang);
 			expect(server.camp).toBe(serverData.camp);
+			expect(server.logs).toBe(false);
+		});
+
+		it('should accept logs true', () => {
+			const server = new Server({
+				guild_id: '123456789',
+				lang: 'en',
+				camp: 'warden',
+				logs: true,
+			});
+			expect(server.validateSync()).toBeUndefined();
+			expect(server.logs).toBe(true);
 		});
 
 		it('should enforce unique guild_id', () => {
@@ -43,6 +55,7 @@ describe('Server Model', () => {
 			expect(schema.path('guild_id').instance).toBe('String');
 			expect(schema.path('lang').instance).toBe('String');
 			expect(schema.path('camp').instance).toBe('String');
+			expect(schema.path('logs').instance).toBe('Boolean');
 		});
 	});
 });

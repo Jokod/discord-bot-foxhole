@@ -17,38 +17,58 @@ module.exports = {
 	CANCEL: '取消',
 	FINISHED: '已完成',
 	CONFIRM: '确认',
-	VALIDATE: '验证',
-	VALIDATED: '已验证',
-	PENDING: '待定',
-	CONFIRMED: '已确认',
-	LOGISTICS: '物流',
-	ASSIGNEE: '受让人',
-	REVOKE: '撤销',
 	BACK: '返回',
 	INTERACTION_ERROR: '未找到此操作的交互。',
 	PREFIX_MESSAGE: '嗨%author%！我的前缀是%prefix%，要获取帮助%prefix%help',
 	STATUS: '状态',
 
-	// COMMANDS
-
-	// GITHUB
-	GITHUB_REPLY: '仓库链接：%url%',
-	GITHUB_MESSAGE: '你可以关注更新并通过 pull request 参与改进：协助更新阵营物资、提议新命令或提交 issue。',
-	GITHUB_NOT_CONFIGURED: '未配置 GitHub 链接。',
+	// ABOUT / LINKS
+	ABOUT_GITHUB: '**GitHub：** %url%',
+	ABOUT_DISCORD: '**支持 Discord：** %url%',
+	ABOUT_ISSUES: '**提交 Issue：** %url%',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: [
+		'**📢 关注 Announcements 频道（推荐）**',
+		'通过 Discord 原生「关注」功能，在**你自己的服务器**接收 FoxBot 新闻与版本说明（无需机器人命令）：',
+		'1. 加入上方支持服务器',
+		'2. 打开 **Announcements** 频道',
+		'3. 点击 **关注**（你的服务器需要「管理 Webhook」权限）',
+		'4. 选择一个频道 — 更新会自动转发到那里',
+	].join('\n'),
+	ABOUT_MESSAGE: '你也可以在 GitHub 参与：提交 pull request、更新阵营物资、提议命令或提交 issue。',
+	ABOUT_NOT_CONFIGURED: '未配置支持链接。',
 
 	// FOXHOLE
 	FOXHOLE_TITLE: 'Foxhole – 玩家与战争',
 	FOXHOLE_PLAYERS_CURRENT: '在线玩家',
 	FOXHOLE_WAR_TITLE: '当前战争',
+	FOXHOLE_WAR_TITLE_ENDED: 'Foxhole – 战争已结束',
 	FOXHOLE_WAR_NUMBER: '战争 #',
 	FOXHOLE_WAR_WINNER: '获胜方',
+	FOXHOLE_WAR_DAY: '天数',
+	FOXHOLE_WAR_DAY_VALUE: '第 %n% 天',
+	FOXHOLE_WAR_ELAPSED: '已进行',
+	FOXHOLE_WAR_ELAPSED_VALUE: '%d%天 %h%时 %m%分',
 	FOXHOLE_WAR_REQUIRED_TOWNS: '胜利所需城镇',
+	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: '短期目标城镇',
+	FOXHOLE_WAR_COLONIAL_TOWNS: 'Colonial VT',
+	FOXHOLE_WAR_WARDEN_TOWNS: 'Warden VT',
+	FOXHOLE_WAR_SCORCHED_TOWNS: 'Scorched VT',
 	FOXHOLE_WAR_START: '征服开始',
+	FOXHOLE_WAR_END: '征服结束',
+	FOXHOLE_WAR_SCHEDULED_END: '预定结束',
 	FOXHOLE_WINNER_NONE: '进行中',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: '数据不可用',
 	FOXHOLE_ALL_UNAVAILABLE: '外部服务（Steam、Foxhole）无响应，请稍后再试。',
+	FOXHOLE_MAPS_TITLE: 'Foxhole 战争 – 地图',
+	FOXHOLE_MAPS_UNAVAILABLE: 'War API（地图）不可用或未返回地图。',
+	FOXHOLE_REPORT_TITLE: '战争报告 – %map%',
+	FOXHOLE_REPORT_UNAVAILABLE: '地图 `%map%` 无报告数据（或 War API 不可用）。',
+	FOXHOLE_REPORT_ENLISTMENTS: '总入伍人数',
+	FOXHOLE_REPORT_COLONIAL_CASUALTIES: 'Colonial 伤亡',
+	FOXHOLE_REPORT_WARDEN_CASUALTIES: 'Warden 伤亡',
+	FOXHOLE_REPORT_DAY: '战争日',
 
 	HELP_NO_SUBCOMMANDS: '此命令没有子命令。',
 	HELP_NO_PARAMS: '此命令没有参数。',
@@ -69,6 +89,9 @@ module.exports = {
 	ARGS_MISSING: '您没有提供任何参数，%author%！',
 	COMMAND_USAGE: '正确的用法应为：%prefix%%command% %usage%',
 	COMMAND_COOLDOWN: '请等待%time%秒，然后再次使用“%command%”命令。',
+	RELOAD_UNKNOWN: '没有名为或别名为 `%command%` 的命令，%author%！',
+	RELOAD_SUCCESS: '命令 `%command%` 已重新加载！',
+	RELOAD_ERROR: '重新加载命令 `%command%` 时出错：\n`%error%`',
 
 	// SERVER ---------------------------------------------
 
@@ -83,10 +106,18 @@ module.exports = {
 	SERVER_FIELD_GUILD_ID: '服务器ID',
 	SERVER_FIELD_GUILD_LANG: '服务器语言',
 	SERVER_FIELD_GUILD_CAMP: '服务器阵营',
+	SERVER_FIELD_GUILD_LOGS: '订单日志讨论串',
+	SERVER_LOGS_ENABLED: '已启用',
+	SERVER_LOGS_DISABLED: '已禁用',
 
 	// SERVER SETUP
 	SERVER_SET_LANG_REPLY: '服务器语言已更改为**%lang%**。',
 	SERVER_SET_CAMP_REPLY: '服务器阵营已更改为**%camp%**。',
+	SERVER_SET_LOGS_ON_REPLY: '订单面板日志讨论串已**启用**。新建面板将创建只读日志讨论串。',
+	SERVER_SET_LOGS_OFF_REPLY: '订单面板日志讨论串已**禁用**。现有日志讨论串已删除。',
+	SERVER_RESET_PREVIEW: '重置预览 — 将删除 **%boards%** 个订单面板、**%stockpiles%** 个库存、**%operations%** 个行动。请再次运行并设置 **确认:true**。',
+	SERVER_RESET_CONFIRM_REQUIRED: '将 **确认:true** 设为 true 以清空订单面板、库存与行动（新战争）。此操作不可撤销。',
+	SERVER_RESET_SUCCESS: '服务器重置完成 — 已删除 **%boards%** 个订单面板、**%stockpiles%** 个库存、**%operations%** 个行动。服务器配置与通知已保留。',
 
 	// OPERATION ---------------------------------------------
 	OPERATION_CREATOR: '创建者',
@@ -97,13 +128,12 @@ module.exports = {
 	OPERATION_CREATE_LABEL_TIME: '操作时间（hh:mm）',
 	OPERATION_CREATE_LABEL_DURATION: '操作持续时间（以分钟为单位）',
 	OPERATION_CREATE_LABEL_DESCRIPTION: '操作描述',
+	OPERATION_CREATE_PLACEHOLDER_DATE: 'dd/mm/yyyy',
+	OPERATION_CREATE_PLACEHOLDER_TIME: 'hh:mm',
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: '此操作不存在。',
 	OPERATION_NOT_HAVE_GROUPS: '此操作没有分组。',
-
-	// OPERATION BUTTONS
-
 
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: '已创建操作%title%。',
@@ -123,70 +153,73 @@ module.exports = {
 	OPERATION_CANCELED_ERROR: '取消操作时发生错误。',
 	OPERATION_ARE_NO_OWNER_ERROR: '您不是此操作的所有者。',
 
-	// GROUP ---------------------------------------------
-	GROUP_NOT_EXIST: '此分组不存在。',
-	THREAD_NOT_EXIST: '此主题不存在。',
-	THREAD_CLOSED_OR_ARCHIVED: '此主题已关闭或已存档。',
-	GROUPS_OF_OPERATION: '操作分组%title%',
-
-	GROUP_TITLE: '操作%title%的物流#%size%',
-
-	// GROUP SUCCESS
-	GROUP_CREATE_SUCCESS: '已创建物流主题！',
-
-	// GROUP ERRORS
-	GROUP_CREATE_ERROR: '实施物流时发生错误！',
-	THREAD_CLOSE_ERROR: '关闭主题时发生错误！',
-	THREAD_ARE_NO_OWNER_ERROR: '您不是此主题的所有者！',
-	GROUP_NO_MATERIALS: '此组中没有材料。',
-
-	// LOGISTIC ---------------------------------------------
-
-	LOGISTIC_LIST_COMMANDS: '物流命令列表',
-
 	// MATERIAL ---------------------------------------------
 
 	MATERIAL: '材料',
-	MATERIAL_NOT_EXIST: '此材料不存在。',
-	MATERIAL_DETAIL: '材料详细信息',
-	MATERIAL_ADD: '添加材料',
-	MATERIAL_REMOVE: '删除材料',
-	MATERIAL_SELECT_QUANTITY: '选择数量',
-	MATERIAL_CONFIRMATION: '确认材料',
-	MATERIAL_REVOKE: '撤销材料',
-	MATERIAL_ENTER_ID: '消息ID或消息链接',
-
-	MATERIAL_NOMBER: '材料数量',
-	MATERIAL_VALIDATE: '已验证的材料',
-	MATERIAL_INVALIDATE: '未验证的材料',
-	MATERIAL_QUANTITY_ASK: '要求的数量',
-	MATERIAL_QUANTITY_GIVEN: '提供的数量',
-	MATERIAL_CREATOR: '创建者',
-	MATERIAL_PERSON_IN_CHARGE: '负责人',
-	MATERIAL_LIST_OF_GROUP: '组材料列表',
-	MATERIAL_LOCALIZATION: '存储位置',
 	MATERIAL_PRIORITY: '优先级',
 	MATERIAL_PRIORITY_LOW: '低',
 	MATERIAL_PRIORITY_NEUTRAL: '中性',
 	MATERIAL_PRIORITY_HIGH: '高',
-	MATERIAL_HAVE_NO_NAME_OR_QUANTITY: '材料必须具有名称和数量。',
-	MATERIAL_SELECT_TYPE: '选择要添加的材料类型',
-	MATERIAL_SMALL_ARMS: '小型武器',
-	MATERIAL_HEAVY_ARMS: '重型武器',
-	MATERIAL_UTILITIES: '实用工具',
-	MATERIAL_SHIPABLES: '可发运物品',
-	MATERIAL_VEHICLES: '车辆',
-	MATERIAL_UNIFORMS: '制服',
-	MATERIAL_RESOURCES: '资源',
-	MATERIAL_MEDICAL: '医疗',
+	MATERIAL_URGENCY_URGENT: '紧急',
+	MATERIAL_URGENCY_LOW: '偏低',
+	MATERIAL_URGENCY_OK: '正常',
 
-	MATERIAL_LIST_SMALL_ARMS: '可用小型武器列表',
-	MATERIAL_LIST_HEAVY_ARMS: '可用重型武器列表',
-	MATERIAL_LIST_UTILITIES: '可用实用工具列表',
-	MATERIAL_LIST_SHIPABLES: '可用可发运物品列表',
-	MATERIAL_LIST_VEHICLES: '可用车辆列表',
-	MATERIAL_LIST_UNIFORMS: '可用制服列表',
-	MATERIAL_LIST_RESOURCES: '可用资源列表',
+	// ORDER BOARDS (prod / transfer / scrap) -----------------
+	ORDER_KIND_PROD: '生产订单',
+	ORDER_KIND_TRANSFER: '前线转运',
+	ORDER_KIND_SCRAP: '废料 / 采集',
+	ORDER_EMPTY: '暂无条目。\n使用**添加**选择物品并设定目标。',
+	ORDER_ROUTE: '**%from%** → **%to%**',
+	ORDER_FROM: '出发地：**%from%**',
+	ORDER_TO: '目的地：**%to%**',
+	ORDER_LINKED_OPERATION: '行动：**%title%**',
+	ORDER_STATUS_CLOSED: '此订单面板已关闭。所有者或管理员可用 **重新打开** 重新开启。',
+	ORDER_STATUS_ALREADY_OPEN: '此订单面板已处于打开状态。',
+	ORDER_SUMMARY: '**%done%/%total%** 完成 · **%current%/%target%** 箱 · 剩余 **%remaining%**',
+	ORDER_LINE_LEFT: '剩余 %n%',
+	ORDER_STOCK: '库存：%current%/%target%',
+	ORDER_FOOTER: '%lines% 条 · %status%',
+	ORDER_STATUS_LABEL_OPEN: '进行中',
+	ORDER_STATUS_LABEL_CLOSED: '已关闭',
+	ORDER_SELECT_PLACEHOLDER: '选择条目',
+	ORDER_SELECT_PLACEHOLDER_RANGE: '选择条目（%from%–%to%）',
+	ORDER_NO_SELECTION: '请先选择一条目。',
+	ORDER_ADD: '添加',
+	ORDER_CORRECT: '修正',
+	ORDER_CLOSE: '关闭',
+	ORDER_REOPEN: '重新打开',
+	ORDER_DELETE_LINE: '删除',
+	ORDER_MAX: '满',
+	ORDER_CORRECT_TITLE: '修正条目',
+	ORDER_ADD_TARGET_TITLE: '目标数量',
+	ORDER_FULL: '订单已满（**%max%/%max%** 条 — 限制：2×25）。请先使用 **删除** 再添加。',
+	ORDER_FULL_BANNER: '⚠️ **已满 — %count%/%max% 条**（限制：2×25）。无法继续添加。',
+	ORDER_CURRENT: '当前',
+	ORDER_TARGET: '目标',
+	ORDER_NOT_EXIST: '此频道没有名为 **%name%** 的订单。请使用 `/order create`。',
+	ORDER_BOARD_NOT_EXIST: '此订单面板已不存在。',
+	ORDER_ALREADY_EXISTS: '此频道已有名为 **%name%** 的订单。',
+	ORDER_INVALID_NAME: '无效的订单名称。',
+	ORDER_INVALID_TARGET: '请输入有效数量（当前 ≥ 0，目标 ≥ 1）。',
+	ORDER_EMBED_TRUNCATED: '…还有更多（仅显示部分，共 %count% 条 — 请使用下拉菜单）。',
+	ORDER_CANNOT_MANAGE_ERROR: '您无法管理此订单（条目/面板所有者或服务器/频道管理员）。',
+	ORDER_OPERATION_FINISHED: '该行动已结束 — 请选择进行中的行动（自动完成）。',
+	ORDER_LINE_NOT_EXIST: '此条目已不存在。',
+	ORDER_LIST_COMMANDS: '订单命令',
+	ORDER_LOG_THREAD: '日志 — %name%',
+	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
+	ORDER_LOG_MAX: '%user% **%name%** 满 %from%→%to%',
+	ORDER_LOG_PRIORITY: '%user% **%name%** 优先级 → %priority%',
+	ORDER_LOG_ADD: '%user% 添加了 **%name%**（目标 %target%）',
+	ORDER_LOG_CORRECT: '%user% 修正了 **%name%** → %current%/%target%',
+	ORDER_LOG_CLOSE: '%user% 关闭了面板。',
+	ORDER_LOG_REOPEN: '%user% 重新打开了面板。',
+	ORDER_LOG_DELETE_LINE: '%user% 移除了 **%name%**。',
+
+	MATERIAL_SELECT_TYPE: '选择要添加的材料类型',
+	MATERIAL_SELECT_CATEGORY: '选择类别',
+	MATERIAL_SELECT_SUBCATEGORY: '选择子类别',
+
 
 	// 新类别
 	CATEGORY_UTILITIES: '实用工具',
@@ -238,24 +271,8 @@ module.exports = {
 	MATERIAL_SUBCATEGORY_EMPTY: '此类别中没有可用材料。',
 
 	// MATERIAL SUCCESS
-	MATERIAL_CREATE_SUCCESS: '已创建材料。',
-	MATERIAL_DELETE_SUCCESS: '已删除材料。',
 
 	// MATERIAL ERRORS
-	MATERIAL_CREATE_ERROR: '创建材料时发生错误。',
-	MATERIAL_UPDATE_ERROR: '更新材料时发生错误。',
-	MATERIAL_DELETE_ERROR: '删除材料时发生错误。',
-	MATERIAL_SELECT_ERROR: '选择材料时发生错误。',
-	MATERIAL_VALIDATE_ERROR: '验证材料时发生错误。',
-	MATERIAL_CONFIRM_ERROR: '确认材料时发生错误。',
-	MATERIAL_ASSIGN_ERROR: '指定材料时发生错误。',
-	MATERIAL_ARE_NO_CREATOR_ERROR: '您不是此材料的创建者。',
-	MATERIAL_CANNOT_MANAGE_ERROR: '您无法修改此材料（仅创建者或服务器/频道管理员）。',
-	MATERIAL_ARE_NO_OWNER_ERROR: '您不是此材料的所有者。',
-	MATERIAL_QUANTITY_ERROR: '数量必须是正数。',
-	MATERIAL_SELECT_QUANTITY_ERROR: '选择数量时发生错误。',
-	MATERIAL_LOCALIZATION_ERROR: '位置格式不正确。',
-	MATERIAL_BACK_ERROR: '返回上一页时发生错误。',
 
 	// STOCKPILE ---------------------------------------------
 
@@ -281,10 +298,14 @@ module.exports = {
 	STOCKPILE_DELETE_SUCCESS: '库存 #%id% 已删除。',
 	STOCKPILE_MARK_DELETED_SUCCESS: '库存 #%id% 已标记为删除。',
 	STOCKPILE_RESET_SUCCESS: '库存 #%id% 的计时已重置为 2 天 2 小时。',
-	STOCKPILE_CLEANUP_SUCCESS: '已在此频道永久删除 %count% 个已标记库存。',
+	STOCKPILE_CLEANUP_SUCCESS: '已在此服务器永久删除 %count% 个已标记库存。',
 	STOCKPILE_RESET_ALL_SUCCESS: '所有库存已删除。',
+	STOCKPILE_REMOVE_PLACEHOLDER: '将库存标记为已删除…',
+	STOCKPILE_BTN_CLEANUP: '清理',
+	STOCKPILE_BTN_DELETEALL: '全部删除',
 
 	// STOCKPILE ERRORS
+	STOCKPILE_MANAGE_NO_ACCESS: '仅库存创建者或可管理服务器/频道的成员可用。',
 	STOCKPILE_LIST_EMPTY: '没有库存。',
 	STOCKPILE_NOT_EXIST: '此库存不存在。',
 	STOCKPILE_INVALID_ID: '库存ID无效。',
@@ -323,10 +344,4 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_1H: '1 小时后',
 	NOTIFICATION_EXPIRING_IN_30M: '30 分钟后',
 
-	// NEWSLETTER
-	NEWSLETTER_NO_PERMS: '需要“管理服务器”权限才能订阅或取消订阅。',
-	NEWSLETTER_SUBSCRIBE_SUCCESS: '此频道已订阅机器人通讯。',
-	NEWSLETTER_UNSUBSCRIBE_SUCCESS: '此频道已取消订阅机器人通讯。',
-	NEWSLETTER_ALREADY_SUBSCRIBED: '此频道已订阅机器人通讯。',
-	NEWSLETTER_NOT_SUBSCRIBED: '此频道未订阅机器人通讯。',
 };

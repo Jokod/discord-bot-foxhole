@@ -1,170 +1,15 @@
 const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const Translate = require('../../../utils/translations.js');
 const { getRandomColor } = require('../../../utils/colors.js');
+const { discordTs, formatElapsed } = require('../../../utils/discord.js');
+const {
+	getMaps,
+	getSteamPlayers,
+	getWarReport,
+	getWarStatusSummary,
+} = require('../../../utils/foxholeWarApi.js');
 
-const WARAPI_ROOT = 'https://war-service-live.foxholeservices.com/api';
-const WARAPI_WAR_URL = `${WARAPI_ROOT}/worldconquest/war`;
-const WARAPI_MAPS_URL = `${WARAPI_ROOT}/worldconquest/maps`;
-const FETCH_TIMEOUT_MS = 8000;
-
-// Simple in-memory cache with ETag + expiry
-const warCache = {
-	war: { data: null, etag: null, expiresAt: 0 },
-	maps: { data: null, etag: null, expiresAt: 0 },
-	// mapName -> { data, etag, expiresAt }
-	reports: new Map(),
-};
-
-// Fallback TTLs when Cache-Control is absent or unparsable
-const TTL = {
-	// 60s – war state updates at most every 60s
-	war: 60_000,
-	// 10min – map list is very stable
-	maps: 10 * 60_000,
-	// 5s – per-map war report is fairly dynamic
-	report: 5_000,
-};
-
-function parseMaxAge(cacheControl) {
-	if (!cacheControl) return null;
-	const match = cacheControl.match(/max-age=(\d+)/);
-	if (!match) return null;
-	const seconds = Number(match[1]);
-	return Number.isFinite(seconds) ? seconds * 1000 : null;
-}
-
-async function fetchWithTimeout(url, options = {}) {
-	const controller = new AbortController();
-	const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-	try {
-		const res = await fetch(url, { ...options, signal: controller.signal });
-		clearTimeout(timeoutId);
-		return res;
-	}
-	catch {
-		clearTimeout(timeoutId);
-		return null;
-	}
-}
-
-async function getWar() {
-	const now = Date.now();
-	// Local expiry check to avoid unnecessary HTTP calls
-	if (warCache.war.data && now < warCache.war.expiresAt) {
-		return warCache.war.data;
-	}
-
-	const headers = {};
-	if (warCache.war.etag) headers['If-None-Match'] = warCache.war.etag;
-
-	const res = await fetchWithTimeout(WARAPI_WAR_URL, { headers });
-	if (!res) return warCache.war.data;
-
-	// 304 Not Modified -> keep cached data, refresh expiry
-	if (res.status === 304 && warCache.war.data) {
-		const cc = res.headers.get('cache-control');
-		const maxAgeMs = parseMaxAge(cc) ?? TTL.war;
-		warCache.war.expiresAt = now + maxAgeMs;
-		return warCache.war.data;
-	}
-
-	if (!res.ok) return warCache.war.data;
-
-	const data = await res.json().catch(() => null);
-	if (!data) return warCache.war.data;
-
-	const cc = res.headers.get('cache-control');
-	const etag = res.headers.get('etag');
-	const maxAgeMs = parseMaxAge(cc) ?? TTL.war;
-
-	warCache.war = {
-		data,
-		etag: etag || warCache.war.etag,
-		expiresAt: now + maxAgeMs,
-	};
-
-	return data;
-}
-
-async function getMaps() {
-	const now = Date.now();
-	if (warCache.maps.data && now < warCache.maps.expiresAt) {
-		return warCache.maps.data;
-	}
-
-	const headers = {};
-	if (warCache.maps.etag) headers['If-None-Match'] = warCache.maps.etag;
-
-	const res = await fetchWithTimeout(WARAPI_MAPS_URL, { headers });
-	if (!res) return warCache.maps.data;
-
-	if (res.status === 304 && warCache.maps.data) {
-		const cc = res.headers.get('cache-control');
-		const maxAgeMs = parseMaxAge(cc) ?? TTL.maps;
-		warCache.maps.expiresAt = now + maxAgeMs;
-		return warCache.maps.data;
-	}
-
-	if (!res.ok) return warCache.maps.data;
-
-	const data = await res.json().catch(() => null);
-	if (!data) return warCache.maps.data;
-
-	const cc = res.headers.get('cache-control');
-	const etag = res.headers.get('etag');
-	const maxAgeMs = parseMaxAge(cc) ?? TTL.maps;
-
-	warCache.maps = {
-		data,
-		etag: etag || warCache.maps.etag,
-		expiresAt: now + maxAgeMs,
-	};
-
-	return data;
-}
-
-async function getWarReport(mapName) {
-	const key = mapName.toLowerCase();
-	const now = Date.now();
-	const cached = warCache.reports.get(key) || { data: null, etag: null, expiresAt: 0 };
-
-	if (cached.data && now < cached.expiresAt) {
-		return cached.data;
-	}
-
-	const headers = {};
-	if (cached.etag) headers['If-None-Match'] = cached.etag;
-
-	const url = `${WARAPI_ROOT}/worldconquest/warReport/${encodeURIComponent(mapName)}`;
-	const res = await fetchWithTimeout(url, { headers });
-	if (!res) return cached.data;
-
-	if (res.status === 304 && cached.data) {
-		const cc = res.headers.get('cache-control');
-		const maxAgeMs = parseMaxAge(cc) ?? TTL.report;
-		cached.expiresAt = now + maxAgeMs;
-		warCache.reports.set(key, cached);
-		return cached.data;
-	}
-
-	if (!res.ok) return cached.data;
-
-	const data = await res.json().catch(() => null);
-	if (!data) return cached.data;
-
-	const cc = res.headers.get('cache-control');
-	const etag = res.headers.get('etag');
-	const maxAgeMs = parseMaxAge(cc) ?? TTL.report;
-
-	const updated = {
-		data,
-		etag: etag || cached.etag,
-		expiresAt: now + maxAgeMs,
-	};
-	warCache.reports.set(key, updated);
-
-	return data;
-}
+const FOXHOLE_STATS_URL = 'https://foxholestats.com/';
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -188,7 +33,12 @@ module.exports = {
 					ru: 'статус',
 					'zh-CN': '状态',
 				})
-				.setDescription('Show current war status.'),
+				.setDescription('Show current war status and players online.')
+				.setDescriptionLocalizations({
+					fr: 'Afficher le statut de la guerre et les joueurs en ligne.',
+					ru: 'Показать статус войны и игроков онлайн.',
+					'zh-CN': '显示当前战争状态与在线玩家。',
+				}),
 		)
 		.addSubcommand((sub) =>
 			sub
@@ -196,9 +46,14 @@ module.exports = {
 				.setNameLocalizations({
 					fr: 'cartes',
 					ru: 'карты',
-					'zh-CN': '地图',
+					'zh-CN': '地图列表',
 				})
-				.setDescription('List active World Conquest maps.'),
+				.setDescription('List active World Conquest maps and live stats link.')
+				.setDescriptionLocalizations({
+					fr: 'Lister les cartes World Conquest et le lien foxholestats.com.',
+					ru: 'Список карт World Conquest и ссылка foxholestats.com.',
+					'zh-CN': '列出 World Conquest 地图及 foxholestats.com 链接。',
+				}),
 		)
 		.addSubcommand((sub) =>
 			sub
@@ -209,6 +64,11 @@ module.exports = {
 					'zh-CN': '报告',
 				})
 				.setDescription('Show war report for a specific map.')
+				.setDescriptionLocalizations({
+					fr: 'Afficher le rapport de guerre pour une carte.',
+					ru: 'Показать отчёт по карте.',
+					'zh-CN': '显示指定地图的战争报告。',
+				})
 				.addStringOption((opt) =>
 					opt
 						.setName('map')
@@ -235,33 +95,149 @@ module.exports = {
 		await interaction.deferReply({ flags: 64 });
 
 		if (sub === 'status') {
-			const warData = await getWar();
+			const summary = await getWarStatusSummary();
 
-			if (!warData || typeof warData.warNumber !== 'number') {
-				return interaction.editReply({
-					content: 'War API is currently unavailable. Please try again later.',
+			if (!summary.available) {
+				const steamData = await getSteamPlayers();
+				const playerCount = steamData?.response?.player_count;
+				if (typeof playerCount !== 'number') {
+					return interaction.editReply({
+						content: translations.translate('FOXHOLE_ALL_UNAVAILABLE'),
+					});
+				}
+				const embed = new EmbedBuilder()
+					.setColor(getRandomColor())
+					.setTitle(translations.translate('FOXHOLE_TITLE'))
+					.addFields(
+						{
+							name: translations.translate('FOXHOLE_PLAYERS_CURRENT'),
+							value: playerCount.toLocaleString(),
+							inline: true,
+						},
+						{
+							name: translations.translate('FOXHOLE_WAR_TITLE'),
+							value: translations.translate('FOXHOLE_UNAVAILABLE'),
+							inline: false,
+						},
+					);
+				return interaction.editReply({ embeds: [embed] });
+			}
+
+			const winnerKeys = {
+				NONE: 'FOXHOLE_WINNER_NONE',
+				WARDEN: 'FOXHOLE_WINNER_WARDEN',
+				COLONIAL: 'FOXHOLE_WINNER_COLONIAL',
+			};
+			const winnerKey = winnerKeys[summary.winner] || 'FOXHOLE_WINNER_NONE';
+			const need = summary.effectiveRequiredVictoryTowns ?? summary.requiredVictoryTowns;
+			const vt = summary.victoryTowns;
+
+			const embed = new EmbedBuilder()
+				.setColor(summary.ended ? 0x6b4f2f : getRandomColor())
+				.setTitle(translations.translate(
+					summary.ended ? 'FOXHOLE_WAR_TITLE_ENDED' : 'FOXHOLE_TITLE',
+				));
+
+			embed.addFields({
+				name: translations.translate('FOXHOLE_PLAYERS_CURRENT'),
+				value: summary.playersOnline != null
+					? Number(summary.playersOnline).toLocaleString()
+					: translations.translate('FOXHOLE_UNAVAILABLE'),
+				inline: true,
+			});
+
+			embed.addFields(
+				{
+					name: translations.translate('FOXHOLE_WAR_NUMBER'),
+					value: String(summary.warNumber),
+					inline: true,
+				},
+				{
+					name: translations.translate('FOXHOLE_WAR_WINNER'),
+					value: translations.translate(winnerKey),
+					inline: true,
+				},
+			);
+
+			if (summary.dayOfWar != null) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_DAY'),
+					value: translations.translate('FOXHOLE_WAR_DAY_VALUE', { n: summary.dayOfWar }),
+					inline: true,
+				});
+			}
+			if (summary.elapsed) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_ELAPSED'),
+					value: formatElapsed(summary.elapsed, translations, 'FOXHOLE_WAR_ELAPSED_VALUE'),
+					inline: true,
 				});
 			}
 
-			const winner = warData.winner || 'NONE';
-			const startTime = warData.conquestStartTime
-				? `<t:${Math.floor(warData.conquestStartTime / 1000)}:F>`
-				: '—';
-			const endTime = warData.conquestEndTime
-				? `<t:${Math.floor(warData.conquestEndTime / 1000)}:F>`
-				: '—';
-
-			const embed = new EmbedBuilder()
-				.setColor(getRandomColor())
-				.setTitle('Foxhole War – Status')
-				.addFields(
-					{ name: 'War #', value: String(warData.warNumber), inline: true },
-					{ name: 'Winner', value: winner, inline: true },
-					{ name: 'Required victory towns', value: String(warData.requiredVictoryTowns ?? '—'), inline: true },
-					{ name: 'Short required towns', value: String(warData.shortRequiredVictoryTowns ?? '0'), inline: true },
-					{ name: 'Conquest start', value: startTime, inline: false },
-					{ name: 'Conquest end', value: endTime, inline: false },
+			if (vt) {
+				embed.addFields(
+					{
+						name: translations.translate('FOXHOLE_WAR_COLONIAL_TOWNS'),
+						value: need != null ? `${vt.colonial} / ${need}` : String(vt.colonial),
+						inline: true,
+					},
+					{
+						name: translations.translate('FOXHOLE_WAR_WARDEN_TOWNS'),
+						value: need != null ? `${vt.warden} / ${need}` : String(vt.warden),
+						inline: true,
+					},
 				);
+				if (vt.scorched) {
+					embed.addFields({
+						name: translations.translate('FOXHOLE_WAR_SCORCHED_TOWNS'),
+						value: String(vt.scorched),
+						inline: true,
+					});
+				}
+			}
+			else if (summary.requiredVictoryTowns != null) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_REQUIRED_TOWNS'),
+					value: String(summary.requiredVictoryTowns),
+					inline: true,
+				});
+			}
+
+			if (summary.shortRequiredVictoryTowns != null) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_SHORT_REQUIRED_TOWNS'),
+					value: String(summary.shortRequiredVictoryTowns),
+					inline: true,
+				});
+			}
+
+			embed.addFields({
+				name: translations.translate('FOXHOLE_WAR_START'),
+				value: discordTs(summary.conquestStartTime),
+				inline: false,
+			});
+
+			if (summary.ended && summary.conquestEndTime) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_END'),
+					value: discordTs(summary.conquestEndTime),
+					inline: false,
+				});
+			}
+			else if (!summary.ended && summary.scheduledConquestEndTime) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_SCHEDULED_END'),
+					value: `${discordTs(summary.scheduledConquestEndTime)} (${discordTs(summary.scheduledConquestEndTime, 'R')})`,
+					inline: false,
+				});
+			}
+			else if (summary.conquestEndTime) {
+				embed.addFields({
+					name: translations.translate('FOXHOLE_WAR_END'),
+					value: discordTs(summary.conquestEndTime),
+					inline: false,
+				});
+			}
 
 			return interaction.editReply({ embeds: [embed] });
 		}
@@ -271,14 +247,14 @@ module.exports = {
 
 			if (!Array.isArray(maps) || maps.length === 0) {
 				return interaction.editReply({
-					content: 'War API (maps endpoint) is unavailable or returned no maps.',
+					content: translations.translate('FOXHOLE_MAPS_UNAVAILABLE'),
 				});
 			}
 
 			const embed = new EmbedBuilder()
 				.setColor(getRandomColor())
-				.setTitle('Foxhole War – Maps')
-				.setDescription(maps.join('\n'));
+				.setTitle(translations.translate('FOXHOLE_MAPS_TITLE'))
+				.setDescription(`${maps.join('\n')}\n\n${FOXHOLE_STATS_URL}`);
 
 			return interaction.editReply({ embeds: [embed] });
 		}
@@ -289,18 +265,18 @@ module.exports = {
 
 			if (!report || typeof report.totalEnlistments !== 'number') {
 				return interaction.editReply({
-					content: `No war report data for map \`${mapName}\` (or War API is unavailable).`,
+					content: translations.translate('FOXHOLE_REPORT_UNAVAILABLE', { map: mapName }),
 				});
 			}
 
 			const embed = new EmbedBuilder()
 				.setColor(getRandomColor())
-				.setTitle(`War report – ${mapName}`)
+				.setTitle(translations.translate('FOXHOLE_REPORT_TITLE', { map: mapName }))
 				.addFields(
-					{ name: 'Total enlistments', value: String(report.totalEnlistments), inline: true },
-					{ name: 'Colonial casualties', value: String(report.colonialCasualties ?? 0), inline: true },
-					{ name: 'Warden casualties', value: String(report.wardenCasualties ?? 0), inline: true },
-					{ name: 'Day of war', value: String(report.dayOfWar ?? '—'), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_ENLISTMENTS'), value: String(report.totalEnlistments), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_COLONIAL_CASUALTIES'), value: String(report.colonialCasualties ?? 0), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_WARDEN_CASUALTIES'), value: String(report.wardenCasualties ?? 0), inline: true },
+					{ name: translations.translate('FOXHOLE_REPORT_DAY'), value: String(report.dayOfWar ?? '—'), inline: true },
 				);
 
 			return interaction.editReply({ embeds: [embed] });
@@ -311,4 +287,3 @@ module.exports = {
 		});
 	},
 };
-

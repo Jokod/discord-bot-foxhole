@@ -16,39 +16,59 @@ module.exports = {
 	START: 'Démarrer',
 	CANCEL: 'Annuler',
 	FINISHED: 'Terminer',
-	VALIDATE: 'Valider',
-	VALIDATED: 'Validé',
-	PENDING: 'En attente',
-	CONFIRMED: 'Confirmé',
 	CONFIRM: 'Confirmer',
-	LOGISTICS: 'Logistique',
-	ASSIGNEE: 'Assigné',
-	REVOKE: 'Se rétracter',
 	BACK: 'Retour',
 	INTERACTION_ERROR: 'Aucune intéraction n\'a été trouvée pour cette action.',
 	PREFIX_MESSAGE: 'Salut %author%! Mon prefix est %prefix%, pour avoir de l\'aide %prefix%help',
 	STATUS: 'Statut',
 
-	// COMMANDS
-
-	// GITHUB
-	GITHUB_REPLY: 'Lien du dépôt : %url%',
-	GITHUB_MESSAGE: 'Vous pouvez suivre les évolutions et participer à l\'amélioration de l\'outil en proposant des pull requests : tenir à jour le matériel pour les factions, proposer des commandes ou signaler des problèmes (issues).',
-	GITHUB_NOT_CONFIGURED: 'Le lien GitHub n\'est pas configuré.',
+	// ABOUT / LINKS
+	ABOUT_GITHUB: '**GitHub :** %url%',
+	ABOUT_DISCORD: '**Discord de support :** %url%',
+	ABOUT_ISSUES: '**Déclarer une issue :** %url%',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: [
+		'**📢 Suivre le salon Annonces (recommandé)**',
+		'Reçois les news et notes de version de FoxBot **directement sur ton serveur** (fonction native Discord — pas de commande bot) :',
+		'1. Rejoins le Discord de support (lien ci-dessus)',
+		'2. Ouvre le salon **Annonces**',
+		'3. Clique sur **Suivre** (permission **Gérer les webhooks** sur ton serveur)',
+		'4. Choisis un salon — les mises à jour y sont postées automatiquement',
+	].join('\n'),
+	ABOUT_MESSAGE: 'Tu peux aussi contribuer sur GitHub : pull requests, mise à jour du matériel des factions, suggestions de commandes ou signalement d’issues.',
+	ABOUT_NOT_CONFIGURED: 'Aucun lien de support n\'est configuré.',
 
 	// FOXHOLE
 	FOXHOLE_TITLE: 'Foxhole – Joueurs & Guerre',
 	FOXHOLE_PLAYERS_CURRENT: 'Joueurs en ligne',
 	FOXHOLE_WAR_TITLE: 'Guerre en cours',
+	FOXHOLE_WAR_TITLE_ENDED: 'Foxhole – Guerre terminée',
 	FOXHOLE_WAR_NUMBER: 'Guerre #',
 	FOXHOLE_WAR_WINNER: 'Vainqueur',
+	FOXHOLE_WAR_DAY: 'Jour',
+	FOXHOLE_WAR_DAY_VALUE: 'Jour %n%',
+	FOXHOLE_WAR_ELAPSED: 'Durée',
+	FOXHOLE_WAR_ELAPSED_VALUE: '%d%j %h%h %m%m',
 	FOXHOLE_WAR_REQUIRED_TOWNS: 'Villes pour victoire',
+	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: 'Villes (objectif court)',
+	FOXHOLE_WAR_COLONIAL_TOWNS: 'VT Colonial',
+	FOXHOLE_WAR_WARDEN_TOWNS: 'VT Warden',
+	FOXHOLE_WAR_SCORCHED_TOWNS: 'VT scorched',
 	FOXHOLE_WAR_START: 'Début de la conquête',
+	FOXHOLE_WAR_END: 'Fin de la conquête',
+	FOXHOLE_WAR_SCHEDULED_END: 'Fin prévue',
 	FOXHOLE_WINNER_NONE: 'En cours',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Données indisponibles',
 	FOXHOLE_ALL_UNAVAILABLE: 'Les services externes (Steam, Foxhole) ne répondent pas. Réessayez plus tard.',
+	FOXHOLE_MAPS_TITLE: 'Foxhole Guerre – Cartes',
+	FOXHOLE_MAPS_UNAVAILABLE: 'L’API War (endpoint cartes) est indisponible ou n’a renvoyé aucune carte.',
+	FOXHOLE_REPORT_TITLE: 'Rapport de guerre – %map%',
+	FOXHOLE_REPORT_UNAVAILABLE: 'Aucune donnée de rapport pour la carte `%map%` (ou API War indisponible).',
+	FOXHOLE_REPORT_ENLISTMENTS: 'Engagements totaux',
+	FOXHOLE_REPORT_COLONIAL_CASUALTIES: 'Pertes Colonial',
+	FOXHOLE_REPORT_WARDEN_CASUALTIES: 'Pertes Warden',
+	FOXHOLE_REPORT_DAY: 'Jour de guerre',
 
 	HELP_NO_SUBCOMMANDS: 'Cette commande n\'a pas de sous-commandes.',
 	HELP_NO_PARAMS: 'Cette commande n\'a pas de paramètres.',
@@ -69,6 +89,9 @@ module.exports = {
 	ARGS_MISSING: 'Vous n\'avez fourni aucun argument, %author% !',
 	COMMAND_USAGE: 'L\'utilisation correcte serait: `%prefix%%command% %usage%`',
 	COMMAND_COOLDOWN: 'Veuillez attendre %time% secondes avant de réutiliser la commande `%command%`.',
+	RELOAD_UNKNOWN: 'Il n\'y a aucune commande nommée ou alias `%command%`, %author% !',
+	RELOAD_SUCCESS: 'La commande `%command%` a été rechargée !',
+	RELOAD_ERROR: 'Erreur lors du rechargement de la commande `%command%` :\n`%error%`',
 
 	// SERVER ---------------------------------------------
 
@@ -83,10 +106,18 @@ module.exports = {
 	SERVER_FIELD_GUILD_ID: 'ID du serveur',
 	SERVER_FIELD_GUILD_LANG: 'Langue du serveur',
 	SERVER_FIELD_GUILD_CAMP: 'Camp du serveur',
+	SERVER_FIELD_GUILD_LOGS: 'Threads Logs des commandes',
+	SERVER_LOGS_ENABLED: 'Activé',
+	SERVER_LOGS_DISABLED: 'Désactivé',
 
 	// SERVER SETUP
 	SERVER_SET_LANG_REPLY: 'La langue du serveur a été changée en **%lang%**.',
 	SERVER_SET_CAMP_REPLY: 'Le camp du serveur a été changé en **%camp%**.',
+	SERVER_SET_LOGS_ON_REPLY: 'Les threads Logs des tableaux de commandes sont **activés**. Les nouveaux tableaux créeront un thread Logs verrouillé.',
+	SERVER_SET_LOGS_OFF_REPLY: 'Les threads Logs des tableaux de commandes sont **désactivés**. Les threads Logs existants ont été supprimés.',
+	SERVER_RESET_PREVIEW: 'Aperçu reset — supprimerait **%boards%** tableau(x), **%stockpiles%** stock(s), **%operations%** opération(s). Relancez avec **confirmer:true** pour confirmer.',
+	SERVER_RESET_CONFIRM_REQUIRED: 'Passez **confirmer:true** pour effacer tableaux de commandes, stocks et opérations pour une nouvelle guerre. Irréversible.',
+	SERVER_RESET_SUCCESS: 'Reset serveur terminé — **%boards%** tableau(x), **%stockpiles%** stock(s), **%operations%** opération(s) supprimé(s). Config serveur et notifications conservées.',
 
 	// OPERATION ---------------------------------------------
 	OPERATION_CREATOR: 'Créateur',
@@ -97,13 +128,12 @@ module.exports = {
 	OPERATION_CREATE_LABEL_TIME: 'Heure de l\'opération (hh:mm)',
 	OPERATION_CREATE_LABEL_DURATION: 'Durée de l\'opération (en minutes)',
 	OPERATION_CREATE_LABEL_DESCRIPTION: 'Description de l\'opération',
+	OPERATION_CREATE_PLACEHOLDER_DATE: 'jj/mm/aaaa',
+	OPERATION_CREATE_PLACEHOLDER_TIME: 'hh:mm',
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'Cette opération n\'existe pas.',
 	OPERATION_NOT_HAVE_GROUPS: 'Cette opération n\'a pas de groupes.',
-
-	// OPERATION BUTTONS
-
 
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'L\'opération %title% a été créée.',
@@ -123,62 +153,72 @@ module.exports = {
 	OPERATION_CANCELED_ERROR: 'Une erreur est survenue lors de l\'annulation de l\'opération.',
 	OPERATION_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de cette opération.',
 
-	// GROUP ---------------------------------------------
-	GROUP_NOT_EXIST: 'Ce groupe n\'existe pas.',
-	THREAD_NOT_EXIST: 'Ce thread n\'existe pas.',
-	THREAD_CLOSED_OR_ARCHIVED: 'Ce thread est fermé ou archivé.',
-	GROUPS_OF_OPERATION: 'Groupes de l\'opération %title%',
-
-	GROUP_TITLE: 'Logistique #%size% pour l\'opération %title%',
-
-	// GROUP SUCCESS
-	GROUP_CREATE_SUCCESS: 'Thread de logistique créé !',
-
-	// GROUP ERRORS
-	GROUP_CREATE_ERROR: 'Une erreur s\'est produite lors de l\'implémentation de la logistique !',
-	THREAD_CLOSE_ERROR: 'Une erreur s\'est produite lors de la fermeture du thread !',
-	THREAD_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce thread !',
-	GROUP_NO_MATERIALS: 'Il n\'y a pas de matériel dans ce groupe.',
-
-	// LOGISTIC ---------------------------------------------
-
-	LOGISTIC_LIST_COMMANDS: 'Liste des commandes logistiques',
-
 	// MATERIAL ---------------------------------------------
 
 	MATERIAL: 'Matériel',
-	MATERIAL_NOT_EXIST: 'Ce matériel n\'existe pas.',
-	MATERIAL_DETAIL: 'Détails du matériel',
-	MATERIAL_ADD: 'Ajouter un matériel',
-	MATERIAL_REMOVE: 'Retirer un matériel',
-	MATERIAL_SELECT_QUANTITY: 'Sélectionnez la quantité',
-	MATERIAL_CONFIRMATION: 'Confirmer le matériel',
-	MATERIAL_REVOKE: 'Révoquer le matériel',
-	MATERIAL_ENTER_ID: 'ID du message ou lien du message',
-
-	MATERIAL_NOMBER: 'Nombre de matériaux',
-	MATERIAL_VALIDATE: 'Matériaux validés',
-	MATERIAL_INVALIDATE: 'Matériaux invalidés',
-	MATERIAL_QUANTITY_ASK: 'Quantité demandée',
-	MATERIAL_QUANTITY_GIVEN: 'Quantité soumise',
-	MATERIAL_CREATOR: 'Créateur',
-	MATERIAL_PERSON_IN_CHARGE: 'Responsable',
-	MATERIAL_LIST_OF_GROUP: 'Liste des matériaux du groupe',
-	MATERIAL_LOCALIZATION: 'Lieu de stockage',
 	MATERIAL_PRIORITY: 'Priorité',
 	MATERIAL_PRIORITY_LOW: 'Faible',
 	MATERIAL_PRIORITY_NEUTRAL: 'Neutre',
 	MATERIAL_PRIORITY_HIGH: 'Haute',
-	MATERIAL_HAVE_NO_NAME_OR_QUANTITY: 'Le matériel doit avoir un nom et une quantité.',
+	MATERIAL_URGENCY_URGENT: 'URGENT',
+	MATERIAL_URGENCY_LOW: 'BAS',
+	MATERIAL_URGENCY_OK: 'OK',
+
+	// ORDER BOARDS (prod / transfer / scrap) -----------------
+	ORDER_KIND_PROD: 'Commande de production',
+	ORDER_KIND_TRANSFER: 'Transfert front',
+	ORDER_KIND_SCRAP: 'Scrap / farm',
+	ORDER_EMPTY: 'Aucune ligne pour le moment.\nUtilisez **Ajouter** pour choisir un item et fixer un objectif.',
+	ORDER_ROUTE: '**%from%** → **%to%**',
+	ORDER_FROM: 'Origine : **%from%**',
+	ORDER_TO: 'Destination : **%to%**',
+	ORDER_LINKED_OPERATION: 'Opération : **%title%**',
+	ORDER_STATUS_CLOSED: 'Ce tableau de commande est clôturé. Un propriétaire ou un modo peut le rouvrir avec **Rouvrir**.',
+	ORDER_STATUS_ALREADY_OPEN: 'Ce tableau de commande est déjà ouvert.',
+	ORDER_SUMMARY: '**%done%/%total%** terminées · **%current%/%target%** caisses · reste **%remaining%**',
+	ORDER_LINE_LEFT: 'reste %n%',
+	ORDER_STOCK: 'Stock : %current%/%target%',
+	ORDER_FOOTER: '%lines% ligne(s) · %status%',
+	ORDER_STATUS_LABEL_OPEN: 'Ouvert',
+	ORDER_STATUS_LABEL_CLOSED: 'Clôturé',
+	ORDER_SELECT_PLACEHOLDER: 'Sélectionner une ligne',
+	ORDER_SELECT_PLACEHOLDER_RANGE: 'Sélectionner une ligne (%from%–%to%)',
+	ORDER_NO_SELECTION: 'Sélectionnez d\'abord une ligne.',
+	ORDER_ADD: 'Ajouter',
+	ORDER_CORRECT: 'Corriger',
+	ORDER_CLOSE: 'Clôturer',
+	ORDER_REOPEN: 'Rouvrir',
+	ORDER_DELETE_LINE: 'Supprimer',
+	ORDER_MAX: 'Max',
+	ORDER_CORRECT_TITLE: 'Corriger la ligne',
+	ORDER_ADD_TARGET_TITLE: 'Quantité cible',
+	ORDER_FULL: 'Ce tableau est plein (**%max%/%max%** lignes — limite : 2×25 selects). Utilisez **Supprimer** avant d\'en ajouter.',
+	ORDER_FULL_BANNER: '⚠️ **PLEIN — %count%/%max% lignes** (limite : 2×25 selects). Ajout impossible.',
+	ORDER_CURRENT: 'Actuel',
+	ORDER_TARGET: 'Objectif',
+	ORDER_NOT_EXIST: 'Aucun tableau nommé **%name%** dans ce salon. Utilisez `/commande créer`.',
+	ORDER_BOARD_NOT_EXIST: 'Ce tableau de commande n\'existe plus.',
+	ORDER_ALREADY_EXISTS: 'Un tableau nommé **%name%** existe déjà dans ce salon.',
+	ORDER_INVALID_NAME: 'Nom de tableau invalide.',
+	ORDER_INVALID_TARGET: 'Entrez une quantité valide (actuel ≥ 0, objectif ≥ 1).',
+	ORDER_EMBED_TRUNCATED: '…et plus (affichage partiel de %count% lignes — utilisez les selects).',
+	ORDER_CANNOT_MANAGE_ERROR: 'Vous ne pouvez pas gérer cet ordre (propriétaire de la ligne/du tableau ou gestionnaire serveur/salon).',
+	ORDER_OPERATION_FINISHED: 'Cette opération est terminée — choisissez-en une active (autocomplétion).',
+	ORDER_LINE_NOT_EXIST: 'Cette ligne n\'existe plus.',
+	ORDER_LIST_COMMANDS: 'Commandes order',
+	ORDER_LOG_THREAD: 'Logs — %name%',
+	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
+	ORDER_LOG_MAX: '%user% **%name%** Max %from%→%to%',
+	ORDER_LOG_PRIORITY: '%user% **%name%** priorité → %priority%',
+	ORDER_LOG_ADD: '%user% a ajouté **%name%** (objectif %target%)',
+	ORDER_LOG_CORRECT: '%user% a corrigé **%name%** → %current%/%target%',
+	ORDER_LOG_CLOSE: '%user% a clôturé le tableau.',
+	ORDER_LOG_REOPEN: '%user% a rouvert le tableau.',
+	ORDER_LOG_DELETE_LINE: '%user% a retiré **%name%**.',
+
 	MATERIAL_SELECT_TYPE: 'Sélectionnez un type de matériel à ajouter',
-	MATERIAL_SMALL_ARMS: 'Armes légères',
-	MATERIAL_HEAVY_ARMS: 'Armes lourdes',
-	MATERIAL_UTILITIES: 'Utilitaires',
-	MATERIAL_SHIPABLES: 'Objets transportables',
-	MATERIAL_VEHICLES: 'Véhicules',
-	MATERIAL_UNIFORMS: 'Uniformes',
-	MATERIAL_RESOURCES: 'Ressources',
-	MATERIAL_MEDICAL: 'Médical',
+	MATERIAL_SELECT_CATEGORY: 'Sélectionnez une catégorie',
+	MATERIAL_SELECT_SUBCATEGORY: 'Sélectionnez une sous-catégorie',
 
 	// Nouvelles catégories
 	CATEGORY_UTILITIES: 'Utilitaires',
@@ -227,34 +267,11 @@ module.exports = {
 	// Sous-catégories Véhicules
 	SUBCATEGORY_VEHICLES: 'Véhicules',
 
-	MATERIAL_LIST_SMALL_ARMS: 'Liste des armes légères disponibles',
-	MATERIAL_LIST_HEAVY_ARMS: 'Liste des armes lourdes disponibles',
-	MATERIAL_LIST_UTILITIES: 'Liste des utilitaires disponibles',
-	MATERIAL_LIST_SHIPABLES: 'Liste des objets transportables disponibles',
-	MATERIAL_LIST_VEHICLES: 'Liste des véhicules disponibles',
-	MATERIAL_LIST_UNIFORMS: 'Liste des uniformes disponibles',
-	MATERIAL_LIST_RESOURCES: 'Liste des ressources disponibles',
 	MATERIAL_SUBCATEGORY_EMPTY: 'Aucun matériel disponible dans cette catégorie.',
 
 	// MATERIAL SUCCESS
-	MATERIAL_CREATE_SUCCESS: 'Le matériel a été créé.',
-	MATERIAL_DELETE_SUCCESS: 'Le matériel a été supprimé.',
 
 	// MATERIAL ERRORS
-	MATERIAL_CREATE_ERROR: 'Une erreur est survenue lors de la création du matériel.',
-	MATERIAL_UPDATE_ERROR: 'Une erreur est survenue lors de la mise à jour du matériel.',
-	MATERIAL_DELETE_ERROR: 'Une erreur est survenue lors de la suppression du matériel.',
-	MATERIAL_SELECT_ERROR: 'Une erreur est survenue lors de la sélection du matériel.',
-	MATERIAL_VALIDATE_ERROR: 'Une erreur est survenue lors de la validation du matériel.',
-	MATERIAL_CONFIRM_ERROR: 'Une erreur est survenue lors de la confirmation du matériel.',
-	MATERIAL_ASSIGN_ERROR: 'Une erreur est survenue lors de l\'assignation du matériel.',
-	MATERIAL_ARE_NO_CREATOR_ERROR: 'Vous n\'êtes pas le créateur de ce matériel.',
-	MATERIAL_CANNOT_MANAGE_ERROR: 'Vous ne pouvez pas modifier ce matériel (réservé au créateur ou aux gestionnaires du serveur/salon).',
-	MATERIAL_ARE_NO_OWNER_ERROR: 'Vous n\'êtes pas le propriétaire de ce matériel.',
-	MATERIAL_QUANTITY_ERROR: 'La quantité doit être un nombre positif.',
-	MATERIAL_SELECT_QUANTITY_ERROR: 'Une erreur est survenue lors de la sélection de la quantité.',
-	MATERIAL_LOCALIZATION_ERROR: 'Le format de la localisation est incorrect.',
-	MATERIAL_BACK_ERROR: 'Une erreur est survenue lors du retour au menu précédent.',
 
 	// STOCKPILE ---------------------------------------------
 
@@ -280,10 +297,14 @@ module.exports = {
 	STOCKPILE_DELETE_SUCCESS: 'Le stock #%id% a été supprimé.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Le stock #%id% a été marqué comme supprimé.',
 	STOCKPILE_RESET_SUCCESS: 'Le délai du stock #%id% a été remis à 2 jours et 2 heures.',
-	STOCKPILE_CLEANUP_SUCCESS: '%count% stock(s) marqué(s) supprimé(s) dans ce salon.',
+	STOCKPILE_CLEANUP_SUCCESS: '%count% stock(s) marqué(s) définitivement supprimé(s) sur ce serveur.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'Tous les stocks ont été supprimés.',
+	STOCKPILE_REMOVE_PLACEHOLDER: 'Marquer un dépôt comme supprimé…',
+	STOCKPILE_BTN_CLEANUP: 'Nettoyer',
+	STOCKPILE_BTN_DELETEALL: 'Tout supprimer',
 
 	// STOCKPILE ERRORS
+	STOCKPILE_MANAGE_NO_ACCESS: 'Réservé au créateur d\'un dépôt ou à quelqu\'un qui gère le serveur/salon.',
 	STOCKPILE_LIST_EMPTY: 'Il n\'y a pas de stocks.',
 	STOCKPILE_NOT_EXIST: 'Ce stock n\'existe pas.',
 	STOCKPILE_INVALID_ID: 'L\'ID du stock est invalide.',
@@ -322,10 +343,4 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_1H: 'dans 1 h',
 	NOTIFICATION_EXPIRING_IN_30M: 'dans 30 min',
 
-	// NEWSLETTER
-	NEWSLETTER_NO_PERMS: 'Il faut la permission « Gérer le serveur » pour s\'abonner ou se désabonner.',
-	NEWSLETTER_SUBSCRIBE_SUCCESS: 'Ce salon est maintenant abonné à la newsletter du bot.',
-	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'Ce salon n\'est plus abonné à la newsletter du bot.',
-	NEWSLETTER_ALREADY_SUBSCRIBED: 'Ce salon est déjà abonné à la newsletter du bot.',
-	NEWSLETTER_NOT_SUBSCRIBED: 'Ce salon n\'est pas abonné à la newsletter du bot.',
 };

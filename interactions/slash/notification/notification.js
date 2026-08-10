@@ -28,10 +28,10 @@ const NOTIFICATION_TYPES = [
 module.exports = {
 	init: true,
 	data: new SlashCommandBuilder()
-		.setName('notification')
+		.setName('notify')
 		.setNameLocalizations({
-			fr: 'notification',
-			ru: 'уведомление',
+			fr: 'notify',
+			ru: 'уведомить',
 			'zh-CN': '通知',
 		})
 		.setDescription('Subscribe channels to activity notifications (e.g. stockpile updates).')
@@ -42,8 +42,8 @@ module.exports = {
 		})
 		.addSubcommand((sub) =>
 			sub
-				.setName('subscribe')
-				.setNameLocalizations({ fr: 'abonner', ru: 'подписать', 'zh-CN': '订阅' })
+				.setName('on')
+				.setNameLocalizations({ fr: 'activer', ru: 'вкл', 'zh-CN': '开启' })
 				.setDescription('Subscribe this channel to a notification type.')
 				.setDescriptionLocalizations({
 					fr: 'Abonner ce salon à un type de notification.',
@@ -73,8 +73,8 @@ module.exports = {
 		)
 		.addSubcommand((sub) =>
 			sub
-				.setName('unsubscribe')
-				.setNameLocalizations({ fr: 'désabonner', ru: 'отписать', 'zh-CN': '取消订阅' })
+				.setName('off')
+				.setNameLocalizations({ fr: 'désactiver', ru: 'выкл', 'zh-CN': '关闭' })
 				.setDescription('Unsubscribe this channel from a notification type.')
 				.setDescriptionLocalizations({
 					fr: 'Désabonner ce salon d\'un type de notification.',
@@ -120,7 +120,7 @@ module.exports = {
 
 		const canManage = interaction.member?.permissions?.has(PermissionFlagsBits.ManageChannels);
 
-		if (subcommand === 'subscribe') {
+		if (subcommand === 'on') {
 			if (!canManage) {
 				return interaction.reply({
 					content: translations.translate('NOTIFICATION_NO_PERMS'),
@@ -150,7 +150,7 @@ module.exports = {
 			});
 		}
 
-		if (subcommand === 'unsubscribe') {
+		if (subcommand === 'off') {
 			if (!canManage) {
 				return interaction.reply({
 					content: translations.translate('NOTIFICATION_NO_PERMS'),
@@ -178,7 +178,6 @@ module.exports = {
 		if (subcommand === 'list') {
 			const knownTypes = new Set(NOTIFICATION_TYPES.map((t) => t.value));
 			const all = await NotificationSubscription.find({ guild_id: guild.id }).lean();
-			// Newsletter subscriptions are managed via /newsletter — exclude them here.
 			const listed = all.filter((sub) => knownTypes.has(sub.notification_type));
 			if (listed.length === 0) {
 				return interaction.reply({

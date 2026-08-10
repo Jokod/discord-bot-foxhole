@@ -17,38 +17,58 @@ module.exports = {
 	CANCEL: 'Отменить',
 	FINISHED: 'Завершено',
 	CONFIRM: 'Подтвердить',
-	VALIDATE: 'Подтвердить',
-	VALIDATED: 'Подтверждено',
-	PENDING: 'Ожидание',
-	CONFIRMED: 'Подтверждён',
-	LOGISTICS: 'Логистика',
-	ASSIGNEE: 'Исполнитель',
-	REVOKE: 'Отозвать',
 	BACK: 'Назад',
 	INTERACTION_ERROR: 'Для этого действия не найдено взаимодействия.',
 	PREFIX_MESSAGE: 'Привет %author%! Мой префикс - %prefix%, для справки %prefix%help',
 	STATUS: 'Статус',
 
-	// COMMANDS
-
-	// GITHUB
-	GITHUB_REPLY: 'Ссылка на репозиторий: %url%',
-	GITHUB_MESSAGE: 'Вы можете следить за обновлениями и участвовать в улучшении: предлагать pull requests (обновление материала фракций, новые команды) или создавать issues.',
-	GITHUB_NOT_CONFIGURED: 'Ссылка на GitHub не настроена.',
+	// ABOUT / LINKS
+	ABOUT_GITHUB: '**GitHub:** %url%',
+	ABOUT_DISCORD: '**Discord поддержки:** %url%',
+	ABOUT_ISSUES: '**Создать issue:** %url%',
+	ABOUT_ANNOUNCEMENTS_FOLLOW: [
+		'**📢 Отслеживать канал Announcements (рекомендуется)**',
+		'Получайте новости и релизы FoxBot **прямо на своём сервере** (встроенная функция Discord — без команды бота):',
+		'1. Зайдите на сервер поддержки (ссылка выше)',
+		'2. Откройте канал **Announcements**',
+		'3. Нажмите **Отслеживать** (нужно право **Управление вебхуками** на вашем сервере)',
+		'4. Выберите канал — обновления будут публиковаться туда автоматически',
+	].join('\n'),
+	ABOUT_MESSAGE: 'Также можно участвовать на GitHub: pull requests, обновление материалов фракций, идеи команд или issues.',
+	ABOUT_NOT_CONFIGURED: 'Ссылки поддержки не настроены.',
 
 	// FOXHOLE
 	FOXHOLE_TITLE: 'Foxhole – Игроки и война',
 	FOXHOLE_PLAYERS_CURRENT: 'Игроков в сети',
 	FOXHOLE_WAR_TITLE: 'Текущая война',
+	FOXHOLE_WAR_TITLE_ENDED: 'Foxhole – Война завершена',
 	FOXHOLE_WAR_NUMBER: 'Война №',
 	FOXHOLE_WAR_WINNER: 'Победитель',
+	FOXHOLE_WAR_DAY: 'День',
+	FOXHOLE_WAR_DAY_VALUE: 'День %n%',
+	FOXHOLE_WAR_ELAPSED: 'Длительность',
+	FOXHOLE_WAR_ELAPSED_VALUE: '%d%д %h%ч %m%м',
 	FOXHOLE_WAR_REQUIRED_TOWNS: 'Городов для победы',
+	FOXHOLE_WAR_SHORT_REQUIRED_TOWNS: 'Городов (короткая цель)',
+	FOXHOLE_WAR_COLONIAL_TOWNS: 'VT Colonial',
+	FOXHOLE_WAR_WARDEN_TOWNS: 'VT Warden',
+	FOXHOLE_WAR_SCORCHED_TOWNS: 'VT scorched',
 	FOXHOLE_WAR_START: 'Начало завоевания',
+	FOXHOLE_WAR_END: 'Конец завоевания',
+	FOXHOLE_WAR_SCHEDULED_END: 'Плановый конец',
 	FOXHOLE_WINNER_NONE: 'В процессе',
 	FOXHOLE_WINNER_WARDEN: 'Warden',
 	FOXHOLE_WINNER_COLONIAL: 'Colonial',
 	FOXHOLE_UNAVAILABLE: 'Данные недоступны',
 	FOXHOLE_ALL_UNAVAILABLE: 'Внешние сервисы (Steam, Foxhole) не отвечают. Попробуйте позже.',
+	FOXHOLE_MAPS_TITLE: 'Foxhole Война – Карты',
+	FOXHOLE_MAPS_UNAVAILABLE: 'War API (карты) недоступен или не вернул карты.',
+	FOXHOLE_REPORT_TITLE: 'Отчёт о войне – %map%',
+	FOXHOLE_REPORT_UNAVAILABLE: 'Нет данных отчёта для карты `%map%` (или War API недоступен).',
+	FOXHOLE_REPORT_ENLISTMENTS: 'Всего зачислений',
+	FOXHOLE_REPORT_COLONIAL_CASUALTIES: 'Потери Colonial',
+	FOXHOLE_REPORT_WARDEN_CASUALTIES: 'Потери Warden',
+	FOXHOLE_REPORT_DAY: 'День войны',
 
 	HELP_NO_SUBCOMMANDS: 'У этой команды нет подкоманд.',
 	HELP_NO_PARAMS: 'У этой команды нет параметров.',
@@ -69,6 +89,9 @@ module.exports = {
 	ARGS_MISSING: 'Ты не предоставил аргументы, %author%!',
 	COMMAND_USAGE: 'Правильное использование: `%prefix%%command% %usage%`',
 	COMMAND_COOLDOWN: 'Пожалуйста, подождите %time% секунд, прежде чем использовать команду `%command%` снова.',
+	RELOAD_UNKNOWN: 'Нет команды с именем или псевдонимом `%command%`, %author%!',
+	RELOAD_SUCCESS: 'Команда `%command%` перезагружена!',
+	RELOAD_ERROR: 'Ошибка при перезагрузке команды `%command%`:\n`%error%`',
 
 	// SERVER ---------------------------------------------
 
@@ -83,10 +106,18 @@ module.exports = {
 	SERVER_FIELD_GUILD_ID: 'Идентификатор сервера',
 	SERVER_FIELD_GUILD_LANG: 'Язык сервера',
 	SERVER_FIELD_GUILD_CAMP: 'Лагерь сервера',
+	SERVER_FIELD_GUILD_LOGS: 'Треды логов заказов',
+	SERVER_LOGS_ENABLED: 'Включено',
+	SERVER_LOGS_DISABLED: 'Отключено',
 
 	// SERVER SETUP
 	SERVER_SET_LANG_REPLY: 'Язык сервера был изменен на **%lang%**.',
 	SERVER_SET_CAMP_REPLY: 'Лагерь сервера был изменен на **%camp%**.',
+	SERVER_SET_LOGS_ON_REPLY: 'Треды логов досок заказов **включены**. Новые доски будут создавать заблокированный тред логов.',
+	SERVER_SET_LOGS_OFF_REPLY: 'Треды логов досок заказов **отключены**. Существующие треды логов удалены.',
+	SERVER_RESET_PREVIEW: 'Предпросмотр сброса — будет удалено **%boards%** доск(и), **%stockpiles%** склад(ов), **%operations%** операци(й). Повторите с **подтвердить:true**.',
+	SERVER_RESET_CONFIRM_REQUIRED: 'Укажите **подтвердить:true**, чтобы удалить доски заказов, склады и операции для новой войны. Это необратимо.',
+	SERVER_RESET_SUCCESS: 'Сброс сервера выполнен — удалено **%boards%** доск(и), **%stockpiles%** склад(ов), **%operations%** операци(й). Конфиг сервера и уведомления сохранены.',
 
 	// OPERATION ---------------------------------------------
 	OPERATION_CREATOR: 'Создатель',
@@ -97,13 +128,12 @@ module.exports = {
 	OPERATION_CREATE_LABEL_TIME: 'Время операции (чч:мм)',
 	OPERATION_CREATE_LABEL_DURATION: 'Продолжительность операции (в минутах)',
 	OPERATION_CREATE_LABEL_DESCRIPTION: 'Описание операции',
+	OPERATION_CREATE_PLACEHOLDER_DATE: 'дд/мм/гггг',
+	OPERATION_CREATE_PLACEHOLDER_TIME: 'чч:мм',
 
 	// OPERATION GROUP
 	OPERATION_NOT_EXIST: 'Эта операция не существует.',
 	OPERATION_NOT_HAVE_GROUPS: 'У этой операции нет групп.',
-
-	// OPERATION BUTTONS
-
 
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'Операция %title% была создана.',
@@ -123,70 +153,73 @@ module.exports = {
 	OPERATION_CANCELED_ERROR: 'Произошла ошибка при отмене операции.',
 	OPERATION_ARE_NO_OWNER_ERROR: 'Вы не являетесь владельцем этой операции.',
 
-	// GROUP ---------------------------------------------
-	GROUP_NOT_EXIST: 'Эта группа не существует.',
-	THREAD_NOT_EXIST: 'Эта ветка не существует.',
-	THREAD_CLOSED_OR_ARCHIVED: 'Эта ветка закрыта или архивирована.',
-	GROUPS_OF_OPERATION: 'Группы операций %title%',
-
-	GROUP_TITLE: 'Логистика #%size% для операции %title%',
-
-	// GROUP SUCCESS
-	GROUP_CREATE_SUCCESS: 'Создана логистическая ветка!',
-
-	// GROUP ERRORS
-	GROUP_CREATE_ERROR: 'Произошла ошибка при создании логистики!',
-	THREAD_CLOSE_ERROR: 'Произошла ошибка при закрытии ветки!',
-	THREAD_ARE_NO_OWNER_ERROR: 'Вы не являетесь владельцем этой ветки!',
-	GROUP_NO_MATERIALS: 'В этой группе нет материалов.',
-
-	// LOGISTIC ---------------------------------------------
-
-	LOGISTIC_LIST_COMMANDS: 'Список логистических команд',
-
 	// MATERIAL ---------------------------------------------
 
 	MATERIAL: 'Материал',
-	MATERIAL_NOT_EXIST: 'Этот материал не существует.',
-	MATERIAL_DETAIL: 'Подробности о материале',
-	MATERIAL_ADD: 'Добавить материал',
-	MATERIAL_REMOVE: 'Удалить материал',
-	MATERIAL_SELECT_QUANTITY: 'Выберите количество',
-	MATERIAL_CONFIRMATION: 'Подтвердить материал',
-	MATERIAL_REVOKE: 'Отозвать материал',
-	MATERIAL_ENTER_ID: 'ID сообщения или ссылка на сообщение',
-
-	MATERIAL_NOMBER: 'Количество материалов',
-	MATERIAL_VALIDATE: 'Подтвержденные материалы',
-	MATERIAL_INVALIDATE: 'Неподтвержденные материалы',
-	MATERIAL_QUANTITY_ASK: 'Запрошенное количество',
-	MATERIAL_QUANTITY_GIVEN: 'Предоставленное количество',
-	MATERIAL_CREATOR: 'Создатель',
-	MATERIAL_PERSON_IN_CHARGE: 'Ответственный',
-	MATERIAL_LIST_OF_GROUP: 'Список материалов группы',
-	MATERIAL_LOCALIZATION: 'Местоположение хранения',
 	MATERIAL_PRIORITY: 'Приоритет',
 	MATERIAL_PRIORITY_LOW: 'Низкий',
 	MATERIAL_PRIORITY_NEUTRAL: 'Нейтральный',
 	MATERIAL_PRIORITY_HIGH: 'Высокий',
-	MATERIAL_HAVE_NO_NAME_OR_QUANTITY: 'У материала должны быть имя и количество.',
-	MATERIAL_SELECT_TYPE: 'Выберите тип материала для добавления',
-	MATERIAL_SMALL_ARMS: 'Малое оружие',
-	MATERIAL_HEAVY_ARMS: 'Тяжелое оружие',
-	MATERIAL_UTILITIES: 'Утилиты',
-	MATERIAL_SHIPABLES: 'Товары для отправки',
-	MATERIAL_VEHICLES: 'Транспортные средства',
-	MATERIAL_UNIFORMS: 'Униформа',
-	MATERIAL_RESOURCES: 'Ресурсы',
-	MATERIAL_MEDICAL: 'Медицинский',
+	MATERIAL_URGENCY_URGENT: 'СРОЧНО',
+	MATERIAL_URGENCY_LOW: 'НИЗКО',
+	MATERIAL_URGENCY_OK: 'OK',
 
-	MATERIAL_LIST_SMALL_ARMS: 'Список доступного малого оружия',
-	MATERIAL_LIST_HEAVY_ARMS: 'Список доступного тяжелого оружия',
-	MATERIAL_LIST_UTILITIES: 'Список доступных утилит',
-	MATERIAL_LIST_SHIPABLES: 'Список доступных товаров для отправки',
-	MATERIAL_LIST_VEHICLES: 'Список доступных транспортных средств',
-	MATERIAL_LIST_UNIFORMS: 'Список доступной униформы',
-	MATERIAL_LIST_RESOURCES: 'Список доступных ресурсов',
+	// ORDER BOARDS (prod / transfer / scrap) -----------------
+	ORDER_KIND_PROD: 'Заказ на производство',
+	ORDER_KIND_TRANSFER: 'Доставка на фронт',
+	ORDER_KIND_SCRAP: 'Scrap / фарм',
+	ORDER_EMPTY: 'Пока нет строк.\nНажмите **Добавить**, чтобы выбрать предмет и цель.',
+	ORDER_ROUTE: '**%from%** → **%to%**',
+	ORDER_FROM: 'Отправление: **%from%**',
+	ORDER_TO: 'Назначение: **%to%**',
+	ORDER_LINKED_OPERATION: 'Операция: **%title%**',
+	ORDER_STATUS_CLOSED: 'Эта доска заказа закрыта. Владелец или модератор может открыть её снова кнопкой **Открыть снова**.',
+	ORDER_STATUS_ALREADY_OPEN: 'Эта доска заказа уже открыта.',
+	ORDER_SUMMARY: '**%done%/%total%** готово · **%current%/%target%** ящиков · осталось **%remaining%**',
+	ORDER_LINE_LEFT: 'осталось %n%',
+	ORDER_STOCK: 'Сток: %current%/%target%',
+	ORDER_FOOTER: '%lines% строк(и) · %status%',
+	ORDER_STATUS_LABEL_OPEN: 'Открыт',
+	ORDER_STATUS_LABEL_CLOSED: 'Закрыт',
+	ORDER_SELECT_PLACEHOLDER: 'Выберите строку',
+	ORDER_SELECT_PLACEHOLDER_RANGE: 'Выберите строку (%from%–%to%)',
+	ORDER_NO_SELECTION: 'Сначала выберите строку.',
+	ORDER_ADD: 'Добавить',
+	ORDER_CORRECT: 'Исправить',
+	ORDER_CLOSE: 'Закрыть',
+	ORDER_REOPEN: 'Открыть снова',
+	ORDER_DELETE_LINE: 'Удалить',
+	ORDER_MAX: 'Макс',
+	ORDER_CORRECT_TITLE: 'Исправить строку',
+	ORDER_ADD_TARGET_TITLE: 'Целевое количество',
+	ORDER_FULL: 'Доска заполнена (**%max%/%max%** строк — лимит: 2×25). Используйте **Удалить** перед добавлением.',
+	ORDER_FULL_BANNER: '⚠️ **ПОЛНО — %count%/%max% строк** (лимит: 2×25). Добавление невозможно.',
+	ORDER_CURRENT: 'Сейчас',
+	ORDER_TARGET: 'Цель',
+	ORDER_NOT_EXIST: 'Нет доски **%name%** в этом канале. Используйте `/order create`.',
+	ORDER_BOARD_NOT_EXIST: 'Эта доска заказа больше не существует.',
+	ORDER_ALREADY_EXISTS: 'Доска **%name%** уже есть в этом канале.',
+	ORDER_INVALID_NAME: 'Недопустимое имя доски.',
+	ORDER_INVALID_TARGET: 'Введите корректное количество (сейчас ≥ 0, цель ≥ 1).',
+	ORDER_EMBED_TRUNCATED: '…и ещё (показана часть из %count% строк — используйте селекты).',
+	ORDER_CANNOT_MANAGE_ERROR: 'Вы не можете управлять этим заказом (владелец строки/доски или управляющий сервером/каналом).',
+	ORDER_OPERATION_FINISHED: 'Эта операция завершена — выберите активную (автодополнение).',
+	ORDER_LINE_NOT_EXIST: 'Эта строка больше не существует.',
+	ORDER_LIST_COMMANDS: 'Команды заказов',
+	ORDER_LOG_THREAD: 'Лог — %name%',
+	ORDER_LOG_QTY: '%user% **%name%** %from%→%to% (%delta%)',
+	ORDER_LOG_MAX: '%user% **%name%** Макс %from%→%to%',
+	ORDER_LOG_PRIORITY: '%user% **%name%** приоритет → %priority%',
+	ORDER_LOG_ADD: '%user% добавил **%name%** (цель %target%)',
+	ORDER_LOG_CORRECT: '%user% исправил **%name%** → %current%/%target%',
+	ORDER_LOG_CLOSE: '%user% закрыл доску.',
+	ORDER_LOG_REOPEN: '%user% снова открыл доску.',
+	ORDER_LOG_DELETE_LINE: '%user% удалил **%name%**.',
+
+	MATERIAL_SELECT_TYPE: 'Выберите тип материала для добавления',
+	MATERIAL_SELECT_CATEGORY: 'Выберите категорию',
+	MATERIAL_SELECT_SUBCATEGORY: 'Выберите подкатегорию',
+
 
 	// Новые категории
 	CATEGORY_UTILITIES: 'Утилиты',
@@ -238,24 +271,8 @@ module.exports = {
 	MATERIAL_SUBCATEGORY_EMPTY: 'В этой категории нет доступных материалов.',
 
 	// MATERIAL SUCCESS
-	MATERIAL_CREATE_SUCCESS: 'Материал был создан.',
-	MATERIAL_DELETE_SUCCESS: 'Материал был удален.',
 
 	// MATERIAL ERRORS
-	MATERIAL_CREATE_ERROR: 'Произошла ошибка при создании материала.',
-	MATERIAL_UPDATE_ERROR: 'Произошла ошибка при обновлении материала.',
-	MATERIAL_DELETE_ERROR: 'Произошла ошибка при удалении материала.',
-	MATERIAL_SELECT_ERROR: 'Произошла ошибка при выборе материала.',
-	MATERIAL_VALIDATE_ERROR: 'Произошла ошибка при подтверждении материала.',
-	MATERIAL_CONFIRM_ERROR: 'Произошла ошибка при подтверждении материала.',
-	MATERIAL_ASSIGN_ERROR: 'Произошла ошибка при назначении материала.',
-	MATERIAL_ARE_NO_CREATOR_ERROR: 'Вы не являетесь создателем этого материала.',
-	MATERIAL_CANNOT_MANAGE_ERROR: 'Вы не можете изменить этот материал (только создатель или управляющий сервером/каналом).',
-	MATERIAL_ARE_NO_OWNER_ERROR: 'Вы не являетесь владельцем этого материала.',
-	MATERIAL_QUANTITY_ERROR: 'Количество должно быть положительным числом.',
-	MATERIAL_SELECT_QUANTITY_ERROR: 'Произошла ошибка при выборе количества.',
-	MATERIAL_LOCALIZATION_ERROR: 'Неверный формат местоположения.',
-	MATERIAL_BACK_ERROR: 'Произошла ошибка при возврате к предыдущему меню.',
 
 	// STOCKPILE ---------------------------------------------
 
@@ -281,10 +298,14 @@ module.exports = {
 	STOCKPILE_DELETE_SUCCESS: 'Склад #%id% был удален.',
 	STOCKPILE_MARK_DELETED_SUCCESS: 'Склад #%id% был помечен как удалён.',
 	STOCKPILE_RESET_SUCCESS: 'Таймер склада #%id% сброшен на 2 дня и 2 часа.',
-	STOCKPILE_CLEANUP_SUCCESS: 'Удалено %count% помеченных складов в этом канале.',
+	STOCKPILE_CLEANUP_SUCCESS: 'Окончательно удалено %count% помеченных складов на этом сервере.',
 	STOCKPILE_RESET_ALL_SUCCESS: 'Все склады были удалены.',
+	STOCKPILE_REMOVE_PLACEHOLDER: 'Пометить склад удалённым…',
+	STOCKPILE_BTN_CLEANUP: 'Очистка',
+	STOCKPILE_BTN_DELETEALL: 'Удалить всё',
 
 	// STOCKPILE ERRORS
+	STOCKPILE_MANAGE_NO_ACCESS: 'Только создатель склада или тот, кто управляет сервером/каналом.',
 	STOCKPILE_LIST_EMPTY: 'Здесь нет складов.',
 	STOCKPILE_NOT_EXIST: 'Этого склада не существует.',
 	STOCKPILE_INVALID_ID: 'Идентификатор склада недействителен.',
@@ -323,10 +344,4 @@ module.exports = {
 	NOTIFICATION_EXPIRING_IN_1H: 'через 1 ч',
 	NOTIFICATION_EXPIRING_IN_30M: 'через 30 мин',
 
-	// NEWSLETTER
-	NEWSLETTER_NO_PERMS: 'Нужно право « Управление сервером » для подписки или отписки.',
-	NEWSLETTER_SUBSCRIBE_SUCCESS: 'Этот канал подписан на рассылку бота.',
-	NEWSLETTER_UNSUBSCRIBE_SUCCESS: 'Этот канал больше не подписан на рассылку бота.',
-	NEWSLETTER_ALREADY_SUBSCRIBED: 'Этот канал уже подписан на рассылку бота.',
-	NEWSLETTER_NOT_SUBSCRIBED: 'Этот канал не подписан на рассылку бота.',
 };

@@ -1,6 +1,6 @@
 const {
-	Material,
-	Group,
+	OrderLine,
+	OrderBoard,
 	Operation,
 	NotificationSubscription,
 	TrackedMessage,
@@ -17,24 +17,24 @@ function hasEmptyStatsName(stat) {
 /**
  * Nettoie toutes les données applicatives liées à un serveur.
  * @param {string} guildId
- * @param {{ reason?: string, markLeftAt?: boolean, guildName?: string }} [options]
+ * @param {{ reason?: string, markLeftAt?: boolean, guildName?: string, ownerId?: string | null }} [options]
  * @returns {Promise<void>}
  */
 async function cleanupGuildData(guildId, options = {}) {
-	const { reason = 'unknown', markLeftAt = true, guildName } = options;
+	const { reason = 'unknown', markLeftAt = true, guildName, ownerId } = options;
 	const now = new Date();
 
 	const [
-		materialsRes,
-		groupsRes,
+		linesRes,
+		boardsRes,
 		operationsRes,
 		notificationsRes,
 		trackedMessagesRes,
 		stockpilesRes,
 		serversRes,
 	] = await Promise.all([
-		Material.deleteMany({ guild_id: guildId }),
-		Group.deleteMany({ guild_id: guildId }),
+		OrderLine.deleteMany({ guild_id: guildId }),
+		OrderBoard.deleteMany({ guild_id: guildId }),
 		Operation.deleteMany({ guild_id: guildId }),
 		NotificationSubscription.deleteMany({ guild_id: guildId }),
 		TrackedMessage.deleteMany({ server_id: guildId }),
@@ -51,6 +51,7 @@ async function cleanupGuildData(guildId, options = {}) {
 			else {
 				const $set = { left_at: now };
 				if (guildName) $set.name = guildName;
+				if (ownerId) $set.owner_id = ownerId;
 				await Stats.updateOne({ guild_id: guildId }, { $set });
 			}
 		}
@@ -59,7 +60,8 @@ async function cleanupGuildData(guildId, options = {}) {
 	const displayName = guildName ? `${guildName} (id=${guildId})` : guildId;
 	console.log(
 		`[Cleanup] ${displayName} reason=${reason} — ` +
-		`materials=${materialsRes.deletedCount ?? 0}, groups=${groupsRes.deletedCount ?? 0}, ` +
+		`orderLines=${linesRes.deletedCount ?? 0}, ` +
+		`orderBoards=${boardsRes.deletedCount ?? 0}, ` +
 		`operations=${operationsRes.deletedCount ?? 0}, notifications=${notificationsRes.deletedCount ?? 0}, ` +
 		`trackedMessages=${trackedMessagesRes.deletedCount ?? 0}, stockpiles=${stockpilesRes.deletedCount ?? 0}, ` +
 		`servers=${serversRes.deletedCount ?? 0}.`,
@@ -67,8 +69,7 @@ async function cleanupGuildData(guildId, options = {}) {
 }
 
 /**
- * Supprime les documents Stats sans nom (coquilles créées par d'anciens upserts).
- * @returns {Promise<number>} Nombre de documents supprimés
+ * @returns {Promise<number>}
  */
 async function purgeEmptyStatsRecords() {
 	const result = await Stats.deleteMany({

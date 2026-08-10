@@ -1,0 +1,51 @@
+# Used when build context is the repository root
+# (docker build -f .docker/Dockerfile . | docker compose build).
+
+# Dependencies & build
+node_modules
+npm-debug.log*
+coverage
+.nyc_output
+
+# Git / IDE / local env
+.git
+.github
+.idea
+.vscode
+*.swp
+.env
+.env.*
+!.env.dist
+
+# Tests & tooling (not needed at runtime)
+__tests__
+jest.config.js
+jest.setup.js
+eslint.config.js
+.nvmrc
+makefile
+.husky
+
+# Docs & misc
+*.md
+!LICENSE
+docs
+CONTRIBUTING.md
+CHANGELOG.md
+PRIVACY_POLICY.md
+TERMS_OF_SERVICE.md
+
+# Docker sources (not needed inside the image)
+.docker
+compose.yaml
+
+# Runtime host data (mounted or created in container)
+var/logs/*
+!var/logs/.gitignore
+data/announce-last-run.txt
+data/announce.md
+
+# Dashboard runtime pid/log (keep sources; ignore local process files)
+.dashboard/dashboard.pid
+.dashboard/dashboard.log
+.dashboard/*.log

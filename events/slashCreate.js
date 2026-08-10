@@ -12,22 +12,17 @@ module.exports = {
 	 */
 
 	async execute(interaction) {
-		// Deconstructed client from interaction object.
-		const { client } = interaction;
-		const guildId = interaction.guild.id;
-		const translations = new Translate(client, guildId);
-
-		// Checks if the interaction is a command (to prevent weird bugs)
-
 		if (!interaction.isChatInputCommand()) return;
+
+		const { client } = interaction;
+		const guildId = interaction.guild?.id;
+		const translations = new Translate(client, guildId);
 
 		const command = client.slashCommands.get(interaction.commandName);
 
-		// If the interaction is not a command in cache.
-
 		if (!command) return;
 
-		const server = await Server.findOne({ guild_id: guildId });
+		const server = guildId ? await Server.findOne({ guild_id: guildId }) : null;
 
 		if (command.init && !server) {
 			return interaction.reply({
@@ -36,18 +31,14 @@ module.exports = {
 			});
 		}
 
-		// A try to executes the interaction.
-
 		try {
 			await command.execute(interaction);
 
-			// Update stats at each command (covers existing servers + keeps data current)
-			if (interaction.guild) {
+			if (interaction.guild && guildId) {
 				const guild = interaction.guild;
 				const commandName = interaction.commandName;
 				const now = new Date();
 
-				// Pipeline: set first_command_at only when null/missing (MongoDB $min keeps null < Date)
 				await Stats.findOneAndUpdate(
 					{ guild_id: guildId },
 					[

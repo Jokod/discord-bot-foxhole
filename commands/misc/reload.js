@@ -1,4 +1,5 @@
 const fs = require('fs');
+const Translate = require('../../utils/translations.js');
 
 module.exports = {
 	name: 'reload',
@@ -13,6 +14,7 @@ module.exports = {
 		 */
 
 		const commandName = args[0].toLowerCase();
+		const translations = new Translate(message.client, message.guild?.id);
 
 		const command =
 			message.client.commands.get(commandName) ||
@@ -23,7 +25,10 @@ module.exports = {
 		// Command returns if there is no such command with the specific command name or alias.
 		if (!command) {
 			return message.channel.send({
-				content: `There is no command with name or alias \`${commandName}\`, ${message.author}!`,
+				content: translations.translate('RELOAD_UNKNOWN', {
+					command: commandName,
+					author: message.author,
+				}),
 			});
 		}
 
@@ -60,7 +65,7 @@ module.exports = {
 
 			// 🎉 Confirmation sent if reloading was successful!
 			message.channel.send({
-				content: `Command \`${command.name}\` was reloaded!`,
+				content: translations.translate('RELOAD_SUCCESS', { command: command.name }),
 			});
 		}
 		catch (error) {
@@ -68,7 +73,10 @@ module.exports = {
 
 			console.error(error);
 			message.channel.send({
-				content: `There was an error while reloading a command \`${command.name}\`:\n\`${error.message}\``,
+				content: translations.translate('RELOAD_ERROR', {
+					command: command.name,
+					error: error.message,
+				}),
 			});
 		}
 	},

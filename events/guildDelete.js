@@ -14,6 +14,7 @@ module.exports = {
 				reason: 'guild_delete',
 				markLeftAt: true,
 				guildName: guild.name ?? guild.id,
+				ownerId: guild.ownerId ?? null,
 			});
 			console.log(`[Stats] Bot retiré du serveur ${guild.name ?? guild.id}, nettoyage effectué.`);
 		}

@@ -15,7 +15,7 @@ jest.mock('../../data/models.js', () => ({
 
 const { NotificationSubscription } = require('../../data/models.js');
 
-describe('Slash command /notification', () => {
+describe('Slash command /notify', () => {
 	let notificationCommand;
 
 	beforeEach(() => {
@@ -44,9 +44,17 @@ describe('Slash command /notification', () => {
 		};
 	}
 
-	describe('subscribe', () => {
+	it('définit le nom notify avec sous-commandes on|off|list', () => {
+		expect(notificationCommand.data.name).toBe('notify');
+		const names = (notificationCommand.data.options ?? []).map((o) => o.name);
+		expect(names).toEqual(expect.arrayContaining(['on', 'off', 'list']));
+		expect(names).not.toContain('subscribe');
+		expect(names).not.toContain('unsubscribe');
+	});
+
+	describe('on', () => {
 		it('refuse si l’utilisateur n’a pas ManageChannels', async () => {
-			const interaction = createInteraction('subscribe', { type: 'stockpile_activity' });
+			const interaction = createInteraction('on', { type: 'stockpile_activity' });
 			interaction.member.permissions.has.mockReturnValue(false);
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.findOne).not.toHaveBeenCalled();
@@ -57,7 +65,7 @@ describe('Slash command /notification', () => {
 
 		it('répond ALREADY_SUBSCRIBED si le salon est déjà abonné', async () => {
 			NotificationSubscription.findOne.mockResolvedValue({ guild_id: 'guild-123', channel_id: 'channel-456' });
-			const interaction = createInteraction('subscribe', { type: 'stockpile_activity' });
+			const interaction = createInteraction('on', { type: 'stockpile_activity' });
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.findOne).toHaveBeenCalledWith({
 				guild_id: 'guild-123',
@@ -73,7 +81,7 @@ describe('Slash command /notification', () => {
 		it('crée l’abonnement et répond SUBSCRIBE_SUCCESS', async () => {
 			NotificationSubscription.findOne.mockResolvedValue(null);
 			NotificationSubscription.create.mockResolvedValue(undefined);
-			const interaction = createInteraction('subscribe', { type: 'stockpile_expiring' });
+			const interaction = createInteraction('on', { type: 'stockpile_expiring' });
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.create).toHaveBeenCalledWith({
 				guild_id: 'guild-123',
@@ -86,9 +94,9 @@ describe('Slash command /notification', () => {
 		});
 	});
 
-	describe('unsubscribe', () => {
+	describe('off', () => {
 		it('refuse si l’utilisateur n’a pas ManageChannels', async () => {
-			const interaction = createInteraction('unsubscribe', { type: 'stockpile_activity' });
+			const interaction = createInteraction('off', { type: 'stockpile_activity' });
 			interaction.member.permissions.has.mockReturnValue(false);
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.deleteOne).not.toHaveBeenCalled();
@@ -99,7 +107,7 @@ describe('Slash command /notification', () => {
 
 		it('répond NOT_SUBSCRIBED si le salon n’est pas abonné', async () => {
 			NotificationSubscription.deleteOne.mockResolvedValue({ deletedCount: 0 });
-			const interaction = createInteraction('unsubscribe', { type: 'stockpile_activity' });
+			const interaction = createInteraction('off', { type: 'stockpile_activity' });
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.deleteOne).toHaveBeenCalledWith({
 				guild_id: 'guild-123',
@@ -113,7 +121,7 @@ describe('Slash command /notification', () => {
 
 		it('supprime l’abonnement et répond UNSUBSCRIBE_SUCCESS', async () => {
 			NotificationSubscription.deleteOne.mockResolvedValue({ deletedCount: 1 });
-			const interaction = createInteraction('unsubscribe', { type: 'stockpile_expiring' });
+			const interaction = createInteraction('off', { type: 'stockpile_expiring' });
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.deleteOne).toHaveBeenCalledWith({
 				guild_id: 'guild-123',
@@ -157,10 +165,10 @@ describe('Slash command /notification', () => {
 			expect(interaction.reply.mock.calls[0][0].content).toContain('<#ch-2>');
 		});
 
-		it('ignore les abonnements newsletter (gérés via /newsletter)', async () => {
+		it('ignore les abonnements de type inconnu', async () => {
 			NotificationSubscription.find.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([
-					{ notification_type: 'newsletter', channel_id: 'ch-news' },
+					{ notification_type: 'legacy_unknown', channel_id: 'ch-old' },
 					{ notification_type: 'stockpile_activity', channel_id: 'ch-1' },
 				]),
 			});
@@ -168,14 +176,13 @@ describe('Slash command /notification', () => {
 			await notificationCommand.execute(interaction);
 			const content = interaction.reply.mock.calls[0][0].content;
 			expect(content).toContain('<#ch-1>');
-			expect(content).not.toContain('newsletter');
-			expect(content).not.toContain('<#ch-news>');
+			expect(content).not.toContain('<#ch-old>');
 		});
 
-		it('répond LIST_EMPTY si seuls des abonnements newsletter existent', async () => {
+		it('répond LIST_EMPTY si seuls des abonnements inconnus existent', async () => {
 			NotificationSubscription.find.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([
-					{ notification_type: 'newsletter', channel_id: 'ch-news' },
+					{ notification_type: 'legacy_unknown', channel_id: 'ch-old' },
 				]),
 			});
 			const interaction = createInteraction('list');
