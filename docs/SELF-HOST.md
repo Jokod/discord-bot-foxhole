@@ -303,7 +303,7 @@ npm run i18n:check
 ```
 
 CI: [`.github/workflows/integration.yaml`](../.github/workflows/integration.yaml).  
-Docker image on tag: [`.github/workflows/docker.yaml`](../.github/workflows/docker.yaml) → `ghcr.io/jokod/foxbot`.
+Docker image on tag: [`.github/workflows/docker.yaml`](../.github/workflows/docker.yaml) runs the same quality gates first, then builds/pushes `ghcr.io/jokod/foxbot`.
 
 ---
 

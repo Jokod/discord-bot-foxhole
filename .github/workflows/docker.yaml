@@ -15,8 +15,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  quality:
+    name: Lint, i18n, tests & coverage
+    uses: ./.github/workflows/integration.yaml
+
   publish:
     name: Build & push GHCR
+    needs: quality
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository

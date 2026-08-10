@@ -35,7 +35,10 @@ describe('wiki-sync / wiki-helpers', () => {
 			expect(inferWikiTitle('120mm Shell')).toBe('120mm');
 			expect(inferWikiTitle('14.5mm Shell')).toBe('14.5mm');
 		});
-		it('mappe Obus Fury FR', () => {
+		it('garde le titre wiki pour 250mm Fury Shell', () => {
+			expect(inferWikiTitle('250mm \u201cFury\u201d Shell')).toBe('250mm \u201cFury\u201d Shell');
+		});
+		it('mappe encore l’ancien nom FR Obus Fury via overrides', () => {
 			expect(inferWikiTitle('Obus « Fury » de 250 mm')).toBe('250mm \u201cFury\u201d Shell');
 		});
 		it('normalise Mk. → MK. pour le wiki', () => {

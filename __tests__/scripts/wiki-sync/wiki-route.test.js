@@ -113,6 +113,18 @@ describe('wiki-sync / wiki-route', () => {
 		});
 	});
 
+	it('Uniforms → utilities/uniforms.json', () => {
+		expect(routeWikiInfoboxToMaterialFile(itemFields({
+			name: 'Aviator\'s Raiment',
+			category: 'Uniforms',
+			ItemCategory: 'Uniforms',
+			type: 'Pilot Uniform',
+		}))).toEqual({
+			relPath: 'utilities/uniforms.json',
+			itemCategory: 'uniforms',
+		});
+	});
+
 	it('Utility par défaut → field_equipment.json', () => {
 		expect(routeWikiInfoboxToMaterialFile(itemFields({
 			name: 'Binoculars',

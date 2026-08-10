@@ -1,86 +1,86 @@
 [
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme de soldat",
-    "itemDesc": "Uniforme standard d’infanterie offrant un équilibre entre protection et capacité de transport.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme d’ingénieur",
-    "itemDesc": "Uniforme spécialisé améliorant l’efficacité de construction, réparation et logistique.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme médical",
-    "itemDesc": "Uniforme conçu pour le personnel médical, permettant de transporter davantage de fournitures de soins.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme de scout",
-    "itemDesc": "Uniforme léger favorisant la mobilité, la discrétion et la reconnaissance.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme de char",
-    "itemDesc": "Uniforme renforcé destiné aux équipages de véhicules blindés, offrant une protection accrue.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme de neige",
-    "itemDesc": "Uniforme isolant conçu pour réduire les effets du froid et améliorer la survie en environnement enneigé.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial"],
-    "itemName": "Uniforme de pluie",
-    "itemDesc": "Uniforme imperméable limitant les effets négatifs des conditions météorologiques humides.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial"],
-    "itemName": "Uniforme de grenade",
-    "itemDesc": "Uniforme spécialisé augmentant la capacité de transport des grenades et explosifs.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial"],
-    "itemName": "Uniforme de munitions lourdes",
-    "itemDesc": "Uniforme conçu pour transporter une plus grande quantité de munitions lourdes pour armes spécialisées.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme d’armure",
-    "itemDesc": "Uniforme offrant une protection renforcée contre les tirs et éclats, au détriment de la mobilité.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme d’officier",
-    "itemDesc": "Uniforme distinctif porté par les officiers pour le commandement et la coordination des troupes.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme de la marine",
-    "itemDesc": "Uniforme conçu pour les opérations navales et amphibies.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme de pilote",
-    "itemDesc": "Uniforme spécialisé pour les opérateurs de véhicules, offrant une protection adaptée et une bonne mobilité.",
-    "itemCategory": "uniforms"
-  },
-  {
-    "faction": ["colonial", "warden"],
-    "itemName": "Uniforme de parachutiste",
-    "itemDesc": "Uniforme léger conçu pour les opérations aéroportées et les déploiements rapides.",
-    "itemCategory": "uniforms"
-  }
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Soldier Uniform",
+		"itemDesc": "The Soldier Uniform is the standard uniform for soldiers. It is primarily used in infantry combat, but can be used in all types of roles.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Engineer Uniform",
+		"itemDesc": "The Engineer Uniform is a type of Uniform that designed to reduce the Weight of certain construction and facility materials, aiding the wearer in various construction roles.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Medic Uniform",
+		"itemDesc": "The Medic Uniform is a type of Uniform specially designed for frontline Medics, reducing the weight of medical equipment, and being able to stack medical supplies.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Scout Uniform",
+		"itemDesc": "The Scout Uniform is a type of Uniform that's designed to give the wearer a higher chance of not being detected on the map. It is useful for scouting enemy positions, either for partisan activities, or gathering intel of enemy defenses.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Tank Uniform",
+		"itemDesc": "The Tank Uniform is a type of Uniform that is specially designed to aid vehicle crews in combat, allowing the vehicle and their crew to stay in combat for much longer.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Snow Uniform",
+		"itemDesc": "The Snow Uniform is a type of Uniform specially designed to protect the wearer during Snow Storms. Depending on the uniform it will give a varying degree of protection against the cold, prolonging the exposure the wearer can face before freezing to death.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial"],
+		"itemName": "Legionary's Oilcoat",
+		"itemDesc": "The Legionary's Oilcoat (or Rain Uniform) is a Uniform unique to the Colonials, with it specially designed to have a high resistance against Rain Storm effects, such as the accumulation of mud, which adds weight to the player, slowing them down over time.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial"],
+		"itemName": "Grenadier's Baldric",
+		"itemDesc": "The Grenadier's Baldric (or Grenade Uniform) is a Uniform unique to the Colonials, with it specially designed to easily carry a larger amount of grenades and 30mm shells without getting over-encumbered.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["warden"],
+		"itemName": "Specialist's Overcoat",
+		"itemDesc": "The Specialist's Overcoat (or Heavy Ammo Uniform) is a Uniform unique to the Wardens, with it specially designed to easily carry a larger amount of explosive ammo (not grenades or deployed weapons) without getting over-encumbered.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Armour Uniform",
+		"itemDesc": "The Armour Uniform is a type of uniform designed to give the wearer additional protection against enemy fire at the cost of additional weight.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Officer Uniform",
+		"itemDesc": "The Officer Uniform is a type of uniform whose only purpose is to allow the player to freely teamkill members of their own Regiment without any repercussions. The only two ammo types that stack in the uniform are 8mm and .44 Mag (3 per slot).",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial"],
+		"itemName": "Remex Garb",
+		"itemDesc": "Standard-issue uniform for sailors in the Velian branch of the Republic Coastal Legion. Dressed for practicality, Velian Remiges are second to none at keeping ships in tip-top condition while wading through water levels that would see most men praying for a swift death.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["warden"],
+		"itemName": "Aviator's Raiment",
+		"itemDesc": "A pilot’s overcoat and goggles specially designed for cold-weather flying. Alliance Sky Brigade pilots are amongst the most talented aviators in the world, training from as young as eight years of age to hone their reflexes and strengthen their bones against atmospheric forces. Many won’t make it to adulthood.",
+		"itemCategory": "uniforms"
+	},
+	{
+		"faction": ["colonial", "warden"],
+		"itemName": "Paratrooper Uniform",
+		"itemDesc": "The Paratrooper Uniform is an expensive type of Uniform that allows players to do paradrop missions by wearing a Paratrooper's Ruck.",
+		"itemCategory": "uniforms"
+	}
 ]

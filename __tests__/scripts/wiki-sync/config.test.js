@@ -10,6 +10,7 @@ const {
 describe('wiki-sync / config', () => {
 	it('WIKI_SCAN_CATEGORIES couvre les catégories attendues', () => {
 		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Ammunition');
+		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Uniforms');
 		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Vehicles');
 	});
 

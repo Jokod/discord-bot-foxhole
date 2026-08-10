@@ -34,6 +34,8 @@ const WIKI_TITLE_OVERRIDES = {
 	'DAE 1o-3 \u201cPolybolos': 'DAE 1o-3 \u201cPolybolos\u201d',
 	// Titre page wiki (guillemets typographiques) ; « Molten Wind » seul redirige vers l’arme.
 	'Molten Wind v.II Flame Torch': '\u201cMolten Wind\u201d v.II Flame Torch',
+	// Ancien nom FR catalogue (renommé en 250mm “Fury” Shell)
+	'Obus « Fury » de 250 mm': '250mm \u201cFury\u201d Shell',
 };
 
 const WIKI_HUB_TITLES = new Set([
@@ -89,6 +91,7 @@ const WIKI_SCAN_CATEGORIES = [
 	'Category:Heavy Arms',
 	'Category:Utility',
 	'Category:Medical',
+	'Category:Uniforms',
 	'Category:Vehicles',
 ];
 

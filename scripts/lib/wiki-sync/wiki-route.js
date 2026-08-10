@@ -92,6 +92,10 @@ function routeWikiInfoboxToMaterialFile(parsed) {
 		return { relPath: 'utilities/medical.json', itemCategory: 'medical' };
 	}
 
+	if (cat === 'Uniforms' || itemCat === 'Uniforms' || type.includes('Uniform')) {
+		return { relPath: 'utilities/uniforms.json', itemCategory: 'uniforms' };
+	}
+
 	if (profile === 'Throwable' && type === 'Grenade') {
 		return { relPath: 'infantry_weapons/grenades.json', itemCategory: 'heavy_arms' };
 	}

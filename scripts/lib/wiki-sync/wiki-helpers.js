@@ -30,9 +30,6 @@ function inferWikiTitle(itemName) {
 	if (Object.prototype.hasOwnProperty.call(WIKI_TITLE_OVERRIDES, itemName)) {
 		return WIKI_TITLE_OVERRIDES[itemName];
 	}
-	if (itemName === 'Obus « Fury » de 250 mm') {
-		return '250mm \u201cFury\u201d Shell';
-	}
 	if (itemName === 'Malone Ratcatcher') {
 		return 'Malone Ratcatcher MK.1';
 	}
