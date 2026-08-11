@@ -6,6 +6,7 @@ const {
 	wikiFactionToArray,
 	canonicalInfoboxNameForCatalog,
 	asciiQuotesToCurly,
+	sleep,
 } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
 
 describe('wiki-sync / wiki-helpers', () => {
@@ -79,6 +80,7 @@ describe('wiki-sync / wiki-helpers', () => {
 		it('laisse les autres noms inchangés', () => {
 			expect(canonicalInfoboxNameForCatalog('RPG')).toBe('RPG');
 			expect(canonicalInfoboxNameForCatalog('  trim  ')).toBe('trim');
+			expect(canonicalInfoboxNameForCatalog(null)).toBe('');
 		});
 	});
 
@@ -86,5 +88,21 @@ describe('wiki-sync / wiki-helpers', () => {
 		it('alterne ouverture / fermeture', () => {
 			expect(asciiQuotesToCurly('a "b" c')).toBe('a \u201cb\u201d c');
 		});
+	});
+
+	it('sleep resolves after delay', async () => {
+		jest.useFakeTimers();
+		const p = sleep(100);
+		jest.advanceTimersByTime(100);
+		await expect(p).resolves.toBeUndefined();
+		jest.useRealTimers();
+	});
+
+	it('inferWikiTitle normalise O\'Brien v. en V.', () => {
+		expect(inferWikiTitle('O\'Brien v.I Rifle')).toBe('O\'Brien V.I Rifle');
+	});
+
+	it('inferWikiTitle convertit les guillemets ASCII', () => {
+		expect(inferWikiTitle('6" Gun')).toBe('6\u201c Gun');
 	});
 });

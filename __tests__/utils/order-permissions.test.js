@@ -31,8 +31,36 @@ describe('order-permissions', () => {
 
 	it('canManageBoard: refuse sinon', () => {
 		expect(canManageBoard(interaction({ userId: 'u2' }), { owner_id: 'u1' })).toBe(false);
+		expect(canManageBoard(interaction({ userId: 'u1' }), null)).toBe(false);
+		expect(canManageBoard({ user: null }, { owner_id: 'u1' })).toBe(false);
 	});
 
+	it('canManageLine: ManageGuild sans owner', () => {
+		expect(canManageLine(
+			interaction({ userId: 'mod', manageGuild: true }),
+			{ owner_id: 'other' },
+			{ owner_id: 'board' },
+		)).toBe(true);
+	});
+
+	it('canManageLine refuse sans user', () => {
+		expect(canManageLine({ user: null }, { owner_id: 'x' }, {})).toBe(false);
+	});
+
+	it('hasManagePermissions refuse sans member.permissions', () => {
+		expect(hasManagePermissions({ user: { id: 'x' }, member: {} })).toBe(false);
+	});
+
+	it('hasManagePermissions refuse sans channel pour ManageChannels', () => {
+		expect(hasManagePermissions({
+			user: { id: 'x' },
+			member: {
+				permissions: { has: () => false },
+				permissionsIn: () => ({ has: () => true }),
+			},
+			channel: null,
+		})).toBe(false);
+	});
 	it('canManageLine: owner ligne ou board', () => {
 		const i = interaction({ userId: 'line-owner' });
 		expect(canManageLine(i, { owner_id: 'line-owner' }, { owner_id: 'board' })).toBe(true);

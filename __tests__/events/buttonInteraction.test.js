@@ -36,6 +36,12 @@ describe('buttonInteraction event', () => {
 		expect(interaction.reply).not.toHaveBeenCalled();
 	});
 
+	it('ne fait rien si pas de guild', async () => {
+		const interaction = createInteraction({ guild: null });
+		await buttonInteraction.execute(interaction);
+		expect(mockDefaultButtonError).not.toHaveBeenCalled();
+	});
+
 	it('appelle defaultButtonError si la commande est inconnue', async () => {
 		const interaction = createInteraction();
 		await buttonInteraction.execute(interaction);
@@ -104,6 +110,39 @@ describe('buttonInteraction event', () => {
 		});
 		expect(consoleSpy).toHaveBeenCalled();
 
+		consoleSpy.mockRestore();
+	});
+
+	it('followUp COMMAND_EXECUTE_ERROR si déjà replied/deferred', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const followUp = jest.fn().mockResolvedValue(undefined);
+		const interaction = createInteraction({ replied: true, deferred: false, followUp });
+		interaction.client.buttonCommands.set('test_button', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await buttonInteraction.execute(interaction);
+
+		expect(followUp).toHaveBeenCalledWith({
+			content: 'COMMAND_EXECUTE_ERROR',
+			flags: 64,
+		});
+		consoleSpy.mockRestore();
+	});
+
+	it('log si l\'envoi d\'erreur bouton échoue aussi', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const interaction = createInteraction({
+			reply: jest.fn().mockRejectedValue(new Error('Reply failed')),
+		});
+		interaction.client.buttonCommands.set('test_button', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await buttonInteraction.execute(interaction);
+
+		expect(consoleSpy).toHaveBeenCalledWith(
+			'Failed to send error message to interaction:',
+			expect.any(Error),
+		);
 		consoleSpy.mockRestore();
 	});
 });

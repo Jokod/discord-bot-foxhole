@@ -117,7 +117,7 @@ describe('Order buttons', () => {
 		it('Max remplit jusqu\'à l\'objectif', async () => {
 			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: '3' });
 			mockFillToTarget.mockResolvedValue({
-				line: { name: 'Sticky', current: 100, target: 100 },
+				line: { current: 100, target: 100 },
 				previous: 12,
 				current: 100,
 			});
@@ -125,6 +125,7 @@ describe('Order buttons', () => {
 			await qty.execute(i);
 			expect(mockFillToTarget).toHaveBeenCalledWith('g1', 'b1', '3');
 			expect(mockApplyIncrement).not.toHaveBeenCalled();
+			expect(appendOrderLog).toHaveBeenCalled();
 		});
 
 		it('refuse board closed', async () => {
@@ -139,6 +140,68 @@ describe('Order buttons', () => {
 			const i = base('order_qty|xx|b1');
 			await qty.execute(i);
 			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+		});
+
+		it('refuse board manquant', async () => {
+			mockFindBoard.mockResolvedValue(null);
+			const i = base('order_qty|p1|b1|3');
+			await qty.execute(i);
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_BOARD_NOT_EXIST' }));
+		});
+
+		it('utilise la première ligne si aucune sélection', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: null });
+			OrderLine.findOne.mockReturnValue({
+				sort: () => ({ lean: async () => ({ line_id: '1' }) }),
+			});
+			mockApplyIncrement.mockResolvedValue({
+				line: { name: 'Bmats', current: 2 },
+				previous: 1,
+				current: 2,
+			});
+			const i = base('order_qty|p1|b1|0');
+			await qty.execute(i);
+			expect(mockApplyIncrement).toHaveBeenCalledWith('g1', 'b1', '1', 1);
+		});
+
+		it('refuse sans ligne disponible', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: null });
+			OrderLine.findOne.mockReturnValue({
+				sort: () => ({ lean: async () => null }),
+			});
+			const i = base('order_qty|p1|b1');
+			await qty.execute(i);
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_NO_SELECTION' }));
+		});
+
+		it('followUp si ligne introuvable après increment', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: '3' });
+			mockApplyIncrement.mockResolvedValue(null);
+			const i = base('order_qty|p1|b1|3');
+			await qty.execute(i);
+			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
+				content: 'ORDER_LINE_NOT_EXIST',
+			}));
+		});
+
+		it('ignore le log si quantité inchangée', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: '3' });
+			mockApplyIncrement.mockResolvedValue({
+				line: { name: 'Sticky', current: 5 },
+				previous: 5,
+				current: 5,
+			});
+			const i = base('order_qty|p1|b1|3');
+			await qty.execute(i);
+			expect(appendOrderLog).not.toHaveBeenCalled();
+		});
+
+		it('ignore followUp rejeté si ligne introuvable', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: '3' });
+			mockApplyIncrement.mockResolvedValue(null);
+			const i = base('order_qty|p1|b1|3');
+			i.followUp.mockRejectedValueOnce(new Error('followUp failed'));
+			await expect(qty.execute(i)).resolves.toBeUndefined();
 		});
 	});
 
@@ -158,6 +221,47 @@ describe('Order buttons', () => {
 			expect(mockCyclePriority).toHaveBeenCalledWith('g1', 'b1', '2');
 			expect(mockRefreshDebounced).toHaveBeenCalled();
 		});
+
+		it('refuse customId / board / closed / sans sélection / cycle échoué', async () => {
+			await priority.execute(base('order_priority'));
+			expect(mockTranslate).toHaveBeenCalledWith('INTERACTION_ERROR');
+
+			mockFindBoard.mockResolvedValue(null);
+			await priority.execute(base('order_priority|b1|2'));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_BOARD_NOT_EXIST');
+
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'closed' });
+			await priority.execute(base('order_priority|b1|2'));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_STATUS_CLOSED');
+
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: null });
+			OrderLine.findOne.mockReturnValue({ lean: async () => null });
+			await priority.execute(base('order_priority|b1'));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_NO_SELECTION');
+
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: '2' });
+			OrderLine.findOne.mockReturnValue({
+				lean: async () => ({ line_id: '2', name: 'Bmats', owner_id: 'u1' }),
+			});
+			mockCyclePriority.mockResolvedValue(null);
+			const i = base('order_priority|b1|2');
+			i.followUp.mockRejectedValueOnce(new Error('followUp failed'));
+			await expect(priority.execute(i)).resolves.toBeUndefined();
+		});
+
+		it('cycle avec ligne sans nom', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', selected_line_id: '2' });
+			OrderLine.findOne.mockReturnValue({
+				lean: async () => ({ line_id: '2', owner_id: 'u1' }),
+			});
+			mockCyclePriority.mockResolvedValue({
+				line: {},
+				previous: 'neutral',
+				priority: 'high',
+			});
+			await priority.execute(base('order_priority|b1|2'));
+			expect(appendOrderLog).toHaveBeenCalled();
+		});
 	});
 
 	describe('order_select', () => {
@@ -169,6 +273,19 @@ describe('Order buttons', () => {
 			await selectLine.execute(i);
 			expect(mockSetSelected).toHaveBeenCalledWith(board, '7');
 			expect(mockRefresh).toHaveBeenCalled();
+		});
+
+		it('refuse customId / board / closed', async () => {
+			await selectLine.execute(base('order_select|b1'));
+			expect(mockTranslate).toHaveBeenCalledWith('INTERACTION_ERROR');
+
+			mockFindBoard.mockResolvedValue(null);
+			await selectLine.execute(base('order_select|b1', { values: ['1'] }));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_BOARD_NOT_EXIST');
+
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'closed' });
+			await selectLine.execute(base('order_select|b1', { values: ['1'] }));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_STATUS_CLOSED');
 		});
 	});
 
@@ -192,6 +309,15 @@ describe('Order buttons', () => {
 			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
 				content: 'ORDER_CANNOT_MANAGE_ERROR',
 			}));
+		});
+
+		it('refuse customId / board manquant', async () => {
+			await close.execute(base('order_close'));
+			expect(mockTranslate).toHaveBeenCalledWith('INTERACTION_ERROR');
+
+			mockFindBoard.mockResolvedValue(null);
+			await close.execute(base('order_close|b1'));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_BOARD_NOT_EXIST');
 		});
 	});
 
@@ -227,6 +353,15 @@ describe('Order buttons', () => {
 				content: 'ORDER_CANNOT_MANAGE_ERROR',
 			}));
 		});
+
+		it('refuse customId / board manquant', async () => {
+			await reopen.execute(base('order_reopen'));
+			expect(mockTranslate).toHaveBeenCalledWith('INTERACTION_ERROR');
+
+			mockFindBoard.mockResolvedValue(null);
+			await reopen.execute(base('order_reopen|b1'));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_BOARD_NOT_EXIST');
+		});
 	});
 
 	describe('order_add', () => {
@@ -250,6 +385,19 @@ describe('Order buttons', () => {
 				content: 'ORDER_FULL',
 				flags: 64,
 			}));
+		});
+
+		it('refuse customId / board manquant / closed', async () => {
+			await add.execute(base('order_add'));
+			expect(mockTranslate).toHaveBeenCalledWith('INTERACTION_ERROR');
+
+			mockFindBoard.mockResolvedValue(null);
+			await add.execute(base('order_add|b1'));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_BOARD_NOT_EXIST');
+
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'closed' });
+			await add.execute(base('order_add|b1'));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_STATUS_CLOSED');
 		});
 	});
 });

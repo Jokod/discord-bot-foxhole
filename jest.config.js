@@ -1,6 +1,7 @@
 module.exports = {
 	testEnvironment: 'node',
 	coverageDirectory: 'coverage',
+	coverageReporters: ['text', 'lcov', 'clover', 'json-summary'],
 	collectCoverageFrom: [
 		'utils/**/*.js',
 		'services/**/*.js',
@@ -24,48 +25,10 @@ module.exports = {
 	],
 	coverageThreshold: {
 		global: {
-			branches: 45,
-			functions: 55,
-			lines: 55,
-			statements: 55,
-		},
-		'./services/order/': {
-			branches: 55,
-			functions: 70,
-			lines: 75,
-			statements: 75,
-		},
-		'./interactions/slash/order/': {
-			branches: 70,
+			branches: 90,
 			functions: 90,
 			lines: 90,
 			statements: 90,
-		},
-		'./interactions/embeds/orderBoard.js': {
-			branches: 60,
-			functions: 60,
-			lines: 80,
-			statements: 80,
-		},
-		'./data/models/logistic/orderBoard.js': {
-			lines: 100,
-			statements: 100,
-		},
-		'./data/models/logistic/orderLine.js': {
-			lines: 100,
-			statements: 100,
-		},
-		'./utils/orderBoardSync.js': {
-			branches: 45,
-			functions: 40,
-			lines: 50,
-			statements: 50,
-		},
-		'./scripts/lib/migrate-v2/': {
-			branches: 70,
-			functions: 80,
-			lines: 80,
-			statements: 80,
 		},
 	},
 	setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],

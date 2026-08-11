@@ -15,6 +15,9 @@ const {
 	buildStockpileListEmbed,
 	buildStockpileListComponents,
 	buildStockpileManageComponents,
+	buildStockpileManagePayload,
+	buildStockpileButtonLabel,
+	countStockIds,
 } = require('../../../interactions/embeds/stockpileList.js');
 
 describe('stockpileList embed', () => {
@@ -69,6 +72,147 @@ describe('stockpileList embed', () => {
 			expect(result.embed.data.description).toContain('StockA');
 			expect(result.embed.data.description).toContain('StockB');
 		});
+
+		it('gère plusieurs régions, stocks deleted et owner absent', async () => {
+			const stocks = [
+				{
+					id: '1',
+					region: 'R1',
+					city: 'C1',
+					name: 'Alpha',
+					password: '111111',
+					owner_id: 'user-1',
+					deleted: false,
+					expiresAt: new Date(Date.now() + 86400000),
+				},
+				{
+					id: '2',
+					region: 'R2',
+					city: 'C2',
+					name: 'Beta',
+					password: '222222',
+					owner_id: null,
+					deleted: true,
+					expiresAt: new Date(Date.now() + 86400000),
+				},
+			];
+			const Stockpile = createStockpileMock(stocks);
+			const result = await buildStockpileListEmbed(Stockpile, 'guild-1', { translate: mockTranslate });
+			const description = result.embed.data.description;
+			expect(description).toContain('NONE');
+			expect(description).toContain('~~');
+			expect(description).toContain('R2');
+		});
+
+		it('insère une ligne vide entre deux régions', async () => {
+			const stocks = [
+				{
+					id: '1',
+					region: 'R1',
+					city: 'C1',
+					name: 'A',
+					password: '111111',
+					owner_id: 'u1',
+					deleted: false,
+					expiresAt: new Date(Date.now() + 86400000),
+				},
+				{
+					id: '2',
+					region: 'R2',
+					city: 'C2',
+					name: 'B',
+					password: '222222',
+					owner_id: 'u1',
+					deleted: false,
+					expiresAt: new Date(Date.now() + 86400000),
+				},
+			];
+			const Stockpile = createStockpileMock(stocks);
+			const result = await buildStockpileListEmbed(Stockpile, 'guild-1', { translate: mockTranslate });
+			expect(result.embed.data.description).toContain('R1');
+			expect(result.embed.data.description).toContain('R2');
+		});
+
+		it('regroupe plusieurs villes dans la même région', async () => {
+			const stocks = [
+				{
+					id: '1',
+					region: 'R1',
+					city: 'C1',
+					name: 'A',
+					password: '111111',
+					owner_id: 'u1',
+					deleted: false,
+					expiresAt: new Date(Date.now() + 86400000),
+				},
+				{
+					id: '2',
+					region: 'R1',
+					city: 'C2',
+					name: 'B',
+					password: '222222',
+					owner_id: 'u1',
+					deleted: false,
+					expiresAt: new Date(Date.now() + 86400000),
+				},
+			];
+			const Stockpile = createStockpileMock(stocks);
+			const result = await buildStockpileListEmbed(Stockpile, 'guild-1', { translate: mockTranslate });
+			expect(result.embed.data.description).toContain('C1');
+			expect(result.embed.data.description).toContain('C2');
+		});
+
+		it('accepte expiresAt sous forme de chaîne', async () => {
+			const stocks = [{
+				id: '1',
+				region: 'R1',
+				city: 'C1',
+				name: 'A',
+				password: '111111',
+				owner_id: 'u1',
+				deleted: false,
+				expiresAt: new Date(Date.now() + 86400000).toISOString(),
+			}];
+			const Stockpile = createStockpileMock(stocks);
+			const result = await buildStockpileListEmbed(Stockpile, 'guild-1', { translate: mockTranslate });
+			expect(result.embed.data.description).toContain('A');
+		});
+	});
+
+	describe('buildStockpileButtonLabel', () => {
+		it('retourne #id seul si unique', () => {
+			const counts = countStockIds([{ id: '3', _id: 'abc' }]);
+			expect(buildStockpileButtonLabel({ id: '3', _id: 'abc' }, counts)).toBe('#3');
+		});
+
+		it('retourne #id si absent du map de comptage', () => {
+			const counts = countStockIds([{ id: '3', _id: 'abc' }]);
+			expect(buildStockpileButtonLabel({ id: '99', _id: 'xyz' }, counts)).toBe('#99');
+		});
+
+		it('désambiguïse avec le nom si doublon id', () => {
+			const counts = countStockIds([
+				{ id: '5', _id: '507f1f77bcf86cd799439011', name: 'Alpha' },
+				{ id: '5', _id: '507f1f77bcf86cd799439012', name: 'Bravo' },
+			]);
+			expect(buildStockpileButtonLabel(
+				{ id: '5', _id: '507f1f77bcf86cd799439011', name: 'Alpha' },
+				counts,
+			)).toBe('#5 Alpha');
+		});
+
+		it('désambiguïse avec _id si pas de nom', () => {
+			const counts = countStockIds([
+				{ id: '5', _id: '507f1f77bcf86cd799439011' },
+				{ id: '5', _id: '507f1f77bcf86cd799439012' },
+			]);
+			const label = buildStockpileButtonLabel(
+				{ id: '5', _id: '507f1f77bcf86cd799439011', name: '' },
+				counts,
+			);
+			expect(label).toContain('#5');
+			expect(label).toContain('9011');
+		});
 	});
 
 	describe('buildStockpileListComponents', () => {
@@ -83,6 +227,15 @@ describe('stockpileList embed', () => {
 		it('retourne aucun composant si aucun stock actif', async () => {
 			const result = await buildStockpileListComponents(createComponentsMock([]), 'guild-1', translations);
 
+			expect(result).toEqual([]);
+		});
+
+		it('retourne [] si lean renvoie null', async () => {
+			const result = await buildStockpileListComponents({
+				find: jest.fn().mockReturnValue({
+					lean: jest.fn().mockResolvedValue(null),
+				}),
+			}, 'guild-1', translations);
 			expect(result).toEqual([]);
 		});
 
@@ -156,6 +309,11 @@ describe('stockpileList embed', () => {
 			expect(result[0].components[1].data.custom_id).toBe('stockpile_deleteall');
 		});
 
+		it('fonctionne sans objet translations', async () => {
+			const result = await buildStockpileManageComponents(createComponentsMock([]), 'guild-1');
+			expect(result[0].components[0].data.label).toBe('STOCKPILE_BTN_CLEANUP');
+		});
+
 		it('retourne select remove + rangée admin', async () => {
 			const stocks = [
 				{ _id: '507f1f77bcf86cd799439011', id: '1', name: 'Alpha', server_id: 'guild-1', deleted: false },
@@ -170,6 +328,57 @@ describe('stockpileList embed', () => {
 			expect(result[1].components[1].data.custom_id).toBe('stockpile_deleteall');
 			expect(mockTranslate).toHaveBeenCalledWith('STOCKPILE_BTN_CLEANUP');
 			expect(mockTranslate).toHaveBeenCalledWith('STOCKPILE_BTN_DELETEALL');
+		});
+
+		it('utilise #id comme description si name absent', async () => {
+			const stocks = [
+				{ _id: '507f1f77bcf86cd799439011', id: '7', name: '', server_id: 'guild-1', deleted: false },
+			];
+			const result = await buildStockpileManageComponents(createComponentsMock(stocks), 'guild-1', translations);
+			expect(result[0].components[0].options[0].data.description).toBe('#7');
+		});
+	});
+
+	describe('buildStockpileManagePayload', () => {
+		const createPayloadMock = (allStocks, activeStocks = allStocks.filter((s) => !s.deleted)) => ({
+			deleteMany: mockDeleteMany,
+			find: jest.fn((query) => {
+				if (query?.deleted === false) {
+					return { lean: jest.fn().mockResolvedValue(activeStocks) };
+				}
+				return Promise.resolve(allStocks);
+			}),
+		});
+
+		it('retourne contenu vide si liste non vide', async () => {
+			const stocks = [{
+				_id: '507f1f77bcf86cd799439011',
+				id: '1',
+				region: 'r1',
+				city: 'c1',
+				name: 'Alpha',
+				password: '123456',
+				owner_id: 'u1',
+				deleted: false,
+				expiresAt: new Date(Date.now() + 86400000),
+			}];
+			const Stockpile = createPayloadMock(stocks);
+
+			const result = await buildStockpileManagePayload(Stockpile, 'guild-1', { translate: mockTranslate });
+
+			expect(result.content).toBe('');
+			expect(result.embeds).toHaveLength(1);
+			expect(result.components.length).toBeGreaterThan(0);
+		});
+
+		it('retourne STOCKPILE_LIST_EMPTY si aucun stock actif', async () => {
+			const Stockpile = createPayloadMock([]);
+
+			const result = await buildStockpileManagePayload(Stockpile, 'guild-1', { translate: mockTranslate });
+
+			expect(result.content).toBe('STOCKPILE_LIST_EMPTY');
+			expect(result.embeds).toEqual([]);
+			expect(result.components.length).toBeGreaterThan(0);
 		});
 	});
 });

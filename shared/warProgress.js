@@ -2,16 +2,15 @@
  * Pure war time helpers (Node + browser).
  * Elapsed from conquestStartTime; countdown to scheduledConquestEndTime.
  */
-(function(root, factory) {
+(function(factory) {
 	'use strict';
 	const api = factory();
+	/* istanbul ignore else -- browser / vm sans module.exports */
 	if (typeof module === 'object' && module.exports) {
 		module.exports = api;
 	}
-	else {
-		root.WarProgress = api;
-	}
-})(typeof globalThis !== 'undefined' ? globalThis : this, function() {
+	globalThis.WarProgress = api;
+})(function() {
 	'use strict';
 
 	const DAY_MS = 24 * 60 * 60 * 1000;

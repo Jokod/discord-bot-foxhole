@@ -24,28 +24,31 @@ jest.mock('../../utils/stockpile-permissions.js', () => ({
 
 const mockFindTrackedMessage = jest.fn();
 const mockSaveTrackedMessage = jest.fn().mockResolvedValue(undefined);
+const mockEditTrackedCalls = [];
 jest.mock('../../utils/trackedMessage.js', () => {
 	const find = (...args) => mockFindTrackedMessage(...args);
+	const editTrackedOrFallback = async (opts) => {
+		mockEditTrackedCalls.push(opts);
+		const message = await find(opts.channel, opts.serverId, opts.messageType, { model: opts.model, fallbackMatcher: opts.fallbackMatcher });
+		if (message) {
+			try {
+				await message.edit(opts.editPayload);
+				return { usedFallback: false };
+			}
+			catch {
+				// edit failed, fallback will send
+			}
+		}
+		const sent = await opts.fallbackSend();
+		if (sent?.id) {
+			await mockSaveTrackedMessage(opts.serverId, opts.channel?.id, sent.id, opts.messageType, opts.model);
+		}
+		return { usedFallback: true };
+	};
 	return {
 		findTrackedMessage: find,
 		saveTrackedMessage: (...args) => mockSaveTrackedMessage(...args),
-		editTrackedOrFallback: async (opts) => {
-			const message = await find(opts.channel, opts.serverId, opts.messageType, { model: opts.model, fallbackMatcher: opts.fallbackMatcher });
-			if (message) {
-				try {
-					await message.edit(opts.editPayload);
-					return { usedFallback: false };
-				}
-				catch {
-					// edit failed, fallback will send
-				}
-			}
-			const sent = await opts.fallbackSend();
-			if (sent?.id) {
-				await mockSaveTrackedMessage(opts.serverId, opts.channel?.id, sent.id, opts.messageType, opts.model);
-			}
-			return { usedFallback: true };
-		},
+		editTrackedOrFallback,
 	};
 });
 
@@ -73,6 +76,7 @@ describe('Slash command /stockpile - add|list|manage', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockEditTrackedCalls.length = 0;
 		mockFindTrackedMessage.mockResolvedValue(null);
 		mockCanAccessStockpileManage.mockResolvedValue(true);
 		stockpileCommand = require('../../interactions/slash/stockpile/stockpile.js');
@@ -165,6 +169,54 @@ describe('Slash command /stockpile - add|list|manage', () => {
 			expect(editMock).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
 			expect(interaction.editReply).not.toHaveBeenCalled();
 			expect(interaction.deleteReply).toHaveBeenCalled();
+		});
+
+		it('utilise fallbackMatcher pour retrouver le message liste', async () => {
+			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			const interaction = createInteraction('list');
+			await stockpileCommand.execute(interaction);
+			const opts = mockEditTrackedCalls[0];
+			const matched = opts.fallbackMatcher([{
+				author: { id: 'bot-123' },
+				embeds: [{ title: '🔑 STOCKPILE_LIST_CODES' }],
+			}]);
+			expect(matched).toBeTruthy();
+			expect(opts.fallbackMatcher([])).toBeNull();
+		});
+
+		it('deleteReply ignore les erreurs quand message existant édité', async () => {
+			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			const editMock = jest.fn().mockResolvedValue(undefined);
+			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
+			const interaction = createInteraction('list');
+			interaction.deleteReply.mockRejectedValueOnce(new Error('delete failed'));
+			await expect(stockpileCommand.execute(interaction)).resolves.toBeUndefined();
+			expect(editMock).toHaveBeenCalled();
+		});
+
+		it('list vide via editTrackedOrFallback fallbackSend', async () => {
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+			const interaction = createInteraction('list');
+			await stockpileCommand.execute(interaction);
+			const opts = mockEditTrackedCalls[0];
+			await opts.fallbackSend();
+			expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({
+				content: 'STOCKPILE_LIST_EMPTY',
+			}));
+		});
+
+		it('list non vide exécute fallbackSend', async () => {
+			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
+			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			const interaction = createInteraction('list');
+			await stockpileCommand.execute(interaction);
+			const opts = mockEditTrackedCalls[0];
+			await opts.fallbackSend();
+			expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({
+				embeds: [fakeEmbed],
+			}));
 		});
 	});
 

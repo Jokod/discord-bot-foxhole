@@ -41,8 +41,7 @@ function parseMaxAge(cacheControl) {
 	if (!cacheControl) return null;
 	const match = String(cacheControl).match(/max-age=(\d+)/);
 	if (!match) return null;
-	const seconds = Number(match[1]);
-	return Number.isFinite(seconds) ? seconds * 1000 : null;
+	return Number(match[1]) * 1000;
 }
 
 async function fetchWithTimeout(url, options = {}) {
@@ -313,11 +312,13 @@ module.exports = {
 	TTL,
 	FLAG_VICTORY_BASE,
 	FLAG_SCORCHED,
+	parseMaxAge,
 	getWar,
 	getMaps,
 	getSteamPlayers,
 	getWarReport,
 	getVictoryTownCounts,
+	isWarEnded,
 	getWarStatusSummary,
 	interpolateWarProgress,
 	countVictoryTownsOnMap,

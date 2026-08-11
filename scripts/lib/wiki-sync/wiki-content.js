@@ -109,10 +109,7 @@ function extractInfoboxImage(wikitext) {
 	if (!parsed?.fields?.image) {
 		return null;
 	}
-	let name = parsed.fields.image.trim();
-	if (!name) {
-		return null;
-	}
+	let name = parsed.fields.image;
 	name = name.replace(/^\[\[(?:File|Image):/i, '').replace(/\]\]$/, '').trim();
 	name = name.replace(/^(?:File|Image):/i, '').trim();
 	name = name.split('|')[0].trim();

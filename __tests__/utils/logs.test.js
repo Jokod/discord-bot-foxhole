@@ -7,13 +7,15 @@ describe('Logs utility', () => {
 	});
 
 	function createInteraction() {
+		const logsMap = new Map();
 		return {
-			client: { logs: new Map() },
+			client: { logs: logsMap },
 			guild: { id: 'guild-123' },
 			member: { guild: { id: 'guild-123', name: 'Test Guild' } },
 			user: { id: 'user-456', username: 'TestUser' },
 			type: 2,
 			message: { type: 1, content: 'test content' },
+			logsMap,
 		};
 	}
 
@@ -68,6 +70,24 @@ describe('Logs utility', () => {
 		logs.clear();
 
 		expect(writeFileSyncSpy).toHaveBeenCalledWith(expect.stringContaining('guild-123'), '', 'utf-8');
+		writeFileSyncSpy.mockRestore();
+	});
+
+	it('constructor crée le répertoire et le fichier log s ils n existent pas', () => {
+		const fs = require('fs');
+		const existsSyncSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+		const mkdirSyncSpy = jest.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
+		const writeFileSyncSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => undefined);
+		const interaction = createInteraction();
+
+		new Logs(interaction);
+
+		expect(mkdirSyncSpy).toHaveBeenCalledWith(expect.any(String), { recursive: true });
+		expect(writeFileSyncSpy).toHaveBeenCalledWith(expect.stringContaining('guild-123'), '', 'utf-8');
+		expect(interaction.logsMap.has('guild-123')).toBe(true);
+
+		existsSyncSpy.mockRestore();
+		mkdirSyncSpy.mockRestore();
 		writeFileSyncSpy.mockRestore();
 	});
 });

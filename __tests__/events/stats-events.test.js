@@ -127,6 +127,186 @@ describe('Stats events', () => {
 			expect(execute).toHaveBeenCalled();
 			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
 		});
+
+		it('should return early when interaction is not a chat input command', async () => {
+			jest.resetModules();
+			const slashCreate = require('../../events/slashCreate.js');
+			const interaction = {
+				isChatInputCommand: () => false,
+				client: { slashCommands: new Map() },
+			};
+
+			await slashCreate.execute(interaction);
+			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
+		});
+
+		it('should return early when command is not found', async () => {
+			jest.resetModules();
+			const { Server } = require('../../data/models.js');
+			Server.findOne = jest.fn().mockResolvedValue({});
+			const slashCreate = require('../../events/slashCreate.js');
+			const interaction = {
+				isChatInputCommand: () => true,
+				guild: { id: 'guild-123' },
+				commandName: 'missing',
+				client: { slashCommands: new Map() },
+				reply: jest.fn(),
+			};
+
+			await slashCreate.execute(interaction);
+			expect(interaction.reply).not.toHaveBeenCalled();
+			expect(mockStatsFindOneAndUpdate).not.toHaveBeenCalled();
+		});
+
+		it('should reply SERVER_IS_NOT_INIT when command.init and no server', async () => {
+			jest.resetModules();
+			const { Server } = require('../../data/models.js');
+			Server.findOne = jest.fn().mockResolvedValue(null);
+			const slashCreate = require('../../events/slashCreate.js');
+			const interaction = {
+				isChatInputCommand: () => true,
+				guild: { id: 'guild-123' },
+				commandName: 'order',
+				client: {
+					slashCommands: new Map([
+						['order', { execute: jest.fn(), init: true }],
+					]),
+				},
+				reply: jest.fn().mockResolvedValue(undefined),
+			};
+
+			await slashCreate.execute(interaction);
+			expect(interaction.reply).toHaveBeenCalledWith({
+				content: 'SERVER_IS_NOT_INIT',
+				flags: 64,
+			});
+		});
+
+		it('should followUp COMMAND_EXECUTE_ERROR when command throws after defer', async () => {
+			jest.resetModules();
+			const { Server, Stats } = require('../../data/models.js');
+			Server.findOne = jest.fn().mockResolvedValue({});
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			const slashCreate = require('../../events/slashCreate.js');
+			const execute = jest.fn().mockRejectedValue(new Error('Boom'));
+			const followUp = jest.fn().mockResolvedValue(undefined);
+			const interaction = {
+				isChatInputCommand: () => true,
+				guild: { id: 'guild-123', name: 'G', createdAt: new Date(), memberCount: 1 },
+				commandName: 'help',
+				replied: false,
+				deferred: true,
+				reply: jest.fn(),
+				followUp,
+				client: {
+					slashCommands: new Map([
+						['help', { execute, init: false }],
+					]),
+				},
+			};
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			await slashCreate.execute(interaction);
+
+			expect(followUp).toHaveBeenCalledWith({
+				content: 'COMMAND_EXECUTE_ERROR',
+				flags: 64,
+			});
+			consoleSpy.mockRestore();
+		});
+
+		it('should reply COMMAND_EXECUTE_ERROR when command throws before reply', async () => {
+			jest.resetModules();
+			const { Server, Stats } = require('../../data/models.js');
+			Server.findOne = jest.fn().mockResolvedValue({});
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			const slashCreate = require('../../events/slashCreate.js');
+			const execute = jest.fn().mockRejectedValue(new Error('Boom'));
+			const reply = jest.fn().mockResolvedValue(undefined);
+			const interaction = {
+				isChatInputCommand: () => true,
+				guild: { id: 'guild-123', name: 'G', createdAt: new Date(), memberCount: 1 },
+				commandName: 'help',
+				replied: false,
+				deferred: false,
+				reply,
+				followUp: jest.fn(),
+				client: {
+					slashCommands: new Map([
+						['help', { execute, init: false }],
+					]),
+				},
+			};
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			await slashCreate.execute(interaction);
+
+			expect(reply).toHaveBeenCalledWith({
+				content: 'COMMAND_EXECUTE_ERROR',
+				flags: 64,
+			});
+			consoleSpy.mockRestore();
+		});
+
+		it('should log when error reply also fails', async () => {
+			jest.resetModules();
+			const { Server } = require('../../data/models.js');
+			Server.findOne = jest.fn().mockResolvedValue({});
+			const slashCreate = require('../../events/slashCreate.js');
+			const execute = jest.fn().mockRejectedValue(new Error('Boom'));
+			const reply = jest.fn().mockRejectedValue(new Error('Reply failed'));
+			const interaction = {
+				isChatInputCommand: () => true,
+				guild: { id: 'guild-123' },
+				commandName: 'help',
+				replied: false,
+				deferred: false,
+				reply,
+				followUp: jest.fn(),
+				client: {
+					slashCommands: new Map([
+						['help', { execute, init: false }],
+					]),
+				},
+			};
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			await slashCreate.execute(interaction);
+
+			expect(consoleSpy).toHaveBeenCalledWith(
+				'Failed to send error message to interaction:',
+				expect.any(Error),
+			);
+			consoleSpy.mockRestore();
+		});
+
+		it('should default member_count to 0 when guild.memberCount is undefined', async () => {
+			jest.resetModules();
+			const { Server, Stats } = require('../../data/models.js');
+			Server.findOne = jest.fn().mockResolvedValue({});
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+
+			const slashCreate = require('../../events/slashCreate.js');
+			const interaction = {
+				isChatInputCommand: () => true,
+				guild: {
+					id: 'guild-123',
+					name: 'My Server',
+					createdAt: new Date(),
+					memberCount: undefined,
+				},
+				commandName: 'help',
+				client: {
+					slashCommands: new Map([
+						['help', { execute: jest.fn().mockResolvedValue(undefined), init: false }],
+					]),
+				},
+			};
+
+			await slashCreate.execute(interaction);
+
+			expect(mockStatsFindOneAndUpdate.mock.calls[0][1][0].$set.member_count).toBe(0);
+		});
 	});
 
 	describe('guildCreate', () => {
@@ -549,6 +729,232 @@ describe('Stats events', () => {
 			expect(mockCleanupGuildData).toHaveBeenCalledWith(
 				'guild-a',
 				expect.objectContaining({ reason: 'blocked_guild_on_ready', markLeftAt: true, guildName: 'Server A' }),
+			);
+		});
+
+		it('should log when leaving blocked guild fails on ready', async () => {
+			jest.resetModules();
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.distinct = mockStatsDistinct;
+			Server.distinct = jest.fn().mockResolvedValue([]);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
+
+			const leave = jest.fn().mockRejectedValue(new Error('leave failed'));
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						['guild-a', {
+							id: 'guild-a',
+							name: 'Server A',
+							createdAt: new Date(),
+							memberCount: 1,
+							members: { me: null },
+							leave,
+						}],
+					]),
+				},
+			};
+
+			const prev = process.env.BLOCKED_GUILD_IDS;
+			process.env.BLOCKED_GUILD_IDS = 'guild-a';
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			const onReady = require('../../events/onReady.js');
+			await onReady.execute(client);
+			process.env.BLOCKED_GUILD_IDS = prev;
+
+			expect(leave).toHaveBeenCalled();
+			expect(consoleSpy).toHaveBeenCalledWith(
+				'[Blocked] Impossible de quitter le serveur guild-a:',
+				'leave failed',
+			);
+			consoleSpy.mockRestore();
+		});
+
+		it('should log stockpile and order board sync failures on ready', async () => {
+			jest.resetModules();
+			const { syncAllStockpileLists } = require('../../utils/stockpileListSync.js');
+			const { syncAllOrderBoards } = require('../../utils/orderBoardSync.js');
+			syncAllStockpileLists.mockRejectedValueOnce(new Error('stockpile fail'));
+			syncAllOrderBoards.mockRejectedValueOnce(new Error('orderboard fail'));
+
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: { cache: new Map() },
+			};
+
+			await onReady.execute(client);
+			await new Promise((resolve) => { setTimeout(resolve, 0); });
+			await new Promise((resolve) => { setTimeout(resolve, 0); });
+
+			expect(consoleSpy).toHaveBeenCalledWith(
+				'[StockpileList] Échec de la synchronisation au démarrage:',
+				expect.any(Error),
+			);
+			expect(consoleSpy).toHaveBeenCalledWith(
+				'[OrderBoard] Échec de la synchronisation au démarrage:',
+				expect.any(Error),
+			);
+			consoleSpy.mockRestore();
+		});
+
+		it('should log when syncAllOrderBoards module is unavailable', async () => {
+			jest.resetModules();
+			jest.doMock('../../utils/orderBoardSync.js', () => {
+				throw new Error('module missing');
+			});
+
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: { cache: new Map() },
+			};
+
+			await onReady.execute(client);
+
+			expect(consoleSpy).toHaveBeenCalledWith(
+				'[OrderBoard] syncAllOrderBoards indisponible:',
+				'module missing',
+			);
+			consoleSpy.mockRestore();
+			jest.dontMock('../../utils/orderBoardSync.js');
+		});
+
+		it('should log purged stats count when records were removed', async () => {
+			jest.resetModules();
+			mockPurgeEmptyStatsRecords.mockResolvedValue(3);
+			const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: { cache: new Map() },
+			};
+
+			await onReady.execute(client);
+
+			expect(consoleSpy).toHaveBeenCalledWith('[Stats] 3 fiche(s) Stats sans nom supprimée(s).');
+			consoleSpy.mockRestore();
+		});
+
+		it('should include owner_id in stats upsert when available', async () => {
+			jest.resetModules();
+			const { Stats } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						['guild-owner', {
+							id: 'guild-owner',
+							name: 'Owner Server',
+							createdAt: new Date(),
+							memberCount: 10,
+							ownerId: 'owner-999',
+							members: { me: { joinedAt: new Date() } },
+						}],
+					]),
+				},
+			};
+
+			await onReady.execute(client);
+
+			expect(mockStatsFindOneAndUpdate).toHaveBeenCalledWith(
+				{ guild_id: 'guild-owner' },
+				expect.objectContaining({
+					$set: expect.objectContaining({ owner_id: 'owner-999' }),
+				}),
+				{ upsert: true, returnDocument: 'after' },
+			);
+		});
+
+		it('should log orphaned guild cleanup count', async () => {
+			jest.resetModules();
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.distinct = mockStatsDistinct;
+			Server.distinct = jest.fn().mockResolvedValue(['orphan-1']);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
+			mockStatsDistinct.mockResolvedValue([]);
+			mockStatsFind.mockResolvedValueOnce([{ guild_id: 'orphan-1', name: 'Orphan' }]);
+
+			const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+			const onReady = require('../../events/onReady.js');
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: { cache: new Map() },
+			};
+
+			await onReady.execute(client);
+
+			expect(consoleSpy).toHaveBeenCalledWith('[Stats] 1 serveur(s) orphelin(s) nettoyé(s) au démarrage.');
+			consoleSpy.mockRestore();
+		});
+
+		it('should use guild id fallback and member_count 0 for blocked guild without name/count', async () => {
+			jest.resetModules();
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.distinct = mockStatsDistinct;
+			Server.distinct = jest.fn().mockResolvedValue([]);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
+
+			const leave = jest.fn().mockResolvedValue(undefined);
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						['guild-a', {
+							id: 'guild-a',
+							name: null,
+							createdAt: new Date(),
+							memberCount: undefined,
+							members: { me: null },
+							leave,
+						}],
+					]),
+				},
+			};
+
+			const prev = process.env.BLOCKED_GUILD_IDS;
+			process.env.BLOCKED_GUILD_IDS = 'guild-a';
+			const onReady = require('../../events/onReady.js');
+			await onReady.execute(client);
+			process.env.BLOCKED_GUILD_IDS = prev;
+
+			expect(mockCleanupGuildData).toHaveBeenCalledWith(
+				'guild-a',
+				expect.objectContaining({ guildName: 'guild-a' }),
+			);
+			expect(mockStatsFindOneAndUpdate).toHaveBeenCalledWith(
+				{ guild_id: 'guild-a' },
+				expect.objectContaining({
+					$set: expect.objectContaining({ member_count: 0 }),
+				}),
+				{ upsert: true, returnDocument: 'after' },
 			);
 		});
 	});

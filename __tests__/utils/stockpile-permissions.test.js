@@ -59,6 +59,10 @@ describe('stockpile-permissions', () => {
 				{ owner_id: 'owner-1' },
 			)).toBe(false);
 		});
+
+		it('refuse sans user', () => {
+			expect(canManageStockpile({ user: null }, { owner_id: 'owner-1' })).toBe(false);
+		});
 	});
 
 	describe('canAccessStockpileManage', () => {
@@ -83,6 +87,21 @@ describe('stockpile-permissions', () => {
 		it('refuse sans dépôt ni perms', async () => {
 			const Stockpile = { exists: jest.fn().mockResolvedValue(null) };
 			await expect(canAccessStockpileManage(createInteraction(), Stockpile)).resolves.toBe(false);
+		});
+
+		it('refuse sans guild ou user', async () => {
+			const Stockpile = { exists: jest.fn() };
+			await expect(canAccessStockpileManage({
+				user: { id: 'u1' },
+				guild: null,
+				member: { permissions: { has: () => false } },
+			}, Stockpile)).resolves.toBe(false);
+			await expect(canAccessStockpileManage({
+				user: null,
+				guild: { id: 'guild-1' },
+				member: { permissions: { has: () => false } },
+			}, Stockpile)).resolves.toBe(false);
+			expect(Stockpile.exists).not.toHaveBeenCalled();
 		});
 	});
 });

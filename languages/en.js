@@ -118,7 +118,9 @@ module.exports = {
 	SERVER_SET_CAMP_REPLY: 'The server camp has been changed to **%camp%**.',
 	SERVER_SET_LOGS_ON_REPLY: 'Order board Logs threads are now **enabled**. New boards will create a locked Logs thread.',
 	SERVER_SET_LOGS_OFF_REPLY: 'Order board Logs threads are now **disabled**. Existing Logs threads have been deleted.',
-	SERVER_RESET_PREVIEW: 'Reset preview — would remove **%boards%** order board(s), **%stockpiles%** stockpile(s), **%operations%** operation(s). Run again with **confirm:true** to proceed.',
+	SERVER_RESET_PREVIEW: 'This will remove **%boards%** order board(s), **%stockpiles%** stockpile(s), **%operations%** operation(s). Irreversible — confirm or cancel below.',
+	SERVER_RESET_WAR_WARNING: '⚠ **War #%war% is still ongoing** (day %day%). Resetting now will wipe live war data.',
+	SERVER_RESET_CANCELLED: 'Server reset cancelled. Nothing was deleted.',
 	SERVER_RESET_SUCCESS: 'Server reset done — **%boards%** order board(s), **%stockpiles%** stockpile(s), **%operations%** operation(s) removed. Server config and notifications were kept.',
 
 	// OPERATION ---------------------------------------------

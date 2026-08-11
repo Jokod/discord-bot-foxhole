@@ -25,6 +25,20 @@ const { routeWikiInfoboxToMaterialFile } = require('./wiki-route');
 const { fetchCategoryPageTitles, fetchWikitextForTitles } = require('./wiki-client');
 const { loadAllMaterialFiles, writeMaterialFile } = require('./materials-store');
 
+/**
+ * Persist in-memory material groups touched during add-missing.
+ * @param {Iterable<string>} modifiedPaths
+ * @param {Array<{ filePath: string, materials: object[] }>} fileGroups
+ */
+function flushModifiedMaterialFiles(modifiedPaths, fileGroups) {
+	for (const fp of modifiedPaths) {
+		const group = fileGroups.find(g => g.filePath === fp);
+		if (!group) continue;
+		const sorted = writeMaterialFile(fp, group.materials);
+		group.materials.splice(0, group.materials.length, ...sorted);
+	}
+}
+
 async function runAddMissing(dryRun, materialsRoot, fileGroups) {
 	const existingItemNames = new Set();
 	const knownWikiTitles = new Set();
@@ -168,13 +182,7 @@ async function runAddMissing(dryRun, materialsRoot, fileGroups) {
 	}
 
 	if (!dryRun) {
-		for (const fp of modifiedPaths) {
-			const group = fileGroups.find(g => g.filePath === fp);
-			if (group) {
-				const sorted = writeMaterialFile(fp, group.materials);
-				group.materials.splice(0, group.materials.length, ...sorted);
-			}
-		}
+		flushModifiedMaterialFiles(modifiedPaths, fileGroups);
 	}
 
 	if (addedCount === 0) {
@@ -226,4 +234,5 @@ async function runAddMissing(dryRun, materialsRoot, fileGroups) {
 
 module.exports = {
 	runAddMissing,
+	flushModifiedMaterialFiles,
 };

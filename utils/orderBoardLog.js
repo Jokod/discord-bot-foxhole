@@ -66,7 +66,7 @@ async function resolveLogThread(client, board) {
 	const channel = await client.channels.fetch(board.log_thread_id).catch(() => null);
 	if (!channel || !channel.isThread?.()) {
 		await OrderBoard.updateOne({ _id: board._id }, { log_thread_id: null }).catch(() => undefined);
-		if (board.log_thread_id) board.log_thread_id = null;
+		board.log_thread_id = null;
 		return null;
 	}
 	if (channel.archived) {
@@ -105,7 +105,7 @@ async function deleteOrderLogThread(client, board) {
 	if (thread?.delete) {
 		await thread.delete('Order board log removed').catch(() => undefined);
 	}
-	else if (typeof client.channels.delete === 'function') {
+	if (!thread?.delete && typeof client.channels.delete === 'function') {
 		await client.channels.delete(threadId, 'Order board log removed').catch(() => undefined);
 	}
 	board.log_thread_id = null;

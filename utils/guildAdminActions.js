@@ -290,12 +290,16 @@ async function broadcastToGuilds(guildIds, message, options = {}) {
 				guild_id: guildId,
 				name,
 				status: 'fail',
-				detail: lastErr || 'all channels rejected',
+				detail: broadcastFailDetail(lastErr),
 			});
 		}
 	}
 
 	return { results, dry_run: dryRun };
+}
+
+function broadcastFailDetail(lastErr) {
+	return lastErr || 'all channels rejected';
 }
 
 module.exports = {
@@ -308,4 +312,5 @@ module.exports = {
 	blacklistGuilds,
 	unblacklistGuilds,
 	broadcastToGuilds,
+	broadcastFailDetail,
 };

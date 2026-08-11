@@ -164,7 +164,7 @@ module.exports = {
 					inline: true,
 				});
 			}
-			if (summary.elapsed) {
+			if (summary.elapsed?.days != null) {
 				embed.addFields({
 					name: translations.translate('FOXHOLE_WAR_ELAPSED'),
 					value: formatElapsed(summary.elapsed, translations, 'FOXHOLE_WAR_ELAPSED_VALUE'),

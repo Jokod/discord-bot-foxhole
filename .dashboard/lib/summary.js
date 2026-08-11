@@ -212,11 +212,13 @@ function createLoadSummary(envPath) {
 
 		const lineProgress = orderlines.reduce(
 			(acc, line) => {
-				acc.target += line.target || 0;
-				acc.current += line.current || 0;
-				acc.by_priority[line.priority || 'neutral'] =
-					(acc.by_priority[line.priority || 'neutral'] || 0) + 1;
-				const done = (line.target || 0) > 0 && (line.current || 0) >= (line.target || 0);
+				const target = line.target || 0;
+				const current = line.current || 0;
+				const priority = line.priority || 'neutral';
+				acc.target += target;
+				acc.current += current;
+				acc.by_priority[priority] = (acc.by_priority[priority] || 0) + 1;
+				const done = target > 0 && current >= target;
 				if (done) acc.complete += 1;
 				return acc;
 			},

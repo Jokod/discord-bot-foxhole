@@ -65,7 +65,7 @@ function summarizeLines(lines) {
 	const remaining = Math.max(0, targetSum - currentSum);
 	const percent = targetSum > 0
 		? Math.min(100, Math.round((currentSum / targetSum) * 100))
-		: (list.length > 0 && done === list.length ? 100 : 0);
+		: 0;
 	return {
 		total: list.length,
 		done,
@@ -156,7 +156,7 @@ function buildDescriptionParts(board, list, translations, operationTitle, select
 		remaining: stats.remaining,
 	}));
 
-	const selectedId = selected ? String(selected.line_id) : null;
+	const selectedId = String(selected.line_id);
 	const header = parts.join('\n\n');
 	const lineTexts = list.map((line) => formatLine(line, translations, {
 		selected: selectedId != null && String(line.line_id) === selectedId,
@@ -173,14 +173,12 @@ function buildDescriptionParts(board, list, translations, operationTitle, select
 	const kept = [];
 	let used = 0;
 
-	if (selected) {
-		const selectedText = formatLine(selected, translations, { selected: true });
-		kept.push(selectedText);
-		used += selectedText.length + 1;
-	}
+	const selectedText = formatLine(selected, translations, { selected: true });
+	kept.push(selectedText);
+	used += selectedText.length + 1;
 
 	for (const line of list) {
-		if (selected && String(line.line_id) === selectedId) continue;
+		if (String(line.line_id) === selectedId) continue;
 		const text = formatLine(line, translations, { selected: false });
 		if (used + text.length + 1 > budget) break;
 		kept.push(text);

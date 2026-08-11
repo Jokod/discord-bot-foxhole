@@ -70,7 +70,8 @@ function createRequestHandler(deps) {
 
 	return async function requestHandler(req, res) {
 		const method = req.method || 'GET';
-		const urlPath = (req.url || '/').split('?')[0];
+		const rawUrl = req.url || '/';
+		const urlPath = rawUrl.split('?')[0];
 
 		if (urlPath === '/api/health' && method === 'GET') {
 			return sendJson(res, 200, { ok: true });
@@ -176,7 +177,7 @@ function createRequestHandler(deps) {
 			return sendJson(res, 200, summary);
 		}
 		if (urlPath === '/api/contacts' && method === 'GET') {
-			const force = (req.url || '').includes('force=1');
+			const force = rawUrl.includes('force=1');
 			return sendJson(res, 200, await loadContacts({ force }));
 		}
 		if (urlPath === '/api/materials' && method === 'GET') {

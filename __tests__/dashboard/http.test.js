@@ -190,6 +190,7 @@ describe('dashboard http helpers', () => {
 		expect(res2.statusCode).toBe(404);
 		joinSpy2.mockRestore();
 	});
+
 	it('readJsonBody parses, rejects invalid json and oversized body', async () => {
 		const empty = Readable.from([]);
 		await expect(helpers.readJsonBody(empty)).resolves.toEqual({});

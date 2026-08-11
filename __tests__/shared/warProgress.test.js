@@ -4,6 +4,8 @@ const {
 	interpolateWarProgress,
 	remainingUntil,
 	formatDurationParts,
+	splitDuration,
+	DAY_MS,
 } = require('../../shared/warProgress');
 
 describe('warProgress', () => {
@@ -64,5 +66,81 @@ describe('warProgress', () => {
 			m: '07',
 			s: '09',
 		});
+	});
+
+	it('interpolateWarProgress returns nulls without start', () => {
+		expect(interpolateWarProgress(null)).toMatchObject({
+			elapsedMs: null,
+			dayOfWar: null,
+			ended: false,
+		});
+		expect(interpolateWarProgress('bad')).toMatchObject({ dayOfWar: null });
+	});
+
+	it('remainingUntil returns expired for invalid target', () => {
+		expect(remainingUntil(null)).toMatchObject({
+			totalMs: null,
+			expired: true,
+			days: null,
+		});
+		expect(remainingUntil(Number.NaN)).toMatchObject({ expired: true });
+	});
+
+	it('formatDurationParts returns dashes for empty parts', () => {
+		expect(formatDurationParts(null)).toEqual({ d: '—', h: '—', m: '—', s: '—' });
+		expect(formatDurationParts({ days: null })).toEqual({ d: '—', h: '—', m: '—', s: '—' });
+	});
+
+	it('splitDuration clamp negative ms', () => {
+		expect(splitDuration(-1000)).toMatchObject({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+	});
+
+	it('interpolateWarProgress ended false si conquestEndTime 0', () => {
+		const start = Date.UTC(2026, 0, 1);
+		const progress = interpolateWarProgress(start, 0, start + DAY_MS);
+		expect(progress.ended).toBe(false);
+	});
+
+	it('expose WarProgress sans module.exports si exports null', () => {
+		const fs = require('fs');
+		const vm = require('vm');
+		const src = fs.readFileSync(require.resolve('../../shared/warProgress.js'), 'utf8');
+		const sandbox = { module: { exports: null }, globalThis: {} };
+		sandbox.globalThis = sandbox;
+		vm.runInNewContext(src, sandbox);
+		expect(typeof sandbox.WarProgress.interpolateWarProgress).toBe('function');
+	});
+
+	it('expose WarProgress sans module.exports si exports absent', () => {
+		const fs = require('fs');
+		const vm = require('vm');
+		const src = fs.readFileSync(require.resolve('../../shared/warProgress.js'), 'utf8');
+		const sandbox = { module: {}, globalThis: {} };
+		sandbox.globalThis = sandbox;
+		vm.runInNewContext(src, sandbox);
+		expect(typeof sandbox.WarProgress.interpolateWarProgress).toBe('function');
+		expect(sandbox.module.exports).toBeUndefined();
+	});
+
+	it('expose WarProgress sur globalThis sans module.exports', () => {
+		const fs = require('fs');
+		const vm = require('vm');
+		const src = fs.readFileSync(require.resolve('../../shared/warProgress.js'), 'utf8');
+		const sandbox = { globalThis: {} };
+		sandbox.globalThis = sandbox;
+		vm.runInNewContext(src, sandbox);
+		expect(typeof sandbox.WarProgress.splitDuration).toBe('function');
+		expect(typeof sandbox.globalThis.WarProgress.splitDuration).toBe('function');
+	});
+
+	it('expose WarProgress via module.exports en contexte Node', () => {
+		const fs = require('fs');
+		const vm = require('vm');
+		const src = fs.readFileSync(require.resolve('../../shared/warProgress.js'), 'utf8');
+		const sandbox = { module: { exports: {} }, globalThis: {} };
+		sandbox.globalThis = sandbox;
+		vm.runInNewContext(src, sandbox);
+		expect(typeof sandbox.module.exports.interpolateWarProgress).toBe('function');
+		expect(typeof sandbox.WarProgress.interpolateWarProgress).toBe('function');
 	});
 });

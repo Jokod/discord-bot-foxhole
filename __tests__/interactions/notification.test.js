@@ -191,5 +191,33 @@ describe('Slash command /notify', () => {
 				expect.objectContaining({ content: 'NOTIFICATION_LIST_EMPTY', flags: 64 }),
 			);
 		});
+
+		it('utilise le type brut si nameKey introuvable', async () => {
+			NotificationSubscription.find.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([
+					{ notification_type: 'stockpile_activity', channel_id: 'ch-1' },
+				]),
+			});
+			const originalFind = Array.prototype.find;
+			function isNotificationTypesList(list) {
+				return Array.isArray(list)
+					&& list.length === 2
+					&& list.every((entry) => typeof entry?.value === 'string');
+			}
+			const findSpy = jest.spyOn(Array.prototype, 'find').mockImplementation(function(predicate) {
+				if (isNotificationTypesList(this)) return undefined;
+				return originalFind.call(this, predicate);
+			});
+			const interaction = createInteraction('list');
+			await notificationCommand.execute(interaction);
+			findSpy.mockRestore();
+			expect(interaction.reply.mock.calls[0][0].content).toContain('**stockpile_activity**:');
+		});
+	});
+
+	it('ne fait rien pour une sous-commande inconnue', async () => {
+		const interaction = createInteraction('unknown');
+		await notificationCommand.execute(interaction);
+		expect(interaction.reply).not.toHaveBeenCalled();
 	});
 });

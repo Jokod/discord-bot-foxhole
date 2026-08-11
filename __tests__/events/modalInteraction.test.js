@@ -86,4 +86,24 @@ describe('modalInteraction event', () => {
 		expect(interaction.reply).not.toHaveBeenCalled();
 		consoleSpy.mockRestore();
 	});
+
+	it('ne fait rien hors guild pour modal', async () => {
+		const interaction = createInteraction({ guild: null, isModalSubmit: () => true });
+		await modalInteraction.execute(interaction);
+		expect(mockDefaultModalError).not.toHaveBeenCalled();
+	});
+
+	it('log si followUp/reply échoue après erreur commande', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const interaction = createInteraction({
+			reply: jest.fn().mockRejectedValue(new Error('reply fail')),
+		});
+		interaction.client.modalCommands.set('test_modal', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await modalInteraction.execute(interaction);
+
+		expect(consoleSpy).toHaveBeenCalledWith('Failed to send error message to interaction:', expect.any(Error));
+		consoleSpy.mockRestore();
+	});
 });

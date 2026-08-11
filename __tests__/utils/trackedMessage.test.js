@@ -127,6 +127,78 @@ describe('utils/trackedMessage', () => {
 			expect(result).toBeNull();
 			expect(TrackedMessage.findOneAndUpdate).not.toHaveBeenCalled();
 		});
+		it('retourne null si fetch messages échoue sans fallback', async () => {
+			const channel = {
+				id: 'ch-1',
+				isTextBased: () => true,
+				messages: { fetch: jest.fn().mockRejectedValue(new Error('network')) },
+			};
+			TrackedMessage.findOne.mockResolvedValue(null);
+
+			const result = await findTrackedMessage(channel, 'guild-1', 'stockpile_list', {
+				model: TrackedMessage,
+				fallbackMatcher: jest.fn(),
+			});
+
+			expect(result).toBeNull();
+		});
+
+		it('continue si deleteOne échoue après message supprimé', async () => {
+			const channel = {
+				id: 'ch-1',
+				isTextBased: () => true,
+				messages: {
+					fetch: jest.fn()
+						.mockRejectedValueOnce(new Error('Unknown Message'))
+						.mockResolvedValue([]),
+				},
+			};
+			TrackedMessage.findOne.mockResolvedValue({ message_id: 'gone', _id: 'doc-1' });
+			TrackedMessage.deleteOne.mockRejectedValueOnce(new Error('db fail'));
+
+			const result = await findTrackedMessage(channel, 'guild-1', 'stockpile_list', {
+				model: TrackedMessage,
+				fallbackMatcher: jest.fn(() => null),
+			});
+
+			expect(result).toBeNull();
+			expect(TrackedMessage.deleteOne).toHaveBeenCalled();
+		});
+
+		it('retourne null si fetch message réussit sans message', async () => {
+			const channel = {
+				id: 'ch-1',
+				isTextBased: () => true,
+				messages: { fetch: jest.fn().mockResolvedValue(null) },
+			};
+			TrackedMessage.findOne.mockResolvedValue({ message_id: 'missing', _id: 'doc-1' });
+
+			const result = await findTrackedMessage(channel, 'guild-1', 'stockpile_list', {
+				model: TrackedMessage,
+				fallbackMatcher: jest.fn(() => null),
+			});
+
+			expect(result).toBeNull();
+		});
+
+		it('ignore findOneAndUpdate si upsert fallback échoue', async () => {
+			const fakeMessage = { id: 'msg-789' };
+			const channel = {
+				id: 'ch-1',
+				isTextBased: () => true,
+				messages: { fetch: jest.fn().mockResolvedValue([fakeMessage]) },
+			};
+			TrackedMessage.findOne.mockResolvedValue(null);
+			TrackedMessage.findOneAndUpdate.mockRejectedValueOnce(new Error('db fail'));
+			const fallbackMatcher = jest.fn(() => fakeMessage);
+
+			const result = await findTrackedMessage(channel, 'guild-1', 'stockpile_list', {
+				model: TrackedMessage,
+				fallbackMatcher,
+			});
+
+			expect(result).toBe(fakeMessage);
+		});
 	});
 
 	describe('saveTrackedMessage', () => {
@@ -148,6 +220,11 @@ describe('utils/trackedMessage', () => {
 				{ server_id: 'guild-1', channel_id: 'ch-1', message_type: 'stockpile_list', message_id: 'msg-123' },
 				{ upsert: true },
 			);
+		});
+		it('ignore findOneAndUpdate si save échoue', async () => {
+			TrackedMessage.findOneAndUpdate.mockRejectedValueOnce(new Error('db fail'));
+			await expect(saveTrackedMessage('guild-1', 'ch-1', 'msg-123', 'stockpile_list', TrackedMessage))
+				.resolves.toBeUndefined();
 		});
 	});
 
@@ -227,6 +304,28 @@ describe('utils/trackedMessage', () => {
 
 			expect(editMock).toHaveBeenCalled();
 			expect(fallbackSend).toHaveBeenCalled();
+		});
+
+		it('ne sauvegarde pas si fallbackSend ne retourne pas d\'id', async () => {
+			TrackedMessage.findOne.mockResolvedValue(null);
+			const channel = {
+				id: 'ch-1',
+				isTextBased: () => true,
+				messages: { fetch: jest.fn().mockResolvedValue([]) },
+			};
+			const fallbackSend = jest.fn().mockResolvedValue(undefined);
+
+			const result = await editTrackedOrFallback({
+				channel,
+				serverId: 'guild-1',
+				messageType: 'stockpile_list',
+				model: TrackedMessage,
+				editPayload: { content: 'test' },
+				fallbackSend,
+			});
+
+			expect(result.usedFallback).toBe(true);
+			expect(TrackedMessage.findOneAndUpdate).not.toHaveBeenCalled();
 		});
 	});
 });

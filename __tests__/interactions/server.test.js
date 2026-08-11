@@ -15,11 +15,15 @@ jest.mock('../../utils/orderBoardLog.js', () => ({
 	ensureAllOrderLogThreads: jest.fn().mockResolvedValue({ created: 0, skipped: 0 }),
 }));
 
-const mockResetServerWarData = jest.fn().mockResolvedValue({ boards: 1, stockpiles: 2, operations: 3 });
 const mockPreviewServerWarData = jest.fn().mockResolvedValue({ boards: 1, stockpiles: 2, operations: 3 });
 jest.mock('../../utils/serverReset.js', () => ({
-	resetServerWarData: (...args) => mockResetServerWarData(...args),
 	previewServerWarData: (...args) => mockPreviewServerWarData(...args),
+	resetServerWarData: jest.fn(),
+}));
+
+const mockGetWarStatusSummary = jest.fn();
+jest.mock('../../utils/foxholeWarApi.js', () => ({
+	getWarStatusSummary: (...args) => mockGetWarStatusSummary(...args),
 }));
 
 describe('Slash command /server', () => {
@@ -30,8 +34,8 @@ describe('Slash command /server', () => {
 	beforeEach(() => {
 		jest.resetModules();
 		jest.clearAllMocks();
-		mockResetServerWarData.mockResolvedValue({ boards: 1, stockpiles: 2, operations: 3 });
 		mockPreviewServerWarData.mockResolvedValue({ boards: 1, stockpiles: 2, operations: 3 });
+		mockGetWarStatusSummary.mockResolvedValue({ available: false });
 		serverCommand = require('../../interactions/slash/server/server.js');
 		({ deleteAllOrderLogThreads, ensureAllOrderLogThreads } = require('../../utils/orderBoardLog.js'));
 	});
@@ -65,6 +69,11 @@ describe('Slash command /server', () => {
 		expect(subcommands.some((opt) => opt.name === 'camp')).toBe(true);
 		expect(subcommands.some((opt) => opt.name === 'logs')).toBe(true);
 		expect(subcommands.some((opt) => opt.name === 'reset')).toBe(true);
+	});
+
+	it('reset n\'a plus d\'option confirm', () => {
+		const reset = serverCommand.data.options.find((opt) => opt.name === 'reset');
+		expect(reset.options ?? []).toHaveLength(0);
 	});
 
 	it('répond SERVER_IS_NOT_INIT si le serveur n\'existe pas', async () => {
@@ -171,42 +180,81 @@ describe('Slash command /server', () => {
 
 	it('subcommand reset: refuse sans permission', async () => {
 		mockServerFindOne.mockResolvedValue({ guild_id: 'guild-123', lang: 'en', camp: 'warden' });
-		const interaction = createInteraction('reset', { confirm: true, canManage: false });
+		const interaction = createInteraction('reset', { canManage: false });
 
 		await serverCommand.execute(interaction);
 
-		expect(mockResetServerWarData).not.toHaveBeenCalled();
+		expect(mockPreviewServerWarData).not.toHaveBeenCalled();
 		expect(interaction.reply).toHaveBeenCalledWith({
 			content: 'NO_PERMS',
 			flags: 64,
 		});
 	});
 
-	it('subcommand reset: aperçu si confirm false', async () => {
+	it('subcommand reset: aperçu + boutons sans alerte war si guerre inactive', async () => {
 		mockServerFindOne.mockResolvedValue({ guild_id: 'guild-123', lang: 'en', camp: 'warden' });
-		const interaction = createInteraction('reset', { confirm: false });
+		mockGetWarStatusSummary.mockResolvedValue({ available: true, ended: true, warNumber: 120, dayOfWar: 40 });
+		const interaction = createInteraction('reset');
 
 		await serverCommand.execute(interaction);
 
-		expect(mockResetServerWarData).not.toHaveBeenCalled();
 		expect(mockPreviewServerWarData).toHaveBeenCalledWith('guild-123');
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: expect.stringContaining('SERVER_RESET_PREVIEW'),
-			flags: 64,
-		});
+		const payload = interaction.reply.mock.calls[0][0];
+		expect(payload.content).toContain('SERVER_RESET_PREVIEW');
+		expect(payload.content).not.toContain('SERVER_RESET_WAR_WARNING');
+		expect(payload.flags).toBe(64);
+		expect(payload.components).toHaveLength(1);
+		const buttons = payload.components[0].components;
+		expect(buttons).toHaveLength(2);
+		expect(buttons[0].data.custom_id).toBe('server_reset_confirm');
+		expect(buttons[1].data.custom_id).toBe('server_reset_cancel');
 	});
 
-	it('subcommand reset: wipe si confirm true', async () => {
+	it('subcommand reset: alerte war si guerre en cours', async () => {
 		mockServerFindOne.mockResolvedValue({ guild_id: 'guild-123', lang: 'en', camp: 'warden' });
-		const interaction = createInteraction('reset', { confirm: true });
+		mockGetWarStatusSummary.mockResolvedValue({
+			available: true,
+			ended: false,
+			warNumber: 126,
+			dayOfWar: 8,
+		});
+		const interaction = createInteraction('reset');
 
 		await serverCommand.execute(interaction);
 
-		expect(interaction.deferReply).toHaveBeenCalledWith({ flags: 64 });
-		expect(mockResetServerWarData).toHaveBeenCalledWith(interaction.client, 'guild-123');
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: expect.stringContaining('SERVER_RESET_SUCCESS'),
+		const payload = interaction.reply.mock.calls[0][0];
+		expect(payload.content).toContain('SERVER_RESET_WAR_WARNING');
+		expect(payload.content).toContain('SERVER_RESET_PREVIEW');
+		expect(payload.components).toHaveLength(1);
+	});
+
+	it('subcommand reset: utilise ? si dayOfWar absent', async () => {
+		mockServerFindOne.mockResolvedValue({ guild_id: 'guild-123', lang: 'en', camp: 'warden' });
+		mockGetWarStatusSummary.mockResolvedValue({
+			available: true,
+			ended: false,
+			warNumber: 126,
 		});
+		const interaction = createInteraction('reset');
+
+		await serverCommand.execute(interaction);
+
+		const payload = interaction.reply.mock.calls[0][0];
+		expect(payload.content).toContain('SERVER_RESET_WAR_WARNING');
+		expect(payload.content).toContain('"day":"?"');
+	});
+
+	it('subcommand reset: ignore l\'erreur war API et affiche l\'aperçu', async () => {
+		mockServerFindOne.mockResolvedValue({ guild_id: 'guild-123', lang: 'en', camp: 'warden' });
+		mockGetWarStatusSummary.mockRejectedValue(new Error('war api down'));
+		const interaction = createInteraction('reset');
+
+		await serverCommand.execute(interaction);
+
+		const payload = interaction.reply.mock.calls[0][0];
+		expect(payload.content).toContain('SERVER_RESET_PREVIEW');
+		expect(payload.content).not.toContain('SERVER_RESET_WAR_WARNING');
+		expect(payload.components).toHaveLength(1);
 	});
 
 	it('répond COMMAND_UNKNOWN pour un subcommand inconnu', async () => {

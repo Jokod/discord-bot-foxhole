@@ -11,6 +11,10 @@ describe('shared/customId', () => {
 		it('retire les | des parties', () => {
 			expect(encode('p', 'a|b', 'c')).toBe(`p${SEP}ab${SEP}c`);
 		});
+
+		it('encode null/undefined parts as empty', () => {
+			expect(encode('p', null, undefined)).toBe(`p${SEP}${SEP}`);
+		});
 	});
 
 	describe('decode', () => {

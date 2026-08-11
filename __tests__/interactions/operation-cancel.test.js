@@ -24,15 +24,20 @@ describe('Operation cancel button', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockDeleteBoardsByOperation.mockResolvedValue([]);
 
 		interaction = {
 			client: { traductions: new Map() },
 			guild: { id: 'guild-1' },
 			user: { id: 'owner-1' },
 			message: { id: 'op-msg-1', delete: jest.fn().mockResolvedValue(undefined) },
-			deferReply: jest.fn().mockResolvedValue(undefined),
+			deferReply: jest.fn().mockImplementation(async () => {
+				interaction.deferred = true;
+			}),
 			editReply: jest.fn().mockResolvedValue(undefined),
 			reply: jest.fn().mockResolvedValue(undefined),
+			replied: false,
+			deferred: false,
 		};
 	});
 
@@ -88,6 +93,45 @@ describe('Operation cancel button', () => {
 		expect(mockOperationDeleteOne).not.toHaveBeenCalled();
 		expect(interaction.reply).toHaveBeenCalledWith(
 			expect.objectContaining({ content: 'OPERATION_NOT_EXIST', flags: 64 }),
+		);
+	});
+
+	it('répond CANCELED_ERROR si une erreur survient avant defer', async () => {
+		mockOperationFindOne.mockRejectedValue(new Error('db down'));
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await cancelHandler.execute(interaction);
+
+		err.mockRestore();
+		expect(interaction.reply).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'OPERATION_CANCELED_ERROR', flags: 64 }),
+		);
+	});
+
+	it('editReply CANCELED_ERROR si erreur après defer', async () => {
+		mockOperationFindOne.mockResolvedValue({ owner_id: 'owner-1', title: 'Op Test' });
+		mockDeleteBoardsByOperation.mockRejectedValue(new Error('delete failed'));
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await cancelHandler.execute(interaction);
+
+		err.mockRestore();
+		expect(interaction.deferReply).toHaveBeenCalled();
+		expect(interaction.editReply).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'OPERATION_CANCELED_ERROR' }),
+		);
+	});
+
+	it('ignore message.delete rejeté', async () => {
+		mockOperationFindOne.mockResolvedValue({ owner_id: 'owner-1', title: 'Op Test' });
+		interaction.message.delete.mockRejectedValueOnce(new Error('delete msg failed'));
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await cancelHandler.execute(interaction);
+
+		err.mockRestore();
+		expect(interaction.editReply).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'OPERATION_CANCELED_SUCCESS' }),
 		);
 	});
 });

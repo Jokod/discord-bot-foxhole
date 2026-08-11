@@ -31,35 +31,27 @@ module.exports = {
 
 		let triggered = false;
 
-		message.client.triggers.every((trigger) => {
-			if (triggered) return false;
+		for (const trigger of message.client.triggers) {
+			if (triggered) break;
 
-			trigger.name.every(async (name) => {
-				if (triggered) return false;
+			for (const name of trigger.name) {
+				if (!message.content.includes(name)) continue;
 
-				// If validated, it will try to execute the trigger.
-
-				if (message.content.includes(name)) {
-					try {
-						trigger.execute(message, args);
-					}
-					catch (error) {
-						// If triggereds fail, reply back!
-
-						console.error(error);
-
-						const translations = new Translate(message.client, message.guild.id);
-						message.reply({
-							content: translations.translate('COMMAND_EXECUTE_ERROR'),
-						});
-					}
-
-					// Set the trigger to be true & return.
-
-					triggered = true;
-					return false;
+				try {
+					trigger.execute(message, args);
 				}
-			});
-		});
+				catch (error) {
+					console.error(error);
+
+					const translations = new Translate(message.client, message.guild.id);
+					message.reply({
+						content: translations.translate('COMMAND_EXECUTE_ERROR'),
+					});
+				}
+
+				triggered = true;
+				break;
+			}
+		}
 	},
 };

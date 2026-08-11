@@ -40,6 +40,12 @@ describe('utils/discord.js', () => {
 		it('returns em dash for invalid input', () => {
 			expect(discordTs(null)).toBe('—');
 			expect(discordTs(0)).toBe('—');
+			expect(discordTs(Number.NaN)).toBe('—');
+		});
+
+		it('accepte une instance Date', () => {
+			const d = new Date(1_700_000_000_000);
+			expect(discordTs(d)).toBe('<t:1700000000:F>');
 		});
 	});
 
@@ -67,6 +73,8 @@ describe('utils/discord.js', () => {
 		it('returns em dash when elapsed or key missing', () => {
 			expect(formatElapsed(null, translations, 'K')).toBe('—');
 			expect(formatElapsed({ days: 1, hours: 0, minutes: 0 }, translations, '')).toBe('—');
+			expect(formatElapsed({ days: 1, hours: 0, minutes: 0 }, null, 'K')).toBe('—');
+			expect(formatElapsed({ hours: 0, minutes: 0 }, translations, 'K')).toBe('—');
 		});
 	});
 });

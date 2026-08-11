@@ -35,14 +35,14 @@ function routeHeavyAmmo(fields) {
 	if (type === 'Torpedo' || chassis.includes('Torpedo')) {
 		return { relPath: 'ammunition/misc_ammo.json', itemCategory: 'heavy_arms' };
 	}
+	if (chassis.includes('Anti-Air Machine Gun')) {
+		return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
+	}
 	if (chassis.includes('Anti-Aircraft') || chassis.includes('Anti-Air')) {
 		if (type === 'Magazine' || dmg === 'shrapnel') {
 			return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
 		}
 		return { relPath: 'ammunition/tank_ammo.json', itemCategory: 'heavy_arms' };
-	}
-	if (chassis.includes('Anti-Air Machine Gun')) {
-		return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };
 	}
 	if (dmg === 'shrapnel' && type === 'Magazine') {
 		return { relPath: 'ammunition/aircraft_ammo.json', itemCategory: 'heavy_arms' };

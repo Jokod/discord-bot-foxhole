@@ -53,7 +53,7 @@ const PRIORITY_EMBED_COLOR = {
  * @returns {string}
  */
 function getPriorityColoredText(priority, text) {
-	const arrow = PRIORITY_ARROW[normalizePriority(priority)] ?? PRIORITY_ARROW[PRIORITY_NEUTRAL];
+	const arrow = PRIORITY_ARROW[normalizePriority(priority)];
 	return `${arrow} ${text}`;
 }
 
@@ -63,7 +63,7 @@ function getPriorityColoredText(priority, text) {
  * @returns {number}
  */
 function getPriorityEmbedColor(priority) {
-	return PRIORITY_EMBED_COLOR[normalizePriority(priority)] ?? PRIORITY_EMBED_COLOR[PRIORITY_NEUTRAL];
+	return PRIORITY_EMBED_COLOR[normalizePriority(priority)];
 }
 
 /**
@@ -71,7 +71,7 @@ function getPriorityEmbedColor(priority) {
  * @returns {string} emoji
  */
 function getPriorityArrow(priority) {
-	return PRIORITY_ARROW[normalizePriority(priority)] ?? PRIORITY_ARROW[PRIORITY_NEUTRAL];
+	return PRIORITY_ARROW[normalizePriority(priority)];
 }
 
 /** Cycle low → neutral → high → low */
@@ -93,7 +93,7 @@ const PRIORITY_SORT_RANK = {
  * @returns {number}
  */
 function getPrioritySortRank(priority) {
-	return PRIORITY_SORT_RANK[normalizePriority(priority)] ?? 1;
+	return PRIORITY_SORT_RANK[normalizePriority(priority)];
 }
 
 module.exports = {

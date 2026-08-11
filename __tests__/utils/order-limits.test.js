@@ -31,4 +31,9 @@ describe('order-limits', () => {
 		expect(isOrderBoardFull(49)).toBe(false);
 		expect(isOrderBoardFull(50)).toBe(true);
 	});
+
+	it('chunkLinesForSelects retourne [] pour null/undefined', () => {
+		expect(chunkLinesForSelects(null)).toEqual([]);
+		expect(chunkLinesForSelects(undefined)).toEqual([]);
+	});
 });

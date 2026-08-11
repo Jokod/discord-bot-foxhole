@@ -1,8 +1,17 @@
-const { EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	EmbedBuilder,
+	SlashCommandBuilder,
+	PermissionFlagsBits,
+} = require('discord.js');
 const { Server } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { deleteAllOrderLogThreads, ensureAllOrderLogThreads } = require('../../../utils/orderBoardLog.js');
-const { previewServerWarData, resetServerWarData } = require('../../../utils/serverReset.js');
+const { previewServerWarData } = require('../../../utils/serverReset.js');
+const { getWarStatusSummary } = require('../../../utils/foxholeWarApi.js');
+const { encode } = require('../../../shared/customId.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -149,24 +158,9 @@ module.exports = {
 					fr: 'Effacer tableaux de commandes, stocks et opérations pour une nouvelle guerre (Gérer le serveur).',
 					ru: 'Удалить доски заказов, склады и операции для новой войны (Управлять сервером).',
 					'zh-CN': '为新战争清空订单面板、库存与行动（需要管理服务器）。',
-				})
-				.addBooleanOption((option) =>
-					option
-						.setName('confirm')
-						.setNameLocalizations({
-							fr: 'confirmer',
-							ru: 'подтвердить',
-							'zh-CN': '确认',
-						})
-						.setDescription('Must be true to run the reset. Irreversible.')
-						.setDescriptionLocalizations({
-							fr: 'Doit être true pour lancer le reset. Irréversible.',
-							ru: 'Должно быть true, чтобы выполнить сброс. Необратимо.',
-							'zh-CN': '必须为 true 才会执行重置。不可撤销。',
-						})
-						.setRequired(true),
-				),
+				}),
 		),
+
 	async execute(interaction) {
 		const guild = interaction.member.guild;
 		const subcommand = interaction.options.getSubcommand();
@@ -259,27 +253,39 @@ module.exports = {
 				});
 			}
 
-			const confirmed = interaction.options.getBoolean('confirm');
-			if (!confirmed) {
-				const preview = await previewServerWarData(guild.id);
-				return interaction.reply({
-					content: translations.translate('SERVER_RESET_PREVIEW', {
-						boards: preview.boards,
-						stockpiles: preview.stockpiles,
-						operations: preview.operations,
-					}),
-					flags: 64,
-				});
-			}
+			const [preview, war] = await Promise.all([
+				previewServerWarData(guild.id),
+				getWarStatusSummary().catch(() => ({ available: false })),
+			]);
 
-			await interaction.deferReply({ flags: 64 });
-			const counts = await resetServerWarData(interaction.client, guild.id);
-			return interaction.editReply({
-				content: translations.translate('SERVER_RESET_SUCCESS', {
-					boards: counts.boards,
-					stockpiles: counts.stockpiles,
-					operations: counts.operations,
-				}),
+			const previewText = translations.translate('SERVER_RESET_PREVIEW', {
+				boards: preview.boards,
+				stockpiles: preview.stockpiles,
+				operations: preview.operations,
+			});
+			const warActive = Boolean(war?.available && !war.ended);
+			const content = warActive
+				? `${translations.translate('SERVER_RESET_WAR_WARNING', {
+					war: war.warNumber,
+					day: war.dayOfWar ?? '?',
+				})}\n\n${previewText}`
+				: previewText;
+
+			const row = new ActionRowBuilder().addComponents(
+				new ButtonBuilder()
+					.setCustomId(encode('server_reset_confirm'))
+					.setLabel(translations.translate('CONFIRM'))
+					.setStyle(ButtonStyle.Danger),
+				new ButtonBuilder()
+					.setCustomId(encode('server_reset_cancel'))
+					.setLabel(translations.translate('CANCEL'))
+					.setStyle(ButtonStyle.Secondary),
+			);
+
+			return interaction.reply({
+				content,
+				components: [row],
+				flags: 64,
 			});
 		}
 		default:

@@ -1,6 +1,7 @@
 # Discord Bot for Foxhole
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Jokod/discord-bot-foxhole/integration.yaml?branch=main&label=CI)](https://github.com/Jokod/discord-bot-foxhole/actions/workflows/integration.yaml)
+[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FJokod%2Fdiscord-bot-foxhole%2Fmain%2Fbadges%2Fcoverage.json)](docs/TESTING.md)
 [![GHCR](https://img.shields.io/badge/ghcr.io-jokod%2Ffoxbot-blue?logo=docker&label=image)](https://github.com/Jokod/discord-bot-foxhole/pkgs/container/foxbot)
 [![Version](https://img.shields.io/github/package-json/v/Jokod/discord-bot-foxhole?label=version)](https://github.com/Jokod/discord-bot-foxhole)
 [![License](https://img.shields.io/github/license/Jokod/discord-bot-foxhole)](LICENSE)

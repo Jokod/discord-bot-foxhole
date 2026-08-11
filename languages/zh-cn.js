@@ -118,7 +118,9 @@ module.exports = {
 	SERVER_SET_CAMP_REPLY: '服务器阵营已更改为**%camp%**。',
 	SERVER_SET_LOGS_ON_REPLY: '订单面板日志讨论串已**启用**。新建面板将创建只读日志讨论串。',
 	SERVER_SET_LOGS_OFF_REPLY: '订单面板日志讨论串已**禁用**。现有日志讨论串已删除。',
-	SERVER_RESET_PREVIEW: '重置预览 — 将删除 **%boards%** 个订单面板、**%stockpiles%** 个库存、**%operations%** 个行动。请再次运行并设置 **确认:true**。',
+	SERVER_RESET_PREVIEW: '将删除 **%boards%** 个订单面板、**%stockpiles%** 个库存、**%operations%** 个行动。不可撤销 — 请在下方确认或取消。',
+	SERVER_RESET_WAR_WARNING: '⚠ **战争 #%war% 仍在进行**（第 %day% 天）。现在重置会清除当前战争数据。',
+	SERVER_RESET_CANCELLED: '已取消服务器重置。未删除任何内容。',
 	SERVER_RESET_SUCCESS: '服务器重置完成 — 已删除 **%boards%** 个订单面板、**%stockpiles%** 个库存、**%operations%** 个行动。服务器配置与通知已保留。',
 
 	// OPERATION ---------------------------------------------

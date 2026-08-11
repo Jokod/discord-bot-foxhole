@@ -32,6 +32,12 @@ describe('selectInteraction event', () => {
 		expect(mockDefaultSelectError).not.toHaveBeenCalled();
 	});
 
+	it('ne fait rien si pas de guild', async () => {
+		const interaction = createInteraction({ guild: null });
+		await selectInteraction.execute(interaction);
+		expect(mockDefaultSelectError).not.toHaveBeenCalled();
+	});
+
 	it('appelle defaultSelectError si commande inconnue', async () => {
 		const interaction = createInteraction();
 		await selectInteraction.execute(interaction);
@@ -68,6 +74,36 @@ describe('selectInteraction event', () => {
 		await selectInteraction.execute(interaction);
 
 		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		consoleSpy.mockRestore();
+	});
+
+	it('followUp COMMAND_EXECUTE_ERROR si déjà replied/deferred', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const followUp = jest.fn().mockResolvedValue(undefined);
+		const interaction = createInteraction({ replied: false, deferred: true, followUp });
+		interaction.client.selectCommands.set('select_material', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await selectInteraction.execute(interaction);
+
+		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		consoleSpy.mockRestore();
+	});
+
+	it('log si l\'envoi d\'erreur select échoue aussi', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const interaction = createInteraction({
+			reply: jest.fn().mockRejectedValue(new Error('Reply failed')),
+		});
+		interaction.client.selectCommands.set('select_material', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await selectInteraction.execute(interaction);
+
+		expect(consoleSpy).toHaveBeenCalledWith(
+			'Failed to send error message to interaction:',
+			expect.any(Error),
+		);
 		consoleSpy.mockRestore();
 	});
 });

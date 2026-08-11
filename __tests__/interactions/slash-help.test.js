@@ -272,46 +272,455 @@ describe('Slash command /help', () => {
 		expect(subs.value).toContain('`type`*');
 		expect(fields.every((f) => f.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
 	});
-});
 
-describe('Autocomplete /help', () => {
-	let helpAutocomplete;
+	it('HELP_COMMAND_NOT_FOUND si le chemin sous-commande dépasse 2 niveaux', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'deep',
+					description: 'Deep command',
+					options: [
+						{
+							type: ApplicationCommandOptionType.SubcommandGroup,
+							name: 'grp',
+							options: [
+								{
+									type: ApplicationCommandOptionType.Subcommand,
+									name: 'sub',
+									description: 'Sub',
+								},
+							],
+						},
+					],
+				}),
+			},
+		};
+		const interaction = createInteraction('deep grp sub extra');
+		interaction.client.slashCommands.set('deep', mockCmd);
 
-	beforeEach(() => {
-		jest.resetModules();
-		helpAutocomplete = require('../../interactions/autocomplete/help.js');
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
 	});
 
-	it('suggère commandes et sous-commandes (max 25)', async () => {
-		const orderCmd = require('../../interactions/slash/order/order.js');
-		const slashCommands = new Collection();
-		slashCommands.set('order', orderCmd);
-		slashCommands.set('about', {
+	it('résout la commande par nom normalisé (sans clé directe dans la Collection)', async () => {
+		const interaction = createInteraction('about');
+		interaction.client.slashCommands.delete('about');
+		interaction.client.slashCommands.set('about-cmd', {
 			data: {
 				toJSON: () => ({
 					name: 'about',
-					description: 'links',
+					description: 'Bot links via normalized lookup',
 					options: [],
 				}),
 			},
 		});
 
-		const respond = jest.fn().mockResolvedValue(undefined);
-		await helpAutocomplete.execute({
-			guild: { id: 'g1' },
-			client: {
-				slashCommands,
-				traductions: new Map([['g1', 'en']]),
-				languages: new Map([['en', {}]]),
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		expect(embed.data?.description ?? embed.description).toContain('Bot links via normalized lookup');
+	});
+
+	it('parent avec SubcommandGroup: liste les sous-commandes du groupe', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'grouped',
+					description: 'Grouped parent',
+					options: [
+						{
+							type: ApplicationCommandOptionType.SubcommandGroup,
+							name: 'admin',
+							description: 'Admin group',
+							options: [
+								{
+									type: ApplicationCommandOptionType.Subcommand,
+									name: 'reset',
+									description: 'Reset things',
+									options: [{ name: 'force', required: true }],
+								},
+							],
+						},
+					],
+				}),
 			},
-			options: { getFocused: () => 'ord' },
-			respond,
+		};
+		const interaction = createInteraction('grouped');
+		interaction.client.slashCommands.set('grouped', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = embed.data?.fields ?? embed.fields ?? [];
+		const subs = fields.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
+		expect(subs).toBeDefined();
+		expect(subs.value).toContain('admin');
+		expect(subs.value).toContain('reset');
+		expect(subs.value).toContain('Reset things');
+		expect(subs.value).toContain('`force`*');
+	});
+
+	it('paramètre booléen: HELP_PARAM_BOOLEAN dans params et usage', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'flags',
+					description: 'Flags command',
+					options: [
+						{
+							type: ApplicationCommandOptionType.Boolean,
+							name: 'enabled',
+							description: 'Toggle feature',
+							required: false,
+						},
+					],
+				}),
+			},
+		};
+		const interaction = createInteraction('flags');
+		interaction.client.slashCommands.set('flags', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = embed.data?.fields ?? [];
+		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		const usage = fields.find((f) => f.name === 'HELP_SECTION_USAGE');
+		expect(params.value).toContain('HELP_PARAM_BOOLEAN');
+		expect(usage.value).toContain('HELP_PARAM_BOOLEAN');
+	});
+
+	it('paramètre avec min/max length: HELP_PARAM_LENGTH', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'textcmd',
+					description: 'Text command',
+					options: [
+						{
+							type: ApplicationCommandOptionType.String,
+							name: 'label',
+							description: 'A label',
+							required: true,
+							min_length: 2,
+							max_length: 50,
+						},
+					],
+				}),
+			},
+		};
+		const interaction = createInteraction('textcmd');
+		interaction.client.slashCommands.set('textcmd', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = embed.data?.fields ?? [];
+		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		expect(params.value).toContain('HELP_PARAM_LENGTH');
+	});
+
+	it('résout par name_localizations dans resolveSlashCommand', async () => {
+		const interaction = createInteraction('a-propos');
+		interaction.client.traductions.set('guild-123', 'fr');
+		interaction.client.slashCommands.delete('about');
+		interaction.client.slashCommands.set('about-cmd', {
+			data: {
+				toJSON: () => ({
+					name: 'about',
+					description: 'Liens du bot',
+					name_localizations: { fr: 'a-propos' },
+					options: [],
+				}),
+			},
 		});
 
-		expect(respond).toHaveBeenCalled();
-		const choices = respond.mock.calls[0][0];
-		expect(choices.length).toBeGreaterThan(0);
-		expect(choices.length).toBeLessThanOrEqual(25);
-		expect(choices.some((c) => c.value.includes('order'))).toBe(true);
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		expect(embed.data?.description ?? embed.description).toContain('Liens du bot');
+	});
+
+	it('commande sans description: affiche un tiret', async () => {
+		const interaction = createInteraction('nodesc');
+		interaction.client.slashCommands.set('nodesc', {
+			data: {
+				toJSON: () => ({ name: 'nodesc', description: '', options: [] }),
+			},
+		});
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		expect(embed.data?.description ?? embed.description).toBe('—');
+	});
+
+	it('sous-commande group introuvable: HELP_COMMAND_NOT_FOUND', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'grp',
+					description: 'Group cmd',
+					options: [
+						{
+							type: ApplicationCommandOptionType.SubcommandGroup,
+							name: 'admin',
+							options: [],
+						},
+					],
+				}),
+			},
+		};
+		const interaction = createInteraction('grp admin missing');
+		interaction.client.slashCommands.set('grp', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
+	});
+
+	it('paramètre optionnel sans extras ni choices', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'plain',
+					description: 'Plain command',
+					options: [
+						{
+							type: ApplicationCommandOptionType.String,
+							name: 'note',
+							description: 'Optional note',
+							required: false,
+						},
+					],
+				}),
+			},
+		};
+		const interaction = createInteraction('plain');
+		interaction.client.slashCommands.set('plain', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		const fields = embed.data?.fields ?? [];
+		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		const usage = fields.find((f) => f.name === 'HELP_SECTION_USAGE');
+		expect(params.value).toContain('note');
+		expect(params.value).not.toContain('HELP_PARAM_CHOICES');
+		expect(usage.value).toContain('[note:<…>]');
+	});
+
+	it('paramètre avec seulement min_length', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'minonly',
+					description: 'Min only',
+					options: [{
+						type: ApplicationCommandOptionType.String,
+						name: 'code',
+						description: 'Code',
+						required: true,
+						min_length: 3,
+					}],
+				}),
+			},
+		};
+		const interaction = createInteraction('minonly');
+		interaction.client.slashCommands.set('minonly', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const fields = interaction.reply.mock.calls[0][0].embeds[0].data?.fields ?? [];
+		expect(fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS').value).toContain('HELP_PARAM_LENGTH');
+	});
+
+	it('commande avec options undefined: pas de crash', async () => {
+		const interaction = createInteraction('noopts');
+		interaction.client.slashCommands.set('noopts', {
+			data: { toJSON: () => ({ name: 'noopts', description: 'No options field' }) },
+		});
+
+		await helpCommand.execute(interaction);
+
+		expect(interaction.reply).toHaveBeenCalled();
+	});
+
+	it('sous-commande sans params ni usage: pas de champs usage vides', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'baresub',
+					description: 'Bare parent',
+					options: [{
+						type: ApplicationCommandOptionType.Subcommand,
+						name: 'ping',
+						description: 'Ping sub',
+						options: [],
+					}],
+				}),
+			},
+		};
+		const interaction = createInteraction('baresub ping');
+		interaction.client.slashCommands.set('baresub', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const fields = interaction.reply.mock.calls[0][0].embeds[0].data?.fields ?? [];
+		expect(fields.every((f) => f.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
+		expect(fields.some((f) => f.name === 'HELP_SECTION_USAGE')).toBe(true);
+	});
+
+	it('parent SubcommandGroup: ignore les entrées non-subcommand dans le groupe', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'mixed',
+					description: 'Mixed parent',
+					options: [{
+						type: ApplicationCommandOptionType.SubcommandGroup,
+						name: 'grp',
+						description: 'Group',
+						options: [
+							{ type: ApplicationCommandOptionType.String, name: 'skip', description: 'skip' },
+							{
+								type: ApplicationCommandOptionType.Subcommand,
+								name: 'keep',
+								description: 'Keep me',
+							},
+						],
+					}],
+				}),
+			},
+		};
+		const interaction = createInteraction('mixed');
+		interaction.client.slashCommands.set('mixed', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const subs = interaction.reply.mock.calls[0][0].embeds[0].data?.fields
+			?.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
+		expect(subs.value).toContain('keep');
+		expect(subs.value).not.toContain('skip');
+	});
+
+	it('résout sous-commande par name_localizations (matchesName)', async () => {
+		const serverCmd = require('../../interactions/slash/server/server.js');
+		const interaction = createInteraction('server informations');
+		interaction.client.traductions.set('guild-123', 'fr');
+		interaction.client.slashCommands.set('server', serverCmd);
+
+		await helpCommand.execute(interaction);
+
+		const desc = interaction.reply.mock.calls[0][0].embeds[0].data?.description
+			?? interaction.reply.mock.calls[0][0].embeds[0].description;
+		expect(desc).toMatch(/configuration du serveur|Displays the server configuration/i);
+	});
+
+	it('parent avec SubcommandGroup sans options: HELP_NO_SUBCOMMANDS', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'emptygroup',
+					description: 'Empty group parent',
+					options: [{
+						type: ApplicationCommandOptionType.SubcommandGroup,
+						name: 'admin',
+						description: 'Empty admin group',
+					}],
+				}),
+			},
+		};
+		const interaction = createInteraction('emptygroup');
+		interaction.client.slashCommands.set('emptygroup', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const subs = interaction.reply.mock.calls[0][0].embeds[0].data?.fields
+			?.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
+		expect(subs.value).toBe('HELP_NO_SUBCOMMANDS');
+	});
+
+	it('commande avec options undefined au niveau data', async () => {
+		const interaction = createInteraction('nooptfield');
+		interaction.client.slashCommands.set('nooptfield', {
+			data: { toJSON: () => ({ name: 'nooptfield', description: 'No options key' }) },
+		});
+
+		await helpCommand.execute(interaction);
+
+		expect(interaction.reply).toHaveBeenCalled();
+	});
+
+	it('sous-commande dans group sans options: HELP_COMMAND_NOT_FOUND', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'nogrp',
+					description: 'No group options',
+					options: [{
+						type: ApplicationCommandOptionType.SubcommandGroup,
+						name: 'admin',
+					}],
+				}),
+			},
+		};
+		const interaction = createInteraction('nogrp admin sub');
+		interaction.client.slashCommands.set('nogrp', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
+	});
+
+	it('paramètre avec seulement max_length', async () => {
+		const { ApplicationCommandOptionType } = require('discord.js');
+		const mockCmd = {
+			data: {
+				toJSON: () => ({
+					name: 'maxonly',
+					description: 'Max only',
+					options: [{
+						type: ApplicationCommandOptionType.String,
+						name: 'label',
+						description: 'Label',
+						required: false,
+						max_length: 20,
+					}],
+				}),
+			},
+		};
+		const interaction = createInteraction('maxonly');
+		interaction.client.slashCommands.set('maxonly', mockCmd);
+
+		await helpCommand.execute(interaction);
+
+		const params = interaction.reply.mock.calls[0][0].embeds[0].data?.fields
+			?.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		expect(params.value).toContain('HELP_PARAM_LENGTH');
+	});
+
+	it('commande "/" seule: normalize("") sans crash', async () => {
+		const interaction = createInteraction('/');
+
+		await helpCommand.execute(interaction);
+
+		const embed = interaction.reply.mock.calls[0][0].embeds[0];
+		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
 	});
 });

@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const {
 	safeHttpUrl,
@@ -43,6 +44,23 @@ describe('dashboard createHandler', () => {
 			expect(safeHttpUrl('ftp://x')).toBeNull();
 		});
 
+		it('publicLinks utilise process.env par défaut', () => {
+			const prev = {
+				discord: process.env.DISCORD_INVITE_URL,
+				github: process.env.GITHUB_URL,
+			};
+			process.env.DISCORD_INVITE_URL = 'https://discord.gg/default/';
+			process.env.GITHUB_URL = 'https://github.com/default/repo';
+			expect(publicLinks()).toEqual({
+				discord: 'https://discord.gg/default',
+				github: 'https://github.com/default/repo',
+			});
+			if (prev.discord === undefined) delete process.env.DISCORD_INVITE_URL;
+			else process.env.DISCORD_INVITE_URL = prev.discord;
+			if (prev.github === undefined) delete process.env.GITHUB_URL;
+			else process.env.GITHUB_URL = prev.github;
+		});
+
 		it('publicLinks reads env', () => {
 			expect(publicLinks({
 				DISCORD_INVITE_URL: 'https://discord.gg/x/',
@@ -56,6 +74,45 @@ describe('dashboard createHandler', () => {
 	});
 
 	describe('createAuthPayload', () => {
+		it('createAuthPayload utilise process.env par défaut', async () => {
+			const prev = process.env.GITHUB_URL;
+			process.env.GITHUB_URL = 'https://github.com/default/repo';
+			const auth = {
+				getCredentials: jest.fn().mockResolvedValue(null),
+				describeSession: jest.fn(() => ({ started_at: null })),
+			};
+			const authPayload = createAuthPayload({ auth, envPath: '/tmp/.env' });
+			const out = await authPayload({ username: 'admin', isDefault: false });
+			expect(out.links.github).toBe('https://github.com/default/repo');
+			if (prev === undefined) delete process.env.GITHUB_URL;
+			else process.env.GITHUB_URL = prev;
+		});
+
+		it('builds payload with null credential timestamps', async () => {
+			const auth = {
+				getCredentials: jest.fn().mockResolvedValue(null),
+				describeSession: jest.fn(() => ({ started_at: null })),
+			};
+			const authPayload = createAuthPayload({
+				auth,
+				envPath: '/tmp/.env',
+				env: {},
+			});
+			const out = await authPayload({ username: 'admin', isDefault: true });
+			expect(out.session.credentials_updated_at).toBeNull();
+			expect(out.session.last_login_at).toBeNull();
+		});
+
+		it('merge extras dans authPayload', async () => {
+			const auth = {
+				getCredentials: jest.fn().mockResolvedValue(null),
+				describeSession: jest.fn(() => ({ started_at: null })),
+			};
+			const authPayload = createAuthPayload({ auth, envPath: '/tmp/.env', env: {} });
+			const out = await authPayload({ username: 'admin', isDefault: false }, { foo: 'bar' });
+			expect(out.foo).toBe('bar');
+		});
+
 		it('builds authenticated payload with session extras', async () => {
 			const auth = {
 				getCredentials: jest.fn().mockResolvedValue({
@@ -211,6 +268,37 @@ describe('dashboard createHandler', () => {
 			expect(jsonBody(res)).toEqual({ ok: true });
 		});
 
+		it('serves favicon when file exists', async () => {
+			const faviconBytes = Buffer.from([0, 1, 2]);
+			fsApi = {
+				existsSync: jest.fn(() => true),
+				readFileSync: jest.fn(() => faviconBytes),
+			};
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				publicLinks: () => ({ discord: null, github: null }),
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json', 'fr.json']),
+				fsApi,
+			});
+			const fav = mockRes();
+			await handler({ method: 'GET', url: '/favicon.ico' }, fav);
+			expect(fav.statusCode).toBe(200);
+			expect(fav.headers['Content-Type']).toBe('image/x-icon');
+			expect(fav.body).toBe(faviconBytes);
+		});
+
 		it('serves html, assets, favicon 404', async () => {
 			const html = mockRes();
 			await handler({ method: 'GET', url: '/' }, html);
@@ -260,6 +348,31 @@ describe('dashboard createHandler', () => {
 			const missing = mockRes();
 			await handler({ method: 'GET', url: '/i18n/de.json' }, missing);
 			expect(missing.statusCode).toBe(404);
+
+			const emptyDir = path.join(__dirname, '../../.tmp-i18n-empty');
+			fs.mkdirSync(emptyDir, { recursive: true });
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				publicLinks: () => ({ discord: null, github: null }),
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir: emptyDir,
+				i18nFiles: new Set(['fr.json']),
+				fsApi,
+			});
+			const missingFile = mockRes();
+			await handler({ method: 'GET', url: '/i18n/fr.json' }, missingFile);
+			expect(missingFile.statusCode).toBe(404);
+			fs.rmSync(emptyDir, { recursive: true, force: true });
 		});
 
 		it('requires session for protected routes', async () => {
@@ -284,12 +397,33 @@ describe('dashboard createHandler', () => {
 			expect(jsonBody(res).session).toEqual({ ip: '1.1.1.1' });
 		});
 
+		it('GET /api/contacts sans url query utilise force false', async () => {
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			loadContacts.mockClear();
+			await handler({ method: 'GET', url: '/api/contacts' }, mockRes());
+			expect(loadContacts).toHaveBeenCalledWith({ force: false });
+		});
+
+		it('GET /api/contacts sans query force appelle loadContacts force false', async () => {
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			loadContacts.mockClear();
+			await handler({ method: 'GET', url: '/api/contacts?other=1' }, mockRes());
+			expect(loadContacts).toHaveBeenCalledWith({ force: false });
+		});
+
 		it('GET /api/contacts honors force=1', async () => {
 			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
 			await handler({ method: 'GET', url: '/api/contacts?force=1' }, mockRes());
 			expect(loadContacts).toHaveBeenCalledWith({ force: true });
 			await handler({ method: 'GET', url: '/api/contacts' }, mockRes());
 			expect(loadContacts).toHaveBeenCalledWith({ force: false });
+		});
+
+		it('GET sans url sert l\'index via fallback /', async () => {
+			const res = mockRes();
+			await handler({ method: 'GET' }, res);
+			expect(res.statusCode).toBe(200);
+			expect(String(res.body).length).toBeGreaterThan(0);
 		});
 
 		it('GET /api/materials returns catalog', async () => {
@@ -345,6 +479,126 @@ describe('dashboard createHandler', () => {
 			const res = mockRes();
 			await handler({ method: 'GET', url: '/api/unknown' }, res);
 			expect(res.statusCode).toBe(404);
+		});
+
+		it('defaults missing method and url', async () => {
+			const res = mockRes();
+			await handler({}, res);
+			expect(sendHtml).toHaveBeenCalled();
+		});
+
+		it('createRequestHandler sans linksFn utilise publicLinks env', async () => {
+			const prevGithub = process.env.GITHUB_URL;
+			process.env.GITHUB_URL = 'https://github.com/env/default';
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi: {
+					existsSync: jest.fn(() => false),
+					readFileSync: jest.fn(),
+				},
+			});
+			auth.requireSession.mockReturnValue(null);
+			const res = mockRes();
+			await handler({ method: 'GET', url: '/api/me' }, res);
+			expect(jsonBody(res).links.github).toBe('https://github.com/env/default');
+			if (prevGithub === undefined) delete process.env.GITHUB_URL;
+			else process.env.GITHUB_URL = prevGithub;
+		});
+
+		it('uses default publicLinks from env when linksFn omitted', async () => {
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi,
+			});
+			auth.requireSession.mockReturnValue(null);
+			const res = mockRes();
+			await handler({ method: 'GET', url: '/api/me' }, res);
+			expect(jsonBody(res).links).toEqual({ discord: null, github: null });
+		});
+
+		it('createRequestHandler sans fsApi utilise le module fs', async () => {
+			const realFs = require('fs');
+			const tmpDir = require('os').tmpdir();
+			const faviconPath = require('path').join(tmpDir, `favicon-${Date.now()}.ico`);
+			realFs.writeFileSync(faviconPath, Buffer.from([0]));
+			try {
+				handler = createRequestHandler({
+					auth,
+					sendJson,
+					readJsonBody,
+					sendUnauthorized,
+					sendHtml,
+					sendAsset,
+					loadSummary,
+					loadContacts,
+					loadMaterials,
+					guildActions,
+					authPayload,
+					faviconPath,
+					i18nDir,
+					i18nFiles: new Set(['en.json']),
+				});
+				const res = mockRes();
+				await handler({ method: 'GET', url: '/favicon.ico' }, res);
+				expect(res.statusCode).toBe(200);
+				expect(res.headers['Content-Type']).toBe('image/x-icon');
+			}
+			finally {
+				realFs.unlinkSync(faviconPath);
+			}
+		});
+
+		it('createRequestHandler utilise fs par défaut si fsApi omis', async () => {
+			const faviconBytes = Buffer.from([0]);
+			const existsSync = jest.fn(() => true);
+			const readFileSync = jest.fn(() => faviconBytes);
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi: { existsSync, readFileSync },
+			});
+			const res = mockRes();
+			await handler({ method: 'GET', url: '/favicon.ico' }, res);
+			expect(existsSync).toHaveBeenCalled();
+			expect(readFileSync).toHaveBeenCalled();
 		});
 	});
 });

@@ -25,7 +25,15 @@ describe('dashboard summary helpers', () => {
 		expect(activityBucket(null, now)).toBe('never');
 		expect(activityBucket(new Date(now - 1000).toISOString(), now)).toBe('24h');
 		expect(activityBucket(new Date(now - MS.d7 + 1000).toISOString(), now)).toBe('7d');
+		expect(activityBucket(new Date(now - MS.d30 + 1000).toISOString(), now)).toBe('30d');
+		expect(activityBucket(new Date(now - MS.d90 + 1000).toISOString(), now)).toBe('90d');
 		expect(activityBucket(new Date(now - MS.d90 - 1000).toISOString(), now)).toBe('older');
+	});
+
+	it('memberBucket covers all ranges', () => {
+		expect(memberBucket(25)).toBe('10–49');
+		expect(memberBucket(150)).toBe('100–249');
+		expect(memberBucket(300)).toBe('250–499');
 	});
 
 	it('fillMonths pads missing months with 0', () => {
@@ -33,5 +41,11 @@ describe('dashboard summary helpers', () => {
 		const out = fillMonths(map, 2);
 		expect(out).toHaveLength(2);
 		expect(out.every((row) => typeof row.month === 'string' && typeof row.count === 'number')).toBe(true);
+	});
+
+	it('fillMonths defaults to 12 months', () => {
+		const out = fillMonths(new Map());
+		expect(out).toHaveLength(12);
+		expect(out.every((row) => row.count === 0)).toBe(true);
 	});
 });

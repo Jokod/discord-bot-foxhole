@@ -94,6 +94,10 @@ describe('Translate', () => {
 			);
 			expect(result).toBe('John said: John is here');
 		});
+
+		it('should return null sentence unchanged', () => {
+			expect(translate.replaceVariables(null, { name: 'x' })).toBeNull();
+		});
 	});
 
 	describe('compareTranslationKeys', () => {

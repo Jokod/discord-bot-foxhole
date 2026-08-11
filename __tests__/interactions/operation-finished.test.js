@@ -72,4 +72,32 @@ describe('Operation finished button', () => {
 			expect.objectContaining({ content: 'OPERATION_ARE_NO_OWNER_ERROR', flags: 64 }),
 		);
 	});
+
+	it('répond NOT_EXIST si opération introuvable', async () => {
+		mockOperationFindOne.mockResolvedValue(null);
+		await finishedHandler.execute(interaction);
+		expect(interaction.reply).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'OPERATION_NOT_EXIST', flags: 64 }),
+		);
+	});
+
+	it('répond FINISHED_ERROR si une erreur survient', async () => {
+		mockOperationFindOne.mockResolvedValue({
+			owner_id: 'owner-1',
+			title: 'Op Test',
+			date: '01/01/2026',
+			time: '20:00',
+			duration: 60,
+			description: 'Raid',
+		});
+		mockDeleteBoardsByOperation.mockRejectedValue(new Error('delete failed'));
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await finishedHandler.execute(interaction);
+
+		err.mockRestore();
+		expect(interaction.reply).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'OPERATION_FINISHED_ERROR', flags: 64 }),
+		);
+	});
 });

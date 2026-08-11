@@ -103,4 +103,43 @@ describe('triggerCreate event', () => {
 		expect(exec1).toHaveBeenCalled();
 		expect(exec2).not.toHaveBeenCalled();
 	});
+
+	it('s\'arrête quand triggered déjà true dans outer every', async () => {
+		const exec1 = jest.fn();
+		const exec2 = jest.fn();
+		const message = {
+			content: 'hello',
+			author: { bot: false },
+			guild: { id: 'g1' },
+			client: {
+				triggers: [
+					{ name: ['hello'], execute: exec1 },
+					{ name: ['hello'], execute: exec2 },
+				],
+			},
+			reply: jest.fn(),
+		};
+
+		await triggerCreate.execute(message);
+
+		expect(exec1).toHaveBeenCalledTimes(1);
+		expect(exec2).not.toHaveBeenCalled();
+	});
+
+	it('inner loop continue si alias absent du message', async () => {
+		const execute = jest.fn();
+		const message = {
+			content: 'hello world',
+			author: { bot: false },
+			guild: { id: 'g1' },
+			client: {
+				triggers: [{ name: ['missing', 'hello'], execute }],
+			},
+			reply: jest.fn(),
+		};
+
+		await triggerCreate.execute(message);
+
+		expect(execute).toHaveBeenCalledTimes(1);
+	});
 });

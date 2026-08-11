@@ -258,5 +258,39 @@ describe('migrate-v2 libs', () => {
 			expect(result.docsTouched).toBe(0);
 			expect(stats.updateOne).not.toHaveBeenCalled();
 		});
+
+		it('update unset seul sans $set', async () => {
+			const stats = mockCollection({
+				find: jest.fn().mockReturnValue({
+					toArray: async () => [{ _id: 'g3', material_validated_count: 2 }],
+				}),
+				updateOne: jest.fn().mockResolvedValue({}),
+			});
+			await cleanupStats({ collection: () => stats }, { dryRun: false });
+			expect(stats.updateOne).toHaveBeenCalledWith(
+				{ _id: 'g3' },
+				{ $unset: { material_validated_count: '' } },
+			);
+		});
+
+		it('prune last_command_by_type seul', async () => {
+			const stats = mockCollection({
+				find: jest.fn().mockReturnValue({
+					toArray: async () => [{
+						_id: 'g4',
+						last_command_by_type: { help: new Date(), stock: new Date() },
+					}],
+				}),
+				updateOne: jest.fn().mockResolvedValue({}),
+			});
+			const result = await cleanupStats({ collection: () => stats }, { dryRun: false });
+			expect(result.docsTouched).toBe(1);
+			expect(stats.updateOne).toHaveBeenCalledWith(
+				{ _id: 'g4' },
+				expect.objectContaining({
+					$set: { last_command_by_type: { help: expect.any(Date) } },
+				}),
+			);
+		});
 	});
 });

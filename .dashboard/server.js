@@ -95,16 +95,27 @@ async function main() {
 	});
 }
 
-if (require.main === module) {
-	main().catch((err) => {
+function runCli() {
+	return main().catch((err) => {
 		console.error(err);
 		process.exit(1);
 	});
 }
 
+function maybeRunCliAsMain(isMain = require.main === module) {
+	if (isMain) {
+		runCli();
+	}
+}
+
+maybeRunCliAsMain();
+
 module.exports = {
 	main,
+	runCli,
+	maybeRunCliAsMain,
 	requestHandler,
+	loadMaterials,
 	publicLinks,
 	authPayload,
 	ENV_PATH,

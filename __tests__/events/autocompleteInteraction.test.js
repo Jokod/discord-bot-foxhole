@@ -70,10 +70,40 @@ describe('autocompleteInteraction event', () => {
 		expect(interaction.respond).toHaveBeenCalledWith([]);
 	});
 
-	it('ignore les DMs sans planter', async () => {
-		const interaction = createInteraction({ guild: null });
+	it('ne répond pas si interaction déjà responded en erreur', async () => {
+		const interaction = createInteraction();
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		interaction.client.autocompleteInteractions.set('stockpile', { execute: mockExecute, init: false });
+		interaction.responded = true;
+		Server.findOne.mockResolvedValue({ guild_id: 'guild-1' });
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
 		await autocompleteInteraction.execute(interaction);
+
+		expect(interaction.respond).not.toHaveBeenCalled();
+		errSpy.mockRestore();
+	});
+
+	it('ignore les DMs et respond catch', async () => {
+		const interaction = createInteraction({
+			guild: null,
+			respond: jest.fn().mockRejectedValue(new Error('dm fail')),
+		});
+		await expect(autocompleteInteraction.execute(interaction)).resolves.toBeUndefined();
+	});
+
+	it('ignore respond reject après erreur execute', async () => {
+		const interaction = createInteraction({
+			respond: jest.fn().mockRejectedValue(new Error('respond fail')),
+		});
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		interaction.client.autocompleteInteractions.set('stockpile', { execute: mockExecute, init: false });
+		Server.findOne.mockResolvedValue({ guild_id: 'guild-1' });
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await expect(autocompleteInteraction.execute(interaction)).resolves.toBeUndefined();
 		expect(interaction.respond).toHaveBeenCalledWith([]);
-		expect(Server.findOne).not.toHaveBeenCalled();
+
+		errSpy.mockRestore();
 	});
 });

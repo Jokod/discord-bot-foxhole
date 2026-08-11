@@ -115,5 +115,145 @@ describe('Order modals', () => {
 			expect(i.deferReply).toHaveBeenCalled();
 			expect(i.deleteReply).toHaveBeenCalled();
 		});
+
+		it('refuse valeurs invalides', async () => {
+			const i = interaction('order_correct_modal|b1|2', {
+				order_current: '-1',
+				order_target: '0',
+			});
+			await correctModal.execute(i);
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_TARGET' }));
+		});
+
+		it('refuse board manquant / closed', async () => {
+			mockFindBoard.mockResolvedValue(null);
+			await correctModal.execute(interaction('order_correct_modal|b1|2', {
+				order_current: '1', order_target: '2',
+			}));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_BOARD_NOT_EXIST');
+
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'closed' });
+			await correctModal.execute(interaction('order_correct_modal|b1|2', {
+				order_current: '1', order_target: '2',
+			}));
+			expect(mockTranslate).toHaveBeenCalledWith('ORDER_STATUS_CLOSED');
+		});
+
+		it('editReply si ligne introuvable', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+			mockCorrectLine.mockResolvedValue(null);
+			const i = interaction('order_correct_modal|b1|2', {
+				order_current: '1',
+				order_target: '2',
+			});
+			await correctModal.execute(i);
+			expect(i.editReply).toHaveBeenCalledWith(expect.objectContaining({
+				content: 'ORDER_LINE_NOT_EXIST',
+			}));
+		});
+	});
+
+	describe('order_add_modal edges', () => {
+		it('refuse customId invalide', async () => {
+			const i = interaction('order_add_modal', { order_target: '5' });
+			await addModal.execute(i);
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_TARGET' }));
+		});
+
+		it('refuse board manquant', async () => {
+			mockFindBoard.mockResolvedValue(null);
+			const i = interaction('order_add_modal|b1', { order_target: '5' });
+			await addModal.execute(i);
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_BOARD_NOT_EXIST' }));
+		});
+
+		it('gère ORDER_FULL levé par createLine', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+			mockGetDraft.mockReturnValue({ name: 'Sticky', category: 'utilities' });
+			const err = new Error('full');
+			err.code = 'ORDER_FULL';
+			mockCreateLine.mockRejectedValue(err);
+			const i = interaction('order_add_modal|b1', { order_target: '5' });
+			await addModal.execute(i);
+			expect(i.editReply).toHaveBeenCalledWith(expect.objectContaining({
+				content: 'ORDER_FULL',
+			}));
+		});
+
+		it('relance les erreurs non ORDER_FULL', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+			mockGetDraft.mockReturnValue({ name: 'Sticky', category: 'utilities' });
+			mockCreateLine.mockRejectedValue(new Error('db fail'));
+			const i = interaction('order_add_modal|b1', { order_target: '5' });
+			await expect(addModal.execute(i)).rejects.toThrow('db fail');
+		});
+
+		it('ignore editReply rejeté sur ORDER_FULL', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+			mockGetDraft.mockReturnValue({ name: 'Sticky', category: 'utilities' });
+			const err = new Error('full');
+			err.code = 'ORDER_FULL';
+			mockCreateLine.mockRejectedValue(err);
+			const i = interaction('order_add_modal|b1', { order_target: '5' });
+			i.editReply.mockRejectedValueOnce(new Error('edit failed'));
+			await expect(addModal.execute(i)).resolves.toBeUndefined();
+		});
+	});
+
+	describe('order_correct_modal edges', () => {
+		it('ignore editReply rejeté si ligne introuvable', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+			mockCorrectLine.mockResolvedValue(null);
+			const i = interaction('order_correct_modal|b1|2', {
+				order_current: '1',
+				order_target: '2',
+			});
+			i.editReply.mockRejectedValueOnce(new Error('edit failed'));
+			await expect(correctModal.execute(i)).resolves.toBeUndefined();
+		});
+
+		it('refuse customId invalide', async () => {
+			const i = interaction('order_correct_modal|b1', {
+				order_current: '1',
+				order_target: '2',
+			});
+			await correctModal.execute(i);
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_TARGET' }));
+		});
+
+		it('log avec tiret si ligne sans nom', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+			mockCorrectLine.mockResolvedValue({ current: 1, target: 2 });
+			const i = interaction('order_correct_modal|b1|2', {
+				order_current: '1',
+				order_target: '2',
+			});
+			await correctModal.execute(i);
+			const { appendOrderLog } = require('../../utils/orderBoardLog.js');
+			expect(appendOrderLog).toHaveBeenCalled();
+		});
+
+		it('ignore deleteReply rejeté après correction', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+			mockCorrectLine.mockResolvedValue({ current: 1, target: 2, name: 'Sticky' });
+			const i = interaction('order_correct_modal|b1|2', {
+				order_current: '1',
+				order_target: '2',
+			});
+			i.deleteReply.mockRejectedValueOnce(new Error('delete failed'));
+			await expect(correctModal.execute(i)).resolves.toBeUndefined();
+		});
+	});
+
+	describe('order_add_modal success edges', () => {
+		it('ignore deleteReply rejeté après création', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', guild_id: 'g1', status: 'open' });
+			mockGetDraft.mockReturnValue({ name: 'Sticky', category: 'utilities' });
+			mockConsumeDraft.mockResolvedValue({ name: 'Sticky', category: 'utilities' });
+			mockCreateLine.mockResolvedValue({});
+			const i = interaction('order_add_modal|b1', { order_target: '20' });
+			i.deleteReply.mockRejectedValueOnce(new Error('delete failed'));
+			await expect(addModal.execute(i)).resolves.toBeUndefined();
+		});
 	});
 });

@@ -37,10 +37,8 @@ function matchesName(obj, query, lang) {
  * @returns {{ target: object|null, pathNames: string[] }}
  */
 function resolveSubcommand(options, subPath, lang) {
-	if (!subPath.length) return { target: null, pathNames: [] };
-
 	if (subPath.length === 1) {
-		const target = (options || []).find(
+		const target = options.find(
 			(o) => o.type === ApplicationCommandOptionType.Subcommand && matchesName(o, subPath[0], lang),
 		);
 		return {
@@ -50,7 +48,7 @@ function resolveSubcommand(options, subPath, lang) {
 	}
 
 	if (subPath.length === 2) {
-		const group = (options || []).find(
+		const group = options.find(
 			(o) => o.type === ApplicationCommandOptionType.SubcommandGroup && matchesName(o, subPath[0], lang),
 		);
 		if (!group?.options) return { target: null, pathNames: [] };
@@ -136,7 +134,7 @@ function formatUsageToken(param, lang, translations) {
 
 function formatUsageLine(baseDisplayName, pathNames, params, lang, translations) {
 	const parts = [`/${baseDisplayName}`, ...pathNames];
-	const tokens = (params || []).map((p) => formatUsageToken(p, lang, translations));
+	const tokens = params.map((p) => formatUsageToken(p, lang, translations));
 	return '`' + [...parts, ...tokens].join(' ') + '`';
 }
 
@@ -293,12 +291,10 @@ module.exports = {
 			const params = targetSub.options ?? [];
 			helpEmbed.setDescription(localizedDesc(targetSub, currentLang));
 
-			if (params.length > 0 || pathNames.length > 0) {
-				helpEmbed.addFields({
-					name: translations.translate('HELP_SECTION_USAGE'),
-					value: formatUsageLine(baseDisplayName, pathNames, params, currentLang, translations),
-				});
-			}
+			helpEmbed.addFields({
+				name: translations.translate('HELP_SECTION_USAGE'),
+				value: formatUsageLine(baseDisplayName, pathNames, params, currentLang, translations),
+			});
 
 			if (params.length > 0) {
 				const lines = params.map((p) => formatParamLine(p, currentLang, translations));

@@ -15,6 +15,22 @@ const REMINDER_WINDOWS = [
 	{ label: '30m', minutes: 30 },
 ];
 
+const WINDOW_LABEL_KEYS = {
+	'12h': 'NOTIFICATION_EXPIRING_IN_12H',
+	'6h': 'NOTIFICATION_EXPIRING_IN_6H',
+	'1h': 'NOTIFICATION_EXPIRING_IN_1H',
+	'30m': 'NOTIFICATION_EXPIRING_IN_30M',
+};
+
+/**
+ * @param {string} window
+ * @param {{ translate: (key: string) => string }} translations
+ */
+function formatWindowLabel(window, translations) {
+	const key = WINDOW_LABEL_KEYS[window];
+	return key ? translations.translate(key) : window;
+}
+
 /**
  * Find stockpiles that are in a reminder window this run, send one message per subscribed channel,
  * then mark those reminders as sent.
@@ -85,16 +101,10 @@ async function checkExpiringStockpiles(client) {
 
 		const translations = new Translate(client, sub.guild_id);
 		const title = translations.translate('NOTIFICATION_STOCKPILE_EXPIRING_ALERT');
-		const windowLabelKey = {
-			'12h': 'NOTIFICATION_EXPIRING_IN_12H',
-			'6h': 'NOTIFICATION_EXPIRING_IN_6H',
-			'1h': 'NOTIFICATION_EXPIRING_IN_1H',
-			'30m': 'NOTIFICATION_EXPIRING_IN_30M',
-		};
 		const lines = items.map(({ stock: s, window }) => {
 			const region = safeEscapeMarkdown(formatForDisplay(s.region || ''));
 			const city = safeEscapeMarkdown(formatForDisplay(s.city || ''));
-			const windowLabel = windowLabelKey[window] ? translations.translate(windowLabelKey[window]) : window;
+			const windowLabel = formatWindowLabel(window, translations);
 			const creator = s.owner_id && s.owner_id !== '0' ? `<@${s.owner_id}> ` : '';
 			return translations.translate('NOTIFICATION_STOCKPILE_EXPIRING_LINE', {
 				creator,
@@ -133,9 +143,7 @@ async function checkExpiringStockpiles(client) {
 		const allDueLabels = windowsAsc
 			.filter((w) => minutesLeft <= w.minutes && !remindersSent.includes(w.label))
 			.map((w) => w.label);
-		if (allDueLabels.length > 0) {
-			toUpdate.set(id, allDueLabels);
-		}
+		toUpdate.set(id, allDueLabels);
 	}
 	for (const [stockId, windows] of toUpdate) {
 		await Stockpile.findByIdAndUpdate(stockId, { $addToSet: { expiry_reminders_sent: { $each: windows } } });
@@ -161,4 +169,4 @@ function start(client) {
 	intervalId.unref();
 }
 
-module.exports = { start, checkExpiringStockpiles };
+module.exports = { start, checkExpiringStockpiles, formatWindowLabel, WINDOW_LABEL_KEYS };

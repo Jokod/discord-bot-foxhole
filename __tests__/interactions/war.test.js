@@ -247,6 +247,470 @@ describe('Slash command /war', () => {
 		});
 	});
 
+	it('status: War indisponible mais Steam OK → embed partiel joueurs + guerre indisponible', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 4200 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const { embeds } = interaction.editReply.mock.calls[0][0];
+		const embedData = embeds[0].data ?? embeds[0];
+		expect(embedData.title).toBe('FOXHOLE_TITLE');
+		const fields = embedData.fields ?? [];
+		expect(fields.find((f) => f.name === 'FOXHOLE_PLAYERS_CURRENT')?.value.replace(/\D/g, '')).toBe('4200');
+		expect(fields.find((f) => f.name === 'FOXHOLE_WAR_TITLE')?.value).toBe('FOXHOLE_UNAVAILABLE');
+	});
+
+	it('status: affiche les villes calcinées quand scorched > 0', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 140,
+						winner: 'NONE',
+						requiredVictoryTowns: 32,
+						conquestStartTime: Date.now() - 86400000,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve(['HexA']),
+					headers: createHeaders(),
+				});
+			}
+			if (String(url).includes('/dynamic/public')) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						mapItems: [{ teamId: 'COLONIALS', flags: 1 }],
+						scorchedVictoryTowns: 3,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SCORCHED_TOWNS' && f.value === '3')).toBe(true);
+	});
+
+	it('status: guerre en cours avec fin planifiée', async () => {
+		const scheduledEnd = Date.now() + 7 * 86400000;
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 141,
+						winner: 'NONE',
+						requiredVictoryTowns: 32,
+						conquestStartTime: Date.now() - 86400000,
+						conquestEndTime: null,
+						scheduledConquestEndTime: scheduledEnd,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SCHEDULED_END')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(false);
+	});
+
+	it('status: guerre non terminée avec conquestEndTime sans fin planifiée', async () => {
+		const endTime = Date.now() + 3 * 86400000;
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 142,
+						winner: 'NONE',
+						requiredVictoryTowns: 32,
+						conquestStartTime: Date.now() - 86400000,
+						conquestEndTime: endTime,
+						scheduledConquestEndTime: null,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SCHEDULED_END')).toBe(false);
+	});
+
+	it('status: conquestEndTime présent mais guerre non terminée (branche else if)', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 144,
+						winner: 'NONE',
+						requiredVictoryTowns: 32,
+						conquestStartTime: Date.now() - 86400000,
+						conquestEndTime: -1,
+						scheduledConquestEndTime: null,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.filter((f) => f.name === 'FOXHOLE_WAR_END')).toHaveLength(1);
+	});
+
+	it('status: vainqueur COLONIAL et requiredVictoryTowns sans vt', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 143,
+						winner: 'COLONIAL',
+						requiredVictoryTowns: 28,
+						conquestStartTime: Date.now() - 86400000,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const embedData = interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0];
+		const fields = embedData.fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER' && f.value === 'FOXHOLE_WINNER_COLONIAL')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === '28')).toBe(true);
+	});
+
+	it('status: vt sans need affiche les totaux bruts', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 145,
+						winner: 'NONE',
+						conquestStartTime: Date.now() - 86400000,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve(['HexA']),
+					headers: createHeaders(),
+				});
+			}
+			if (String(url).includes('/dynamic/public')) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						mapItems: [{ teamId: 'COLONIALS', flags: 1 }, { teamId: 'WARDENS', flags: 1 }],
+						scorchedVictoryTowns: 0,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS' && f.value === '1')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WARDEN_TOWNS' && f.value === '1')).toBe(true);
+	});
+
+	it('status: sans dayOfWar ni elapsed ni vt mais avec requiredVictoryTowns', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 146,
+						winner: 'NONE',
+						requiredVictoryTowns: 30,
+						conquestStartTime: null,
+						conquestEndTime: null,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 100 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === '30')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_DAY')).toBe(false);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_ELAPSED')).toBe(false);
+	});
+
+	it('status: requiredVictoryTowns sans données vt (maps vides)', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 147,
+						winner: 'NONE',
+						requiredVictoryTowns: 31,
+						conquestStartTime: null,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 50 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === '31')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS')).toBe(false);
+	});
+
+	it('status: sans vt ni requiredVictoryTowns', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url === WARAPI_WAR_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						warNumber: 148,
+						winner: 'NONE',
+						conquestStartTime: null,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			if (url === WARAPI_MAPS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve([]),
+					headers: createHeaders(),
+				});
+			}
+			if (url === STEAM_PLAYERS_URL) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({ response: { player_count: 50 } }),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('status');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS')).toBe(false);
+		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS')).toBe(false);
+	});
+
+	it('report: casualties null → 0 par défaut', async () => {
+		mockFetch.mockImplementation((url) => {
+			if (url.startsWith(`${WARAPI_ROOT}/worldconquest/warReport/`)) {
+				return Promise.resolve({
+					ok: true,
+					status: 200,
+					json: () => Promise.resolve({
+						totalEnlistments: 10,
+						colonialCasualties: null,
+						wardenCasualties: null,
+					}),
+					headers: createHeaders(),
+				});
+			}
+			return Promise.resolve({ ok: false, status: 500, headers: createHeaders(null, null) });
+		});
+
+		const interaction = createInteraction('report', 'HexA');
+		await warCommand.execute(interaction);
+
+		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
+		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_COLONIAL_CASUALTIES' && f.value === '0')).toBe(true);
+		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_WARDEN_CASUALTIES' && f.value === '0')).toBe(true);
+	});
+
 	it('maps: renvoie un embed listant les cartes et le lien foxholestats', async () => {
 		const mapsPayload = ['DeadLandsHex', 'UmbralWildwoodHex'];
 

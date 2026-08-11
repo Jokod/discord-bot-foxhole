@@ -32,6 +32,12 @@ describe('contextInteraction event', () => {
 		expect(mockServerFindOne).not.toHaveBeenCalled();
 	});
 
+	it('ne fait rien si pas de guild', async () => {
+		const interaction = createInteraction({ guild: null });
+		await contextInteraction.execute(interaction);
+		expect(mockServerFindOne).not.toHaveBeenCalled();
+	});
+
 	it('exécute USER context command', async () => {
 		const mockExecute = jest.fn().mockResolvedValue(undefined);
 		const interaction = createInteraction({
@@ -87,6 +93,44 @@ describe('contextInteraction event', () => {
 		consoleSpy.mockRestore();
 	});
 
+	it('followUp COMMAND_EXECUTE_ERROR si USER command lève après reply', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const followUp = jest.fn().mockResolvedValue(undefined);
+		const interaction = createInteraction({
+			isUserContextMenuCommand: () => true,
+			isMessageContextMenuCommand: () => false,
+			replied: true,
+			deferred: false,
+			followUp,
+		});
+		interaction.client.contextCommands.set('USER test', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await contextInteraction.execute(interaction);
+
+		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		consoleSpy.mockRestore();
+	});
+
+	it('log si l\'envoi d\'erreur USER échoue aussi', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const interaction = createInteraction({
+			isUserContextMenuCommand: () => true,
+			isMessageContextMenuCommand: () => false,
+			reply: jest.fn().mockRejectedValue(new Error('Reply failed')),
+		});
+		interaction.client.contextCommands.set('USER test', { execute: mockExecute, init: false });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await contextInteraction.execute(interaction);
+
+		expect(consoleSpy).toHaveBeenCalledWith(
+			'Failed to send error message to interaction:',
+			expect.any(Error),
+		);
+		consoleSpy.mockRestore();
+	});
+
 	it('répond COMMAND_EXECUTE_ERROR si MESSAGE command lève', async () => {
 		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
 		const interaction = createInteraction({
@@ -99,6 +143,44 @@ describe('contextInteraction event', () => {
 		await contextInteraction.execute(interaction);
 
 		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		consoleSpy.mockRestore();
+	});
+
+	it('followUp COMMAND_EXECUTE_ERROR si MESSAGE command lève après defer', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const followUp = jest.fn().mockResolvedValue(undefined);
+		const interaction = createInteraction({
+			isUserContextMenuCommand: () => false,
+			isMessageContextMenuCommand: () => true,
+			replied: false,
+			deferred: true,
+			followUp,
+		});
+		interaction.client.contextCommands.set('MESSAGE test', { execute: mockExecute });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await contextInteraction.execute(interaction);
+
+		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		consoleSpy.mockRestore();
+	});
+
+	it('log si l\'envoi d\'erreur MESSAGE échoue aussi', async () => {
+		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
+		const interaction = createInteraction({
+			isUserContextMenuCommand: () => false,
+			isMessageContextMenuCommand: () => true,
+			reply: jest.fn().mockRejectedValue(new Error('Reply failed')),
+		});
+		interaction.client.contextCommands.set('MESSAGE test', { execute: mockExecute });
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		await contextInteraction.execute(interaction);
+
+		expect(consoleSpy).toHaveBeenCalledWith(
+			'Failed to send error message to interaction:',
+			expect.any(Error),
+		);
 		consoleSpy.mockRestore();
 	});
 

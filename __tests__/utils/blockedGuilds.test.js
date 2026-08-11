@@ -13,6 +13,8 @@ const {
 	getEnvBlockedGuildIds,
 	getBlockedGuildIds,
 	getBlockedGuildDetails,
+	getBlockedSource,
+	getMongoBlockedGuildIds,
 	addBlockedGuilds,
 	removeBlockedGuilds,
 } = require('../../utils/blockedGuilds');
@@ -85,6 +87,44 @@ describe('blockedGuilds', () => {
 		expect(store.has('g1')).toBe(true);
 		const again = await addBlockedGuilds(['g1']);
 		expect(again.already).toEqual(['g1']);
+	});
+
+	it('getBlockedSource retourne la source ou null', async () => {
+		process.env.BLOCKED_GUILD_IDS = 'both-1,env-only';
+		store.set('both-1', { _id: 'both-1' });
+		expect(await getBlockedSource('both-1')).toBe('both');
+		expect(await getBlockedSource('env-only')).toBe('env');
+		expect(await getBlockedSource('unknown')).toBeNull();
+	});
+
+	it('getMongoBlockedGuildIds retourne un Set vide sans DB', async () => {
+		mongoose.connection.db = null;
+		expect(await getMongoBlockedGuildIds()).toEqual(new Set());
+		mongoose.connection.db = { collection: jest.fn().mockReturnValue(col) };
+	});
+
+	it('addBlockedGuilds throw sans MongoDB', async () => {
+		mongoose.connection.db = null;
+		await expect(addBlockedGuilds(['g1'])).rejects.toMatchObject({
+			status: 500,
+			code: 'GUILD_DB',
+		});
+		mongoose.connection.db = { collection: jest.fn().mockReturnValue(col) };
+	});
+
+	it('removeBlockedGuilds throw sans MongoDB', async () => {
+		mongoose.connection.db = null;
+		await expect(removeBlockedGuilds(['g1'])).rejects.toMatchObject({
+			status: 500,
+			code: 'GUILD_DB',
+		});
+		mongoose.connection.db = { collection: jest.fn().mockReturnValue(col) };
+	});
+
+	it('removeBlockedGuilds ignore les ids vides', async () => {
+		store.set('mongo-1', { _id: 'mongo-1' });
+		const result = await removeBlockedGuilds(['mongo-1', '', '  ']);
+		expect(result.removed).toEqual(['mongo-1']);
 	});
 
 	it('removes mongo entries but skips env-only', async () => {

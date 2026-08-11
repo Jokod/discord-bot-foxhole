@@ -26,7 +26,7 @@ jest.mock('../../utils/stockpileListSync.js', () => ({
 }));
 
 const { Stockpile, NotificationSubscription } = require('../../data/models.js');
-const { checkExpiringStockpiles, start } = require('../../utils/stockpileExpiryScheduler.js');
+const { checkExpiringStockpiles, start, formatWindowLabel } = require('../../utils/stockpileExpiryScheduler.js');
 
 describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 	const channelSend = jest.fn().mockResolvedValue(undefined);
@@ -43,6 +43,34 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 			traductions: new Map(),
 			channels: { fetch: jest.fn().mockResolvedValue(mockChannel) },
 		};
+	});
+
+	it('formatWindowLabel traduit ou retourne le label brut', () => {
+		const translations = { translate: (key) => `T:${key}` };
+		expect(formatWindowLabel('30m', translations)).toBe('T:NOTIFICATION_EXPIRING_IN_30M');
+		expect(formatWindowLabel('unknown', translations)).toBe('unknown');
+	});
+
+	it('traite expiry_reminders_sent absent comme tableau vide', async () => {
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{
+				_id: 'stock-id-1',
+				id: '1',
+				name: 'Test',
+				server_id: 'guild-1',
+				owner_id: 'user-1',
+				expiresAt,
+			}]),
+		});
+		NotificationSubscription.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
+		});
+
+		await checkExpiringStockpiles(client);
+
+		expect(channelSend).toHaveBeenCalled();
+		expect(Stockpile.findByIdAndUpdate).toHaveBeenCalled();
 	});
 
 	it('does nothing when no stocks', async () => {
@@ -318,6 +346,109 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 		expect(mockRefreshTrackedStockpileLists).toHaveBeenCalledWith(client, { guildIds: ['guild-1'] });
 	});
 
+	it('logs en APP_ENV=dev pendant checkExpiringStockpiles', async () => {
+		const prev = process.env.APP_ENV;
+		process.env.APP_ENV = 'dev';
+		const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
+		const stock = {
+			_id: 'stock-id-1',
+			id: '1',
+			name: 'Test',
+			server_id: 'guild-1',
+			owner_id: 'user-1',
+			region: 'R',
+			city: 'C',
+			expiresAt: expiresAt.toISOString(),
+			expiry_reminders_sent: [],
+		};
+		Stockpile.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([stock]) });
+		NotificationSubscription.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
+		});
+
+		await checkExpiringStockpiles(client);
+
+		expect(logSpy.mock.calls.some((c) => String(c[0]).includes('[stockpileExpiryScheduler] check ran'))).toBe(true);
+		expect(logSpy.mock.calls.some((c) => String(c[0]).includes('sending'))).toBe(true);
+		logSpy.mockRestore();
+		process.env.APP_ENV = prev;
+	});
+
+	it('log dev quand aucun channel abonné pour un guild', async () => {
+		const prev = process.env.APP_ENV;
+		process.env.APP_ENV = 'dev';
+		const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{
+				_id: 'stock-id-1',
+				id: '1',
+				name: 'Test',
+				server_id: 'guild-orphan',
+				owner_id: 'user-1',
+				region: 'R',
+				city: 'C',
+				expiresAt,
+				expiry_reminders_sent: [],
+			}]),
+		});
+		NotificationSubscription.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
+
+		await checkExpiringStockpiles(client);
+
+		expect(logSpy.mock.calls.some((c) => String(c[0]).includes('no channel subscribed'))).toBe(true);
+		logSpy.mockRestore();
+		process.env.APP_ENV = prev;
+	});
+
+	it('ignore les stocks déjà expirés (minutesLeft <= 0)', async () => {
+		const expiresAt = new Date(Date.now() - 1000);
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{
+				_id: 'stock-id-1',
+				id: '1',
+				name: 'Test',
+				server_id: 'guild-1',
+				owner_id: 'user-1',
+				expiresAt,
+				expiry_reminders_sent: [],
+			}]),
+		});
+
+		await checkExpiringStockpiles(client);
+
+		expect(NotificationSubscription.find).not.toHaveBeenCalled();
+	});
+
+	it('utilise le label window brut si clé inconnue', async () => {
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{
+				_id: 'stock-id-1',
+				id: '1',
+				name: 'Test',
+				server_id: 'guild-1',
+				owner_id: null,
+				region: '',
+				city: '',
+				expiresAt,
+				expiry_reminders_sent: [],
+			}]),
+		});
+		NotificationSubscription.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
+		});
+		mockTranslate.mockImplementation((key, params = {}) => {
+			if (key === 'NOTIFICATION_STOCKPILE_EXPIRING_LINE') return `window=${params.window}`;
+			return key;
+		});
+
+		await checkExpiringStockpiles(client);
+
+		expect(channelSend).toHaveBeenCalled();
+	});
+
 	it('continues when channel.send throws', async () => {
 		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
 		const stock = {
@@ -342,6 +473,72 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 		await expect(checkExpiringStockpiles(client)).resolves.not.toThrow();
 		expect(Stockpile.findByIdAndUpdate).toHaveBeenCalled();
 	});
+
+	it('ignore subscription guild sans items correspondants', async () => {
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{
+				_id: 'stock-id-1',
+				id: '1',
+				name: 'Test',
+				server_id: 'guild-1',
+				owner_id: 'user-1',
+				expiresAt,
+				expiry_reminders_sent: [],
+			}]),
+		});
+		NotificationSubscription.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{ guild_id: 'other-guild', channel_id: 'ch-1' }]),
+		});
+
+		await checkExpiringStockpiles(client);
+
+		expect(channelSend).not.toHaveBeenCalled();
+		expect(Stockpile.findByIdAndUpdate).toHaveBeenCalled();
+	});
+
+	it('dedupe toUpdate pour plusieurs stocks même id', async () => {
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
+		const stock = {
+			_id: 'stock-id-1',
+			id: '1',
+			name: 'Test',
+			server_id: 'guild-1',
+			owner_id: 'user-1',
+			expiresAt,
+			expiry_reminders_sent: [],
+		};
+		Stockpile.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([stock, stock]) });
+		NotificationSubscription.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
+		});
+
+		await checkExpiringStockpiles(client);
+
+		expect(Stockpile.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+	});
+
+	it('expiresAt string ISO est accepté', async () => {
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000).toISOString();
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{
+				_id: 'stock-id-1',
+				id: '1',
+				name: 'Test',
+				server_id: 'guild-1',
+				owner_id: '0',
+				expiresAt,
+				expiry_reminders_sent: [],
+			}]),
+		});
+		NotificationSubscription.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
+		});
+
+		await checkExpiringStockpiles(client);
+
+		expect(channelSend).toHaveBeenCalled();
+	});
 });
 
 describe('stockpileExpiryScheduler.start', () => {
@@ -357,6 +554,21 @@ describe('stockpileExpiryScheduler.start', () => {
 
 		setTimeoutSpy.mockRestore();
 		setIntervalSpy.mockRestore();
+	});
+
+	it('invoke les callbacks setTimeout/setInterval', async () => {
+		jest.useFakeTimers();
+		Stockpile.find.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const client = { channels: { fetch: jest.fn() } };
+
+		start(client);
+		await jest.advanceTimersByTimeAsync(60 * 1000);
+		await jest.advanceTimersByTimeAsync(5 * 60 * 1000);
+
+		expect(Stockpile.find).toHaveBeenCalled();
+		errSpy.mockRestore();
+		jest.useRealTimers();
 	});
 
 	it('unrefs timers so they do not keep process alive', () => {
@@ -381,5 +593,64 @@ describe('stockpileExpiryScheduler.start', () => {
 
 		setTimeoutSpy.mockRestore();
 		setIntervalSpy.mockRestore();
+	});
+
+	it('start log erreur si checkExpiringStockpiles reject', async () => {
+		jest.useFakeTimers();
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockRejectedValue(new Error('db fail')),
+		});
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const client = { channels: { fetch: jest.fn() } };
+
+		start(client);
+		await jest.advanceTimersByTimeAsync(60 * 1000);
+
+		expect(errSpy.mock.calls.some((c) => String(c[0]).includes('stockpileExpiryScheduler'))).toBe(true);
+		errSpy.mockRestore();
+		jest.useRealTimers();
+	});
+
+	it('start log erreur si interval checkExpiringStockpiles reject', async () => {
+		jest.useFakeTimers();
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn()
+				.mockResolvedValueOnce([])
+				.mockRejectedValueOnce(new Error('interval fail')),
+		});
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const client = { channels: { fetch: jest.fn() } };
+
+		start(client);
+		await jest.advanceTimersByTimeAsync(60 * 1000);
+		await jest.advanceTimersByTimeAsync(5 * 60 * 1000);
+
+		expect(errSpy.mock.calls.some((c) => String(c.join(' ')).includes('interval fail'))).toBe(true);
+		errSpy.mockRestore();
+		jest.useRealTimers();
+	});
+
+	it('channels.fetch reject invoke catch callback', async () => {
+		const expiresAt = new Date(Date.now() + 20 * 60 * 1000);
+		Stockpile.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{
+				_id: 'stock-id-1',
+				id: '1',
+				name: 'Test',
+				server_id: 'guild-1',
+				owner_id: 'user-1',
+				expiresAt,
+				expiry_reminders_sent: [],
+			}]),
+		});
+		NotificationSubscription.find.mockReturnValue({
+			lean: jest.fn().mockResolvedValue([{ guild_id: 'guild-1', channel_id: 'ch-1' }]),
+		});
+		const client = {
+			channels: {
+				fetch: jest.fn().mockReturnValue(Promise.reject(new Error('fetch fail'))),
+			},
+		};
+		await expect(checkExpiringStockpiles(client)).resolves.not.toThrow();
 	});
 });

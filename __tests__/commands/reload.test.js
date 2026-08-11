@@ -12,7 +12,10 @@ jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() =
 })));
 
 const mockReadDirSync = jest.fn();
-jest.mock('fs', () => ({ readdirSync: (p) => mockReadDirSync(p) }));
+jest.mock('fs', () => ({
+	...jest.requireActual('fs'),
+	readdirSync: (p) => mockReadDirSync(p),
+}));
 
 // Must require reload after mock - it will use mocked fs
 const reloadModule = () => require('../../commands/misc/reload.js');
@@ -86,6 +89,37 @@ describe('Commande reload', () => {
 
 		expect(send).toHaveBeenCalledWith(
 			expect.objectContaining({ content: 'reloaded:reload' }),
+		);
+	});
+
+	it('envoie RELOAD_ERROR si le rechargement lève une exception', () => {
+		const fs = require('fs');
+		const path = require('path');
+		const brokenFile = path.join(__dirname, '../../commands/misc/broken.js');
+		fs.writeFileSync(brokenFile, 'throw new Error("Syntax error in module");\n');
+
+		const send = jest.fn().mockResolvedValue(undefined);
+		client.commands.set('broken', { name: 'broken' });
+		mockReadDirSync.mockImplementation((p) => {
+			if (p === './commands') return ['misc'];
+			if (p === './commands/misc') return ['broken.js'];
+			return [];
+		});
+
+		const message = { client, author: {}, guild: { id: 'g1' }, channel: { send } };
+		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		try {
+			reloadCommand.execute(message, ['broken']);
+		}
+		finally {
+			if (fs.existsSync(brokenFile)) fs.unlinkSync(brokenFile);
+		}
+
+		consoleSpy.mockRestore();
+
+		expect(send).toHaveBeenCalledWith(
+			expect.objectContaining({ content: 'error:broken:Syntax error in module' }),
 		);
 	});
 });

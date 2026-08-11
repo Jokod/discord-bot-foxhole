@@ -101,5 +101,74 @@ describe('wiki-sync / materials-store', () => {
 			const out = JSON.parse(fs.readFileSync(fp, 'utf8'));
 			expect(out.map(m => m.itemName)).toEqual(['a', 'b']);
 		});
+
+		it('loadAllMaterialFiles ignore les fichiers non .json', () => {
+			writeJson('ammunition/readme.txt', 'nope');
+			writeJson('ammunition/x.json', [{ itemName: 'A', faction: [], itemDesc: '—', itemCategory: 'x' }]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			expect(groups).toHaveLength(1);
+		});
+
+		it('applyCatalogMaintenance (dryRun) recharge depuis le disque', () => {
+			writeJson('ammunition/misc_ammo.json', [
+				{ itemName: 'AP/RPG', faction: ['warden'], itemDesc: 'x', itemCategory: 'heavy_arms' },
+				{ itemName: 'Keep Me', faction: ['colonial'], itemDesc: 'y', itemCategory: 'heavy_arms' },
+			]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			const reloaded = applyCatalogMaintenance(groups, materialsRoot, true);
+			expect(reloaded).toHaveLength(1);
+			expect(reloaded[0].materials.map((m) => m.itemName)).toEqual(['AP/RPG', 'Keep Me']);
+			const raw = JSON.parse(fs.readFileSync(path.join(materialsRoot, 'ammunition', 'misc_ammo.json'), 'utf8'));
+			expect(raw.map((m) => m.itemName)).toEqual(['AP/RPG', 'Keep Me']);
+		});
+
+		it('applyCatalogMaintenance (dryRun) recharge après rehome', () => {
+			const molten = '\u201cMolten Wind\u201d v.II Ammo';
+			writeJson('utilities/field_equipment.json', [
+				{ itemName: molten, faction: ['colonial'], itemDesc: 'ammo', itemCategory: 'utilities' },
+			]);
+			writeJson('ammunition/flamethrower_ammo.json', [
+				{ itemName: 'Willow\'s Bane Ammo', faction: ['warden'], itemDesc: 'w', itemCategory: 'heavy_arms' },
+			]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			const reloaded = applyCatalogMaintenance(groups, materialsRoot, true);
+			const names = [];
+			for (const group of reloaded) {
+				for (const material of group.materials) {
+					names.push(material.itemName);
+				}
+			}
+			expect(names).toContain(molten);
+		});
+
+		it('applyCatalogMaintenance logue si cible rehome absente', () => {
+			const molten = '\u201cMolten Wind\u201d v.II Ammo';
+			writeJson('utilities/field_equipment.json', [
+				{ itemName: molten, faction: ['colonial'], itemDesc: 'ammo', itemCategory: 'utilities' },
+			]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			applyCatalogMaintenance(groups, materialsRoot, false);
+			expect(stderrSpy).toHaveBeenCalledWith(expect.stringContaining('fichier cible absent'));
+		});
+
+		it('applyCatalogMaintenance ignore un filePath absent du groupe', () => {
+			writeJson('ammunition/misc_ammo.json', [
+				{ itemName: 'AP/RPG', faction: ['warden'], itemDesc: 'x', itemCategory: 'heavy_arms' },
+			]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			const ghostPath = path.join(materialsRoot, 'ammunition', 'ghost.json');
+			groups.push({ filePath: ghostPath, materials: [{ itemName: 'Ghost', faction: [], itemDesc: '—', itemCategory: 'x' }] });
+			applyCatalogMaintenance(groups, materialsRoot, false);
+			expect(fs.existsSync(ghostPath)).toBe(false);
+		});
+
+		it('applyCatalogMaintenance continue si le groupe a disparu avant écriture', () => {
+			writeJson('ammunition/misc_ammo.json', [
+				{ itemName: 'AP/RPG', faction: ['warden'], itemDesc: 'x', itemCategory: 'heavy_arms' },
+			]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			groups.find = () => undefined;
+			expect(() => applyCatalogMaintenance(groups, materialsRoot, false)).not.toThrow();
+		});
 	});
 });

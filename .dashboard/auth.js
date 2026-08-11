@@ -85,6 +85,12 @@ function resetLoginAttemptsForTests() {
 
 function validatePasswordStrength(password, username) {
 	const pwd = String(password || '');
+	if (pwd === 'admin' || pwd.toLowerCase() === String(username || '').toLowerCase()) {
+		const err = new Error('Password too weak');
+		err.status = 400;
+		err.code = 'AUTH_PASS_WEAK';
+		throw err;
+	}
 	if (pwd.length < PASSWORD_MIN) {
 		const err = new Error('Password too short');
 		err.status = 400;
@@ -96,12 +102,6 @@ function validatePasswordStrength(password, username) {
 		const err = new Error('Password too long');
 		err.status = 400;
 		err.code = 'AUTH_PASS_LONG';
-		throw err;
-	}
-	if (pwd === 'admin' || pwd.toLowerCase() === String(username || '').toLowerCase()) {
-		const err = new Error('Password too weak');
-		err.status = 400;
-		err.code = 'AUTH_PASS_WEAK';
 		throw err;
 	}
 }
@@ -392,6 +392,7 @@ module.exports = {
 	DEFAULT_USERNAME,
 	hashPassword,
 	verifyPassword,
+	validatePasswordStrength,
 	ensureDefaultAdmin,
 	getCredentials,
 	validateLogin,

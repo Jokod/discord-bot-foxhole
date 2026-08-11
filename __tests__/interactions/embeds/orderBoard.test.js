@@ -45,7 +45,13 @@ describe('orderBoard embeds', () => {
 	it('resolveSelectedLine falls back to first', () => {
 		expect(resolveSelectedLine(lines, '3').line_id).toBe('3');
 		expect(resolveSelectedLine(lines, 'missing').line_id).toBe('1');
+		expect(resolveSelectedLine(lines, '').line_id).toBe('1');
 		expect(resolveSelectedLine([], null)).toBeNull();
+		expect(resolveSelectedLine(null, '1')).toBeNull();
+	});
+
+	it('summarizeLines gère lines null', () => {
+		expect(summarizeLines(null).total).toBe(0);
 	});
 
 	it('summarizeLines', () => {
@@ -195,5 +201,60 @@ describe('orderBoard embeds', () => {
 		expect(reopenBtn).toBeDefined();
 		expect(reopenBtn.disabled).toBeFalsy();
 		expect(closeBtn).toBeUndefined();
+	});
+
+	it('buildOrderEmbed affiche le statut closed', () => {
+		const closed = { ...board, status: 'closed' };
+		const embed = buildOrderEmbed(closed, lines.slice(0, 1), translations);
+		expect(embed.toJSON().description).toContain('ORDER_STATUS_CLOSED');
+	});
+
+	it('formatLine sans nom utilise le tiret', () => {
+		expect(formatLine({ current: 1, target: 2, priority: 'neutral' }, translations)).toContain('**—**');
+	});
+
+	it('summarizeLines percent à 0 si cibles nulles', () => {
+		const stats = summarizeLines([{ current: 0, target: 0, priority: 'neutral' }]);
+		expect(stats.percent).toBe(0);
+	});
+
+	it('buildOrderEmbed tronque en conservant la ligne sélectionnée', () => {
+		const many = Array.from({ length: 80 }, (_, i) => ({
+			line_id: String(i + 1),
+			name: `Very Long Material Name Number ${i + 1}`,
+			current: 0,
+			target: 100,
+			priority: 'neutral',
+		}));
+		const selectedBoard = { ...board, selected_line_id: '40' };
+		const embed = buildOrderEmbed(selectedBoard, many, translations);
+		expect(embed.toJSON().description).toContain('Very Long Material Name Number 40');
+		expect(embed.toJSON().description).toContain('ORDER_EMBED_TRUNCATED');
+	});
+
+	it('buildOrderEmbed et components gèrent lines null', () => {
+		const embed = buildOrderEmbed(board, null, translations);
+		expect(embed.toJSON().description).toContain('ORDER_EMPTY');
+		const rows = buildOrderComponents(board, null, translations);
+		expect(rows.length).toBeGreaterThan(0);
+	});
+
+	it('buildOrderEmbed utilise la couleur du kind sans sélection', () => {
+		const embed = buildOrderEmbed({ ...board, selected_line_id: 'missing' }, [], translations);
+		expect(embed.toJSON().color).toBeDefined();
+	});
+
+	it('buildOrderComponents sans ligne sélectionnée désactive les outils', () => {
+		const rows = buildOrderComponents({ ...board, selected_line_id: null }, [], translations);
+		const qtyRow = rows[0].toJSON().components;
+		expect(qtyRow.every((c) => c.disabled)).toBe(true);
+		const tools = rows[1].toJSON().components;
+		expect(tools.find((c) => c.custom_id.includes('order_priority')).disabled).toBe(true);
+	});
+
+	it('buildOrderComponents gère une ligne sans nom dans le select', () => {
+		const rows = buildOrderComponents(board, [{ line_id: '9', current: 0, target: 1, priority: 'neutral' }], translations);
+		const opt = rows[0].toJSON().components[0].options[0];
+		expect(opt.label).toBe('—');
 	});
 });

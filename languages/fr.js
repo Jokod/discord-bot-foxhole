@@ -118,7 +118,9 @@ module.exports = {
 	SERVER_SET_CAMP_REPLY: 'Le camp du serveur a été changé en **%camp%**.',
 	SERVER_SET_LOGS_ON_REPLY: 'Les fils Journal des tableaux de commandes sont **activés**. Les nouveaux tableaux créeront un fil Journal verrouillé.',
 	SERVER_SET_LOGS_OFF_REPLY: 'Les fils Journal des tableaux de commandes sont **désactivés**. Les fils Journal existants ont été supprimés.',
-	SERVER_RESET_PREVIEW: 'Aperçu reset — supprimerait **%boards%** tableau(x), **%stockpiles%** stock(s), **%operations%** opération(s). Relancez avec **confirmer:true** pour confirmer.',
+	SERVER_RESET_PREVIEW: 'Cela va supprimer **%boards%** tableau(x), **%stockpiles%** stock(s), **%operations%** opération(s). Irréversible — confirmez ou annulez ci-dessous.',
+	SERVER_RESET_WAR_WARNING: '⚠ **La guerre #%war% est encore en cours** (jour %day%). Un reset maintenant effacera les données de la guerre active.',
+	SERVER_RESET_CANCELLED: 'Reset serveur annulé. Rien n\'a été supprimé.',
 	SERVER_RESET_SUCCESS: 'Reset serveur terminé — **%boards%** tableau(x), **%stockpiles%** stock(s), **%operations%** opération(s) supprimé(s). Config serveur et notifications conservées.',
 
 	// OPERATION ---------------------------------------------

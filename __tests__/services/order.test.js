@@ -454,4 +454,252 @@ describe('services/order', () => {
 		OrderLine.findOneAndUpdate.mockResolvedValue(null);
 		expect(await fillToTarget('g1', 'b1', '9')).toBeNull();
 	});
+
+	it('createBoard sans client/channel ne bootstrap pas', async () => {
+		OrderBoard.findOne.mockResolvedValue(null);
+		OrderBoard.create.mockResolvedValue({ _id: 'b1' });
+		await createBoard({
+			guildId: 'g1',
+			channelId: 'c1',
+			ownerId: 'u1',
+			name: 'OP',
+			kind: 'prod',
+		});
+		expect(mockBootstrap).not.toHaveBeenCalled();
+	});
+
+	it('createBoard trim from/to vides devient null', async () => {
+		OrderBoard.findOne.mockResolvedValue(null);
+		OrderBoard.create.mockResolvedValue({ _id: 'b1' });
+		await createBoard({
+			guildId: 'g1',
+			channelId: 'c1',
+			ownerId: 'u1',
+			name: 'OP',
+			kind: 'prod',
+			from: '   ',
+			to: 123,
+		});
+		expect(OrderBoard.create).toHaveBeenCalledWith(expect.objectContaining({
+			from: null,
+			to: null,
+		}));
+	});
+
+	it('deleteBoard sans client ne supprime pas log thread', async () => {
+		const board = { _id: 'b1', guild_id: 'g1' };
+		OrderLine.deleteMany.mockResolvedValue({});
+		OrderBoard.deleteOne.mockResolvedValue({});
+		await deleteBoard(board);
+		expect(mockDeleteOrderLogThread).not.toHaveBeenCalled();
+	});
+
+	it('deleteBoardsByOperation sans channel_id sur board', async () => {
+		OrderBoard.find.mockResolvedValue([{ _id: 'b1', guild_id: 'g1', operation_id: 'op1' }]);
+		OrderLine.deleteMany.mockResolvedValue({});
+		OrderBoard.deleteOne.mockResolvedValue({});
+		const client = { channels: { fetch: jest.fn() } };
+		await deleteBoardsByOperation('g1', 'op1', client);
+		expect(client.channels.fetch).not.toHaveBeenCalled();
+	});
+
+	it('applyIncrement delta non numérique traité comme 0', async () => {
+		OrderLine.findOneAndUpdate.mockResolvedValue({ current: 2, name: 'Sticky' });
+		expect((await applyIncrement('g1', 'b1', '1', 'bad')).current).toBe(2);
+	});
+
+	it('correctLine ignore champs undefined', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		OrderLine.findOne.mockResolvedValue({ current: 1, target: 5, priority: 'low', save });
+		const line = await correctLine('g1', 'b1', '1', {});
+		expect(line.current).toBe(1);
+		expect(line.target).toBe(5);
+		expect(line.priority).toBe('low');
+	});
+
+	it('consumeDraft retourne null sans Map', async () => {
+		expect(await consumeDraft({}, 'u1')).toBeNull();
+	});
+
+	it('createLine utilise updateOne si board sans save', async () => {
+		OrderLine.countDocuments.mockResolvedValue(0);
+		OrderLine.create.mockResolvedValue({ line_id: '7' });
+		const board = { _id: 'b1', guild_id: 'g1' };
+		await createLine(board, { name: 'Sticky', category: 'utilities', target: 1, ownerId: 'u1' });
+		expect(OrderBoard.updateOne).toHaveBeenCalledWith({ _id: 'b1' }, { selected_line_id: '7' });
+	});
+
+	it('deleteLine no-op si deletedCount 0', async () => {
+		OrderLine.deleteOne.mockResolvedValue({ deletedCount: 0 });
+		await deleteLine('g1', 'b1', '3');
+		expect(OrderBoard.findOne).not.toHaveBeenCalled();
+	});
+
+	it('consumeDraft supprime le draft existant', async () => {
+		const board = {
+			add_drafts: new Map([['u1', { name: 'X', category: 'utilities' }]]),
+			markModified: jest.fn(),
+			save: jest.fn().mockResolvedValue(undefined),
+		};
+		await expect(consumeDraft(board, 'u1')).resolves.toEqual({ name: 'X', category: 'utilities' });
+		expect(board.add_drafts.has('u1')).toBe(false);
+	});
+
+	it('getDraft retourne null si clé absente', () => {
+		const board = { add_drafts: new Map() };
+		expect(getDraft(board, 'missing')).toBeNull();
+	});
+
+	it('applyIncrement traite delta NaN comme 0', async () => {
+		OrderLine.findOneAndUpdate.mockResolvedValue({ current: 3 });
+		await applyIncrement('g1', 'b1', '1', 'not-a-number');
+		expect(OrderLine.findOneAndUpdate).toHaveBeenCalled();
+	});
+
+	it('correctLine applique target minimum 1', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		OrderLine.findOne.mockResolvedValue({ current: 1, target: 5, priority: 'low', save });
+		const line = await correctLine('g1', 'b1', '1', { target: 0 });
+		expect(line.target).toBe(1);
+	});
+
+	it('setDraft initialise add_drafts Map si absent', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		const board = { save, markModified: jest.fn() };
+		await setDraft(board, 'u1', { name: 'X', category: 'utilities' });
+		expect(board.add_drafts.get('u1')).toEqual({ name: 'X', category: 'utilities' });
+	});
+
+	it('createLine applique target minimum 1', async () => {
+		OrderLine.countDocuments.mockResolvedValue(0);
+		OrderLine.create.mockResolvedValue({ line_id: '7' });
+		const board = { _id: 'b1', guild_id: 'g1', save: jest.fn() };
+		await createLine(board, { name: 'Sticky', category: 'utilities', target: 0, ownerId: 'u1' });
+		expect(OrderLine.create).toHaveBeenCalledWith(expect.objectContaining({ target: 1 }));
+	});
+
+	it('createBoard mapDuplicateKeyError relance ORDER_ALREADY_EXISTS', async () => {
+		OrderBoard.findOne.mockResolvedValue(null);
+		const dup = new Error('dup');
+		dup.code = 11000;
+		OrderBoard.create.mockRejectedValue(dup);
+		await expect(createBoard({
+			guildId: 'g1',
+			channelId: 'c1',
+			ownerId: 'u1',
+			name: 'OP',
+			kind: 'prod',
+		})).rejects.toMatchObject({ code: 'ORDER_ALREADY_EXISTS' });
+	});
+
+	it('findBoardById filtre par guildId', async () => {
+		OrderBoard.findOne.mockResolvedValue({ _id: 'b1' });
+		await findBoardById('b1', 'g1');
+		expect(OrderBoard.findOne).toHaveBeenCalledWith({ _id: 'b1', guild_id: 'g1' });
+	});
+
+	it('applyIncrement clamp current à 0 si delta négatif', async () => {
+		OrderLine.findOneAndUpdate.mockResolvedValue({ current: 1, name: 'line' });
+		const result = await applyIncrement('g1', 'b1', '1', -1);
+		expect(result.current).toBe(0);
+	});
+
+	it('createBoard propage erreurs non-duplicate', async () => {
+		OrderBoard.findOne.mockResolvedValue(null);
+		OrderBoard.create.mockRejectedValue(new Error('db down'));
+		await expect(createBoard({
+			guildId: 'g1',
+			channelId: 'c1',
+			ownerId: 'u1',
+			name: 'OP',
+			kind: 'prod',
+		})).rejects.toThrow('db down');
+	});
+
+	it('createBoard rollback ignore deleteOne reject', async () => {
+		OrderBoard.findOne.mockResolvedValue(null);
+		const created = { _id: 'b1', name: 'OP' };
+		OrderBoard.create.mockResolvedValue(created);
+		OrderBoard.deleteOne.mockReturnValue(Promise.reject(new Error('delete fail')));
+		mockBootstrap.mockRejectedValueOnce(new Error('send failed'));
+
+		await expect(createBoard({
+			guildId: 'g1',
+			channelId: 'c1',
+			ownerId: 'u1',
+			name: 'OP',
+			kind: 'prod',
+			client: {},
+			channel: { id: 'c1' },
+		})).rejects.toThrow('send failed');
+
+		expect(OrderBoard.deleteOne).toHaveBeenCalledWith({ _id: 'b1' });
+	});
+
+	it('deleteBoardsByOperation ignore fetch channel reject', async () => {
+		OrderBoard.find.mockResolvedValue([
+			{ _id: 'b1', guild_id: 'g1', channel_id: 'c1', operation_id: 'op1' },
+		]);
+		OrderLine.deleteMany.mockResolvedValue({});
+		OrderBoard.deleteOne.mockResolvedValue({});
+		const fetch = jest.fn().mockReturnValue(Promise.reject(new Error('missing channel')));
+		const client = { channels: { fetch } };
+
+		const deleted = await deleteBoardsByOperation('g1', 'op1', client);
+
+		expect(deleted).toHaveLength(1);
+		expect(mockDeleteTracked).toHaveBeenCalled();
+	});
+
+	it('consumeDraft retourne null si clé absente dans Map', async () => {
+		const board = {
+			add_drafts: new Map(),
+			markModified: jest.fn(),
+			save: jest.fn(),
+		};
+		expect(await consumeDraft(board, 'missing')).toBeNull();
+		expect(board.save).not.toHaveBeenCalled();
+	});
+
+	it('fillToTarget clamp via toNonNegNumber sur valeurs invalides', async () => {
+		OrderLine.findOneAndUpdate.mockResolvedValue({ current: 'bad', target: null });
+		const result = await fillToTarget('g1', 'b1', '1');
+		expect(result.current).toBe(0);
+	});
+
+	it('createBoard trim from vide devient null', async () => {
+		OrderBoard.findOne.mockResolvedValue(null);
+		OrderBoard.create.mockResolvedValue({ _id: 'b1' });
+		await createBoard({
+			guildId: 'g1',
+			channelId: 'c1',
+			ownerId: 'u1',
+			name: 'OP',
+			kind: 'transfer',
+			from: '   ',
+			to: '   ',
+		});
+		expect(OrderBoard.create).toHaveBeenCalledWith(expect.objectContaining({
+			from: null,
+			to: null,
+		}));
+	});
+
+	it('createBoard ignore from/to non-string', async () => {
+		OrderBoard.findOne.mockResolvedValue(null);
+		OrderBoard.create.mockResolvedValue({ _id: 'b1' });
+		await createBoard({
+			guildId: 'g1',
+			channelId: 'c1',
+			ownerId: 'u1',
+			name: 'OP',
+			kind: 'prod',
+			from: 123,
+			to: false,
+		});
+		expect(OrderBoard.create).toHaveBeenCalledWith(expect.objectContaining({
+			from: null,
+			to: null,
+		}));
+	});
 });

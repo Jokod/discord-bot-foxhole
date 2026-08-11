@@ -109,5 +109,58 @@ describe('notifications utility', () => {
 
 			expect(mockSend).toHaveBeenCalledTimes(1);
 		});
+		it('continue si fetch reject (catch null)', async () => {
+			mockFind.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }, { channel_id: 'ch2' }]),
+			});
+			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const mockSend = jest.fn().mockResolvedValue(undefined);
+			const client = {
+				channels: {
+					fetch: jest.fn()
+						.mockReturnValueOnce(Promise.reject(new Error('fetch fail')))
+						.mockResolvedValueOnce({ isSendable: () => true, send: mockSend }),
+				},
+			};
+
+			await notifications.sendToSubscribers(client, 'guild-1', 'stockpile_activity', buildPayload);
+
+			expect(mockSend).toHaveBeenCalledTimes(1);
+		});
+
+		it('continue si fetch throw (outer catch)', async () => {
+			mockFind.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
+			});
+			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const client = {
+				channels: {
+					fetch: jest.fn().mockImplementation(() => {
+						throw new Error('fetch boom');
+					}),
+				},
+			};
+
+			await expect(notifications.sendToSubscribers(client, 'guild-1', 'stockpile_activity', buildPayload))
+				.resolves.toBeUndefined();
+		});
+
+		it('continue si send throw', async () => {
+			mockFind.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
+			});
+			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const client = {
+				channels: {
+					fetch: jest.fn().mockResolvedValue({
+						isSendable: () => true,
+						send: jest.fn().mockRejectedValue(new Error('send fail')),
+					}),
+				},
+			};
+
+			await expect(notifications.sendToSubscribers(client, 'guild-1', 'stockpile_activity', buildPayload))
+				.resolves.toBeUndefined();
+		});
 	});
 });

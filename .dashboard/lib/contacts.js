@@ -94,7 +94,6 @@ async function loadContacts({ force = false } = {}) {
 				}
 				else if (fresh) {
 					ownerId = fresh;
-					if (!g.owner_id) ownerBackfill.push({ guild_id: g.guild_id, owner_id: fresh });
 				}
 			}
 			else {
@@ -137,10 +136,8 @@ async function loadContacts({ force = false } = {}) {
 		));
 	}
 
-	guildsOut.sort((a, b) => {
-		if (a.active !== b.active) return a.active ? -1 : 1;
-		return (b.command_count || 0) - (a.command_count || 0);
-	});
+	guildsOut.sort((a, b) =>
+		(Number(b.active) - Number(a.active)) || (b.command_count - a.command_count));
 
 	const peopleMap = new Map();
 	for (const g of guildsOut) {
