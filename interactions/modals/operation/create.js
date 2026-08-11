@@ -11,7 +11,8 @@ module.exports = {
 		const { client, guild, user, fields } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		const title = client.sessions[user.id].title;
+		const sessionKey = `${guild.id}:${user.id}`;
+		const title = client.sessions[sessionKey].title;
 		const dateField = fields.getTextInputValue('date');
 		const timeField = fields.getTextInputValue('time');
 		const durationField = fields.getTextInputValue('duration');
@@ -109,7 +110,7 @@ module.exports = {
 				},
 			);
 
-			delete interaction.client.sessions[interaction.user.id];
+			delete interaction.client.sessions[sessionKey];
 
 			await React.execute(message);
 		}

@@ -16,9 +16,9 @@ module.exports = {
 
 		await interaction.deferUpdate();
 
-		const stock = await Stockpile.findById(stockRef);
+		const stock = await Stockpile.findOne({ _id: stockRef, server_id: guild.id });
 
-		if (!stock || stock.server_id !== guild.id) {
+		if (!stock) {
 			return interaction.followUp({
 				content: translations.translate('STOCKPILE_NOT_EXIST'),
 				flags: 64,

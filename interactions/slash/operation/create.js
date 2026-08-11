@@ -49,7 +49,7 @@ module.exports = {
 			return;
 		}
 
-		interaction.client.sessions[interaction.user.id] = { title: title };
+		interaction.client.sessions[`${interaction.guild.id}:${interaction.user.id}`] = { title: title };
 
 		const modal = new ModalBuilder()
 			.setCustomId('modal_create_operation')

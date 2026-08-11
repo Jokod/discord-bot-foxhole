@@ -296,12 +296,11 @@ describe('services/order', () => {
 		});
 	});
 
-	it('findBoardById filtre guild optionnel', async () => {
+	it('findBoardById exige guildId et filtre par guild', async () => {
 		OrderBoard.findOne.mockResolvedValue({ _id: 'b1' });
 		await findBoardById('b1', 'g1');
 		expect(OrderBoard.findOne).toHaveBeenCalledWith({ _id: 'b1', guild_id: 'g1' });
-		await findBoardById('b1');
-		expect(OrderBoard.findOne).toHaveBeenCalledWith({ _id: 'b1' });
+		expect(() => findBoardById('b1')).toThrow('findBoardById requires guildId');
 	});
 
 	it('findBoardsByChannel trie par nom', async () => {

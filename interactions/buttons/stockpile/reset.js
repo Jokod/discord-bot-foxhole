@@ -24,10 +24,10 @@ module.exports = {
 		}
 
 		const stockToReset = isObjectId
-			? await Stockpile.findById(stockRef)
+			? await Stockpile.findOne({ _id: stockRef, server_id: guild.id })
 			: await Stockpile.findOne({ server_id: guild.id, id: stockRef });
 
-		if (!stockToReset || stockToReset.server_id !== guild.id) {
+		if (!stockToReset) {
 			return interaction.followUp({
 				content: translations.translate('STOCKPILE_NOT_EXIST'),
 				flags: 64,

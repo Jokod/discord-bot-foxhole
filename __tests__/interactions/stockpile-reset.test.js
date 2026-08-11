@@ -12,12 +12,10 @@ jest.mock('../../interactions/embeds/stockpileList.js', () => ({
 }));
 
 const mockStockpileFindOne = jest.fn();
-const mockStockpileFindById = jest.fn();
 const mockStockpileFind = jest.fn();
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
 		findOne: (...args) => mockStockpileFindOne(...args),
-		findById: (...args) => mockStockpileFindById(...args),
 		find: jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn() }), lean: jest.fn() }),
 		deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 }),
 	},
@@ -75,14 +73,16 @@ describe('Stockpile reset button', () => {
 			expiry_reminders_sent: [],
 			save: jest.fn().mockResolvedValue(undefined),
 		};
-		mockStockpileFindById.mockResolvedValue(doc);
+		mockStockpileFindOne.mockResolvedValue(doc);
 		mockBuildStockpileListEmbed.mockResolvedValue({ embed: { toJSON: () => ({}) }, isEmpty: false });
 		mockBuildStockpileListComponents.mockResolvedValue([{ components: [] }]);
 
 		await resetHandler.execute(interaction);
 
-		expect(mockStockpileFindById).toHaveBeenCalledWith('507f1f77bcf86cd799439011');
-		expect(mockStockpileFindOne).not.toHaveBeenCalled();
+		expect(mockStockpileFindOne).toHaveBeenCalledWith({
+			_id: '507f1f77bcf86cd799439011',
+			server_id: 'guild-123',
+		});
 		expect(doc.save).toHaveBeenCalled();
 	});
 

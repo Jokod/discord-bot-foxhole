@@ -32,9 +32,10 @@ function toNonNegNumber(value) {
 }
 
 function findBoardById(boardId, guildId) {
-	const filter = { _id: boardId };
-	if (guildId) filter.guild_id = guildId;
-	return OrderBoard.findOne(filter);
+	if (!guildId) {
+		throw new Error('findBoardById requires guildId');
+	}
+	return OrderBoard.findOne({ _id: boardId, guild_id: guildId });
 }
 
 function findBoardByChannelAndName(guildId, channelId, name) {

@@ -33,7 +33,7 @@ describe('Slash /operation', () => {
 	it('ouvre le modal et stocke le titre en session', async () => {
 		const i = interaction('raid');
 		await createSlash.execute(i);
-		expect(i.client.sessions.u1).toEqual({ title: 'RAID' });
+		expect(i.client.sessions['g1:u1']).toEqual({ title: 'RAID' });
 		expect(i.showModal).toHaveBeenCalled();
 		const modal = i.showModal.mock.calls[0][0];
 		expect(modal.data.custom_id).toBe('modal_create_operation');

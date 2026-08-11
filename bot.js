@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
-const { Server, OrderBoard } = require('./data/models.js');
+const { Server, OrderBoard, Operation } = require('./data/models.js');
 const Translate = require('./utils/translations.js');
 
 const configureDns = () => {
@@ -200,6 +200,12 @@ const connectToMongoWithRetry = async () => {
 			}
 			catch (indexErr) {
 				console.error('Failed to sync OrderBoard indexes:', indexErr.message);
+			}
+			try {
+				await Operation.syncIndexes();
+			}
+			catch (indexErr) {
+				console.error('Failed to sync Operation indexes:', indexErr.message);
 			}
 			return;
 		}

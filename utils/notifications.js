@@ -34,9 +34,9 @@ async function sendToSubscribers(client, guildId, notificationType, buildPayload
 	for (const { channel_id } of subscriptions) {
 		try {
 			const channel = await client.channels.fetch(channel_id).catch(() => null);
-			if (channel && channel.isSendable()) {
-				await channel.send(payload);
-			}
+			if (!channel || !channel.isSendable()) continue;
+			if (channel.guildId && channel.guildId !== guildId) continue;
+			await channel.send(payload);
 		}
 		catch {
 			// Channel deleted, no permission, etc. — skip

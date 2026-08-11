@@ -54,11 +54,15 @@ describe('Operation Model', () => {
 			expect(operation.numberOfGroups).toBe(0);
 		});
 
-		it('should enforce unique operation_id', () => {
-			const schema = Operation.schema;
-			const operationIdPath = schema.path('operation_id');
-
-			expect(operationIdPath.options.unique).toBe(true);
+		it('should enforce unique guild_id + operation_id', () => {
+			const indexes = Operation.schema.indexes();
+			const compound = indexes.find((entry) => {
+				const keys = entry[0];
+				return keys.guild_id === 1 && keys.operation_id === 1;
+			});
+			expect(compound).toBeDefined();
+			expect(compound[1].unique).toBe(true);
+			expect(Operation.schema.path('operation_id').options.unique).toBeFalsy();
 		});
 
 		it('should have correct field types', () => {

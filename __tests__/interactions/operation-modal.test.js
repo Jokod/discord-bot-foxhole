@@ -35,7 +35,7 @@ describe('Modal create operation', () => {
 		return {
 			id: 'interaction-1',
 			client: {
-				sessions: { u1: { title: 'RAID' } },
+				sessions: { 'g1:u1': { title: 'RAID' } },
 				traductions: new Map(),
 			},
 			guild: { id: 'g1' },
@@ -105,7 +105,7 @@ describe('Modal create operation', () => {
 			expect.objectContaining({ operation_id: 'msg-1', channel_id: 'c1' }),
 		);
 		expect(React.execute).toHaveBeenCalled();
-		expect(i.client.sessions.u1).toBeUndefined();
+		expect(i.client.sessions['g1:u1']).toBeUndefined();
 	});
 
 	it('répond CREATE_ERROR si create échoue', async () => {

@@ -12,7 +12,6 @@ const Operation = mongoose.Schema({
 	operation_id: {
 		type: String,
 		required: true,
-		unique: true,
 	},
 	owner_id: {
 		type: String,
@@ -37,5 +36,7 @@ const Operation = mongoose.Schema({
 		required: false,
 	},
 });
+
+Operation.index({ guild_id: 1, operation_id: 1 }, { unique: true });
 
 module.exports = mongoose.model('Operation', Operation);

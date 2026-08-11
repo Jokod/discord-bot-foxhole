@@ -34,13 +34,13 @@ jest.mock('../../utils/markdown.js', () => ({
 }));
 
 const mockDeleteMany = jest.fn().mockResolvedValue({ deletedCount: 2 });
-const mockFindById = jest.fn();
+const mockFindOne = jest.fn();
 const mockTrackedDeleteMany = jest.fn().mockResolvedValue({ deletedCount: 1 });
 
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
 		deleteMany: (...args) => mockDeleteMany(...args),
-		findById: (...args) => mockFindById(...args),
+		findOne: (...args) => mockFindOne(...args),
 	},
 	TrackedMessage: {
 		deleteMany: (...args) => mockTrackedDeleteMany(...args),
@@ -155,23 +155,26 @@ describe('Stockpile admin handlers', () => {
 
 	describe('select_stockpile_remove', () => {
 		it('refuse stock inconnu', async () => {
-			mockFindById.mockResolvedValue(null);
+			mockFindOne.mockResolvedValue(null);
 			const i = base({ values: ['507f1f77bcf86cd799439011'] });
 			await remove.execute(i);
+			expect(mockFindOne).toHaveBeenCalledWith({
+				_id: '507f1f77bcf86cd799439011',
+				server_id: 'guild-123',
+			});
 			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
 				content: 'STOCKPILE_NOT_EXIST',
 			}));
 		});
 
 		it('refuse stock d\'un autre serveur', async () => {
-			mockFindById.mockResolvedValue({
-				server_id: 'other-guild',
-				id: '1',
-				name: 'Seaport',
-				deleted: false,
-			});
+			mockFindOne.mockResolvedValue(null);
 			const i = base({ values: ['507f1f77bcf86cd799439011'] });
 			await remove.execute(i);
+			expect(mockFindOne).toHaveBeenCalledWith({
+				_id: '507f1f77bcf86cd799439011',
+				server_id: 'guild-123',
+			});
 			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
 				content: 'STOCKPILE_NOT_EXIST',
 			}));
@@ -179,7 +182,7 @@ describe('Stockpile admin handlers', () => {
 
 		it('refuse sans permission owner', async () => {
 			canManageStockpile.mockReturnValue(false);
-			mockFindById.mockResolvedValue({
+			mockFindOne.mockResolvedValue({
 				server_id: 'guild-123',
 				id: '1',
 				name: 'Seaport',
@@ -194,7 +197,7 @@ describe('Stockpile admin handlers', () => {
 		});
 
 		it('refuse déjà deleted', async () => {
-			mockFindById.mockResolvedValue({
+			mockFindOne.mockResolvedValue({
 				server_id: 'guild-123',
 				id: '1',
 				deleted: true,
@@ -216,7 +219,7 @@ describe('Stockpile admin handlers', () => {
 				deleted: false,
 				save,
 			};
-			mockFindById.mockResolvedValue(stock);
+			mockFindOne.mockResolvedValue(stock);
 			const i = base({ values: ['507f1f77bcf86cd799439011'] });
 			await remove.execute(i);
 			expect(stock.deleted).toBe(true);
@@ -233,7 +236,7 @@ describe('Stockpile admin handlers', () => {
 			sendToSubscribers.mockRejectedValueOnce(new Error('notify failed'));
 			mockRefreshLists.mockRejectedValueOnce(new Error('refresh failed'));
 			const save = jest.fn().mockResolvedValue(undefined);
-			mockFindById.mockResolvedValue({
+			mockFindOne.mockResolvedValue({
 				server_id: 'guild-123',
 				id: '1',
 				name: 'Seaport',
@@ -246,7 +249,7 @@ describe('Stockpile admin handlers', () => {
 
 		it('exécute le callback sendToSubscribers', async () => {
 			const save = jest.fn().mockResolvedValue(undefined);
-			mockFindById.mockResolvedValue({
+			mockFindOne.mockResolvedValue({
 				server_id: 'guild-123',
 				id: '1',
 				name: 'Seaport',

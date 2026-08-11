@@ -61,8 +61,8 @@ describe('notifications utility', () => {
 			const client = {
 				channels: {
 					fetch: jest.fn()
-						.mockResolvedValueOnce({ isSendable: () => true, send: mockSend })
-						.mockResolvedValueOnce({ isSendable: () => true, send: mockSend }),
+						.mockResolvedValueOnce({ guildId: 'guild-1', isSendable: () => true, send: mockSend })
+						.mockResolvedValueOnce({ guildId: 'guild-1', isSendable: () => true, send: mockSend }),
 				},
 			};
 
@@ -74,6 +74,27 @@ describe('notifications utility', () => {
 			expect(mockSend).toHaveBeenCalledTimes(2);
 		});
 
+		it('ignore les canaux d\'une autre guild', async () => {
+			mockFind.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
+			});
+			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const mockSend = jest.fn();
+			const client = {
+				channels: {
+					fetch: jest.fn().mockResolvedValue({
+						guildId: 'other-guild',
+						isSendable: () => true,
+						send: mockSend,
+					}),
+				},
+			};
+
+			await notifications.sendToSubscribers(client, 'guild-1', 'stockpile_activity', buildPayload);
+
+			expect(mockSend).not.toHaveBeenCalled();
+		});
+
 		it('ignore les canaux non sendable', async () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
@@ -82,7 +103,11 @@ describe('notifications utility', () => {
 			const mockSend = jest.fn();
 			const client = {
 				channels: {
-					fetch: jest.fn().mockResolvedValue({ isSendable: () => false, send: mockSend }),
+					fetch: jest.fn().mockResolvedValue({
+						guildId: 'guild-1',
+						isSendable: () => false,
+						send: mockSend,
+					}),
 				},
 			};
 
@@ -101,7 +126,7 @@ describe('notifications utility', () => {
 				channels: {
 					fetch: jest.fn()
 						.mockResolvedValueOnce(null)
-						.mockResolvedValueOnce({ isSendable: () => true, send: mockSend }),
+						.mockResolvedValueOnce({ guildId: 'guild-1', isSendable: () => true, send: mockSend }),
 				},
 			};
 
@@ -109,6 +134,7 @@ describe('notifications utility', () => {
 
 			expect(mockSend).toHaveBeenCalledTimes(1);
 		});
+
 		it('continue si fetch reject (catch null)', async () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }, { channel_id: 'ch2' }]),
@@ -119,7 +145,7 @@ describe('notifications utility', () => {
 				channels: {
 					fetch: jest.fn()
 						.mockReturnValueOnce(Promise.reject(new Error('fetch fail')))
-						.mockResolvedValueOnce({ isSendable: () => true, send: mockSend }),
+						.mockResolvedValueOnce({ guildId: 'guild-1', isSendable: () => true, send: mockSend }),
 				},
 			};
 
@@ -153,6 +179,7 @@ describe('notifications utility', () => {
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						guildId: 'guild-1',
 						isSendable: () => true,
 						send: jest.fn().mockRejectedValue(new Error('send fail')),
 					}),
