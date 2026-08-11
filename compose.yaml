@@ -7,7 +7,7 @@
 #   COMPOSE_PROFILES=with-mongo   (+ dashboard if wanted)
 #   MONGODB_URL=mongodb://USER:PASS@mongo:27017/?authSource=admin
 #
-# Pin: FOXBOT_IMAGE_TAG=1.0.0  ·  Local build: docker compose up -d --build
+# Pin: FOXBOT_IMAGE_TAG=<semver>  ·  Local build: docker compose up -d --build
 # Profiles: with-mongo  ·  dashboard → http://127.0.0.1:3847
 
 name: foxbot

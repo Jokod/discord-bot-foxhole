@@ -1,6 +1,6 @@
 {
 	"name": "discord-foxhole-bot",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Discord bot for Foxhole",
 	"engines": {
 		"node": ">=20"

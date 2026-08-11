@@ -46,7 +46,7 @@ cp .env.dist .env
 docker compose up -d
 ```
 
-Pin a release: `FOXBOT_IMAGE_TAG=1.0.0` in `.env`.  
+Pin a release: set `FOXBOT_IMAGE_TAG` in `.env` to a [published tag](https://github.com/Jokod/discord-bot-foxhole/pkgs/container/foxbot) (or leave unset for `latest`).  
 Upgrade: bump the tag → `docker compose pull && docker compose up -d`.  
 Local build: `docker compose up -d --build`.
 
@@ -163,6 +163,8 @@ Before any major version bump:
 4. Check slash commands (re-registered at boot)
 
 Example **→ 1.0.0**: `node scripts/migrate-v2.js --dry-run` then `node scripts/migrate-v2.js`, then recreate boards with `/order` (no automatic `/logistics` / `/material` → order conversion).
+
+Routine **1.0.x** patches: usually no Mongo script — deploy + restart (see [MIGRATION.md](MIGRATION.md#patch--minor-upgrades-10x)).
 
 ---
 

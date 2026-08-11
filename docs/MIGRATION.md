@@ -7,6 +7,21 @@ Full ops guide (install, env, wiki): [SELF-HOST.md](SELF-HOST.md). Player usage:
 | From → to | Section |
 |-----------|---------|
 | Pre-1.0.0 (`/logistics` / `/material`) → **1.0.0** | [below](#release-100--changes-migration-and-validation) |
+| Patch / minor **1.0.x** | [Patch & minor upgrades](#patch--minor-upgrades-10x) |
+
+---
+
+# Patch & minor upgrades (1.0.x)
+
+Most **1.0.x** releases need **no** `migrate-*.js` script.
+
+**Self-host:** backup Mongo (recommended) → deploy the new tag/commit → **restart**. Docker: bump `FOXBOT_IMAGE_TAG` → `docker compose pull && docker compose up -d`.
+
+Indexes declared in Mongoose (e.g. unique `{ guild_id, operation_id }` on operations) are applied at bot start. If an index build fails, inspect duplicate keys, clean them, then restart.
+
+**Smoke after upgrade:** `/operation` · `/order` · `/stockpile` · `/notify` on a test guild; confirm slash commands refreshed.
+
+When a release **does** ship a Mongo script, it will be listed in this file with steps — until then, treat patch bumps as deploy + restart only.
 
 ---
 
