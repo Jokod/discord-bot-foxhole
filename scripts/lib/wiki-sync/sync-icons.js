@@ -8,8 +8,16 @@ const {
 	BATCH_DELAY_MS,
 	WIKI_API,
 	USER_AGENT,
+	WIKI_ICON_PAGE_OVERRIDES,
 } = require('./config');
 const { sleep, isFrenchUniformEntry, inferWikiTitle } = require('./wiki-helpers');
+
+function resolveIconWikiTitle(itemName) {
+	if (Object.prototype.hasOwnProperty.call(WIKI_ICON_PAGE_OVERRIDES, itemName)) {
+		return WIKI_ICON_PAGE_OVERRIDES[itemName];
+	}
+	return inferWikiTitle(itemName);
+}
 const { extractInfoboxImage } = require('./wiki-content');
 const { fetchWikitextForTitles } = require('./wiki-client');
 const { loadAllMaterialFiles } = require('./materials-store');
@@ -31,6 +39,17 @@ function safeIconFilename(name) {
 		return null;
 	}
 	return base;
+}
+
+/** MediaWiki stocke les fichiers avec `_` ; normalise aussi pour des URLs sans espaces. */
+function canonicalIconFilename(name) {
+	const safe = safeIconFilename(name);
+	if (!safe) return null;
+	return safe.replace(/ /g, '_');
+}
+
+function mediaWikiFileKey(name) {
+	return String(name || '').replace(/ /g, '_');
 }
 
 function isAllowedIconUrl(fileUrl) {
@@ -108,7 +127,7 @@ async function fetchImageInfoUrls(filenames, { fetchImpl = fetch } = {}) {
 			const file = title.replace(/^File:/i, '');
 			const infoUrl = page.imageinfo?.[0]?.url;
 			if (file && infoUrl && page.missing === undefined && isAllowedIconUrl(infoUrl)) {
-				urlByFile.set(file, infoUrl);
+				urlByFile.set(mediaWikiFileKey(file), infoUrl);
 			}
 		}
 		if (i + BATCH_SIZE < filenames.length) {
@@ -171,7 +190,7 @@ async function runSyncMaterialIcons(opts) {
 	const itemNames = catalogItemNames(materialsRoot);
 	const titleToItems = new Map();
 	for (const itemName of itemNames) {
-		const wikiTitle = inferWikiTitle(itemName);
+		const wikiTitle = resolveIconWikiTitle(itemName);
 		if (!titleToItems.has(wikiTitle)) titleToItems.set(wikiTitle, []);
 		titleToItems.get(wikiTitle).push(itemName);
 	}
@@ -214,7 +233,7 @@ async function runSyncMaterialIcons(opts) {
 			for (const n of names) missingImage.push({ itemName: n, wikiTitle });
 			continue;
 		}
-		const safe = safeIconFilename(image);
+		const safe = canonicalIconFilename(image);
 		if (!safe) {
 			for (const n of names) missingImage.push({ itemName: n, wikiTitle, image });
 			continue;
@@ -242,7 +261,7 @@ async function runSyncMaterialIcons(opts) {
 	if (toDownload.length) {
 		const urlByFile = await fetchImageInfoUrls(toDownload, { fetchImpl });
 		for (const file of toDownload) {
-			const fileUrl = urlByFile.get(file);
+			const fileUrl = urlByFile.get(mediaWikiFileKey(file));
 			const dest = path.join(iconsDir, file);
 			if (!fileUrl) {
 				log(`[skip] pas d’URL imageinfo pour ${file}`);
@@ -299,10 +318,13 @@ module.exports = {
 	MAX_ICON_BYTES,
 	ALLOWED_ICON_HOSTS,
 	safeIconFilename,
+	canonicalIconFilename,
+	mediaWikiFileKey,
 	isAllowedIconUrl,
 	detectImageKind,
 	extensionMatchesKind,
 	catalogItemNames,
+	resolveIconWikiTitle,
 	fetchImageInfoUrls,
 	downloadBinary,
 	runSyncMaterialIcons,

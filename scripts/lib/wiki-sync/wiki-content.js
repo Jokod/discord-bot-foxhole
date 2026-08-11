@@ -1,9 +1,9 @@
 'use strict';
 
-const INFOBOX_BLOCK = /\{\{(Item|Vehicle) Infobox[\s\S]*?^}}\s*/m;
+const INFOBOX_BLOCK = /\{\{(Item|Vehicle|Structure) Infobox[\s\S]*?^}}\s*/m;
 
 function extractFirstInfoboxFaction(wikitext) {
-	const infoboxMatch = wikitext.match(/\{\{(?:Item|Vehicle) Infobox[\s\S]*?^}}\s*/m);
+	const infoboxMatch = wikitext.match(/\{\{(?:Item|Vehicle|Structure) Infobox[\s\S]*?^}}\s*/m);
 	if (!infoboxMatch) {
 		return null;
 	}

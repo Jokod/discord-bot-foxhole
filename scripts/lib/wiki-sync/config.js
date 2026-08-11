@@ -36,6 +36,21 @@ const WIKI_TITLE_OVERRIDES = {
 	'Molten Wind v.II Flame Torch': '\u201cMolten Wind\u201d v.II Flame Torch',
 	// Ancien nom FR catalogue (renommé en 250mm “Fury” Shell)
 	'Obus « Fury » de 250 mm': '250mm \u201cFury\u201d Shell',
+	// Disambig wiki → page matériau (icône + description)
+	'Barbed Wire': 'Barbed Wire (Material)',
+};
+
+/** Pages wiki hub sans image → page item avec icône (sync icons uniquement). */
+const WIKI_ICON_PAGE_OVERRIDES = {
+	'Soldier Uniform': 'Legionary Fatigues',
+	'Engineer Uniform': 'Fabri Rucksack',
+	'Medic Uniform': 'Medic Fatigues',
+	'Scout Uniform': 'Recon Camo',
+	'Tank Uniform': 'Tankman\'s Coveralls',
+	'Snow Uniform': 'Heavy Topcoat',
+	'Armour Uniform': 'Velian Flak Vest',
+	'Officer Uniform': 'Officialis\' Attire',
+	'Paratrooper Uniform': 'Auster\'s Harness',
 };
 
 const WIKI_HUB_TITLES = new Set([
@@ -121,6 +136,7 @@ module.exports = {
 	PRUNE_CATALOG_ITEM_NAMES,
 	ITEM_REHOME_TO_REL,
 	WIKI_TITLE_OVERRIDES,
+	WIKI_ICON_PAGE_OVERRIDES,
 	WIKI_HUB_TITLES,
 	WIKI_SCAN_CATEGORIES,
 	WIKI_NOT_LOGISTICS_TITLES,

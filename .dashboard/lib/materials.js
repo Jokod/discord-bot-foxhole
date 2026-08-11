@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { categories } = require('../../data/fournis');
-const { PUBLIC_ICON_PREFIX, safeIconFilename } = require('../../scripts/lib/wiki-sync/sync-icons');
+const { PUBLIC_ICON_PREFIX, canonicalIconFilename } = require('../../scripts/lib/wiki-sync/sync-icons');
 const { inferWikiTitle } = require('../../scripts/lib/wiki-sync/wiki-helpers');
 
 const DEFAULT_MATERIALS_ROOT = path.join(__dirname, '..', '..', 'data', 'materials');
@@ -26,11 +26,11 @@ function resolveIconUrl(itemName, iconsDir, manifest) {
 	if (fromManifest) candidates.push(fromManifest);
 
 	for (const file of candidates) {
-		const safe = safeIconFilename(file);
+		const safe = canonicalIconFilename(file);
 		if (!safe) continue;
 		const full = path.join(iconsDir, safe);
 		if (fs.existsSync(full) && fs.statSync(full).isFile()) {
-			return `${PUBLIC_ICON_PREFIX}/${safe}`;
+			return `${PUBLIC_ICON_PREFIX}/${encodeURIComponent(safe)}`;
 		}
 	}
 	return null;

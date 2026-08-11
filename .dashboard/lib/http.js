@@ -99,7 +99,17 @@ function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath, materi
 		}
 
 		if (rel.startsWith('icons/materials/') && materialIconsDir) {
-			const name = rel.slice('icons/materials/'.length);
+			let name = rel.slice('icons/materials/'.length);
+			try {
+				name = decodeURIComponent(name);
+			}
+			catch {
+				res.writeHead(400, { 'Content-Type': 'text/plain' });
+				res.end('Bad request');
+				return;
+			}
+			// Alignement MediaWiki : espaces → underscores
+			name = name.replace(/ /g, '_');
 			if (!name || name.includes('/') || name.includes('\\') || name.includes('..')) {
 				res.writeHead(404, { 'Content-Type': 'text/plain' });
 				res.end('Not found');
