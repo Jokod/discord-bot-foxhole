@@ -18,7 +18,6 @@ module.exports = {
 	CONFIRM: 'Confirm',
 	BACK: 'Back',
 	INTERACTION_ERROR: 'No interaction was found for this action.',
-	PREFIX_MESSAGE: 'Hi %author%! My prefix is %prefix%, for help %prefix%help',
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
 	ABOUT_DISCORD: '**Support Discord:** %url%',
@@ -86,16 +85,8 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Available commands: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
-	OWNER_ONLY: 'This command is only available to the owner of the bot.',
 	NO_DM: 'I can\'t execute that command inside DMs!',
 	NO_PERMS: 'You don\'t have the permissions to use this command.',
-	ARGS_MISSING: 'You didn\'t provide any arguments, %author%!',
-	COMMAND_USAGE: 'The proper usage would be: `%prefix%%command% %usage%`',
-	COMMAND_COOLDOWN: 'Please wait %time% more seconds before using the `%command%` command again.',
-	RELOAD_UNKNOWN: 'There is no command with name or alias `%command%`, %author%!',
-	RELOAD_SUCCESS: 'Command `%command%` was reloaded!',
-	RELOAD_ERROR: 'There was an error while reloading a command `%command%`:\n`%error%`',
-
 	// SERVER ---------------------------------------------
 
 	// SERVER INIT

@@ -18,7 +18,6 @@ module.exports = {
 	CONFIRM: 'Confirmer',
 	BACK: 'Retour',
 	INTERACTION_ERROR: 'Aucune intéraction n\'a été trouvée pour cette action.',
-	PREFIX_MESSAGE: 'Salut %author%! Mon prefix est %prefix%, pour avoir de l\'aide %prefix%help',
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub :** %url%',
 	ABOUT_DISCORD: '**Discord de support :** %url%',
@@ -86,16 +85,8 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Commandes disponibles : %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Une erreur est survenue lors de l\'exécution de la commande.',
-	OWNER_ONLY: 'Cette commande est uniquement disponible pour le propriétaire du bot.',
 	NO_DM: 'Je ne peux pas exécuter cette commande dans les DMs !',
 	NO_PERMS: 'Vous n\'avez pas les permissions pour utiliser cette commande.',
-	ARGS_MISSING: 'Vous n\'avez fourni aucun argument, %author% !',
-	COMMAND_USAGE: 'L\'utilisation correcte serait: `%prefix%%command% %usage%`',
-	COMMAND_COOLDOWN: 'Veuillez attendre %time% secondes avant de réutiliser la commande `%command%`.',
-	RELOAD_UNKNOWN: 'Il n\'y a aucune commande nommée ou alias `%command%`, %author% !',
-	RELOAD_SUCCESS: 'La commande `%command%` a été rechargée !',
-	RELOAD_ERROR: 'Erreur lors du rechargement de la commande `%command%` :\n`%error%`',
-
 	// SERVER ---------------------------------------------
 
 	// SERVER INIT

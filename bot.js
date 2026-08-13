@@ -4,7 +4,6 @@ const {
 	Client,
 	Collection,
 	GatewayIntentBits,
-	Partials,
 	REST,
 	Routes,
 } = require('discord.js');
@@ -23,7 +22,7 @@ const configureDns = () => {
 	}
 };
 
-const REQUIRED_ENV = ['TOKEN', 'CLIENT_ID', 'OWNER', 'MONGODB_URL', 'MONGODB_NAME'];
+const REQUIRED_ENV = ['TOKEN', 'CLIENT_ID', 'MONGODB_URL', 'MONGODB_NAME'];
 
 /** Fail fast with a clear log when runtime config is missing (Docker without env_file, empty .env, etc.). */
 const assertRequiredEnv = () => {
@@ -43,16 +42,7 @@ const assertRequiredEnv = () => {
 /** ********************************************************************/
 
 const client = new Client({
-	// https://ziad87.net/intents/
-	intents: [
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.DirectMessages,
-		GatewayIntentBits.DirectMessageReactions,
-		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildScheduledEvents,
-		GatewayIntentBits.GuildMessageReactions,
-	],
-	partials: [Partials.Channel],
+	intents: [GatewayIntentBits.Guilds],
 });
 
 /** ********************************************************************/
@@ -71,26 +61,17 @@ getFiles('./events', (event) => {
 });
 
 /** ********************************************************************/
-// Define Collection of Commands, Slash Commands and cooldowns
+// Define Collections of Slash Commands and interactions
 
-client.commands = new Collection();
 client.slashCommands = new Collection();
 client.buttonCommands = new Collection();
 client.selectCommands = new Collection();
 client.modalCommands = new Collection();
 client.autocompleteInteractions = new Collection();
-client.cooldowns = new Collection();
 client.languages = new Collection();
 client.traductions = new Collection();
 client.sessions = new Collection();
 client.logs = new Collection();
-
-/** ********************************************************************/
-// Registration of Message-Based Legacy Commands.
-
-getFiles('./commands', (command) => {
-	client.commands.set(command.name, command);
-});
 
 /** ********************************************************************/
 // Registration of Slash-Command Interactions.

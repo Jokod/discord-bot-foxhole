@@ -106,7 +106,6 @@ The Bot does **not**:
 
 The Bot **may read message content** only when needed to:
 
-- Reply to a bot mention or a legacy text-prefix command.
 - Find or update its own tracked messages (order boards, stockpile lists).
 - Record interaction log lines (see §1.8).
 

@@ -18,7 +18,6 @@ module.exports = {
 	CONFIRM: 'Подтвердить',
 	BACK: 'Назад',
 	INTERACTION_ERROR: 'Для этого действия не найдено взаимодействия.',
-	PREFIX_MESSAGE: 'Привет %author%! Мой префикс - %prefix%, для справки %prefix%help',
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
 	ABOUT_DISCORD: '**Discord поддержки:** %url%',
@@ -86,16 +85,8 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Доступные команды: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Произошла ошибка при выполнении команды.',
-	OWNER_ONLY: 'Эта команда доступна только владельцу бота.',
 	NO_DM: 'Я не могу выполнить эту команду в личных сообщениях!',
 	NO_PERMS: 'У вас нет прав для использования этой команды.',
-	ARGS_MISSING: 'Ты не предоставил аргументы, %author%!',
-	COMMAND_USAGE: 'Правильное использование: `%prefix%%command% %usage%`',
-	COMMAND_COOLDOWN: 'Пожалуйста, подождите %time% секунд, прежде чем использовать команду `%command%` снова.',
-	RELOAD_UNKNOWN: 'Нет команды с именем или псевдонимом `%command%`, %author%!',
-	RELOAD_SUCCESS: 'Команда `%command%` перезагружена!',
-	RELOAD_ERROR: 'Ошибка при перезагрузке команды `%command%`:\n`%error%`',
-
 	// SERVER ---------------------------------------------
 
 	// SERVER INIT

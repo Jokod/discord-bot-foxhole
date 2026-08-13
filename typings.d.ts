@@ -1,71 +1,6 @@
 import * as Discord from "discord.js";
 
 /**
- * Represents a chat-based Message Command.
- */
-export interface LegacyCommand {
-	/**
-	 * The name of the command.
-	 */
-	name: string;
-
-	/**
-	 * Aliases or similar names for the command.
-	 */
-	aliases?: string[];
-
-	/**
-	 * The description of the command.
-	 */
-	description?: string;
-
-	/**
-	 * The usage of the command.
-	 */
-	usage?: string;
-
-	/**
-	 * The permissions required by a discord user to run this command.
-	 */
-	permissions?: Discord.PermissionResolvable;
-
-	/**
-	 * Whether this command is only a guild-based command.
-	 */
-	guildOnly?: boolean;
-
-	/**
-	 * Whether this command requires arguments.
-	 */
-	args?: boolean;
-
-	/**
-	 * The cooldown in seconds of this command.
-	 */
-	cooldown?: number;
-
-	/**
-	 * Whether this command is only a bot owner-based command.
-	 */
-	ownerOnly?: boolean;
-
-	/**
-	 * Server need to be initialized.
-	 */
-	init?: boolean;
-
-	/**
-	 * The command executor when it is called by the template handler.
-	 * @param message The message that triggered this command.
-	 * @param args The message arguments of the command (seperated by spaces (' ') in an array, this excludes prefix and command/alias itself).
-	 */
-	execute(
-		message: Discord.Message & { client: Client },
-		args: string[]
-	): void | Promise<void>;
-}
-
-/**
  * Represents an Application Command (Slash Command).
  */
 export interface SlashInteractionCommand {
@@ -188,26 +123,6 @@ export interface ModalInteractionCommand {
 }
 
 /**
- * Represents a chat-based Trigger Command.
- */
-export interface TriggerCommand {
-	/**
-	 * The names / aliases of the trigger command.
-	 */
-	init?: boolean;
-	name: string[];
-	/**
-	 * The command executor when it is called by the template handler.
-	 * @param message The message that triggered this command.
-	 * @param args The message arguments of the command (seperated by spaces (' ') in an array).
-	 */
-	execute(
-		message: Discord.Message & { client: Client },
-		args: string[]
-	): void | Promise<void>;
-}
-
-/**
  * Represents a Autocomplete Interaction.
  */
 export interface AutocompleteInteraction {
@@ -230,11 +145,6 @@ export interface AutocompleteInteraction {
  * Modified in-built Client that includes support for command/event handlers.
  */
 export interface Client extends Discord.Client {
-	/**
-	 * Represents a collection of chat-based Message Commands.
-	 */
-	commands: Discord.Collection<string, LegacyCommand>;
-
 	/**
 	 * Represents a collection of Application Commands (Slash Commands).
 	 */
@@ -259,16 +169,6 @@ export interface Client extends Discord.Client {
 	 * Represents a collection of ModalSubmit Interactions.
 	 */
 	modalCommands: Discord.Collection<string, ModalInteractionCommand>;
-
-	/**
-	 * Represents cooldown collection for Legacy Commands.
-	 */
-	cooldowns: Discord.Collection<string, Discord.Collection<string, number>>;
-
-	/**
-	 * Represents a collection of chat-based Trigger Commands.
-	 */
-	triggers: Discord.Collection<string, TriggerCommand>;
 
 	/**
 	 * Represents a collection of autocomplete interactions.

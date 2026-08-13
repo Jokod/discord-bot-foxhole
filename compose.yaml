@@ -1,6 +1,6 @@
 # ghcr.io/jokod/foxbot — published on each git tag push (bot + dashboard code only; not MongoDB)
 #
-#   cp .env.dist .env   # TOKEN, CLIENT_ID, OWNER, MONGODB_*
+#   cp .env.dist .env   # TOKEN, CLIENT_ID, MONGODB_*
 #   docker compose up -d
 #
 # Full local stack (pulls foxbot + mongo:7):

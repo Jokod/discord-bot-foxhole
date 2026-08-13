@@ -19,13 +19,7 @@ jest.mock('discord.js', () => {
 		Collection: MockCollection,
 		GatewayIntentBits: {
 			Guilds: 1,
-			DirectMessages: 2,
-			DirectMessageReactions: 4,
-			MessageContent: 8,
-			GuildScheduledEvents: 16,
-			GuildMessageReactions: 32,
 		},
-		Partials: { Channel: 1 },
 		REST: jest.fn().mockImplementation(() => ({
 			setToken() {
 				return this;

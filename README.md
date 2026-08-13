@@ -62,7 +62,7 @@ Command reference: **[docs/USAGE.md](docs/USAGE.md)**.
 
 ## Data collected
 
-The bot stores **functional data** (setup, operations, order boards, stockpile codes, notifications, tracked message IDs) and **usage statistics** (including guild and server-owner Discord IDs) in MongoDB. It does not archive general chat; it may read message content only for mention/prefix handling, syncing its own messages, and host interaction logs. Full detail: [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+The bot stores **functional data** (setup, operations, order boards, stockpile codes, notifications, tracked message IDs) and **usage statistics** (including guild and server-owner Discord IDs) in MongoDB. It does not archive general chat; it may read message content only when syncing its own tracked messages and writing host interaction logs. Full detail: [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 Self-host: data stays in **your** database — see [docs/SELF-HOST.md](docs/SELF-HOST.md) (Node or **Docker** / `ghcr.io/jokod/foxbot`).
 

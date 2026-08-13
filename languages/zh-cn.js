@@ -18,7 +18,6 @@ module.exports = {
 	CONFIRM: '确认',
 	BACK: '返回',
 	INTERACTION_ERROR: '未找到此操作的交互。',
-	PREFIX_MESSAGE: '嗨%author%！我的前缀是%prefix%，要获取帮助%prefix%help',
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub：** %url%',
 	ABOUT_DISCORD: '**支持 Discord：** %url%',
@@ -86,16 +85,8 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: '可用命令：%commands%',
 
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
-	OWNER_ONLY: '此命令仅适用于机器人所有者。',
 	NO_DM: '我无法在私信中执行该命令！',
 	NO_PERMS: '您没有使用此命令的权限。',
-	ARGS_MISSING: '您没有提供任何参数，%author%！',
-	COMMAND_USAGE: '正确的用法应为：%prefix%%command% %usage%',
-	COMMAND_COOLDOWN: '请等待%time%秒，然后再次使用“%command%”命令。',
-	RELOAD_UNKNOWN: '没有名为或别名为 `%command%` 的命令，%author%！',
-	RELOAD_SUCCESS: '命令 `%command%` 已重新加载！',
-	RELOAD_ERROR: '重新加载命令 `%command%` 时出错：\n`%error%`',
-
 	// SERVER ---------------------------------------------
 
 	// SERVER INIT

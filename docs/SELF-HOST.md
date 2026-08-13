@@ -42,7 +42,7 @@ Each git tag push builds and publishes **one app image** to GHCR: `ghcr.io/jokod
 git clone https://github.com/Jokod/discord-bot-foxhole.git
 cd discord-bot-foxhole
 cp .env.dist .env
-# edit .env — TOKEN, CLIENT_ID, OWNER, MONGODB_*
+# edit .env — TOKEN, CLIENT_ID, MONGODB_*
 docker compose up -d
 ```
 
@@ -124,10 +124,8 @@ Reference: [`.env.dist`](../.env.dist).
 | `CLIENT_ID` | yes | Application ID |
 | `MONGODB_URL` | yes | Mongo URI |
 | `MONGODB_NAME` | yes | Database name |
-| `OWNER` | yes | Discord owner user ID (`!reload`, etc.) |
 | `TEST_GUILD_ID` | recommended in `dev` | Test guild |
 | `APP_ENV` | yes | `dev` or `prod` |
-| `PREFIX` | no | Text command prefix (default `!`) |
 | `TZ` | no | Timezone (e.g. `Europe/Paris`) |
 | `BLOCKED_GUILD_IDS` | no | Comma-separated guild IDs the bot must leave / refuse (env blocklist; not removable from the dashboard UI) |
 | `GITHUB_URL` | no | Shown in `/about` |
@@ -179,7 +177,6 @@ Routine **1.0.x** patches: usually no Mongo script — deploy + restart (see [MI
 | Logs (Docker) | `make docker-logs` |
 | New war (wipe game data) | `/server reset confirm:true` (Manage Server) — preview with `confirm:false` |
 | Order Logs threads | `/setup logs` or `/server logs` |
-| Owner | `!reload <command>` |
 | Stats dashboard (local) | See [Dashboard](#dashboard-stats-localhost) |
 | Dump MongoDB | `make mongo-dump` (`MONGO_ENV_FILE=.env.prod`; uses local `mongodump` or Docker `mongo:7`) |
 | Restore dump | `make mongo-restore` (latest under `var/mongo-dump/`, or `MONGO_RESTORE_DIR=…`) |

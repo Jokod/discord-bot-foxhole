@@ -46,7 +46,6 @@ Edit `.env` and fill in the required values:
 | `CLIENT_ID` | Your Discord application ID |
 | `MONGODB_URL` | MongoDB connection string |
 | `MONGODB_NAME` | Database name (e.g. `foxhole-bot`) |
-| `OWNER` | Your Discord user ID |
 | `TEST_GUILD_ID` | Your test server ID |
 | `APP_ENV` | `dev` for development, `prod` for production |
 

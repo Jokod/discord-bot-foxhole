@@ -7,7 +7,6 @@ module.exports = {
 		'services/**/*.js',
 		'shared/**/*.js',
 		'interactions/**/*.js',
-		'commands/**/*.js',
 		'events/**/*.js',
 		'data/models/**/*.js',
 		'scripts/lib/wiki-sync/**/*.js',
