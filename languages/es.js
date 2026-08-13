@@ -18,7 +18,6 @@ module.exports = {
 	CONFIRM: 'Confirmar',
 	BACK: 'Atrás',
 	INTERACTION_ERROR: 'No se encontró ninguna interacción para esta acción.',
-	PREFIX_MESSAGE: '¡Hola %author%! Mi prefijo es %prefix%, para ayuda %prefix%help',
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
 	ABOUT_DISCORD: '**Discord de soporte:** %url%',
@@ -86,15 +85,8 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Comandos disponibles: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Se produjo un error al ejecutar el comando.',
-	OWNER_ONLY: 'Este comando solo está disponible para el propietario del bot.',
 	NO_DM: '¡No puedo ejecutar ese comando en MD!',
 	NO_PERMS: 'No tienes permisos para usar este comando.',
-	ARGS_MISSING: '¡No proporcionaste ningún argumento, %author%!',
-	COMMAND_USAGE: 'El uso correcto sería: `%prefix%%command% %usage%`',
-	COMMAND_COOLDOWN: 'Espera %time% segundos más antes de usar el comando `%command%` de nuevo.',
-	RELOAD_UNKNOWN: '¡No hay ningún comando con el nombre o alias `%command%`, %author%!',
-	RELOAD_SUCCESS: '¡El comando `%command%` se ha recargado!',
-	RELOAD_ERROR: 'Hubo un error al recargar el comando `%command%`:\n`%error%`',
 
 	// SERVER ---------------------------------------------
 

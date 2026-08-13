@@ -49,7 +49,7 @@ Also explained in **`/about`**.
 - **Stockpile codes** — Share depot codes with region/city grouping and expiry timers (`/stockpile`).
 - **War API** — Live war status / maps / reports (`/war`).
 - **Notifications** — Stockpile activity & expiry reminders (`/notify`).
-- **Languages** — English, French, Russian, Chinese (Simplified).
+- **Languages** — English, Español, French, Russian, Chinese (Simplified).
 
 ## Configuration
 

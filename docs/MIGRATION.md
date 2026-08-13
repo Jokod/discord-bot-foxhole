@@ -17,9 +17,11 @@ Most **1.0.x** releases need **no** `migrate-*.js` script.
 
 **Self-host:** backup Mongo (recommended) → deploy the new tag/commit → **restart**. Docker: bump `FOXBOT_IMAGE_TAG` → `docker compose pull && docker compose up -d`.
 
+From **1.0.5**: privileged intents are unused (`Guilds` only); you can drop obsolete `PREFIX` / `OWNER` from `.env`. Spanish (`es`) is available via `/setup` / `/server lang`.
+
 Indexes declared in Mongoose (e.g. unique `{ guild_id, operation_id }` on operations) are applied at bot start. If an index build fails, inspect duplicate keys, clean them, then restart.
 
-**Smoke after upgrade:** `/operation` · `/order` · `/stockpile` · `/notify` on a test guild; confirm slash commands refreshed.
+**Smoke after upgrade:** `/operation` · `/order` · `/stockpile` · `/notify` · `/server lang` on a test guild; confirm slash commands refreshed.
 
 When a release **does** ship a Mongo script, it will be listed in this file with steps — until then, treat patch bumps as deploy + restart only.
 
@@ -169,8 +171,8 @@ Order coverage: models, services, embeds, slash, autocomplete, buttons, modals, 
 
 - [ ] `/setup` / server with `logs:false` (default) → `/order create` **without** Logs thread
 - [ ] `/server logs enabled:true` then new board → **Logs thread** created and **locked**
-- [ ] `/server reset confirm:false` → count preview
-- [ ] `/server reset confirm:true` → wipe boards + stockpiles + operations (config/notifications intact); op messages with `channel_id` deleted
+- [ ] `/server reset` → preview (+ war warning if active) → **Cancel** leaves data intact
+- [ ] `/server reset` → preview → **Confirm** → wipe boards + stockpiles + operations (config/notifications intact); op messages with `channel_id` deleted
 - [ ] Restart bot → slash `/order` / `/server reset` visible (re-register at boot)
 - [ ] `/order create type:prod name:TestProd` → embed + select + buttons
 - [ ] **Add** → target → line `0/N`; add log in thread (if logs on)

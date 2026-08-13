@@ -311,7 +311,7 @@ Docker image on tag: [`.github/workflows/docker.yaml`](../.github/workflows/dock
 | Problem | Hint |
 |---------|------|
 | Missing / stale slash commands | Restart in `prod`; wait a few minutes; check invite scopes |
-| Bot silent | Token, intents, channel permissions, `/setup` done |
+| Bot silent | Token, `Guilds` intent (no privileged intents needed), channel permissions, `/setup` done |
 | Mongo error | `MONGODB_URL` / `MONGODB_NAME`, Atlas network |
 | Missing Logs threads | `logs:true` + thread permissions |
 | Empty `/about` | Set `GITHUB_URL` / `DISCORD_INVITE_URL` |

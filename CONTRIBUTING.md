@@ -183,7 +183,7 @@ Each entry must follow this structure:
 
 ## Adding a Translation Key
 
-All translation keys are defined in `languages/en.js` (the reference file). Every other language file must contain the same keys.
+All bot translation keys are defined in `languages/en.js` (the reference file). Every other language file must contain the same keys. Dashboard strings live in `.dashboard/i18n/en.json` and must stay in parity across `es` / `fr` / `ru` / `zh-CN`.
 
 1. Add your key to `languages/en.js`:
    ```js
@@ -192,7 +192,9 @@ All translation keys are defined in `languages/en.js` (the reference file). Ever
 
 2. Add the translated value to `languages/es.js`, `languages/fr.js`, `languages/ru.js`, and `languages/zh-cn.js`.
 
-3. Use the key in code via the `Translate` helper:
+3. If the string is shown in the stats dashboard, add it to `.dashboard/i18n/*.json` as well.
+
+4. Use the key in code via the `Translate` helper:
    ```js
    const translations = new Translate(client, guildId);
    translations.translate('MY_NEW_KEY');
@@ -200,6 +202,7 @@ All translation keys are defined in `languages/en.js` (the reference file). Ever
    translations.translate('MY_KEY_WITH_PARAM', { name: 'value' });
    ```
 
+5. Run `npm run i18n:check`.
 ---
 
 ## Tests
