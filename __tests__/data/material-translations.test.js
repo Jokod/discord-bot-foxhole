@@ -3,6 +3,7 @@ const path = require('path');
 // Import des fichiers de traduction
 const fr = require('../../languages/fr');
 const en = require('../../languages/en');
+const es = require('../../languages/es');
 const ru = require('../../languages/ru');
 const zhCn = require('../../languages/zh-cn');
 
@@ -20,7 +21,7 @@ function assertKeyInAllLanguages(key, languagesObj) {
 }
 
 describe('Material Categories Translations', () => {
-	const languages = { fr, en, ru, 'zh-cn': zhCn };
+	const languages = { fr, en, es, ru, 'zh-cn': zhCn };
 
 	describe('Category Translations', () => {
 		const mainCategories = [

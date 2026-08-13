@@ -17,12 +17,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('server')
 		.setNameLocalizations({
+			'es-ES': 'servidor',
 			fr: 'serveur',
 			ru: 'сервер',
 			'zh-CN': '服务器',
 		})
 		.setDescription('Commands to manage the server configuration and war reset.')
 		.setDescriptionLocalizations({
+			'es-ES': 'Comandos para gestionar la configuración del servidor y el reinicio de guerra.',
 			fr: 'Commandes pour gérer la configuration du serveur et le reset de guerre.',
 			ru: 'Команды для настройки сервера и сброса данных войны.',
 			'zh-CN': '管理服务器配置与战争数据重置的命令。',
@@ -31,12 +33,14 @@ module.exports = {
 			subcommand
 				.setName('infos')
 				.setNameLocalizations({
+					'es-ES': 'informacion',
 					fr: 'informations',
 					ru: 'информация',
 					'zh-CN': '信息',
 				})
 				.setDescription('Displays the server configuration.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Muestra la configuración del servidor.',
 					fr: 'Affiche la configuration du serveur.',
 					ru: 'Отображает конфигурацию сервера.',
 					'zh-CN': '显示服务器配置。',
@@ -46,12 +50,14 @@ module.exports = {
 			subcommand
 				.setName('lang')
 				.setNameLocalizations({
+					'es-ES': 'idioma',
 					fr: 'langue',
 					ru: 'язык',
 					'zh-CN': '语言',
 				})
 				.setDescription('Changes the bot language.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Cambia el idioma del bot.',
 					fr: 'Change la langue du bot.',
 					ru: 'Изменяет язык бота.',
 					'zh-CN': '更改机器人语言。',
@@ -60,12 +66,14 @@ module.exports = {
 					option
 						.setName('lang')
 						.setNameLocalizations({
+							'es-ES': 'idioma',
 							fr: 'langue',
 							ru: 'язык',
 							'zh-CN': '语言',
 						})
 						.setDescription('The language to use.')
 						.setDescriptionLocalizations({
+							'es-ES': 'El idioma a usar.',
 							fr: 'La langue à utiliser.',
 							ru: 'Язык для использования.',
 							'zh-CN': '要使用的语言。',
@@ -73,6 +81,7 @@ module.exports = {
 						.setRequired(true)
 						.addChoices(
 							{ name: 'English', value: 'en' },
+							{ name: 'Español', value: 'es' },
 							{ name: 'Français', value: 'fr' },
 							{ name: 'Russian', value: 'ru' },
 							{ name: 'Chinese', value: 'zh-CN' },
@@ -83,12 +92,14 @@ module.exports = {
 			subcommand
 				.setName('camp')
 				.setNameLocalizations({
+					'es-ES': 'campamento',
 					fr: 'camp',
 					ru: 'лагерь',
 					'zh-CN': '营地',
 				})
 				.setDescription('Changes the server camp.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Cambia el campamento del servidor.',
 					fr: 'Change le camp du serveur.',
 					ru: 'Изменяет лагерь сервера.',
 					'zh-CN': '更改服务器阵营。',
@@ -97,12 +108,14 @@ module.exports = {
 					option
 						.setName('camp')
 						.setNameLocalizations({
+							'es-ES': 'campamento',
 							fr: 'camp',
 							ru: 'лагерь',
 							'zh-CN': '营地',
 						})
 						.setDescription('The camp to use.')
 						.setDescriptionLocalizations({
+							'es-ES': 'El campamento a usar.',
 							fr: 'Le camp à utiliser.',
 							ru: 'Лагерь для использования.',
 							'zh-CN': '要使用的营地。',
@@ -118,12 +131,14 @@ module.exports = {
 			subcommand
 				.setName('logs')
 				.setNameLocalizations({
+					'es-ES': 'logs',
 					fr: 'logs',
 					ru: 'логи',
 					'zh-CN': '日志',
 				})
 				.setDescription('Enable or disable order board Logs threads.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Activa o desactiva los hilos Logs de los tableros de pedidos.',
 					fr: 'Active ou désactive les threads Logs des tableaux de commandes.',
 					ru: 'Включает или отключает треды логов досок заказов.',
 					'zh-CN': '启用或禁用订单面板的日志讨论串。',
@@ -132,12 +147,14 @@ module.exports = {
 					option
 						.setName('enabled')
 						.setNameLocalizations({
+							'es-ES': 'activo',
 							fr: 'actif',
 							ru: 'включено',
 							'zh-CN': '启用',
 						})
 						.setDescription('Create Logs threads for new / refreshed order boards.')
 						.setDescriptionLocalizations({
+							'es-ES': 'Crear hilos Logs para los tableros de pedidos.',
 							fr: 'Créer des threads Logs pour les tableaux de commandes.',
 							ru: 'Создавать треды логов для досок заказов.',
 							'zh-CN': '为订单面板创建日志讨论串。',
@@ -149,12 +166,14 @@ module.exports = {
 			subcommand
 				.setName('reset')
 				.setNameLocalizations({
+					'es-ES': 'reset',
 					fr: 'reset',
 					ru: 'сброс',
 					'zh-CN': '重置',
 				})
 				.setDescription('Wipe order boards, stockpiles and operations for a new war (Manage Server).')
 				.setDescriptionLocalizations({
+					'es-ES': 'Borrar tableros de pedidos, depósitos y operaciones para una nueva guerra (Gestionar el servidor).',
 					fr: 'Effacer tableaux de commandes, stocks et opérations pour une nouvelle guerre (Gérer le serveur).',
 					ru: 'Удалить доски заказов, склады и операции для новой войны (Управлять сервером).',
 					'zh-CN': '为新战争清空订单面板、库存与行动（需要管理服务器）。',

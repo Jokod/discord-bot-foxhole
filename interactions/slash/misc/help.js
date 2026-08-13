@@ -192,6 +192,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('help')
 		.setNameLocalizations({
+			'es-ES': 'ayuda',
 			fr: 'aide',
 			ru: 'помощь',
 			'zh-CN': '帮助',
@@ -200,6 +201,7 @@ module.exports = {
 			'List all of my commands or info about a specific command.',
 		)
 		.setDescriptionLocalizations({
+			'es-ES': 'Lista todos mis comandos o información sobre un comando específico.',
 			fr: 'Liste toutes mes commandes ou des informations sur une commande spécifique.',
 			ru: 'Список всех моих команд или информация о конкретной команде.',
 			'zh-CN': '列出所有命令或有关特定命令的信息。',
@@ -208,12 +210,14 @@ module.exports = {
 			option
 				.setName('command')
 				.setNameLocalizations({
+					'es-ES': 'comando',
 					fr: 'commande',
 					ru: 'команда',
 					'zh-CN': '命令',
 				})
 				.setDescription('The command to get help for.')
 				.setDescriptionLocalizations({
+					'es-ES': 'El comando para obtener ayuda.',
 					fr: 'La commande pour obtenir de l\'aide.',
 					ru: 'Команда для получения помощи.',
 					'zh-CN': '要获取帮助的命令。',

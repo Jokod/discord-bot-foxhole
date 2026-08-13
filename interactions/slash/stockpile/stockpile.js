@@ -20,12 +20,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stockpile')
 		.setNameLocalizations({
+			'es-ES': 'deposito',
 			fr: 'depot',
 			ru: 'склад',
 			'zh-CN': '库存',
 		})
 		.setDescription('Manage stockpile codes.')
 		.setDescriptionLocalizations({
+			'es-ES': 'Gestionar los códigos de depósito.',
 			fr: 'Gérer les codes de dépôt.',
 			ru: 'Управление кодами складов.',
 			'zh-CN': '管理库存代码。',
@@ -34,12 +36,14 @@ module.exports = {
 			subcommand
 				.setName('add')
 				.setNameLocalizations({
+					'es-ES': 'anadir',
 					fr: 'ajouter',
 					ru: 'добавить',
 					'zh-CN': '加',
 				})
 				.setDescription('Open a form to add a stockpile.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Abre el formulario para añadir un depósito.',
 					fr: 'Ouvre le formulaire d\'ajout d\'un dépôt.',
 					ru: 'Открыть форму добавления склада.',
 					'zh-CN': '打开添加库存表单。',
@@ -49,12 +53,14 @@ module.exports = {
 			subcommand
 				.setName('list')
 				.setNameLocalizations({
+					'es-ES': 'lista',
 					fr: 'liste',
 					ru: 'список',
 					'zh-CN': '列表',
 				})
 				.setDescription('Display stockpiles by region and city.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Muestra los depósitos por región y ciudad.',
 					fr: 'Affiche les dépôts par région et ville.',
 					ru: 'Показать склады по региону и городу.',
 					'zh-CN': '按地区和城市显示库存。',
@@ -64,12 +70,14 @@ module.exports = {
 			subcommand
 				.setName('manage')
 				.setNameLocalizations({
+					'es-ES': 'gestionar',
 					fr: 'gérer',
 					ru: 'управление',
 					'zh-CN': '管理',
 				})
 				.setDescription('Ephemeral panel to remove stockpiles (owner or manage perms).')
 				.setDescriptionLocalizations({
+					'es-ES': 'Panel efímero para eliminar depósitos (creador o permisos).',
 					fr: 'Panneau éphémère pour supprimer des dépôts (créateur ou perms).',
 					ru: 'Эфемерная панель удаления складов (создатель или права).',
 					'zh-CN': '临时管理面板，用于删除库存（创建者或管理权限）。',

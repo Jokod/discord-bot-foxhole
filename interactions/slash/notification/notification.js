@@ -8,6 +8,7 @@ const NOTIFICATION_TYPES = [
 		name: 'Stockpile activity',
 		nameKey: 'NOTIFICATION_TYPE_STOCKPILE_ACTIVITY',
 		nameLocalizations: {
+			'es-ES': 'Actividad de depósitos',
 			fr: 'Activité des stocks',
 			ru: 'Активность складов',
 			'zh-CN': '库存活动',
@@ -18,6 +19,7 @@ const NOTIFICATION_TYPES = [
 		name: 'Stockpile expiring soon',
 		nameKey: 'NOTIFICATION_TYPE_STOCKPILE_EXPIRING',
 		nameLocalizations: {
+			'es-ES': 'Depósitos que caducan pronto',
 			fr: 'Stocks bientôt expirés',
 			ru: 'Склады скоро истекают',
 			'zh-CN': '库存即将过期',
@@ -30,12 +32,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('notify')
 		.setNameLocalizations({
+			'es-ES': 'notify',
 			fr: 'notify',
 			ru: 'уведомить',
 			'zh-CN': '通知',
 		})
 		.setDescription('Subscribe channels to activity notifications (e.g. stockpile updates).')
 		.setDescriptionLocalizations({
+			'es-ES': 'Suscribir canales a notificaciones de actividad (p. ej. actualizaciones de depósitos).',
 			fr: 'Abonner des salons aux notifications d\'activité (ex. mises à jour des stocks).',
 			ru: 'Подписка каналов на уведомления об активности.',
 			'zh-CN': '将频道订阅到活动通知（如库存更新）。',
@@ -43,9 +47,10 @@ module.exports = {
 		.addSubcommand((sub) =>
 			sub
 				.setName('on')
-				.setNameLocalizations({ fr: 'activer', ru: 'вкл', 'zh-CN': '开启' })
+				.setNameLocalizations({ 'es-ES': 'activar', fr: 'activer', ru: 'вкл', 'zh-CN': '开启' })
 				.setDescription('Subscribe this channel to a notification type.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Suscribir este canal a un tipo de notificación.',
 					fr: 'Abonner ce salon à un type de notification.',
 					ru: 'Подписать этот канал на тип уведомлений.',
 					'zh-CN': '将此频道订阅到一种通知类型。',
@@ -53,9 +58,10 @@ module.exports = {
 				.addStringOption((opt) => {
 					opt
 						.setName('type')
-						.setNameLocalizations({ fr: 'type', ru: 'тип', 'zh-CN': '类型' })
+						.setNameLocalizations({ 'es-ES': 'tipo', fr: 'type', ru: 'тип', 'zh-CN': '类型' })
 						.setDescription('Notification type')
 						.setDescriptionLocalizations({
+							'es-ES': 'Tipo de notificación',
 							fr: 'Type de notification',
 							ru: 'Тип уведомлений',
 							'zh-CN': '通知类型',
@@ -74,9 +80,10 @@ module.exports = {
 		.addSubcommand((sub) =>
 			sub
 				.setName('off')
-				.setNameLocalizations({ fr: 'désactiver', ru: 'выкл', 'zh-CN': '关闭' })
+				.setNameLocalizations({ 'es-ES': 'desactivar', fr: 'désactiver', ru: 'выкл', 'zh-CN': '关闭' })
 				.setDescription('Unsubscribe this channel from a notification type.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Cancelar la suscripción de este canal a un tipo de notificación.',
 					fr: 'Désabonner ce salon d\'un type de notification.',
 					ru: 'Отписать этот канал от типа уведомлений.',
 					'zh-CN': '取消此频道对某种通知类型的订阅。',
@@ -84,9 +91,10 @@ module.exports = {
 				.addStringOption((opt) => {
 					opt
 						.setName('type')
-						.setNameLocalizations({ fr: 'type', ru: 'тип', 'zh-CN': '类型' })
+						.setNameLocalizations({ 'es-ES': 'tipo', fr: 'type', ru: 'тип', 'zh-CN': '类型' })
 						.setDescription('Notification type')
 						.setDescriptionLocalizations({
+							'es-ES': 'Tipo de notificación',
 							fr: 'Type de notification',
 							ru: 'Тип уведомлений',
 							'zh-CN': '通知类型',
@@ -105,9 +113,10 @@ module.exports = {
 		.addSubcommand((sub) =>
 			sub
 				.setName('list')
-				.setNameLocalizations({ fr: 'liste', ru: 'список', 'zh-CN': '列表' })
+				.setNameLocalizations({ 'es-ES': 'lista', fr: 'liste', ru: 'список', 'zh-CN': '列表' })
 				.setDescription('List channels subscribed to notifications on this server.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Listar los canales suscritos a notificaciones en este servidor.',
 					fr: 'Lister les salons abonnés aux notifications sur ce serveur.',
 					ru: 'Список каналов с подпиской на уведомления.',
 					'zh-CN': '列出本服务器已订阅通知的频道。',

@@ -237,7 +237,7 @@ docker compose --profile dashboard up -d
 | `make dashboard-open` | Open browser |
 | `make dashboard-logs` | Tail logs |
 
-Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`, `DASHBOARD_HOST=127.0.0.1` (Compose sets `0.0.0.0` in the container and publishes `127.0.0.1:3847` on a **separate** Compose network from the bot). UI languages: **en / fr / ru / zh-CN** (same as the bot) — selector in the user menu.
+Optional overrides: `DASHBOARD_PORT=3847`, `DASHBOARD_ENV_FILE=.env`, `DASHBOARD_HOST=127.0.0.1` (Compose sets `0.0.0.0` in the container and publishes `127.0.0.1:3847` on a **separate** Compose network from the bot). UI languages: **en / es / fr / ru / zh-CN** (same as the bot) — selector in the user menu.
 
 ### Reverse proxy (nginx, Caddy, Traefik, …)
 

@@ -15,12 +15,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('war')
 		.setNameLocalizations({
+			'es-ES': 'guerra',
 			fr: 'guerre',
 			ru: 'война',
 			'zh-CN': '战争',
 		})
 		.setDescription('Foxhole war information (War API).')
 		.setDescriptionLocalizations({
+			'es-ES': 'Información sobre la guerra de Foxhole (War API).',
 			fr: 'Informations sur la guerre Foxhole (War API).',
 			ru: 'Информация о войне Foxhole (War API).',
 			'zh-CN': 'Foxhole 战争信息（War API）。',
@@ -29,12 +31,14 @@ module.exports = {
 			sub
 				.setName('status')
 				.setNameLocalizations({
+					'es-ES': 'estado',
 					fr: 'statut',
 					ru: 'статус',
 					'zh-CN': '状态',
 				})
 				.setDescription('Show current war status and players online.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Mostrar el estado de la guerra y los jugadores en línea.',
 					fr: 'Afficher le statut de la guerre et les joueurs en ligne.',
 					ru: 'Показать статус войны и игроков онлайн.',
 					'zh-CN': '显示当前战争状态与在线玩家。',
@@ -44,12 +48,14 @@ module.exports = {
 			sub
 				.setName('maps')
 				.setNameLocalizations({
+					'es-ES': 'mapas',
 					fr: 'cartes',
 					ru: 'карты',
 					'zh-CN': '地图列表',
 				})
 				.setDescription('List active World Conquest maps and live stats link.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Listar los mapas World Conquest y el enlace foxholestats.com.',
 					fr: 'Lister les cartes World Conquest et le lien foxholestats.com.',
 					ru: 'Список карт World Conquest и ссылка foxholestats.com.',
 					'zh-CN': '列出 World Conquest 地图及 foxholestats.com 链接。',
@@ -59,12 +65,14 @@ module.exports = {
 			sub
 				.setName('report')
 				.setNameLocalizations({
+					'es-ES': 'informe',
 					fr: 'rapport',
 					ru: 'отчет',
 					'zh-CN': '报告',
 				})
 				.setDescription('Show war report for a specific map.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Mostrar el informe de guerra de un mapa.',
 					fr: 'Afficher le rapport de guerre pour une carte.',
 					ru: 'Показать отчёт по карте.',
 					'zh-CN': '显示指定地图的战争报告。',
@@ -73,12 +81,14 @@ module.exports = {
 					opt
 						.setName('map')
 						.setNameLocalizations({
+							'es-ES': 'mapa',
 							fr: 'carte',
 							ru: 'карта',
 							'zh-CN': '地图',
 						})
 						.setDescription('Exact War API map name (e.g. DeadLandsHex).')
 						.setDescriptionLocalizations({
+							'es-ES': 'Nombre exacto del mapa War API (ej: DeadLandsHex).',
 							fr: 'Nom exact de la carte War API (ex: DeadLandsHex).',
 							ru: 'Точное имя карты War API (например, DeadLandsHex).',
 							'zh-CN': 'War API 地图名称（例如 DeadLandsHex）。',

@@ -35,7 +35,7 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: i18n key parity (en/fr/ru/zh-cn + ORDER_*)
+      - name: i18n key parity (en/es/fr/ru/zh-cn + ORDER_*)
         run: node scripts/check-i18n-parity.js
 
       - name: Unit tests with coverage thresholds

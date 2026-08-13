@@ -26,7 +26,7 @@ Same steps in **`/about`**.
 
 ## Server
 
-- `/setup lang:<en|fr|ru|zh-CN> camp:<warden|colonial> [logs:<true|false>]` — First-time init (`logs` default **false**).
+- `/setup lang:<en|es|fr|ru|zh-CN> camp:<warden|colonial> [logs:<true|false>]` — First-time init (`logs` default **false**).
 - `/server infos` — Show config.
 - `/server lang` / `/server camp` / `/server logs enabled:<true|false>` — Update config (`logs:false` deletes existing order Logs threads).
 - `/server reset` — Preview counts (boards / stockpiles / operations); warns if a Foxhole war is active; then **Confirm** / **Cancel** buttons (Manage Server). Confirm wipes order boards, stockpiles and operations for a **new war**. Keeps language/camp/logs config and notifications. Also deletes operation Discord messages when `channel_id` is known.

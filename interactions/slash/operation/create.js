@@ -7,12 +7,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('operation')
 		.setNameLocalizations({
+			'es-ES': 'operacion',
 			fr: 'operation',
 			ru: 'операция',
 			'zh-CN': '操作',
 		})
 		.setDescription('Create a new operation')
 		.setDescriptionLocalizations({
+			'es-ES': 'Crear una nueva operación',
 			fr: 'Créer une nouvelle opération',
 			ru: 'Создать новую операцию',
 			'zh-CN': '创建新操作',
@@ -21,12 +23,14 @@ module.exports = {
 			option
 				.setName('title')
 				.setNameLocalizations({
+					'es-ES': 'titulo',
 					fr: 'titre',
 					ru: 'заглавие',
 					'zh-CN': '标题',
 				})
 				.setDescription('Title of the operation')
 				.setDescriptionLocalizations({
+					'es-ES': 'Título de la operación',
 					fr: 'Titre de l\'opération',
 					ru: 'Заглавие операции',
 					'zh-CN': '操作的标题',

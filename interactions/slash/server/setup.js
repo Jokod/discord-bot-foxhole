@@ -6,12 +6,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('setup')
 		.setNameLocalizations({
+			'es-ES': 'configurar',
 			fr: 'configurer',
 			ru: 'настройка',
 			'zh-CN': '初始化',
 		})
 		.setDescription('Command to init the server configuration.')
 		.setDescriptionLocalizations({
+			'es-ES': 'Comando para inicializar la configuración del servidor.',
 			fr: 'Commande pour initialiser la configuration du serveur.',
 			ru: 'Команда для инициализации конфигурации сервера.',
 			'zh-CN': '初始化服务器配置的命令。',
@@ -20,12 +22,14 @@ module.exports = {
 			option
 				.setName('lang')
 				.setNameLocalizations({
+					'es-ES': 'idioma',
 					fr: 'langue',
 					ru: 'язык',
 					'zh-CN': '语言',
 				})
 				.setDescription('The language of the server.')
 				.setDescriptionLocalizations({
+					'es-ES': 'El idioma del servidor.',
 					fr: 'La langue du serveur.',
 					ru: 'Язык сервера.',
 					'zh-CN': '服务器的语言。',
@@ -33,6 +37,7 @@ module.exports = {
 				.setRequired(true)
 				.addChoices(
 					{ name: 'English', value: 'en' },
+					{ name: 'Español', value: 'es' },
 					{ name: 'Français', value: 'fr' },
 					{ name: 'Russian', value: 'ru' },
 					{ name: 'Chinese', value: 'zh-CN' },
@@ -42,12 +47,14 @@ module.exports = {
 			option
 				.setName('camp')
 				.setNameLocalizations({
+					'es-ES': 'campamento',
 					fr: 'camp',
 					ru: 'лагерь',
 					'zh-CN': '营地',
 				})
 				.setDescription('The camp of the server.')
 				.setDescriptionLocalizations({
+					'es-ES': 'El campamento del servidor.',
 					fr: 'Le camp du serveur.',
 					ru: 'Лагерь сервера.',
 					'zh-CN': '服务器的营地。',
@@ -62,12 +69,14 @@ module.exports = {
 			option
 				.setName('logs')
 				.setNameLocalizations({
+					'es-ES': 'logs',
 					fr: 'logs',
 					ru: 'логи',
 					'zh-CN': '日志',
 				})
 				.setDescription('Create locked Logs threads for order boards (default: false).')
 				.setDescriptionLocalizations({
+					'es-ES': 'Crear hilos Logs bloqueados para los tableros de pedidos (predeterminado: falso).',
 					fr: 'Créer des threads Logs verrouillés pour les tableaux de commandes (défaut : faux).',
 					ru: 'Создавать заблокированные треды логов для досок заказов (по умолчанию: нет).',
 					'zh-CN': '为订单面板创建只读日志讨论串（默认：否）。',

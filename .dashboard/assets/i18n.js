@@ -3,10 +3,11 @@
 /* global localStorage */
 
 (function initDashboardI18n(global) {
-	const SUPPORTED = ['en', 'fr', 'ru', 'zh-CN'];
+	const SUPPORTED = ['en', 'es', 'fr', 'ru', 'zh-CN'];
 	const STORAGE_KEY = 'foxbot_dashboard_lang';
 	const LOCALE_MAP = {
 		en: 'en-US',
+		es: 'es-ES',
 		fr: 'fr-FR',
 		ru: 'ru-RU',
 		'zh-CN': 'zh-CN',
@@ -21,6 +22,7 @@
 		if (SUPPORTED.includes(s)) return s;
 		const lower = s.toLowerCase();
 		if (lower === 'zh' || lower.startsWith('zh-')) return 'zh-CN';
+		if (lower.startsWith('es')) return 'es';
 		if (lower.startsWith('fr')) return 'fr';
 		if (lower.startsWith('ru')) return 'ru';
 		if (lower.startsWith('en')) return 'en';

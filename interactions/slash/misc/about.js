@@ -10,12 +10,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('about')
 		.setNameLocalizations({
+			'es-ES': 'acerca-de',
 			fr: 'a-propos',
 			ru: 'о-боте',
 			'zh-CN': '关于',
 		})
 		.setDescription('Support Discord, Follow Announcements, GitHub & issues (ephemeral).')
 		.setDescriptionLocalizations({
+			'es-ES': 'Discord de soporte, seguir Anuncios, GitHub e issues (efímero).',
 			fr: 'Discord de support, suivre Annonces, GitHub et issues (éphémère).',
 			ru: 'Discord поддержки, отслеживание Announcements, GitHub и issues (временно).',
 			'zh-CN': '支持 Discord、关注公告、GitHub 与 Issue（仅你可见）。',

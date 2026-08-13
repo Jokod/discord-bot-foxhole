@@ -9,6 +9,7 @@ const path = require('path');
 
 const en = require('../languages/en.js');
 const langs = {
+	es: require('../languages/es.js'),
 	fr: require('../languages/fr.js'),
 	ru: require('../languages/ru.js'),
 	'zh-cn': require('../languages/zh-cn.js'),
@@ -45,7 +46,7 @@ const dashDir = path.join(__dirname, '../.dashboard/i18n');
 const dashEn = JSON.parse(fs.readFileSync(path.join(dashDir, 'en.json'), 'utf8'));
 const dashEnKeys = Object.keys(dashEn).sort();
 
-for (const file of ['fr.json', 'ru.json', 'zh-CN.json']) {
+for (const file of ['es.json', 'fr.json', 'ru.json', 'zh-CN.json']) {
 	const loc = JSON.parse(fs.readFileSync(path.join(dashDir, file), 'utf8'));
 	const keys = Object.keys(loc);
 	const missing = dashEnKeys.filter((k) => !(k in loc));

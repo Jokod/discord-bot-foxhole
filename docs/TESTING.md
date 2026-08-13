@@ -5,7 +5,7 @@ npm test
 npm run test:watch
 npm run test:coverage
 npm run test:ci          # lint + i18n parity + coverage (same gates as GitHub Actions)
-npm run i18n:check       # en/fr/ru/zh-cn key parity + ORDER_* presence
+npm run i18n:check       # en/es/fr/ru/zh-cn key parity + ORDER_* presence
 ```
 
 CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then the full Jest suite with a **global coverage threshold of 90%** (lines, statements, functions, branches) on `collectCoverageFrom`. Tag publishes (`.github/workflows/docker.yaml`) reuse that workflow before build & push. Tests live under `__tests__/` and mirror source layout; new files are picked up automatically.

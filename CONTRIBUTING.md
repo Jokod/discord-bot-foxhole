@@ -82,7 +82,7 @@ npm run start   # Production
 ├── data/
 │   ├── models.js               # Mongoose models
 │   └── materials/              # Material JSON files by category (order catalog)
-├── languages/                  # Translation files (en, fr, ru, zh-cn)
+├── languages/                  # Translation files (en, es, fr, ru, zh-cn)
 ├── utils/                      # Shared utilities
 ├── messages/                   # Default error/fallback messages
 └── __tests__/                  # Unit tests (mirrors source structure)
@@ -191,7 +191,7 @@ All translation keys are defined in `languages/en.js` (the reference file). Ever
    MY_NEW_KEY: 'English text here',
    ```
 
-2. Add the translated value to `languages/fr.js`, `languages/ru.js`, and `languages/zh-cn.js`.
+2. Add the translated value to `languages/es.js`, `languages/fr.js`, `languages/ru.js`, and `languages/zh-cn.js`.
 
 3. Use the key in code via the `Translate` helper:
    ```js
@@ -212,7 +212,7 @@ npm test                # Run all tests
 npm run test:watch      # Watch mode
 npm run test:coverage   # Coverage report
 npm run test:ci         # lint + i18n parity + coverage (same as CI)
-npm run i18n:check      # en/fr/ru/zh-cn key parity
+npm run i18n:check      # en/es/fr/ru/zh-cn key parity
 ```
 
 CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then Jest with coverage. New tests under `__tests__/` are picked up automatically.

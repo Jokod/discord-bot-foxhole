@@ -16,12 +16,14 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('order')
 		.setNameLocalizations({
+			'es-ES': 'comando',
 			fr: 'commande',
 			ru: 'заказ',
 			'zh-CN': '订单',
 		})
 		.setDescription('Manage order boards (production, front transfer, scrap).')
 		.setDescriptionLocalizations({
+			'es-ES': 'Gestionar tableros de pedidos (prod, transferencia al frente, scrap).',
 			fr: 'Gérer les tableaux de commande (prod, transfert front, scrap).',
 			ru: 'Управление досками заказов (производство, фронт, scrap).',
 			'zh-CN': '管理订单面板（生产、前线转运、废料）。',
@@ -29,9 +31,10 @@ module.exports = {
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('create')
-				.setNameLocalizations({ fr: 'créer', ru: 'создать', 'zh-CN': '创建' })
+				.setNameLocalizations({ 'es-ES': 'crear', fr: 'créer', ru: 'создать', 'zh-CN': '创建' })
 				.setDescription('Create an order board in this channel.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Crear un tablero de pedidos en este canal.',
 					fr: 'Créer un tableau de commande dans ce salon.',
 					ru: 'Создать доску заказа в этом канале.',
 					'zh-CN': '在此频道创建订单面板。',
@@ -39,9 +42,10 @@ module.exports = {
 				.addStringOption((option) =>
 					option
 						.setName('type')
-						.setNameLocalizations({ fr: 'type', ru: 'тип', 'zh-CN': '类型' })
+						.setNameLocalizations({ 'es-ES': 'tipo', fr: 'type', ru: 'тип', 'zh-CN': '类型' })
 						.setDescription('Board type.')
 						.setDescriptionLocalizations({
+							'es-ES': 'Tipo de tablero.',
 							fr: 'Type de tableau.',
 							ru: 'Тип доски.',
 							'zh-CN': '面板类型。',
@@ -50,17 +54,17 @@ module.exports = {
 						.addChoices(
 							{
 								name: 'Production',
-								name_localizations: { fr: 'Production', ru: 'Производство', 'zh-CN': '生产' },
+								name_localizations: { 'es-ES': 'Producción', fr: 'Production', ru: 'Производство', 'zh-CN': '生产' },
 								value: 'prod',
 							},
 							{
 								name: 'Front transfer',
-								name_localizations: { fr: 'Transfert front', ru: 'Доставка на фронт', 'zh-CN': '前线转运' },
+								name_localizations: { 'es-ES': 'Transferencia al frente', fr: 'Transfert front', ru: 'Доставка на фронт', 'zh-CN': '前线转运' },
 								value: 'transfer',
 							},
 							{
 								name: 'Scrap / farm',
-								name_localizations: { fr: 'Scrap / farm', ru: 'Scrap / фарм', 'zh-CN': '废料 / 采集' },
+								name_localizations: { 'es-ES': 'Scrap / farm', fr: 'Scrap / farm', ru: 'Scrap / фарм', 'zh-CN': '废料 / 采集' },
 								value: 'scrap',
 							},
 						),
@@ -68,9 +72,10 @@ module.exports = {
 				.addStringOption((option) =>
 					option
 						.setName('name')
-						.setNameLocalizations({ fr: 'nom', ru: 'имя', 'zh-CN': '名称' })
+						.setNameLocalizations({ 'es-ES': 'nombre', fr: 'nom', ru: 'имя', 'zh-CN': '名称' })
 						.setDescription('Name of the order board.')
 						.setDescriptionLocalizations({
+							'es-ES': 'Nombre del tablero de pedidos.',
 							fr: 'Nom du tableau de commande.',
 							ru: 'Название доски заказа.',
 							'zh-CN': '订单面板名称。',
@@ -82,9 +87,10 @@ module.exports = {
 				.addStringOption((option) =>
 					option
 						.setName('operation')
-						.setNameLocalizations({ fr: 'operation', ru: 'операция', 'zh-CN': '行动' })
+						.setNameLocalizations({ 'es-ES': 'operacion', fr: 'operation', ru: 'операция', 'zh-CN': '行动' })
 						.setDescription('Link an active operation (use autocomplete).')
 						.setDescriptionLocalizations({
+							'es-ES': 'Vincular una operación activa (usa el autocompletado).',
 							fr: 'Lier une opération active (utilisez l\'autocomplétion).',
 							ru: 'Привязать активную операцию (используйте автодополнение).',
 							'zh-CN': '关联进行中的行动（请使用自动完成）。',
@@ -95,9 +101,10 @@ module.exports = {
 				.addStringOption((option) =>
 					option
 						.setName('origin')
-						.setNameLocalizations({ fr: 'origine', ru: 'источник', 'zh-CN': '出发地' })
+						.setNameLocalizations({ 'es-ES': 'origen', fr: 'origine', ru: 'источник', 'zh-CN': '出发地' })
 						.setDescription('Origin (base, hex, stockpile…).')
 						.setDescriptionLocalizations({
+							'es-ES': 'Lugar de origen (base, hex, depósito…).',
 							fr: 'Lieu d\'origine (base, hex, stockpile…).',
 							ru: 'Место отправления (база, хекс, склад…).',
 							'zh-CN': '出发地（基地、地块、仓库…）。',
@@ -109,9 +116,10 @@ module.exports = {
 				.addStringOption((option) =>
 					option
 						.setName('destination')
-						.setNameLocalizations({ fr: 'destination', ru: 'назначение', 'zh-CN': '目的地' })
+						.setNameLocalizations({ 'es-ES': 'destino', fr: 'destination', ru: 'назначение', 'zh-CN': '目的地' })
 						.setDescription('Destination (base, hex, stockpile…).')
 						.setDescriptionLocalizations({
+							'es-ES': 'Lugar de destino (base, hex, depósito…).',
 							fr: 'Lieu de destination (base, hex, stockpile…).',
 							ru: 'Место назначения (база, хекс, склад…).',
 							'zh-CN': '目的地（基地、地块、仓库…）。',
@@ -124,9 +132,10 @@ module.exports = {
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('remove')
-				.setNameLocalizations({ fr: 'retirer', ru: 'удалить', 'zh-CN': '删除' })
+				.setNameLocalizations({ 'es-ES': 'eliminar', fr: 'retirer', ru: 'удалить', 'zh-CN': '删除' })
 				.setDescription('Delete an order board in this channel by name.')
 				.setDescriptionLocalizations({
+					'es-ES': 'Eliminar un tablero de pedidos de este canal por su nombre.',
 					fr: 'Supprimer un tableau de commande de ce salon par son nom.',
 					ru: 'Удалить доску заказа канала по имени.',
 					'zh-CN': '按名称删除此频道的订单面板。',
@@ -134,9 +143,10 @@ module.exports = {
 				.addStringOption((option) =>
 					option
 						.setName('name')
-						.setNameLocalizations({ fr: 'nom', ru: 'имя', 'zh-CN': '名称' })
+						.setNameLocalizations({ 'es-ES': 'nombre', fr: 'nom', ru: 'имя', 'zh-CN': '名称' })
 						.setDescription('Name of the order board to delete.')
 						.setDescriptionLocalizations({
+							'es-ES': 'Nombre del tablero a eliminar.',
 							fr: 'Nom du tableau à supprimer.',
 							ru: 'Название удаляемой доски.',
 							'zh-CN': '要删除的订单名称。',
