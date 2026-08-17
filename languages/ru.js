@@ -256,6 +256,7 @@ module.exports = {
 
 	// Подкатегории Транспорт
 	SUBCATEGORY_VEHICLES: 'Транспортные средства',
+	SUBCATEGORY_AIRCRAFT_PARTS: 'Авиационные детали',
 
 	MATERIAL_SUBCATEGORY_EMPTY: 'В этой категории нет доступных материалов.',
 

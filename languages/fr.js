@@ -256,6 +256,7 @@ module.exports = {
 
 	// Sous-catégories Véhicules
 	SUBCATEGORY_VEHICLES: 'Véhicules',
+	SUBCATEGORY_AIRCRAFT_PARTS: 'Pièces d\'avion',
 
 	MATERIAL_SUBCATEGORY_EMPTY: 'Aucun matériel disponible dans cette catégorie.',
 

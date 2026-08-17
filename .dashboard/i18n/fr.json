@@ -240,6 +240,7 @@
 	"materials.sub.tools": "Outils",
 	"materials.sub.uniforms": "Uniformes",
 	"materials.sub.vehicles": "Véhicules",
+	"materials.sub.aircraft_parts": "Pièces d'avion",
 	"materials.itemCat.supplies": "Fournitures",
 	"product.boardKind": "Tableaux de commandes (type)",
 	"product.boardStatus": "Tableaux de commandes (statut)",

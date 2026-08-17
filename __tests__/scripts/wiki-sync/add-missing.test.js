@@ -5,7 +5,9 @@ jest.mock('../../../scripts/lib/wiki-sync/config', () => ({
 	BATCH_DELAY_MS: 0,
 	WIKI_HUB_TITLES: new Set(['Hub']),
 	WIKI_SCAN_CATEGORIES: ['CatA', 'CatB'],
+	WIKI_EXTRA_SCAN_TITLES: [],
 	WIKI_NOT_LOGISTICS_TITLES: new Set(['NotLogi']),
+	WIKI_COVERED_BY_CATALOG_HUBS: new Set(['CoveredHub']),
 }));
 
 jest.mock('../../../scripts/lib/wiki-sync/wiki-helpers', () => ({

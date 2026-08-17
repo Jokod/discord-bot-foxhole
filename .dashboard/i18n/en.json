@@ -240,6 +240,7 @@
 	"materials.sub.tools": "Tools",
 	"materials.sub.uniforms": "Uniforms",
 	"materials.sub.vehicles": "Vehicles",
+	"materials.sub.aircraft_parts": "Aircraft parts",
 	"materials.itemCat.supplies": "Supplies",
 	"product.boardKind": "Order boards (kind)",
 	"product.boardStatus": "Order boards (status)",

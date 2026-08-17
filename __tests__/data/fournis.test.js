@@ -81,6 +81,7 @@ describe('Fournis - Material Management System', () => {
 			const vehiclesSubcategories = Object.keys(fournis.categories.vehicles.subcategories);
 
 			expect(vehiclesSubcategories).toContain('vehicles');
+			expect(vehiclesSubcategories).toContain('aircraft_parts');
 		});
 	});
 

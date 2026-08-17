@@ -256,6 +256,7 @@ module.exports = {
 
 	// 车辆子类别
 	SUBCATEGORY_VEHICLES: '车辆',
+	SUBCATEGORY_AIRCRAFT_PARTS: '飞机零件',
 
 	MATERIAL_SUBCATEGORY_EMPTY: '此类别中没有可用材料。',
 

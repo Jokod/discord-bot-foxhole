@@ -165,6 +165,20 @@ describe('wiki-sync / wiki-route', () => {
 		});
 	});
 
+	it('Aircraft Part → vehicles/aircraft_parts.json', () => {
+		expect(routeWikiInfoboxToMaterialFile(itemFields({
+			name: 'Colonial Aircraft Engine (Small)',
+			category: 'aircraft parts',
+			ItemCategory: 'Parts',
+			type: 'Aircraft Part',
+			ItemProfileType: 'TorpedoAmmo',
+			ChassisName: 'Aircraft Part',
+		}))).toEqual({
+			relPath: 'vehicles/aircraft_parts.json',
+			itemCategory: 'vehicles',
+		});
+	});
+
 	it('Utility par défaut → field_equipment.json', () => {
 		expect(routeWikiInfoboxToMaterialFile(itemFields({
 			name: 'Binoculars',

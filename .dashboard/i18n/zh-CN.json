@@ -240,6 +240,7 @@
 	"materials.sub.tools": "工具",
 	"materials.sub.uniforms": "制服",
 	"materials.sub.vehicles": "载具",
+	"materials.sub.aircraft_parts": "飞机零件",
 	"materials.itemCat.supplies": "补给",
 	"product.boardKind": "订单面板（类型）",
 	"product.boardStatus": "订单面板（状态）",

@@ -53,6 +53,22 @@ const WIKI_ICON_PAGE_OVERRIDES = {
 	'Paratrooper Uniform': 'Auster\'s Harness',
 };
 
+/** Pages wiki (variantes faction) déjà représentées par une entrée hub du catalogue. */
+const WIKI_COVERED_BY_CATALOG_HUBS = new Set([
+	...Object.values(WIKI_ICON_PAGE_OVERRIDES),
+	// Variantes Warden des hubs Uniform (les overrides d’icône pointent surtout Colonial)
+	'Infantry Battledress',
+	'Sapper Gear',
+	'Physician\'s Jacket',
+	'Outrider\'s Mantle',
+	'Padded Boiler Suit',
+	'Caoivish Parka',
+	'Gunner\'s Breastplate',
+	'Officer\'s Regalia',
+	'Gentleman\'s Peacoat',
+	'Cloudrunner\'s Vesture',
+]);
+
 const WIKI_HUB_TITLES = new Set([
 	'Ammunition', 'Weapons', 'Vehicles', 'Resources', 'Materials', 'Utility', 'Medical',
 	'Uniforms', 'Shippables', 'Structures', 'Production', 'Construction', 'Foxhole',
@@ -108,10 +124,37 @@ const WIKI_SCAN_CATEGORIES = [
 	'Category:Medical',
 	'Category:Uniforms',
 	'Category:Vehicles',
+	// Aircraft live in typed subcats (not under Category:Vehicles as pages).
+	'Category:Amphibious Fighter Aircraft',
+	'Category:Amphibious Scout Aircraft',
+	'Category:Dive Bomber Aircraft',
+	'Category:Fighter Aircraft',
+	'Category:Heavy Bomber Aircraft',
+	'Category:Torpedo Bomber Aircraft',
+	'Category:Transport Aircraft',
+	'Category:Aircraft Parts',
+];
+
+/** Pages with Vehicle Infobox but missing aircraft-type categories on the wiki. */
+const WIKI_EXTRA_SCAN_TITLES = [
+	'A59 Venti \u201cPerdix\u201d',
+	'Luminary Mk. VI Emissary',
 ];
 
 const WIKI_NOT_LOGISTICS_TITLES = new Set([
 	'Fists',
+	// Hub / salvage variants — not ordered as fresh logi stock
+	'Aircraft Part',
+	'Damaged Colonial Aircraft Engine (Large)',
+	'Damaged Colonial Aircraft Engine (Small)',
+	'Damaged Colonial Aircraft Mechanical Parts (Large)',
+	'Damaged Colonial Aircraft Mechanical Parts (Small)',
+	'Damaged Warden Aircraft Engine (Large)',
+	'Damaged Warden Aircraft Engine (Small)',
+	'Damaged Warden Aircraft Mechanical Parts (Large)',
+	'Damaged Warden Aircraft Mechanical Parts (Small)',
+	// Unreleased / devbranch on wiki
+	'Diamon aK-5 \u201cHarpy\u201d',
 ]);
 
 const RESOURCE_NAME_TO_REL = {
@@ -137,8 +180,10 @@ module.exports = {
 	ITEM_REHOME_TO_REL,
 	WIKI_TITLE_OVERRIDES,
 	WIKI_ICON_PAGE_OVERRIDES,
+	WIKI_COVERED_BY_CATALOG_HUBS,
 	WIKI_HUB_TITLES,
 	WIKI_SCAN_CATEGORIES,
+	WIKI_EXTRA_SCAN_TITLES,
 	WIKI_NOT_LOGISTICS_TITLES,
 	RESOURCE_NAME_TO_REL,
 };

@@ -257,6 +257,7 @@ module.exports = {
 
 	// Vehicles subcategories
 	SUBCATEGORY_VEHICLES: 'Vehículos',
+	SUBCATEGORY_AIRCRAFT_PARTS: 'Piezas de avión',
 
 	MATERIAL_SUBCATEGORY_EMPTY: 'No hay materiales disponibles en esta categoría.',
 

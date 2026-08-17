@@ -95,6 +95,22 @@
 		"faction": [
 			"colonial"
 		],
+		"itemName": "A51 Venti “Daedalus”",
+		"itemDesc": "Inspired by passenger seaplanes, the A51 is an extremely proficient scout plane. Dubbed “The Daedalus” by countless crews for its intrepid design, pontoons and foldable wheels give the flexibility to land, refuel, or observe enemy movements under various conditions unrivalled by more conventional aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "A59 Venti “Perdix”",
+		"itemDesc": "The A59 Venti “Perdix” (simply know as the Perdix) is a Colonial Torpedo Scout Plane.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
 		"itemName": "AA-2 Battering Ram",
 		"itemDesc": "The Battering Ram is a mobile Anti-Tank field gun firing 68mm armour-piercing rounds.",
 		"itemCategory": "vehicles"
@@ -410,6 +426,46 @@
 		"faction": [
 			"warden"
 		],
+		"itemName": "Luminary Mk. II Harbinger",
+		"itemDesc": "The backbone of the Alliance Sky Brigade, the Harbinger excels at both strafing ground targets and dogfighting with its twin, front-facing machine guns. Not willing to be outclassed by crude Mesean engineering, Luminary—formerly a northern Caoivish industrial engineering firm—set to work on designing its Mk. I prototype. Sleek, aerodynamic, and so fast it screams, the Harbinger’s design is intended to give the Nevish Alliance a psychological edge on the battlefield as much as it provides air support.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Luminary Mk. IV Herald",
+		"itemDesc": "The Mk. IV is a lighter Luminary aircraft designed for high and low-altitude intelligence gathering. Living up to its namesake, the Herald has been instrumental in thwarting several Colonial operations in the west. What it lacks in resilience and firepower, it more than makes up for in flexibility.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Luminary Mk. VI Emissary",
+		"itemDesc": "The Luminary Mk. VI Emissary (simply known as the Emissary) is a Warden Dive Bomber Scout Plane.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "M925 Austringer Man-O-War",
+		"itemDesc": "The M925 Edellian bomber is the Alliance Sky Brigade’s ace at air-to-sea combat. Featuring twin torpedo bays and a rear-mounted machine gun, the Man-O-War is a veritable threat to any ship’s hull or would-be assailants. The M925's unique capabilities overdelivered, as it was originally conceived as nothing more than a short-range coastal defence bomber. During the M925’s first operation off of the Katoman coast, a small squadron single-handedly sank a Titan. Her crew had no idea how their ship filled with seawater as torpedo after torpedo bored into the underside of her hull.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Mergo-4 “Myrmidon”",
+		"itemDesc": "This unique dive bomber quickly deposits small payloads with more precision than its larger, less mobile counterparts. Bombing first and asking questions later, “Myrmidons” often lead larger bombing operations. Its effective hit-and-run tactics soften larger targets or clear out emplacements that may pose a threat to less manoeuvrable aircraft or incoming convoys.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
 		"itemName": "Mulloy LPC",
 		"itemDesc": "The Mulloy Landing Personnel Carrier is an armoured amphibious vehicle designed for carrying troops across large bodies of water to aid in coordinated beach landings and flanking assaults.",
 		"itemCategory": "vehicles"
@@ -505,6 +561,14 @@
 	},
 	{
 		"faction": [
+			"warden"
+		],
+		"itemName": "Rinnspeir Mk. I Zealot",
+		"itemDesc": "A recent addition to the Alliance Sky Brigade, the Zealot is a first-of-its-kind dropship out of Sorovia. Its large fuselage and cargo bay facilitate transporting entire paratrooper units and dropping them into the fray with ease. The Zealot is best paired with escorts, as it doesn’t boast much in the way of firepower, but once it deploys a retinue of Cloudrunners, it circles back to base to load up the next squad.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
 			"colonial"
 		],
 		"itemName": "RR-3 \"Stolon\" Tanker.",
@@ -583,6 +647,30 @@
 		"faction": [
 			"colonial"
 		],
+		"itemName": "Toxot-902 “Blind Silver”",
+		"itemDesc": "The Toxot-902 is a modern variant of the first warplane to ever see combat; it tears across battlefields laying down strafing machine gun support but excels in air-to-air dogfights. Easy to manufacture and field in large numbers, “Blind Silvers” often give the impression of a volley of arrows soaring overhead.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Tulka I1.9 White Raven",
+		"itemDesc": "This unique Nevish fighter was specially designed to be launched from Mercy-class aircraft carriers, with the flexibility to operate in different environments. Fitted with several front-facing armaments, the White Raven is known to swarm enemy armadas out of nowhere. They soon find themselves careening out of the clouds.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Tulka P4 Welkinrive",
+		"itemDesc": "A Nevish bomber that was developed in direct response to a lack of aerial heavy explosive support during Alliance operations. Having been repeatedly waylaid by Tzykalia bombers along the Sorovian coast, it became clear that the Sky Brigade needed to improve their armada. The Brigade commissioned a fuel-efficient bomber still capable of deploying catastrophic payloads.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
 		"itemName": "Type C - \"Charon\"",
 		"itemDesc": "A small, versatile naval jack of all trades. The “Charon” is fitted with a single mortar cannon and two tripod mounts. Effective at both shoreline assaults and hit and run tactics against larger vessels.",
 		"itemCategory": "vehicles"
@@ -601,6 +689,22 @@
 		],
 		"itemName": "UV-5c \"Odyssey\"",
 		"itemDesc": "This simple, modified Utility Vehicle is fitted with a reinforced hatch to provide one crew member with increased visibility for intense recon operations.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "V-1 Tzykalia",
+		"itemDesc": "A large, deadly bomber capable of delivering high volumes of explosive payloads. While the V-1 Tzykalia requires a proficient bombardier crew, this Velian-made aircraft has an infamous reputation overseas on the Katoma front. Facing minimal air-to-air resistance, a full squadron of Tzykalias led by seasoned captain and ace lodesman Calliope Bibas erased a large Estrellan fortress in the desert region of Sorra Blava off the map. This operation left Alliance presence in the west reeling, furthering Republic ambitions in the region.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "V-5b Pegasus",
+		"itemDesc": "A handful of these Velian-made aircraft are capable of depositing entire platoons of Colonial paratroopers deep behind Warden lines. In fact, these selfsame paratroopers are feared throughout the north for their commitment to night diving and opening their chute late enough that even an observant enemy might blink and miss their descent. While most paratroopers have a short lifespan, one trio that called themselves “The Furies” successfully completed over one hundred combat jumps into Caoivish territory. It’s believed The Furies are responsible for sabotaging countless Warden operations in the north and played a pivotal role in Legate Thea Maro’s “Operation Sunfall.”",
 		"itemCategory": "vehicles"
 	}
 ]

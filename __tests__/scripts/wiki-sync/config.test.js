@@ -12,6 +12,16 @@ describe('wiki-sync / config', () => {
 		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Ammunition');
 		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Uniforms');
 		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Vehicles');
+		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Aircraft Parts');
+		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Transport Aircraft');
+	});
+
+	it('WIKI_EXTRA_SCAN_TITLES couvre les avions sans catégorie typée', () => {
+		const { WIKI_EXTRA_SCAN_TITLES } = require('../../../scripts/lib/wiki-sync/config');
+		expect(WIKI_EXTRA_SCAN_TITLES).toEqual(expect.arrayContaining([
+			'A59 Venti \u201cPerdix\u201d',
+			'Luminary Mk. VI Emissary',
+		]));
 	});
 
 	it('WIKI_HUB_TITLES exclut les pages hub connues', () => {

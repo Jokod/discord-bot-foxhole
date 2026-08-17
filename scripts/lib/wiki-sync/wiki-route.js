@@ -96,6 +96,10 @@ function routeWikiInfoboxToMaterialFile(parsed) {
 		return { relPath: 'utilities/uniforms.json', itemCategory: 'uniforms' };
 	}
 
+	if (type === 'Aircraft Part' || cat === 'aircraft parts') {
+		return { relPath: 'vehicles/aircraft_parts.json', itemCategory: 'vehicles' };
+	}
+
 	if (profile === 'Throwable' && type === 'Grenade') {
 		return { relPath: 'infantry_weapons/grenades.json', itemCategory: 'heavy_arms' };
 	}

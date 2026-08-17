@@ -113,7 +113,7 @@ describe('Material Categories Translations', () => {
 	});
 
 	describe('Vehicles Subcategories Translations', () => {
-		const subcategories = ['SUBCATEGORY_VEHICLES'];
+		const subcategories = ['SUBCATEGORY_VEHICLES', 'SUBCATEGORY_AIRCRAFT_PARTS'];
 
 		for (const subcategoryKey of subcategories) {
 			it(`should have ${subcategoryKey} in all languages`, () => {

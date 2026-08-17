@@ -1,0 +1,66 @@
+[
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Colonial Aircraft Engine (Large)",
+		"itemDesc": "An engine that can be installed in large Colonial aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Colonial Aircraft Engine (Small)",
+		"itemDesc": "An engine that can be installed in small Colonial aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Colonial Aircraft Mechanical Parts (Large)",
+		"itemDesc": "Mechanical parts that can be installed in large Colonial aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Colonial Aircraft Mechanical Parts (Small)",
+		"itemDesc": "Mechanical parts that can be installed in small Colonial aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Warden Aircraft Engine (Large)",
+		"itemDesc": "An engine that can be installed in large Warden aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Warden Aircraft Engine (Small)",
+		"itemDesc": "An engine that can be installed in small Warden aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Warden Aircraft Mechanical Parts (Large)",
+		"itemDesc": "Mechanical parts that can be installed in large Warden aircraft.",
+		"itemCategory": "vehicles"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Warden Aircraft Mechanical Parts (Small)",
+		"itemDesc": "Mechanical parts that can be installed in small Warden aircraft.",
+		"itemCategory": "vehicles"
+	}
+]

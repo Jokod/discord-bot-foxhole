@@ -7,7 +7,9 @@ const {
 	BATCH_DELAY_MS,
 	WIKI_HUB_TITLES,
 	WIKI_SCAN_CATEGORIES,
+	WIKI_EXTRA_SCAN_TITLES,
 	WIKI_NOT_LOGISTICS_TITLES,
+	WIKI_COVERED_BY_CATALOG_HUBS,
 } = require('./config');
 const {
 	sleep,
@@ -67,12 +69,15 @@ async function runAddMissing(dryRun, materialsRoot, fileGroups) {
 			await sleep(BATCH_DELAY_MS);
 		}
 	}
+	for (const t of WIKI_EXTRA_SCAN_TITLES) {
+		wikiTitlesUnion.add(t);
+	}
 
 	const candidates = [...wikiTitlesUnion].filter(t => {
 		if (WIKI_HUB_TITLES.has(t) || t.includes('/')) {
 			return false;
 		}
-		if (WIKI_NOT_LOGISTICS_TITLES.has(t)) {
+		if (WIKI_NOT_LOGISTICS_TITLES.has(t) || WIKI_COVERED_BY_CATALOG_HUBS.has(t)) {
 			return false;
 		}
 		if (existingItemNames.has(t)) {
