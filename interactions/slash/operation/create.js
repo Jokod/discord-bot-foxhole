@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
+const { isValidOperationTitle } = require('../../../utils/operation-text.js');
 
 module.exports = {
 	init: true,
@@ -45,7 +46,7 @@ module.exports = {
 		const title = interaction.options.getString('title').toUpperCase();
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
-		if (/^[\w\s!@#]{1,10}$/g.test(title) === false) {
+		if (!isValidOperationTitle(title)) {
 			await interaction.reply({
 				content: translations.translate('OPERATION_TITLE_FORMAT_ERROR'),
 				flags: 64,

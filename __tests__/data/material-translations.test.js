@@ -263,12 +263,9 @@ describe('Material Categories Translations', () => {
 			'MATERIAL_SELECT_CATEGORY',
 			'MATERIAL_SELECT_SUBCATEGORY',
 			'MATERIAL_SUBCATEGORY_EMPTY',
-			'MATERIAL_URGENCY_URGENT',
-			'MATERIAL_URGENCY_OK',
-			'MATERIAL_URGENCY_LOW',
 		];
 
-		it('should have catalog/urgency keys in all languages', () => {
+		it('should have catalog keys in all languages', () => {
 			for (const key of catalogKeys) {
 				assertKeyInAllLanguages(key, languages);
 			}

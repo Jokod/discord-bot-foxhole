@@ -81,7 +81,7 @@ describe('Modal create operation', () => {
 		expect(mockTranslate).toHaveBeenCalledWith('OPERATION_DURATION_FORMAT_ERROR');
 
 		await modalCreate.execute(interaction({
-			date: '01/01/2026', time: '20:00', duration: '60', description: 'bad$$$',
+			date: '01/01/2026', time: '20:00', duration: '60', description: '<@123>',
 		}));
 		expect(mockTranslate).toHaveBeenCalledWith('OPERATION_DESCRIPTION_FORMAT_ERROR');
 	});
@@ -91,7 +91,7 @@ describe('Modal create operation', () => {
 			date: '01/01/2026',
 			time: '20:00',
 			duration: '60',
-			description: 'Push hex',
+			description: 'Opération sur le front nord.',
 		});
 		await modalCreate.execute(i);
 		expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({

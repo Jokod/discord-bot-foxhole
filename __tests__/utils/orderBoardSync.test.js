@@ -278,7 +278,7 @@ describe('orderBoardSync', () => {
 		await bootstrapOrderBoard(channel, client, board);
 
 		expect(errSpy).toHaveBeenCalledWith(
-			expect.stringContaining('[OrderBoard] log thread failed for b1:'),
+			expect.stringContaining('[OrderBoard] log thread failed for serveur g1 (board b1):'),
 			'thread fail',
 		);
 		errSpy.mockRestore();
@@ -360,7 +360,7 @@ describe('orderBoardSync', () => {
 		await jest.runAllTimersAsync();
 		await expect(promise).resolves.toBe(false);
 		expect(errSpy).toHaveBeenCalledWith(
-			expect.stringContaining('[OrderBoard] debounced refresh failed for b1:'),
+			expect.stringContaining('[OrderBoard] debounced refresh failed for serveur g1 (board b1):'),
 			'db down',
 		);
 		jest.useRealTimers();
@@ -434,7 +434,7 @@ describe('orderBoardSync', () => {
 
 		expect(result).toEqual({ ok: 0, fail: 1, total: 1 });
 		expect(errSpy).toHaveBeenCalledWith(
-			expect.stringContaining('[OrderBoard] refresh failed for b1:'),
+			expect.stringContaining('[OrderBoard] refresh failed for serveur g1 (board b1):'),
 			'boom',
 		);
 		errSpy.mockRestore();

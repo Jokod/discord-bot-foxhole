@@ -15,7 +15,6 @@ const {
 	getPriorityArrow,
 	normalizePriority,
 } = require('../../utils/material-priority.js');
-const { getLineUrgency, getUrgencyColoredText } = require('../../utils/order-urgency.js');
 const { getOrderKindMeta } = require('../../utils/order-kinds.js');
 const {
 	SELECT_MAX_OPTIONS,
@@ -91,12 +90,11 @@ function formatLine(line, translations, opts = {}) {
 		line.priority,
 		translations.translate(getPriorityTranslationKey(line.priority)),
 	);
-	const urgency = getUrgencyColoredText(line, translations);
 	const marker = opts.selected ? '▶️ ' : '';
 	const doneBit = isLineDone(line) ? ' ✅' : '';
 	const stock = translations.translate('ORDER_STOCK', { current, target });
 
-	return `${marker}**${name}**${doneBit} — ${prio} — ${stock} — ${urgency}`;
+	return `${marker}**${name}**${doneBit} — ${prio} — ${stock}`;
 }
 
 /**
@@ -353,5 +351,4 @@ module.exports = {
 	buildOrderEmbed,
 	buildOrderComponents,
 	normalizePriority,
-	getLineUrgency,
 };

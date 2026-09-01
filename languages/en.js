@@ -135,12 +135,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'Operation %title% canceled!',
 
 	// OPERATION ERRORS
-	OPERATION_TITLE_FORMAT_ERROR: 'The title must be alphanumeric without special characters.',
+	OPERATION_TITLE_FORMAT_ERROR: 'Invalid title format. Use 1–10 characters: letters (accents OK), digits, spaces, ! @ #.',
 	OPERATION_CREATE_ERROR: 'An error occurred while creating the operation.',
-	OPERATION_DATE_FORMAT_ERROR: 'The date format is incorrect.',
-	OPERATION_TIME_FORMAT_ERROR: 'The time format is incorrect.',
-	OPERATION_DURATION_FORMAT_ERROR: 'The duration format is incorrect.',
-	OPERATION_DESCRIPTION_FORMAT_ERROR: 'The description format is incorrect.',
+	OPERATION_DATE_FORMAT_ERROR: 'Invalid date format. Expected: dd/mm/yyyy (e.g. 01/09/2026).',
+	OPERATION_TIME_FORMAT_ERROR: 'Invalid time format. Expected: hh:mm in 24-hour form (e.g. 20:00).',
+	OPERATION_DURATION_FORMAT_ERROR: 'Invalid duration format. Enter minutes as digits only, 1–999 (e.g. 60).',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Invalid description format. Letters (accents OK), digits, spaces, and . , : - ( ) \' " ? / allowed. Not allowed: @, < >, markdown (* _ `), emojis.',
 	OPERATION_LAUNCH_ERROR: 'An error occurred while launching the operation.',
 	OPERATION_FINISHED_ERROR: 'An error occurred while finishing the operation.',
 	OPERATION_CANCELED_ERROR: 'An error occurred while canceling the operation.',
@@ -152,9 +152,6 @@ module.exports = {
 	MATERIAL_PRIORITY_LOW: 'Low',
 	MATERIAL_PRIORITY_NEUTRAL: 'Neutral',
 	MATERIAL_PRIORITY_HIGH: 'High',
-	MATERIAL_URGENCY_URGENT: 'URGENT',
-	MATERIAL_URGENCY_LOW: 'LOW',
-	MATERIAL_URGENCY_OK: 'OK',
 
 	// ORDER BOARDS (prod / transfer / scrap) -----------------
 	ORDER_KIND_PROD: 'Production order',
@@ -224,6 +221,7 @@ module.exports = {
 	SUBCATEGORY_MEDICAL: 'Medical',
 	SUBCATEGORY_UNIFORMS: 'Uniforms',
 	SUBCATEGORY_OUTFITS: 'Outfits',
+	SUBCATEGORY_SHIPPABLES: 'Shippables',
 
 	// Infantry Weapons subcategories
 	SUBCATEGORY_SMALL_ARMS: 'Small Arms',

@@ -40,7 +40,7 @@ function stripWikiMarkup(text) {
 }
 
 function extractLeadDescription(wikitext) {
-	let wt = wikitext.replace(/\{\{(?:Item|Vehicle) Infobox[\s\S]*?^}}\s*/gm, '');
+	let wt = wikitext.replace(/\{\{(?:Item|Vehicle|Structure) Infobox[\s\S]*?^}}\s*/gm, '');
 	wt = wt.replace(/\{\{Quote\|[\s\S]*?\|In-game description\}\}/g, '');
 	wt = wt.replace(/#REDIRECT\s*\[\[([^\]]+)\]\]/i, '').trim();
 

@@ -59,6 +59,31 @@ describe('wiki-sync / wiki-route', () => {
 		});
 	});
 
+	it('Structure Shippable Storage → shippables.json', () => {
+		expect(routeWikiInfoboxToMaterialFile({
+			kind: 'Structure',
+			fields: {
+				name: 'Resource Container',
+				construction_type: 'Shippable',
+				type: 'Storage',
+			},
+		})).toEqual({
+			relPath: 'utilities/shippables.json',
+			itemCategory: 'utilities',
+		});
+	});
+
+	it('Structure non-Storage → null', () => {
+		expect(routeWikiInfoboxToMaterialFile({
+			kind: 'Structure',
+			fields: {
+				name: 'Concrete Mixer',
+				construction_type: 'Shippable',
+				type: 'Production',
+			},
+		})).toBeNull();
+	});
+
 	it('ressource nommée → fichier resources dédié', () => {
 		expect(routeWikiInfoboxToMaterialFile(itemFields({ name: 'Salvage' }))).toEqual({
 			relPath: 'resources/salvage.json',
@@ -385,6 +410,26 @@ describe('wiki-sync / wiki-route', () => {
 					type: 'Field Tool',
 				},
 				expected: { relPath: 'utilities/tools.json', itemCategory: 'utilities' },
+			},
+			{
+				label: 'Explosive Charge Utility → field_equipment.json',
+				fields: {
+					name: 'Hydra\'s Whisper',
+					category: 'Utility',
+					type: 'Explosive Charge',
+					ItemProfileType: 'Tool',
+				},
+				expected: { relPath: 'utilities/field_equipment.json', itemCategory: 'utilities' },
+			},
+			{
+				label: 'Sea Mine Utility → null',
+				fields: {
+					name: 'E680-S Rudder Lock',
+					category: 'Utility',
+					type: 'Sea Mine',
+					ItemProfileType: 'Tool',
+				},
+				expected: null,
 			},
 			{
 				label: 'Tool profile Utility → tools.json',

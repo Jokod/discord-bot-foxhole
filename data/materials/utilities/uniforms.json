@@ -116,7 +116,7 @@
 			"warden"
 		],
 		"itemName": "Specialist's Overcoat",
-		"itemDesc": "The Specialist's Overcoat (or Heavy Ammo Uniform) is a Uniform unique to the Wardens, with it specially designed to easily carry a larger amount of explosive ammo (not grenades or deployed weapons) without getting over-encumbered.",
+		"itemDesc": "The Specialist's Overcoat (or Heavy Ammo Uniform) is a Uniform unique to the Wardens, with it specially designed to easily carry a larger amount of explosive ammo (not grenades or deployed weapons) without getting over-encumbered. Upon death, this uniform is permanently destroyed and cannot be recovered. Colonial players are unable to equip any uniform that belongs to the Wardens, and vice versa.",
 		"itemCategory": "uniforms"
 	},
 	{

@@ -12,6 +12,10 @@ const { createLogThread } = require('./orderBoardLog.js');
 const refreshTimers = new Map();
 const REFRESH_DEBOUNCE_MS = 300;
 
+function guildLabel(client, guildId) {
+	return client?.guilds?.cache?.get(guildId)?.name ?? guildId;
+}
+
 function sortLines(lines) {
 	return [...(lines || [])].sort((a, b) => {
 		const rank = getPrioritySortRank(a.priority) - getPrioritySortRank(b.priority);
@@ -91,7 +95,7 @@ async function bootstrapOrderBoard(channel, client, board) {
 		await createLogThread(channel, board, translations);
 	}
 	catch (err) {
-		console.error(`[OrderBoard] log thread failed for ${board._id}:`, err.message);
+		console.error(`[OrderBoard] log thread failed for serveur ${guildLabel(client, board.guild_id)} (board ${board._id}):`, err.message);
 	}
 	return msg;
 }
@@ -181,7 +185,7 @@ function refreshOrderBoardDebounced(client, board, channel) {
 			}
 			catch (err) {
 				resolve(false);
-				console.error(`[OrderBoard] debounced refresh failed for ${key}:`, err.message);
+				console.error(`[OrderBoard] debounced refresh failed for serveur ${guildLabel(client, board.guild_id)} (board ${key}):`, err.message);
 			}
 		}, REFRESH_DEBOUNCE_MS);
 		refreshTimers.set(key, { timer, resolve });
@@ -203,7 +207,7 @@ async function syncAllOrderBoards(client) {
 		}
 		catch (err) {
 			fail += 1;
-			console.error(`[OrderBoard] refresh failed for ${board._id}:`, err.message);
+			console.error(`[OrderBoard] refresh failed for serveur ${guildLabel(client, board.guild_id)} (board ${board._id}):`, err.message);
 		}
 	}
 	console.log(`[OrderBoard] syncAllOrderBoards done: ok=${ok} fail=${fail} total=${boards.length}`);

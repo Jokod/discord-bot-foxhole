@@ -66,6 +66,15 @@ function routeWikiInfoboxToMaterialFile(parsed) {
 	if (parsed.kind === 'Vehicle') {
 		return { relPath: 'vehicles/vehicles.json', itemCategory: 'vehicles' };
 	}
+	if (parsed.kind === 'Structure') {
+		const sf = parsed.fields;
+		const constructionType = (sf.construction_type || '').trim();
+		const structureType = (sf.type || '').trim();
+		if (constructionType === 'Shippable' && structureType === 'Storage') {
+			return { relPath: 'utilities/shippables.json', itemCategory: 'utilities' };
+		}
+		return null;
+	}
 
 	const f = parsed.fields;
 	const name = (f.name || '').trim();
@@ -136,6 +145,12 @@ function routeWikiInfoboxToMaterialFile(parsed) {
 	if (cat === 'Utility') {
 		if (type === 'Bayonet' || (profile === 'Accessory' && dmg === 'Melee')) {
 			return { relPath: 'infantry_weapons/melee_weapons.json', itemCategory: 'utilities' };
+		}
+		if (type === 'Sea Mine') {
+			return null;
+		}
+		if (type === 'Explosive Charge') {
+			return { relPath: 'utilities/field_equipment.json', itemCategory: 'utilities' };
 		}
 		if (profile === 'Tool' || type === 'Field Tool') {
 			return { relPath: 'utilities/tools.json', itemCategory: 'utilities' };

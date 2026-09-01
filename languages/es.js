@@ -136,12 +136,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: '¡Operación %title% cancelada!',
 
 	// OPERATION ERRORS
-	OPERATION_TITLE_FORMAT_ERROR: 'El título debe ser alfanumérico sin caracteres especiales.',
+	OPERATION_TITLE_FORMAT_ERROR: 'Formato de título incorrecto. Use 1 a 10 caracteres: letras (con acentos), números, espacios, ! @ #.',
 	OPERATION_CREATE_ERROR: 'Se produjo un error al crear la operación.',
-	OPERATION_DATE_FORMAT_ERROR: 'El formato de la fecha es incorrecto.',
-	OPERATION_TIME_FORMAT_ERROR: 'El formato de la hora es incorrecto.',
-	OPERATION_DURATION_FORMAT_ERROR: 'El formato de la duración es incorrecto.',
-	OPERATION_DESCRIPTION_FORMAT_ERROR: 'El formato de la descripción es incorrecto.',
+	OPERATION_DATE_FORMAT_ERROR: 'Formato de fecha incorrecto. Esperado: dd/mm/aaaa (ej. 01/09/2026).',
+	OPERATION_TIME_FORMAT_ERROR: 'Formato de hora incorrecto. Esperado: hh:mm en 24 h (ej. 20:00).',
+	OPERATION_DURATION_FORMAT_ERROR: 'Formato de duración incorrecto. Indique minutos solo con dígitos, de 1 a 999 (ej. 60).',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Formato de descripción incorrecto. Letras (con acentos), números, espacios y . , : - ( ) \' " ? / ¿ ¡ permitidos. Prohibido: @, < >, markdown (* _ `), emojis.',
 	OPERATION_LAUNCH_ERROR: 'Se produjo un error al lanzar la operación.',
 	OPERATION_FINISHED_ERROR: 'Se produjo un error al finalizar la operación.',
 	OPERATION_CANCELED_ERROR: 'Se produjo un error al cancelar la operación.',
@@ -153,9 +153,6 @@ module.exports = {
 	MATERIAL_PRIORITY_LOW: 'Baja',
 	MATERIAL_PRIORITY_NEUTRAL: 'Neutral',
 	MATERIAL_PRIORITY_HIGH: 'Alta',
-	MATERIAL_URGENCY_URGENT: 'URGENTE',
-	MATERIAL_URGENCY_LOW: 'BAJA',
-	MATERIAL_URGENCY_OK: 'OK',
 
 	// ORDER BOARDS (prod / transfer / scrap) -----------------
 	ORDER_KIND_PROD: 'Pedido de producción',
@@ -225,6 +222,7 @@ module.exports = {
 	SUBCATEGORY_MEDICAL: 'Médico',
 	SUBCATEGORY_UNIFORMS: 'Uniformes',
 	SUBCATEGORY_OUTFITS: 'Atuendos',
+	SUBCATEGORY_SHIPPABLES: 'Contenedores transportables',
 
 	// Infantry Weapons subcategories
 	SUBCATEGORY_SMALL_ARMS: 'Armas ligeras',

@@ -135,12 +135,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: '操作%title%已取消！',
 
 	// OPERATION ERRORS
-	OPERATION_TITLE_FORMAT_ERROR: '标题必须是字母数字字符，不得包含特殊字符。',
+	OPERATION_TITLE_FORMAT_ERROR: '标题格式不正确。请使用 1–10 个字符：字母（含重音）、数字、空格及 ! @ #。',
 	OPERATION_CREATE_ERROR: '创建操作时发生错误。',
-	OPERATION_DATE_FORMAT_ERROR: '日期格式不正确。',
-	OPERATION_TIME_FORMAT_ERROR: '时间格式不正确。',
-	OPERATION_DURATION_FORMAT_ERROR: '持续时间格式不正确。',
-	OPERATION_DESCRIPTION_FORMAT_ERROR: '描述格式不正确。',
+	OPERATION_DATE_FORMAT_ERROR: '日期格式不正确。应为 dd/mm/yyyy（例如 01/09/2026）。',
+	OPERATION_TIME_FORMAT_ERROR: '时间格式不正确。应为 24 小时制 hh:mm（例如 20:00）。',
+	OPERATION_DURATION_FORMAT_ERROR: '持续时间格式不正确。请仅输入 1–999 分钟的数字（例如 60）。',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: '描述格式不正确。允许字母（含重音）、数字、空格及 . , : - ( ) \' " ? / ¿ ¡。禁止：@、< >、Markdown（* _ `）、表情符号。',
 	OPERATION_LAUNCH_ERROR: '启动操作时发生错误。',
 	OPERATION_FINISHED_ERROR: '完成操作时发生错误。',
 	OPERATION_CANCELED_ERROR: '取消操作时发生错误。',
@@ -152,9 +152,6 @@ module.exports = {
 	MATERIAL_PRIORITY_LOW: '低',
 	MATERIAL_PRIORITY_NEUTRAL: '中性',
 	MATERIAL_PRIORITY_HIGH: '高',
-	MATERIAL_URGENCY_URGENT: '紧急',
-	MATERIAL_URGENCY_LOW: '偏低',
-	MATERIAL_URGENCY_OK: '正常',
 
 	// ORDER BOARDS (prod / transfer / scrap) -----------------
 	ORDER_KIND_PROD: '生产订单',
@@ -224,6 +221,7 @@ module.exports = {
 	SUBCATEGORY_MEDICAL: '医疗',
 	SUBCATEGORY_UNIFORMS: '制服',
 	SUBCATEGORY_OUTFITS: '服装',
+	SUBCATEGORY_SHIPPABLES: '可运输容器',
 
 	// 步兵武器子类别
 	SUBCATEGORY_SMALL_ARMS: '轻型武器',

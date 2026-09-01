@@ -124,6 +124,7 @@ const WIKI_SCAN_CATEGORIES = [
 	'Category:Medical',
 	'Category:Uniforms',
 	'Category:Vehicles',
+	'Category:Half-Tracks',
 	// Aircraft live in typed subcats (not under Category:Vehicles as pages).
 	'Category:Amphibious Fighter Aircraft',
 	'Category:Amphibious Scout Aircraft',
@@ -133,6 +134,8 @@ const WIKI_SCAN_CATEGORIES = [
 	'Category:Torpedo Bomber Aircraft',
 	'Category:Transport Aircraft',
 	'Category:Aircraft Parts',
+	'Category:Shippable_Structures',
+	'Category:Explosive_Charges',
 ];
 
 /** Pages with Vehicle Infobox but missing aircraft-type categories on the wiki. */

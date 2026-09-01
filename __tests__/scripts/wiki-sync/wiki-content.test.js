@@ -41,6 +41,16 @@ describe('wiki-sync / wiki-content', () => {
 			expect(p.kind).toBe('Vehicle');
 			expect(p.fields.name).toBe('Truck');
 		});
+		it('parse Structure Infobox', () => {
+			const wt = `{{Structure Infobox
+| name = Resource Container
+| construction_type = Shippable
+}}
+`;
+			const p = parseItemOrVehicleInfobox(wt);
+			expect(p.kind).toBe('Structure');
+			expect(p.fields.name).toBe('Resource Container');
+		});
 	});
 
 	describe('extractFirstInfoboxFaction', () => {
@@ -78,6 +88,18 @@ This is a long enough lead paragraph for the extractor to accept it as descripti
 			expect(d).toBeTruthy();
 			expect(d.length).toBeGreaterThan(20);
 			expect(d).toMatch(/long enough lead/i);
+		});
+
+		it('utilise le lead Structure Infobox sans Quote', () => {
+			const wt = `{{Structure Infobox
+| name = Resource Container
+| construction_type = Shippable
+}}
+
+A container that can carry large quantities of resources and can be transported by certain vehicles.
+`;
+			const d = descriptionFromWikitext(wt);
+			expect(d).toContain('large quantities of resources');
 		});
 
 		it('retourne null si Quote sans marqueur de fin', () => {

@@ -4,6 +4,23 @@
 			"colonial",
 			"warden"
 		],
+		"itemName": "Abisme AT-99",
+		"itemDesc": "A simple mine that is placed under terrain and fitted with a pressure-sensitive plate to detonate under the weight of heavy vehicles. Mines are visible to friendlies and enemies on foot.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"warden"
+		],
+		"itemName": "Alligator Charge",
+		"itemDesc": "This heavy-duty explosive device is designed to deal significant damage to fortified structures and stationary vehicles.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
 		"itemName": "Barbed Wire",
 		"itemDesc": "Used to construct Barbed Wire defenses.",
 		"itemCategory": "utilities"
@@ -22,6 +39,15 @@
 			"colonial",
 			"warden"
 		],
+		"itemName": "Crow's Foot Mine",
+		"itemDesc": "Anti-infantry mine that deliver a fatal payload to unsuspecting soldiers.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
 		"itemName": "Gas Mask",
 		"itemDesc": "Protects against poison gas.",
 		"itemCategory": "utilities"
@@ -33,6 +59,23 @@
 		],
 		"itemName": "Gas Mask Filter",
 		"itemDesc": "When attached to a Gas Mask, this filter provides fresh air to the wearer.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Havoc Charge",
+		"itemDesc": "—",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial"
+		],
+		"itemName": "Hydra's Whisper",
+		"itemDesc": "This unique demolition tool is a long, metal tube packed with explosives. The Hydra’s Whisper is designed to destroy out-of-reach movement impairing structures and detonate any mines along the length of the tube.",
 		"itemCategory": "utilities"
 	},
 	{

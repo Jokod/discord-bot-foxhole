@@ -48,6 +48,15 @@
 			"colonial",
 			"warden"
 		],
+		"itemName": "E681-B Hullbreaker Mine",
+		"itemDesc": "A specialized sea mine that floats near the surface, causing destructive damage to ship hulls.",
+		"itemCategory": "heavy_arms"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
 		"itemName": "Mark II Raidbreaker",
 		"itemDesc": "Highly explosive payloads for use with bomber aircraft.",
 		"itemCategory": "heavy_arms"

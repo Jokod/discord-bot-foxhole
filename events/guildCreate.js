@@ -23,7 +23,7 @@ module.exports = {
 				console.log(`[Blocked] Bot retiré du serveur ${guild.name} (${guild.id}) juste après l'invitation.`);
 			}
 			catch (err) {
-				console.error(`[Blocked] Impossible de quitter le serveur ${guild.id}:`, err.message);
+				console.error(`[Blocked] Impossible de quitter le serveur ${guild.name ?? guild.id} (${guild.id}):`, err.message);
 			}
 			return;
 		}

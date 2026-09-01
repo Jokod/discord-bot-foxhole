@@ -19,7 +19,7 @@ module.exports = {
 			console.log(`[Stats] Bot retiré du serveur ${guild.name ?? guild.id}, nettoyage effectué.`);
 		}
 		catch (err) {
-			console.error(`[Stats] Impossible de nettoyer les données pour ${guild.id}:`, err.message);
+			console.error(`[Stats] Impossible de nettoyer les données pour ${guild.name ?? guild.id} (${guild.id}):`, err.message);
 		}
 	},
 };

@@ -3,7 +3,7 @@
 /**
  * Discord message component limits for order boards.
  * Max 5 action rows: 2 for buttons, we use at most 2 selects × 25
- * (leaves headroom for embed description ~4096 chars with priority + stock + urgency).
+ * (leaves headroom for embed description ~4096 chars with priority + stock).
  */
 const DISCORD_MAX_ACTION_ROWS = 5;
 const ORDER_BUTTON_ROWS = 2;

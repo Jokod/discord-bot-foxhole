@@ -1,0 +1,47 @@
+[
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Liquid Container",
+		"itemDesc": "A container for storing high volumes of liquids. Nearby structures and vehicles can refill directly from this container.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Material Pallet",
+		"itemDesc": "A material pallet.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Resource Container",
+		"itemDesc": "A container that can carry large quantities of resources and can be transported by certain vehicles.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Shippable Crate",
+		"itemDesc": "Shippable Crates contain multiple packed vehicles or structures of the same kind. These vehicles or structures must be first unpacked at a Storage Depot before they can be used.",
+		"itemCategory": "utilities"
+	},
+	{
+		"faction": [
+			"colonial",
+			"warden"
+		],
+		"itemName": "Shipping Container",
+		"itemDesc": "A container for shipping very large quantities of Crates using Crane loaded vehicles. This type of container can only be unloaded at Storage Depots and Seaports.",
+		"itemCategory": "utilities"
+	}
+]

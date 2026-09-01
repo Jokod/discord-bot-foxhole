@@ -135,12 +135,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'L\'opération %title% annulée !',
 
 	// OPERATION ERRORS
-	OPERATION_TITLE_FORMAT_ERROR: 'Le titre doit être alphanumérique sans caractères spéciaux.',
+	OPERATION_TITLE_FORMAT_ERROR: 'Format du titre incorrect. Utilisez 1 à 10 caractères : lettres (accents OK), chiffres, espaces, ! @ #.',
 	OPERATION_CREATE_ERROR: 'Une erreur est survenue lors de la création de l\'opération.',
-	OPERATION_DATE_FORMAT_ERROR: 'Le format de la date est incorrect.',
-	OPERATION_TIME_FORMAT_ERROR: 'Le format de l\'heure est incorrect.',
-	OPERATION_DURATION_FORMAT_ERROR: 'Le format de la durée est incorrect.',
-	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Le format de la description est incorrect.',
+	OPERATION_DATE_FORMAT_ERROR: 'Format de date incorrect. Attendu : jj/mm/aaaa (ex. 01/09/2026).',
+	OPERATION_TIME_FORMAT_ERROR: 'Format d\'heure incorrect. Attendu : hh:mm en 24 h (ex. 20:00).',
+	OPERATION_DURATION_FORMAT_ERROR: 'Format de durée incorrect. Indiquez un nombre de minutes entre 1 et 999 (chiffres uniquement, ex. 60).',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Format de description incorrect. Lettres (accents OK), chiffres, espaces et . , : - ( ) \' " ? / autorisés. Interdit : @, < >, markdown (* _ `), emojis.',
 	OPERATION_LAUNCH_ERROR: 'Une erreur est survenue lors du lancement de l\'opération.',
 	OPERATION_FINISHED_ERROR: 'Une erreur est survenue lors de la fin de l\'opération.',
 	OPERATION_CANCELED_ERROR: 'Une erreur est survenue lors de l\'annulation de l\'opération.',
@@ -152,9 +152,6 @@ module.exports = {
 	MATERIAL_PRIORITY_LOW: 'Faible',
 	MATERIAL_PRIORITY_NEUTRAL: 'Neutre',
 	MATERIAL_PRIORITY_HIGH: 'Haute',
-	MATERIAL_URGENCY_URGENT: 'URGENT',
-	MATERIAL_URGENCY_LOW: 'BAS',
-	MATERIAL_URGENCY_OK: 'OK',
 
 	// ORDER BOARDS (prod / transfer / scrap) -----------------
 	ORDER_KIND_PROD: 'Commande de production',
@@ -224,6 +221,7 @@ module.exports = {
 	SUBCATEGORY_MEDICAL: 'Soins',
 	SUBCATEGORY_UNIFORMS: 'Uniformes',
 	SUBCATEGORY_OUTFITS: 'Tenues',
+	SUBCATEGORY_SHIPPABLES: 'Conteneurs transportables',
 
 	// Sous-catégories Armes d'infanterie
 	SUBCATEGORY_SMALL_ARMS: 'Armes légères',

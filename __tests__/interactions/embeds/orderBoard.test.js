@@ -61,17 +61,15 @@ describe('orderBoard embeds', () => {
 		expect(stats.remaining).toBe(34);
 	});
 
-	it('formatLine shows priority, stock and urgency', () => {
+	it('formatLine shows priority and stock', () => {
 		const open = formatLine(lines[0], translations, { selected: true });
 		expect(open).toContain('▶️');
 		expect(open).toContain('Sticky');
 		expect(open).toContain('ORDER_STOCK');
 		expect(open).toContain('MATERIAL_PRIORITY_HIGH');
-		expect(open).toContain('MATERIAL_URGENCY_URGENT');
 		const done = formatLine(lines[1], translations);
 		expect(done).toContain('✅');
 		expect(done).toContain('ORDER_STOCK');
-		expect(done).toContain('MATERIAL_URGENCY_LOW');
 	});
 
 	it('buildOrderEmbed includes kind, summary, selection marker', () => {

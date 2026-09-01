@@ -772,7 +772,7 @@ describe('Stats events', () => {
 
 			expect(leave).toHaveBeenCalled();
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'[Blocked] Impossible de quitter le serveur guild-a:',
+				'[Blocked] Impossible de quitter le serveur Server A (guild-a):',
 				'leave failed',
 			);
 			consoleSpy.mockRestore();

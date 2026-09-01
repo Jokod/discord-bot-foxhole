@@ -38,4 +38,11 @@ describe('Slash /operation', () => {
 		const modal = i.showModal.mock.calls[0][0];
 		expect(modal.data.custom_id).toBe('modal_create_operation');
 	});
+
+	it('accepte un titre accentué', async () => {
+		const i = interaction('défense');
+		await createSlash.execute(i);
+		expect(i.client.sessions['g1:u1']).toEqual({ title: 'DÉFENSE' });
+		expect(i.showModal).toHaveBeenCalled();
+	});
 });

@@ -6,7 +6,8 @@ module.exports = {
 			}
 			catch (err) {
 				if (err.code === 50001 || err.status === 403) {
-					console.warn(`[React] Accès refusé sur le canal ${message.channelId}: ${err.message}`);
+					const guildName = message.guild?.name ?? message.guildId ?? 'inconnu';
+					console.warn(`[React] Accès refusé sur le serveur ${guildName} (canal ${message.channelId}): ${err.message}`);
 					return;
 				}
 				throw err;

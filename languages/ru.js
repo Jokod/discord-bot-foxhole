@@ -135,12 +135,12 @@ module.exports = {
 	OPERATION_CANCELED_SUCCESS: 'Операция %title% отменена!',
 
 	// OPERATION ERRORS
-	OPERATION_TITLE_FORMAT_ERROR: 'Заголовок должен быть буквенно-цифровым без специальных символов.',
+	OPERATION_TITLE_FORMAT_ERROR: 'Неверный формат заголовка. Используйте 1–10 символов: буквы (с акцентами), цифры, пробелы, ! @ #.',
 	OPERATION_CREATE_ERROR: 'Произошла ошибка при создании операции.',
-	OPERATION_DATE_FORMAT_ERROR: 'Неверный формат даты.',
-	OPERATION_TIME_FORMAT_ERROR: 'Неверный формат времени.',
-	OPERATION_DURATION_FORMAT_ERROR: 'Неверный формат продолжительности.',
-	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Неверный формат описания.',
+	OPERATION_DATE_FORMAT_ERROR: 'Неверный формат даты. Ожидается: дд/мм/гггг (напр. 01/09/2026).',
+	OPERATION_TIME_FORMAT_ERROR: 'Неверный формат времени. Ожидается: чч:мм в 24-часовом формате (напр. 20:00).',
+	OPERATION_DURATION_FORMAT_ERROR: 'Неверный формат длительности. Укажите минуты только цифрами, от 1 до 999 (напр. 60).',
+	OPERATION_DESCRIPTION_FORMAT_ERROR: 'Неверный формат описания. Разрешены буквы (с акцентами), цифры, пробелы и . , : - ( ) \' " ? / ¿ ¡. Запрещены: @, < >, markdown (* _ `), эмодзи.',
 	OPERATION_LAUNCH_ERROR: 'Произошла ошибка при запуске операции.',
 	OPERATION_FINISHED_ERROR: 'Произошла ошибка при завершении операции.',
 	OPERATION_CANCELED_ERROR: 'Произошла ошибка при отмене операции.',
@@ -152,9 +152,6 @@ module.exports = {
 	MATERIAL_PRIORITY_LOW: 'Низкий',
 	MATERIAL_PRIORITY_NEUTRAL: 'Нейтральный',
 	MATERIAL_PRIORITY_HIGH: 'Высокий',
-	MATERIAL_URGENCY_URGENT: 'СРОЧНО',
-	MATERIAL_URGENCY_LOW: 'НИЗКО',
-	MATERIAL_URGENCY_OK: 'OK',
 
 	// ORDER BOARDS (prod / transfer / scrap) -----------------
 	ORDER_KIND_PROD: 'Заказ на производство',
@@ -224,6 +221,7 @@ module.exports = {
 	SUBCATEGORY_MEDICAL: 'Медицинское',
 	SUBCATEGORY_UNIFORMS: 'Униформа',
 	SUBCATEGORY_OUTFITS: 'Наряды',
+	SUBCATEGORY_SHIPPABLES: 'Транспортируемые контейнеры',
 
 	// Подкатегории Пехотное оружие
 	SUBCATEGORY_SMALL_ARMS: 'Легкое оружие',
