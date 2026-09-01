@@ -105,10 +105,10 @@ npm run dev      # development (nodemon)
 Scopes: **`bot`** + **`applications.commands`**.
 
 ```
-https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=328565001280&scope=bot%20applications.commands
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=328565091392&scope=bot%20applications.commands
 ```
 
-Included permissions (among others): manage messages/channels used by boards, **Create Public Threads** + **Send Messages in Threads** (order Logs threads).
+Included permissions : **View Channel**, **Send Messages**, **Embed Links**, **Read Message History**, **Manage Messages**, **Create Public Threads** + **Send Messages in Threads**.
 
 After invite: run **`/setup`** once (language + faction; optional `logs`, default **false**).
 
@@ -312,8 +312,9 @@ Docker image on tag: [`.github/workflows/docker.yaml`](../.github/workflows/dock
 |---------|------|
 | Missing / stale slash commands | Restart in `prod`; wait a few minutes; check invite scopes |
 | Bot silent | Token, `Guilds` intent (no privileged intents needed), channel permissions, `/setup` done |
+| Order board not updating / `Missing Access` | FoxBot role in that channel (+ parent category): View Channel, Send Messages, Embed Links, Read Message History, Manage Messages |
 | Mongo error | `MONGODB_URL` / `MONGODB_NAME`, Atlas network |
-| Missing Logs threads | `logs:true` + thread permissions |
+| Missing Logs threads | `logs:true` + Create Public Threads + Send Messages in Threads |
 | Empty `/about` | Set `GITHUB_URL` / `DISCORD_INVITE_URL` |
 | Dashboard won’t start | Check `DASHBOARD_ENV_FILE` (often `.env`), `MONGODB_*` / `TOKEN`; logs: `make dashboard-logs` |
 | Can’t unlock stats | Still on default password — change it in Profile (min. 10 chars) |

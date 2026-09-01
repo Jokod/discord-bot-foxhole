@@ -2,7 +2,7 @@
 
 Slash commands and board behaviour after **`/setup`**. Discord may show localized command names depending on client language; this doc uses the English names.
 
-Hosted invite: use the [Add to Discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot) link from the README. Self-host: [SELF-HOST.md](SELF-HOST.md).
+Hosted invite: use the [Add to Discord](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565091392&scope=applications.commands%20bot) link from the README. Self-host: [SELF-HOST.md](SELF-HOST.md).
 
 ---
 
@@ -49,7 +49,7 @@ Not a Foxhole inventory. Counts **progress on a short order** (OP, haul, or farm
 **On the board:** Select a line · **-1 / +1 / +4 / +9 / Max** · Priority · Add · Correct · Delete · Close / Reopen.  
 Up to **50 lines** (Discord: **2** selects × 25). At capacity the embed turns **red**, **Add** is disabled, and further adds are rejected. Long lists may truncate in the embed (use the selects).
 
-**Permissions**
+**User permissions**
 
 | Who | Actions |
 |-----|---------|
@@ -58,9 +58,24 @@ Up to **50 lines** (Discord: **2** selects × 25). At capacity the embed turns *
 
 **Closed boards** stay read-only until an owner/moderator clicks **Reopen** (synced on bot startup too).
 
-**Logs thread:** optional (`/setup logs:true` or `/server logs`). Locked (read-only for members; bot posts qty / max / priority / add / correct / close / reopen / delete). Not attached to the board message. Board remove always deletes the thread if it exists.
+**Bot channel permissions** — in every channel where a board lives (check the **parent category** too if you use one):
 
-Bot needs **Create Public Threads** + **Send Messages in Threads**.
+| Permission | Why |
+|------------|-----|
+| View Channel | Read the channel and the tracked board message |
+| Send Messages | Post the board (or a replacement if the old message is gone) |
+| Embed Links | Order boards use embeds |
+| Read Message History | Find and edit the tracked board message |
+| Manage Messages | Edit the board message when lines change |
+
+If **order Logs** are enabled (`/setup logs:true` or `/server logs enabled:true`), also grant:
+
+| Permission | Why |
+|------------|-----|
+| Create Public Threads | Create the locked Logs thread |
+| Send Messages in Threads | Post activity in the Logs thread |
+
+**Logs thread:** optional (`/setup logs:true` or `/server logs`). Locked (read-only for members; bot posts qty / max / priority / add / correct / close / reopen / delete). Not attached to the board message. Board remove always deletes the thread if it exists.
 
 ## Stockpiles (depot codes)
 

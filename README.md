@@ -53,7 +53,7 @@ Also explained in **`/about`**.
 
 ## Configuration
 
-1. Invite the bot: [Add to my Discord server](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565001280&scope=applications.commands%20bot).
+1. Invite the bot: [Add to my Discord server](https://discord.com/api/oauth2/authorize?client_id=1149421904428544081&permissions=328565091392&scope=applications.commands%20bot).
 2. Grant command permissions as needed for your roles.
 3. Run **`/setup`** once (language + faction: colonial / warden ; optional **`logs`** for order Logs threads, default off).
 4. **Recommended:** [Follow Announcements](#get-updates-on-your-server) so FoxBot news lands in your Discord.
