@@ -14,6 +14,12 @@ describe('isValidOperationTitle', () => {
 		expect(isValidOperationTitle('titrelongxx')).toBe(false);
 		expect(isValidOperationTitle('')).toBe(false);
 	});
+
+	it('refuse les pings @everyone / @here', () => {
+		expect(isValidOperationTitle('@everyone')).toBe(false);
+		expect(isValidOperationTitle('@here')).toBe(false);
+		expect(isValidOperationTitle('@EVERYONE')).toBe(false);
+	});
 });
 
 describe('isValidOperationDescription', () => {

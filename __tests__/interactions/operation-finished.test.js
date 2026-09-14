@@ -19,6 +19,8 @@ jest.mock('../../services/order/index.js', () => ({
 
 const finishedHandler = require('../../interactions/buttons/operation/finished.js');
 
+const { getV2Text, v2Text } = require('../helpers/v2Payload.js');
+
 describe('Operation finished button', () => {
 	let interaction;
 
@@ -58,10 +60,16 @@ describe('Operation finished button', () => {
 		);
 		expect(interaction.update).toHaveBeenCalledWith(
 			expect.objectContaining({
-				content: expect.stringContaining('OPERATION_FINISHED_SUCCESS'),
-				components: [],
+				components: expect.any(Array),
+				flags: expect.anything(),
 			}),
 		);
+		expect(getV2Text(interaction.update.mock.calls[0][0])).toContain('OPERATION_FINISHED_SUCCESS');
+		// finished: no action rows (type 1)
+		expect(interaction.update.mock.calls[0][0].components.every((c) => {
+			const j = typeof c.toJSON === 'function' ? c.toJSON() : c;
+			return j.type !== 1;
+		})).toBe(true);
 	});
 
 	it('refuse si pas owner', async () => {
@@ -69,7 +77,7 @@ describe('Operation finished button', () => {
 		await finishedHandler.execute(interaction);
 		expect(mockDeleteBoardsByOperation).not.toHaveBeenCalled();
 		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_ARE_NO_OWNER_ERROR', flags: 64 }),
+			v2Text('OPERATION_ARE_NO_OWNER_ERROR', { ephemeral: true }),
 		);
 	});
 
@@ -77,7 +85,7 @@ describe('Operation finished button', () => {
 		mockOperationFindOne.mockResolvedValue(null);
 		await finishedHandler.execute(interaction);
 		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_NOT_EXIST', flags: 64 }),
+			v2Text('OPERATION_NOT_EXIST', { ephemeral: true }),
 		);
 	});
 
@@ -97,7 +105,7 @@ describe('Operation finished button', () => {
 
 		err.mockRestore();
 		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_FINISHED_ERROR', flags: 64 }),
+			v2Text('OPERATION_FINISHED_ERROR', { ephemeral: true }),
 		);
 	});
 });

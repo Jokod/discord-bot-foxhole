@@ -9,6 +9,7 @@ const {
 } = require('../../../services/order/index.js');
 const { OrderLine } = require('../../../data/models.js');
 const { appendOrderLog } = require('../../../utils/orderBoardLog.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
 
 module.exports = {
 	id: 'order_qty',
@@ -24,15 +25,15 @@ module.exports = {
 		const delta = QTY_DELTAS[action];
 
 		if ((!isMax && delta == null) || !boardId) {
-			return interaction.reply({ content: translations.translate('INTERACTION_ERROR'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('INTERACTION_ERROR'), { ephemeral: true }));
 		}
 
 		const board = await findBoardById(boardId, guild.id);
 		if (!board) {
-			return interaction.reply({ content: translations.translate('ORDER_BOARD_NOT_EXIST'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_BOARD_NOT_EXIST'), { ephemeral: true }));
 		}
 		if (board.status === 'closed') {
-			return interaction.reply({ content: translations.translate('ORDER_STATUS_CLOSED'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_STATUS_CLOSED'), { ephemeral: true }));
 		}
 
 		let lineId = explicitLineId && explicitLineId !== '0'
@@ -46,7 +47,7 @@ module.exports = {
 			lineId = fallback?.line_id;
 		}
 		if (!lineId) {
-			return interaction.reply({ content: translations.translate('ORDER_NO_SELECTION'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_NO_SELECTION'), { ephemeral: true }));
 		}
 
 		await interaction.deferUpdate();
@@ -55,10 +56,7 @@ module.exports = {
 			? await fillToTarget(guild.id, board._id, lineId)
 			: await applyIncrement(guild.id, board._id, lineId, delta);
 		if (!result?.line) {
-			return interaction.followUp({
-				content: translations.translate('ORDER_LINE_NOT_EXIST'),
-				flags: 64,
-			}).catch(() => undefined);
+			return interaction.followUp(v2Text(translations.translate('ORDER_LINE_NOT_EXIST'), { ephemeral: true })).catch(() => undefined);
 		}
 
 		const { line, previous, current } = result;

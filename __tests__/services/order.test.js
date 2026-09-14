@@ -63,6 +63,7 @@ const {
 	findBoardsByChannel,
 	listLines,
 	sortLines,
+	resolveOperationTitle,
 } = require('../../services/order/index.js');
 
 describe('services/order', () => {
@@ -447,6 +448,22 @@ describe('services/order', () => {
 		});
 		const listed = await listLines({ _id: 'b1', guild_id: 'g1' });
 		expect(listed.map((l) => l.line_id)).toEqual(['1', '2']);
+	});
+
+	it('resolveOperationTitle lit l’opération liée', async () => {
+		expect(await resolveOperationTitle({})).toBeNull();
+		expect(await resolveOperationTitle({ operation_id: null })).toBeNull();
+		const { Operation } = require('../../data/models.js');
+		Operation.findOne.mockReturnValue({ lean: async () => ({ title: 'Raid' }) });
+		expect(await resolveOperationTitle({
+			guild_id: 'g1',
+			operation_id: 'op1',
+		})).toBe('Raid');
+		Operation.findOne.mockReturnValue({ lean: async () => ({}) });
+		expect(await resolveOperationTitle({
+			guild_id: 'g1',
+			operation_id: 'op-fallback',
+		})).toBe('op-fallback');
 	});
 
 	it('fillToTarget ignore ligne absente', async () => {

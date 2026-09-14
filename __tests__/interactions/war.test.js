@@ -15,6 +15,8 @@ jest.mock('../../utils/colors.js', () => ({
 	getRandomColor: jest.fn().mockReturnValue(0x3498db),
 }));
 
+const { getV2Text, v2Text } = require('../helpers/v2Payload.js');
+
 describe('Slash command /war', () => {
 	let warCommand;
 	let mockFetch;
@@ -126,26 +128,27 @@ describe('Slash command /war', () => {
 		expect(interaction.deferReply).toHaveBeenCalledWith({ flags: 64 });
 		expect(interaction.editReply).toHaveBeenCalledTimes(1);
 
-		const { embeds } = interaction.editReply.mock.calls[0][0];
-		expect(embeds).toHaveLength(1);
-		const embed = embeds[0];
-		const embedData = embed.data ?? embed;
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
 
-		expect(embedData.title).toBe('FOXHOLE_WAR_TITLE_ENDED');
+		expect(text).toContain('FOXHOLE_WAR_TITLE_ENDED');
 
-		const fields = embedData.fields ?? [];
-		const playersField = fields.find((f) => f.name === 'FOXHOLE_PLAYERS_CURRENT');
-		expect(playersField).toBeDefined();
-		expect(playersField.value.replace(/\D/g, '')).toBe('15309');
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_NUMBER' && f.value === String(warPayload.warNumber))).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER' && f.value === 'FOXHOLE_WINNER_WARDEN')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS' && f.value === '1 / 32')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WARDEN_TOWNS' && f.value === '2 / 32')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SHORT_REQUIRED_TOWNS' && f.value === String(warPayload.shortRequiredVictoryTowns))).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_START')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_DAY')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_ELAPSED')).toBe(true);
+
+		expect(text).toContain('FOXHOLE_PLAYERS_CURRENT');
+		expect(text.replace(/\D/g, '')).toContain('15309');
+		expect(text).toContain('FOXHOLE_WAR_NUMBER');
+		expect(text).toContain(String(warPayload.warNumber));
+		expect(text).toContain('FOXHOLE_WAR_WINNER');
+		expect(text).toContain('FOXHOLE_WINNER_WARDEN');
+		expect(text).toContain('FOXHOLE_WAR_COLONIAL_TOWNS');
+		expect(text).toContain('1 / 32');
+		expect(text).toContain('FOXHOLE_WAR_WARDEN_TOWNS');
+		expect(text).toContain('2 / 32');
+		expect(text).toContain('FOXHOLE_WAR_SHORT_REQUIRED_TOWNS');
+		expect(text).toContain(String(warPayload.shortRequiredVictoryTowns));
+		expect(text).toContain('FOXHOLE_WAR_START');
+		expect(text).toContain('FOXHOLE_WAR_END');
+		expect(text).toContain('FOXHOLE_WAR_DAY');
+		expect(text).toContain('FOXHOLE_WAR_ELAPSED');
 	});
 
 	it('status: guerre terminée sans vainqueur → FOXHOLE_WINNER_ENDED (pas NONE)', async () => {
@@ -188,11 +191,11 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const { embeds } = interaction.editReply.mock.calls[0][0];
-		const embedData = embeds[0].data ?? embeds[0];
-		expect(embedData.title).toBe('FOXHOLE_WAR_TITLE_ENDED');
-		const fields = embedData.fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER' && f.value === 'FOXHOLE_WINNER_ENDED')).toBe(true);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_TITLE_ENDED');
+
+		expect(text).toContain('FOXHOLE_WAR_WINNER');
+		expect(text).toContain('FOXHOLE_WINNER_ENDED');
 	});
 
 	it('status: affiche FOXHOLE_UNAVAILABLE pour les joueurs si Steam échoue', async () => {
@@ -225,10 +228,9 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const embed = interaction.editReply.mock.calls[0][0].embeds[0];
-		const embedData = embed.data ?? embed;
-		const playersField = (embedData.fields ?? []).find((f) => f.name === 'FOXHOLE_PLAYERS_CURRENT');
-		expect(playersField.value).toBe('FOXHOLE_UNAVAILABLE');
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_PLAYERS_CURRENT');
+		expect(text).toContain('FOXHOLE_UNAVAILABLE');
 	});
 
 	it('status: affiche FOXHOLE_ALL_UNAVAILABLE quand War et Steam échouent', async () => {
@@ -242,9 +244,7 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'FOXHOLE_ALL_UNAVAILABLE',
-		});
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('FOXHOLE_ALL_UNAVAILABLE'));
 	});
 
 	it('status: War indisponible mais Steam OK → embed partiel joueurs + guerre indisponible', async () => {
@@ -271,12 +271,13 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const { embeds } = interaction.editReply.mock.calls[0][0];
-		const embedData = embeds[0].data ?? embeds[0];
-		expect(embedData.title).toBe('FOXHOLE_TITLE');
-		const fields = embedData.fields ?? [];
-		expect(fields.find((f) => f.name === 'FOXHOLE_PLAYERS_CURRENT')?.value.replace(/\D/g, '')).toBe('4200');
-		expect(fields.find((f) => f.name === 'FOXHOLE_WAR_TITLE')?.value).toBe('FOXHOLE_UNAVAILABLE');
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_TITLE');
+
+		expect(text).toContain('FOXHOLE_PLAYERS_CURRENT');
+		expect(text.replace(/\D/g, '')).toContain('4200');
+		expect(text).toContain('FOXHOLE_WAR_TITLE');
+		expect(text).toContain('FOXHOLE_UNAVAILABLE');
 	});
 
 	it('status: affiche les villes calcinées quand scorched > 0', async () => {
@@ -327,8 +328,9 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SCORCHED_TOWNS' && f.value === '3')).toBe(true);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_SCORCHED_TOWNS');
+		expect(text).toContain('3');
 	});
 
 	it('status: guerre en cours avec fin planifiée', async () => {
@@ -371,9 +373,9 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SCHEDULED_END')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(false);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_SCHEDULED_END');
+		expect(text).not.toContain('FOXHOLE_WAR_END');
 	});
 
 	it('status: guerre non terminée avec conquestEndTime sans fin planifiée', async () => {
@@ -416,9 +418,9 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_END')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_SCHEDULED_END')).toBe(false);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_END');
+		expect(text).not.toContain('FOXHOLE_WAR_SCHEDULED_END');
 	});
 
 	it('status: conquestEndTime présent mais guerre non terminée (branche else if)', async () => {
@@ -460,8 +462,8 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.filter((f) => f.name === 'FOXHOLE_WAR_END')).toHaveLength(1);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_END');
 	});
 
 	it('status: vainqueur COLONIAL et requiredVictoryTowns sans vt', async () => {
@@ -501,10 +503,12 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const embedData = interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0];
-		const fields = embedData.fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WINNER' && f.value === 'FOXHOLE_WINNER_COLONIAL')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === '28')).toBe(true);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+
+		expect(text).toContain('FOXHOLE_WAR_WINNER');
+		expect(text).toContain('FOXHOLE_WINNER_COLONIAL');
+		expect(text).toContain('FOXHOLE_WAR_REQUIRED_TOWNS');
+		expect(text).toContain('28');
 	});
 
 	it('status: vt sans need affiche les totaux bruts', async () => {
@@ -554,9 +558,11 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS' && f.value === '1')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_WARDEN_TOWNS' && f.value === '1')).toBe(true);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_COLONIAL_TOWNS');
+		expect(text).toContain('1');
+		expect(text).toContain('FOXHOLE_WAR_WARDEN_TOWNS');
+		expect(text).toContain('1');
 	});
 
 	it('status: sans dayOfWar ni elapsed ni vt mais avec requiredVictoryTowns', async () => {
@@ -597,10 +603,11 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === '30')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_DAY')).toBe(false);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_ELAPSED')).toBe(false);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_REQUIRED_TOWNS');
+		expect(text).toContain('30');
+		expect(text).not.toContain('FOXHOLE_WAR_DAY');
+		expect(text).not.toContain('FOXHOLE_WAR_ELAPSED');
 	});
 
 	it('status: requiredVictoryTowns sans données vt (maps vides)', async () => {
@@ -640,9 +647,10 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS' && f.value === '31')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS')).toBe(false);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_WAR_REQUIRED_TOWNS');
+		expect(text).toContain('31');
+		expect(text).not.toContain('FOXHOLE_WAR_COLONIAL_TOWNS');
 	});
 
 	it('status: sans vt ni requiredVictoryTowns', async () => {
@@ -681,9 +689,9 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('status');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_REQUIRED_TOWNS')).toBe(false);
-		expect(fields.some((f) => f.name === 'FOXHOLE_WAR_COLONIAL_TOWNS')).toBe(false);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).not.toContain('FOXHOLE_WAR_REQUIRED_TOWNS');
+		expect(text).not.toContain('FOXHOLE_WAR_COLONIAL_TOWNS');
 	});
 
 	it('report: casualties null → 0 par défaut', async () => {
@@ -706,9 +714,11 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('report', 'HexA');
 		await warCommand.execute(interaction);
 
-		const fields = (interaction.editReply.mock.calls[0][0].embeds[0].data ?? interaction.editReply.mock.calls[0][0].embeds[0]).fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_COLONIAL_CASUALTIES' && f.value === '0')).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_WARDEN_CASUALTIES' && f.value === '0')).toBe(true);
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
+		expect(text).toContain('FOXHOLE_REPORT_COLONIAL_CASUALTIES');
+		expect(text).toContain('0');
+		expect(text).toContain('FOXHOLE_REPORT_WARDEN_CASUALTIES');
+		expect(text).toContain('0');
 	});
 
 	it('maps: renvoie un embed listant les cartes et le lien foxholestats', async () => {
@@ -737,15 +747,12 @@ describe('Slash command /war', () => {
 		expect(interaction.deferReply).toHaveBeenCalledWith({ flags: 64 });
 		expect(interaction.editReply).toHaveBeenCalledTimes(1);
 
-		const { embeds } = interaction.editReply.mock.calls[0][0];
-		expect(embeds).toHaveLength(1);
-		const embed = embeds[0];
-		const embedData = embed.data ?? embed;
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
 
-		expect(embedData.title).toBe('FOXHOLE_MAPS_TITLE');
-		expect(embedData.description).toContain('DeadLandsHex');
-		expect(embedData.description).toContain('UmbralWildwoodHex');
-		expect(embedData.description).toContain('https://foxholestats.com/');
+		expect(text).toContain('FOXHOLE_MAPS_TITLE');
+		expect(text).toContain('DeadLandsHex');
+		expect(text).toContain('UmbralWildwoodHex');
+		expect(text).toContain('https://foxholestats.com/');
 	});
 
 	it('maps: affiche un message d’erreur quand aucune carte n’est renvoyée', async () => {
@@ -759,9 +766,7 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('maps');
 		await warCommand.execute(interaction);
 
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'FOXHOLE_MAPS_UNAVAILABLE',
-		});
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('FOXHOLE_MAPS_UNAVAILABLE'));
 	});
 
 	it('report: renvoie un embed de rapport de guerre quand les données existent', async () => {
@@ -795,18 +800,19 @@ describe('Slash command /war', () => {
 		expect(interaction.deferReply).toHaveBeenCalledWith({ flags: 64 });
 		expect(interaction.editReply).toHaveBeenCalledTimes(1);
 
-		const { embeds } = interaction.editReply.mock.calls[0][0];
-		expect(embeds).toHaveLength(1);
-		const embed = embeds[0];
-		const embedData = embed.data ?? embed;
+		const text = getV2Text(interaction.editReply.mock.calls[0][0]);
 
-		expect(embedData.title).toBe('FOXHOLE_REPORT_TITLE');
+		expect(text).toContain('FOXHOLE_REPORT_TITLE');
 
-		const fields = embedData.fields ?? [];
-		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_ENLISTMENTS' && f.value === String(reportPayload.totalEnlistments))).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_COLONIAL_CASUALTIES' && f.value === String(reportPayload.colonialCasualties))).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_WARDEN_CASUALTIES' && f.value === String(reportPayload.wardenCasualties))).toBe(true);
-		expect(fields.some((f) => f.name === 'FOXHOLE_REPORT_DAY' && f.value === String(reportPayload.dayOfWar))).toBe(true);
+
+		expect(text).toContain('FOXHOLE_REPORT_ENLISTMENTS');
+		expect(text).toContain(String(reportPayload.totalEnlistments));
+		expect(text).toContain('FOXHOLE_REPORT_COLONIAL_CASUALTIES');
+		expect(text).toContain(String(reportPayload.colonialCasualties));
+		expect(text).toContain('FOXHOLE_REPORT_WARDEN_CASUALTIES');
+		expect(text).toContain(String(reportPayload.wardenCasualties));
+		expect(text).toContain('FOXHOLE_REPORT_DAY');
+		expect(text).toContain(String(reportPayload.dayOfWar));
 	});
 
 	it('report: affiche un message d’erreur quand le rapport est indisponible', async () => {
@@ -820,18 +826,14 @@ describe('Slash command /war', () => {
 		const interaction = createInteraction('report', 'DeadLandsHex');
 		await warCommand.execute(interaction);
 
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'FOXHOLE_REPORT_UNAVAILABLE',
-		});
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('FOXHOLE_REPORT_UNAVAILABLE'));
 	});
 
 	it('retourne COMMAND_UNKNOWN pour un sous-commande inconnu', async () => {
 		const interaction = createInteraction('unknown');
 		await warCommand.execute(interaction);
 
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'COMMAND_UNKNOWN',
-		});
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('COMMAND_UNKNOWN'));
 	});
 
 	it('status: sert le cache mémoire 1j sans revalider à chaque appel', async () => {

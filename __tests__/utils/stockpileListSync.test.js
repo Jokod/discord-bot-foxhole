@@ -2,17 +2,16 @@ const mockTranslate = jest.fn((key) => key);
 
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 
-const mockBuildStockpileListEmbed = jest.fn();
-const mockBuildStockpileListComponents = jest.fn();
+const mockBuildStockpileListPayload = jest.fn();
 
 jest.mock('../../interactions/embeds/stockpileList.js', () => ({
-	buildStockpileListEmbed: (...args) => mockBuildStockpileListEmbed(...args),
-	buildStockpileListComponents: (...args) => mockBuildStockpileListComponents(...args),
+	buildStockpileListPayload: (...args) => mockBuildStockpileListPayload(...args),
 }));
 
 const mockStockpileFind = jest.fn();
 const mockStockpileUpdateOne = jest.fn().mockResolvedValue({});
 const mockTrackedMessageFind = jest.fn();
+const mockTrackedMessageFindOne = jest.fn().mockResolvedValue(null);
 
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
@@ -21,8 +20,14 @@ jest.mock('../../data/models.js', () => ({
 	},
 	TrackedMessage: {
 		find: (...args) => mockTrackedMessageFind(...args),
+		findOne: (...args) => mockTrackedMessageFindOne(...args),
+		findOneAndUpdate: jest.fn().mockResolvedValue(undefined),
+		deleteOne: jest.fn().mockResolvedValue(undefined),
 	},
 }));
+
+const { MessageFlags } = require('discord.js');
+const { v2Text } = require('../../utils/componentsV2.js');
 
 const {
 	repairDuplicateStockpileIds,
@@ -31,11 +36,21 @@ const {
 	syncAllStockpileLists,
 } = require('../../utils/stockpileListSync.js');
 
+function v2Message(edit = jest.fn().mockResolvedValue(undefined)) {
+	return {
+		id: 'msg-1',
+		edit,
+		deletable: true,
+		delete: jest.fn().mockResolvedValue(undefined),
+		flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+	};
+}
+
 describe('stockpileListSync', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
-		mockBuildStockpileListEmbed.mockResolvedValue({ embed: { data: {} }, isEmpty: false });
-		mockBuildStockpileListComponents.mockResolvedValue([]);
+		mockBuildStockpileListPayload.mockResolvedValue(v2Text('list body'));
+		mockTrackedMessageFindOne.mockResolvedValue(null);
 	});
 
 	describe('repairDuplicateStockpileIds', () => {
@@ -94,14 +109,22 @@ describe('stockpileListSync', () => {
 	});
 
 	describe('refreshTrackedStockpileList', () => {
-		it('édite le message tracké avec embed et composants', async () => {
+		it('édite le message tracké avec payload V2', async () => {
 			const mockMsgEdit = jest.fn().mockResolvedValue(undefined);
+			const msg = v2Message(mockMsgEdit);
+			mockTrackedMessageFindOne.mockResolvedValue({
+				_id: 'doc-1',
+				message_id: 'msg-1',
+				server_id: 'guild-1',
+				channel_id: 'ch-1',
+			});
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						id: 'ch-1',
 						isTextBased: () => true,
 						messages: {
-							fetch: jest.fn().mockResolvedValue({ edit: mockMsgEdit }),
+							fetch: jest.fn().mockResolvedValue(msg),
 						},
 					}),
 				},
@@ -114,20 +137,29 @@ describe('stockpileListSync', () => {
 			});
 
 			expect(ok).toBe(true);
-			expect(mockBuildStockpileListEmbed).toHaveBeenCalled();
-			expect(mockBuildStockpileListComponents).toHaveBeenCalled();
-			expect(mockMsgEdit).toHaveBeenCalledWith(expect.objectContaining({ embeds: expect.any(Array) }));
+			expect(mockBuildStockpileListPayload).toHaveBeenCalled();
+			expect(mockMsgEdit).toHaveBeenCalledWith(expect.objectContaining({
+				components: expect.any(Array),
+				flags: expect.anything(),
+			}));
+			expect(mockMsgEdit.mock.calls[0][0].content).toBeUndefined();
+			expect(mockMsgEdit.mock.calls[0][0].embeds).toBeUndefined();
 		});
 
-		it('édite avec STOCKPILE_LIST_EMPTY quand isEmpty', async () => {
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+		it('édite avec STOCKPILE_LIST_EMPTY quand payload empty', async () => {
+			mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
 			const mockMsgEdit = jest.fn().mockResolvedValue(undefined);
+			mockTrackedMessageFindOne.mockResolvedValue({
+				_id: 'doc-1',
+				message_id: 'msg-1',
+			});
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						id: 'ch-1',
 						isTextBased: () => true,
 						messages: {
-							fetch: jest.fn().mockResolvedValue({ edit: mockMsgEdit }),
+							fetch: jest.fn().mockResolvedValue(v2Message(mockMsgEdit)),
 						},
 					}),
 				},
@@ -139,11 +171,10 @@ describe('stockpileListSync', () => {
 				message_id: 'msg-1',
 			});
 
-			expect(mockMsgEdit).toHaveBeenCalledWith({
-				content: 'STOCKPILE_LIST_EMPTY',
-				embeds: [],
-				components: [],
-			});
+			expect(mockMsgEdit).toHaveBeenCalledWith(expect.objectContaining({
+				components: expect.any(Array),
+				flags: expect.anything(),
+			}));
 		});
 
 		it('retourne false si channel absent ou non texte', async () => {
@@ -158,26 +189,77 @@ describe('stockpileListSync', () => {
 			expect(await refreshTrackedStockpileList(voice, { server_id: 'g', channel_id: 'c', message_id: 'm' })).toBe(false);
 		});
 
-		it('retourne false si message introuvable', async () => {
+		it('recrée le message si le tracké Discord a disparu', async () => {
+			mockTrackedMessageFindOne.mockResolvedValue(null);
+			const send = jest.fn().mockResolvedValue({ id: 'msg-new' });
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						id: 'c',
 						isTextBased: () => true,
+						send,
 						messages: { fetch: jest.fn().mockResolvedValue(null) },
 					}),
 				},
 			};
-			expect(await refreshTrackedStockpileList(client, { server_id: 'g', channel_id: 'c', message_id: 'm' })).toBe(false);
+			expect(await refreshTrackedStockpileList(client, { server_id: 'g', channel_id: 'c', message_id: 'm' })).toBe(true);
+			expect(send).toHaveBeenCalledWith(expect.objectContaining({
+				components: expect.any(Array),
+				flags: expect.anything(),
+			}));
 		});
 
-		it('retourne false si buildStockpileListEmbed throw', async () => {
-			mockBuildStockpileListEmbed.mockRejectedValue(new Error('fail'));
+		it('cutover legacy: saveTracked après repost', async () => {
+			mockTrackedMessageFindOne.mockResolvedValue({
+				_id: 'doc-1',
+				message_id: 'msg-1',
+				server_id: 'guild-1',
+				channel_id: 'ch-1',
+			});
+			const del = jest.fn().mockResolvedValue(undefined);
+			const send = jest.fn().mockResolvedValue({ id: 'msg-new' });
+			const { TrackedMessage } = require('../../data/models.js');
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						id: 'ch-1',
+						isTextBased: () => true,
+						send,
+						messages: {
+							fetch: jest.fn().mockResolvedValue({
+								id: 'msg-1',
+								delete: del,
+								flags: { has: () => false },
+							}),
+						},
+					}),
+				},
+			};
+
+			const ok = await refreshTrackedStockpileList(client, {
+				server_id: 'guild-1',
+				channel_id: 'ch-1',
+				message_id: 'msg-1',
+			});
+
+			expect(ok).toBe(true);
+			expect(del).toHaveBeenCalled();
+			expect(send).toHaveBeenCalled();
+			expect(TrackedMessage.findOneAndUpdate).toHaveBeenCalledWith(
+				expect.anything(),
+				expect.objectContaining({ message_id: 'msg-new' }),
+				{ upsert: true },
+			);
+		});
+		it('retourne false si buildStockpileListPayload throw', async () => {
+			mockBuildStockpileListPayload.mockRejectedValue(new Error('fail'));
+			const client = {
+				channels: {
+					fetch: jest.fn().mockResolvedValue({
+						id: 'c',
 						isTextBased: () => true,
 						messages: {
-							fetch: jest.fn().mockResolvedValue({ edit: jest.fn() }),
+							fetch: jest.fn().mockResolvedValue(v2Message()),
 						},
 					}),
 				},
@@ -223,14 +305,18 @@ describe('stockpileListSync', () => {
 					{ server_id: 'g1', channel_id: 'c1', message_id: 'm1' },
 				]),
 			});
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: { data: {} }, isEmpty: false });
-			mockBuildStockpileListComponents.mockResolvedValue([]);
+			mockTrackedMessageFindOne.mockResolvedValue({
+				_id: 'doc',
+				message_id: 'm1',
+			});
+			mockBuildStockpileListPayload.mockResolvedValue(v2Text('ok'));
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						id: 'c1',
 						isTextBased: () => true,
 						messages: {
-							fetch: jest.fn().mockResolvedValue({ edit: jest.fn().mockResolvedValue(undefined) }),
+							fetch: jest.fn().mockResolvedValue(v2Message()),
 						},
 					}),
 				},
@@ -254,13 +340,18 @@ describe('stockpileListSync', () => {
 				guilds: { cache: new Map([['guild-1', {}]]) },
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						id: 'ch-1',
 						isTextBased: () => true,
 						messages: {
-							fetch: jest.fn().mockResolvedValue({ edit: jest.fn().mockResolvedValue(undefined) }),
+							fetch: jest.fn().mockResolvedValue(v2Message()),
 						},
 					}),
 				},
 			};
+			mockTrackedMessageFindOne.mockResolvedValue({
+				_id: 'doc',
+				message_id: 'msg-1',
+			});
 			const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 
 			await syncAllStockpileLists(client);
@@ -299,7 +390,7 @@ describe('stockpileListSync', () => {
 		it('retourne false si channels.fetch reject', async () => {
 			const client = {
 				channels: {
-					fetch: jest.fn().mockReturnValue(Promise.reject(new Error('no channel'))),
+					fetch: jest.fn().mockRejectedValue(new Error('no channel')),
 				},
 			};
 			await expect(refreshTrackedStockpileList(client, {
@@ -309,13 +400,19 @@ describe('stockpileListSync', () => {
 			})).resolves.toBe(false);
 		});
 
-		it('retourne false si messages.fetch reject', async () => {
+		it('retourne false si messages.fetch reject et recreate échoue', async () => {
+			mockTrackedMessageFindOne.mockResolvedValue({
+				_id: 'doc',
+				message_id: 'm1',
+			});
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
+						id: 'c1',
 						isTextBased: () => true,
+						send: jest.fn().mockRejectedValue(new Error('cannot send')),
 						messages: {
-							fetch: jest.fn().mockReturnValue(Promise.reject(new Error('no msg'))),
+							fetch: jest.fn().mockRejectedValue(new Error('no msg')),
 						},
 					}),
 				},

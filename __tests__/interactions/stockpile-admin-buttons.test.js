@@ -7,8 +7,7 @@ const mockTranslate = jest.fn((key, params = {}) => {
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 
 const mockBuildStockpileManagePayload = jest.fn().mockResolvedValue({
-	content: '',
-	embeds: [],
+	flags: 64,
 	components: [],
 });
 jest.mock('../../interactions/embeds/stockpileList.js', () => ({
@@ -54,12 +53,14 @@ const cleanup = require('../../interactions/buttons/stockpile/cleanup.js');
 const deleteall = require('../../interactions/buttons/stockpile/deleteall.js');
 const remove = require('../../interactions/select-menus/stockpile/remove.js');
 
+const { v2Text, getV2Text } = require('../helpers/v2Payload.js');
+
 describe('Stockpile admin handlers', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		hasManagePermissions.mockReturnValue(true);
 		canManageStockpile.mockReturnValue(true);
-		mockBuildStockpileManagePayload.mockResolvedValue({ content: '', embeds: [], components: [] });
+		mockBuildStockpileManagePayload.mockResolvedValue({ flags: 64, components: [] });
 		mockDeleteMany.mockResolvedValue({ deletedCount: 2 });
 		mockRefreshLists.mockResolvedValue(1);
 	});
@@ -83,7 +84,7 @@ describe('Stockpile admin handlers', () => {
 			const i = base();
 			await cleanup.execute(i);
 			expect(mockDeleteMany).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'NO_PERMS' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('NO_PERMS', { ephemeral: true }));
 		});
 
 		it('supprime les stocks deleted et refresh', async () => {
@@ -96,18 +97,14 @@ describe('Stockpile admin handlers', () => {
 			});
 			expect(mockBuildStockpileManagePayload).toHaveBeenCalled();
 			expect(mockRefreshLists).toHaveBeenCalledWith(i.client, { guildIds: ['guild-123'] });
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_CLEANUP_SUCCESS#2',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_CLEANUP_SUCCESS#2', { ephemeral: true }));
 		});
 
 		it('affiche count 0 si deletedCount absent', async () => {
 			mockDeleteMany.mockResolvedValue({});
 			const i = base();
 			await cleanup.execute(i);
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_CLEANUP_SUCCESS#0',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_CLEANUP_SUCCESS#0', { ephemeral: true }));
 		});
 
 		it('ignore refreshTrackedStockpileLists rejeté', async () => {
@@ -123,7 +120,7 @@ describe('Stockpile admin handlers', () => {
 			const i = base();
 			await deleteall.execute(i);
 			expect(mockDeleteMany).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'NO_PERMS' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('NO_PERMS', { ephemeral: true }));
 		});
 
 		it('wipe stocks + tracked messages', async () => {
@@ -135,9 +132,7 @@ describe('Stockpile admin handlers', () => {
 				server_id: 'guild-123',
 				message_type: 'stockpile_list',
 			});
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_RESET_ALL_SUCCESS',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_RESET_ALL_SUCCESS', { ephemeral: true }));
 		});
 
 		it('ignore TrackedMessage.deleteMany rejeté', async () => {
@@ -162,9 +157,7 @@ describe('Stockpile admin handlers', () => {
 				_id: '507f1f77bcf86cd799439011',
 				server_id: 'guild-123',
 			});
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_NOT_EXIST',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('refuse stock d\'un autre serveur', async () => {
@@ -175,9 +168,7 @@ describe('Stockpile admin handlers', () => {
 				_id: '507f1f77bcf86cd799439011',
 				server_id: 'guild-123',
 			});
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_NOT_EXIST',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('refuse sans permission owner', async () => {
@@ -191,9 +182,7 @@ describe('Stockpile admin handlers', () => {
 			});
 			const i = base({ values: ['507f1f77bcf86cd799439011'] });
 			await remove.execute(i);
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_ARE_NO_OWNER_ERROR',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_ARE_NO_OWNER_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse déjà deleted', async () => {
@@ -205,9 +194,7 @@ describe('Stockpile admin handlers', () => {
 			});
 			const i = base({ values: ['507f1f77bcf86cd799439011'] });
 			await remove.execute(i);
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_ALREADY_DELETED',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_ALREADY_DELETED', { ephemeral: true }));
 		});
 
 		it('soft-delete et notifie', async () => {
@@ -227,9 +214,7 @@ describe('Stockpile admin handlers', () => {
 			expect(save).toHaveBeenCalled();
 			expect(sendToSubscribers).toHaveBeenCalled();
 			expect(mockBuildStockpileManagePayload).toHaveBeenCalledWith(Stockpile, 'guild-123', expect.anything());
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_MARK_DELETED_SUCCESS#1',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_MARK_DELETED_SUCCESS#1', { ephemeral: true }));
 		});
 
 		it('ignore sendToSubscribers et refresh rejetés', async () => {
@@ -260,7 +245,7 @@ describe('Stockpile admin handlers', () => {
 			await remove.execute(i);
 			const factory = sendToSubscribers.mock.calls[0][3];
 			const payload = factory({ translate: mockTranslate });
-			expect(payload.content).toContain('NOTIFICATION_STOCKPILE_REMOVED');
+			expect(getV2Text(payload)).toContain('NOTIFICATION_STOCKPILE_REMOVED');
 		});
 	});
 });

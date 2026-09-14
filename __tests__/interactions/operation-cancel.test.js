@@ -19,6 +19,8 @@ jest.mock('../../services/order/index.js', () => ({
 
 const cancelHandler = require('../../interactions/buttons/operation/cancel.js');
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('Operation cancel button', () => {
 	let interaction;
 
@@ -64,9 +66,7 @@ describe('Operation cancel button', () => {
 			operation_id: 'op-msg-1',
 		});
 		expect(interaction.message.delete).toHaveBeenCalled();
-		expect(interaction.editReply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_CANCELED_SUCCESS' }),
-		);
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('OPERATION_CANCELED_SUCCESS'));
 	});
 
 	it('refuse si l’utilisateur n’est pas le créateur', async () => {
@@ -80,7 +80,7 @@ describe('Operation cancel button', () => {
 		expect(mockDeleteBoardsByOperation).not.toHaveBeenCalled();
 		expect(mockOperationDeleteOne).not.toHaveBeenCalled();
 		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_ARE_NO_OWNER_ERROR', flags: 64 }),
+			v2Text('OPERATION_ARE_NO_OWNER_ERROR', { ephemeral: true }),
 		);
 	});
 
@@ -92,7 +92,7 @@ describe('Operation cancel button', () => {
 		expect(mockDeleteBoardsByOperation).not.toHaveBeenCalled();
 		expect(mockOperationDeleteOne).not.toHaveBeenCalled();
 		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_NOT_EXIST', flags: 64 }),
+			v2Text('OPERATION_NOT_EXIST', { ephemeral: true }),
 		);
 	});
 
@@ -104,7 +104,7 @@ describe('Operation cancel button', () => {
 
 		err.mockRestore();
 		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_CANCELED_ERROR', flags: 64 }),
+			v2Text('OPERATION_CANCELED_ERROR', { ephemeral: true }),
 		);
 	});
 
@@ -117,9 +117,7 @@ describe('Operation cancel button', () => {
 
 		err.mockRestore();
 		expect(interaction.deferReply).toHaveBeenCalled();
-		expect(interaction.editReply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_CANCELED_ERROR' }),
-		);
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('OPERATION_CANCELED_ERROR'));
 	});
 
 	it('ignore message.delete rejeté', async () => {
@@ -130,8 +128,6 @@ describe('Operation cancel button', () => {
 		await cancelHandler.execute(interaction);
 
 		err.mockRestore();
-		expect(interaction.editReply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'OPERATION_CANCELED_SUCCESS' }),
-		);
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('OPERATION_CANCELED_SUCCESS'));
 	});
 });

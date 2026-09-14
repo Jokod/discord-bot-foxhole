@@ -320,6 +320,8 @@
 	"AUTH_BODY_LARGE": "Слишком большое тело запроса",
 	"AUTH_JSON": "Неверный JSON",
 	"kpi.seen": "{n} видно",
+	"kpi.vus": "Видно",
+	"kpi.activeCount": "{n} активных",
 	"kpi.members": "Участники",
 	"kpi.boardsLabel": "Доски",
 	"kpi.boardsOpen": "{n} открыто",

@@ -33,7 +33,7 @@
 
 	function renderContacts() {
 		const {
-			contactsLoading, contactsData, state, fmt, escapeHtml,
+			contactsLoading, contactsData, state, fmt, escapeHtml, activityLabel,
 		} = getStore();
 		const meta = document.getElementById('contactsMeta');
 		if (contactsLoading) {
@@ -60,7 +60,7 @@
 			const guilds = (contactsData.guilds || []).filter((g) => {
 				if (!q) return true;
 				const blob = [
-					g.name, g.guild_id, g.active ? t('contacts.active') : t('contacts.left'),
+					g.name, g.guild_id, g.lang, g.active ? t('contacts.active') : t('contacts.left'),
 					g.owner?.display_name, g.owner?.username, g.owner?.user_id,
 					...(g.creators || []).flatMap((c) => [c.display_name, c.username, c.user_id]),
 				].filter(Boolean).join(' ').toLowerCase();
@@ -84,11 +84,13 @@
 					<div class="muted" style="font-size:.78rem;margin-top:.15rem">${t('contacts.membersJoin', { n: fmt.n(g.member_count), date: fmt.dt(g.joined_at) })}</div>
 				</td>
 				<td>${status}</td>
+				<td class="mono">${g.lang ? escapeHtml(g.lang) : '<span class="muted">—</span>'}</td>
+				<td class="mono" title="${fmt.dt(g.last_command_at)}"><span class="badge info">${escapeHtml(activityLabel(g.activity || 'never'))}</span> ${fmt.rel(g.last_command_at)}</td>
 				<td>${personCell(g.owner)}</td>
 				<td><div style="display:grid;gap:.45rem">${creators}</div></td>
 				<td class="mono">${fmt.n(g.command_count)}</td>
 			</tr>`;
-			}).join('') : `<tr><td colspan="5" class="muted">${t('contacts.emptyGuilds')}</td></tr>`;
+			}).join('') : `<tr><td colspan="7" class="muted">${t('contacts.emptyGuilds')}</td></tr>`;
 			return;
 		}
 

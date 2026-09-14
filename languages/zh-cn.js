@@ -17,6 +17,8 @@ module.exports = {
 	FINISHED: '已完成',
 	CONFIRM: '确认',
 	BACK: '返回',
+	BACK_TO_CATEGORIES: '← 类别',
+	BACK_TO_SUBCATEGORIES: '← 子类别',
 	INTERACTION_ERROR: '未找到此操作的交互。',
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub：** %url%',
@@ -85,6 +87,7 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: '可用命令：%commands%',
 
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
+	BOT_MISSING_CHANNEL_ACCESS: '我无法在此频道发帖（Missing Access / Missing Permissions）。请授予机器人**查看频道**、**发送消息**和**嵌入链接**（若启用 Logs，还需线程权限）。',
 	NO_DM: '我无法在私信中执行该命令！',
 	NO_PERMS: '您没有使用此命令的权限。',
 	// SERVER ---------------------------------------------
@@ -130,6 +133,13 @@ module.exports = {
 	OPERATION_NOT_EXIST: '此操作不存在。',
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: '已创建操作%title%。',
+	OPERATION_STATUS_SCHEDULED: '状态：已安排',
+	OPERATION_STATUS_LIVE: '状态：进行中',
+	OPERATION_STATUS_DONE: '状态：已结束',
+	OPERATION_CREATE_DESC_DATE: '日/月/年，例如 24/08/2026',
+	OPERATION_CREATE_DESC_TIME: '24 小时制，例如 18:30',
+	OPERATION_CREATE_DESC_DURATION: '时长（分钟，1–999）。默认 60。',
+	OPERATION_CREATE_DESC_DESCRIPTION: '简短简报（内容 / 地点 / 目标）。',
 	OPERATION_LAUNCH_SUCCESS: '操作%title%已启动！',
 	OPERATION_FINISHED_SUCCESS: '操作%title%已完成！',
 	OPERATION_CANCELED_SUCCESS: '操作%title%已取消！',
@@ -166,7 +176,9 @@ module.exports = {
 	ORDER_STATUS_ALREADY_OPEN: '此订单面板已处于打开状态。',
 	ORDER_SUMMARY: '**%done%/%total%** 完成 · **%current%/%target%** 箱 · 剩余 **%remaining%**',
 	ORDER_STOCK: '库存：%current%/%target%',
-	ORDER_FOOTER: '%lines% 条 · %status%',
+	ORDER_FOOTER: '%lines% 行 · %status%',
+	ORDER_SELECTED_HEADING: '**▸ 已选行**',
+	ORDER_SELECTED_DETAIL: '**%name%** · %priority%\n%stock%\n`%bar%` **%percent%%** · 剩余 **%left%**',
 	ORDER_STATUS_LABEL_OPEN: '进行中',
 	ORDER_STATUS_LABEL_CLOSED: '已关闭',
 	ORDER_SELECT_PLACEHOLDER: '选择条目',
@@ -180,8 +192,8 @@ module.exports = {
 	ORDER_MAX: '满',
 	ORDER_CORRECT_TITLE: '修正条目',
 	ORDER_ADD_TARGET_TITLE: '目标数量',
-	ORDER_FULL: '订单已满（**%max%/%max%** 条 — 限制：2×25）。请先使用 **删除** 再添加。',
-	ORDER_FULL_BANNER: '⚠️ **已满 — %count%/%max% 条**（限制：2×25）。无法继续添加。',
+	ORDER_FULL: '订单已满（**%max%/%max%** 条）。请删除条目，或使用 `/order create` 创建新看板。',
+	ORDER_FULL_BANNER: '⚠️ **已满 — %count%/%max% 条**。请删除条目或使用 `/order create`。',
 	ORDER_CURRENT: '当前',
 	ORDER_TARGET: '目标',
 	ORDER_NOT_EXIST: '此频道没有名为 **%name%** 的订单。请使用 `/order create`。',
@@ -189,7 +201,6 @@ module.exports = {
 	ORDER_ALREADY_EXISTS: '此频道已有名为 **%name%** 的订单。',
 	ORDER_INVALID_NAME: '无效的订单名称。',
 	ORDER_INVALID_TARGET: '请输入有效数量（当前 ≥ 0，目标 ≥ 1）。',
-	ORDER_EMBED_TRUNCATED: '…还有更多（仅显示部分，共 %count% 条 — 请使用下拉菜单）。',
 	ORDER_CANNOT_MANAGE_ERROR: '您无法管理此订单（条目/面板所有者或服务器/频道管理员）。',
 	ORDER_OPERATION_FINISHED: '该行动已结束 — 请选择进行中的行动（自动完成）。',
 	ORDER_LINE_NOT_EXIST: '此条目已不存在。',
@@ -203,9 +214,9 @@ module.exports = {
 	ORDER_LOG_REOPEN: '%user% 重新打开了面板。',
 	ORDER_LOG_DELETE_LINE: '%user% 移除了 **%name%**。',
 
-	MATERIAL_SELECT_TYPE: '选择要添加的材料类型',
-	MATERIAL_SELECT_CATEGORY: '选择类别',
-	MATERIAL_SELECT_SUBCATEGORY: '选择子类别',
+	MATERIAL_SELECT_TYPE: '步骤 3/3 — 选择材料',
+	MATERIAL_SELECT_CATEGORY: '步骤 1/3 — 选择类别',
+	MATERIAL_SELECT_SUBCATEGORY: '步骤 2/3 — 选择子类别',
 
 	// 新类别
 	CATEGORY_UTILITIES: '实用工具',
@@ -266,6 +277,7 @@ module.exports = {
 
 	STOCKPILE: '储备',
 	STOCKPILE_LIST_CODES: '库存代码列表',
+	STOCKPILE_LIST_FOOTER: '%active% 个有效 · 共 %total%',
 	STOCKPILE_TABLE_HEADER_STOCK: '库存',
 	STOCKPILE_TABLE_HEADER_CODE: '代码',
 	STOCKPILE_TABLE_HEADER_EXPIRES: '日期',
@@ -275,6 +287,10 @@ module.exports = {
 	STOCKPILE_PLACEHOLDER_CITY: '城市名称 (2-50)',
 	STOCKPILE_PLACEHOLDER_NAME: '3-50个字符，字母数字',
 	STOCKPILE_PLACEHOLDER_CODE: '6位数字，例如 123456',
+	STOCKPILE_DESC_REGION: 'Foxhole 地区名（字母、数字、空格、连字符）。',
+	STOCKPILE_DESC_CITY: '靠近库存的城镇或地标。',
+	STOCKPILE_DESC_NAME: '列表显示名称（3–50 个字符）。',
+	STOCKPILE_DESC_CODE: '游戏内 6 位库存代码。',
 
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: '库存 #%id% 已创建。',
@@ -291,8 +307,9 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: '没有库存。',
 	STOCKPILE_NOT_EXIST: '此库存不存在。',
 	STOCKPILE_INVALID_ID: '库存ID无效。',
-	STOCKPILE_MAX_REACHED: '已达到允许的最大活动库存数量。',
+	STOCKPILE_MAX_REACHED: '已达到最多 **%max%** 个活动库存。请先用 `/stockpile manage` 删除部分库存再添加。',
 	STOCKPILE_CREATE_ERROR: '创建库存时发生错误。',
+	DISPLAY_UPDATE_FAILED: '无法更新 Discord 显示。频道消息未更改 — 请稍后重试。',
 	STOCKPILE_INVALID_NAME: '库存名称无效。',
 	STOCKPILE_INVALID_PASSWORD: '代码必须为6位数字。',
 	STOCKPILE_INVALID_REGION: '库存地区无效。',

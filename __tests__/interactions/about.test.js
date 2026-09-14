@@ -2,6 +2,8 @@ const mockTranslate = jest.fn((key, params) => (params?.url ? `${key}: ${params.
 
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 
+const { getV2Text, MessageFlags, v2Text } = require('../helpers/v2Payload.js');
+
 describe('Slash command /about', () => {
 	let aboutCommand;
 	const originalEnv = process.env;
@@ -41,14 +43,15 @@ describe('Slash command /about', () => {
 
 		await aboutCommand.execute(interaction);
 
-		const content = interaction.reply.mock.calls[0][0].content;
+		const content = getV2Text(interaction.reply.mock.calls[0][0]);
 		expect(content).toContain('https://github.com/example/bot');
 		expect(content).toContain('https://github.com/example/bot/issues/new');
 		expect(content).toContain('ABOUT_ISSUES');
 		expect(content).toContain('https://discord.gg/bjkzG9YsX5');
 		expect(content).toContain('ABOUT_ANNOUNCEMENTS_FOLLOW');
 		expect(content).toContain('ABOUT_MESSAGE');
-		expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ flags: 64 }));
+		expect(Number(interaction.reply.mock.calls[0][0].flags) & MessageFlags.IsComponentsV2).toBeTruthy();
+		expect(Number(interaction.reply.mock.calls[0][0].flags) & MessageFlags.Ephemeral).toBeTruthy();
 	});
 
 	it('accepte GITHUB_ISSUES_URL en override', async () => {
@@ -64,7 +67,7 @@ describe('Slash command /about', () => {
 
 		await aboutCommand.execute(interaction);
 
-		const content = interaction.reply.mock.calls[0][0].content;
+		const content = getV2Text(interaction.reply.mock.calls[0][0]);
 		expect(content).toContain('https://github.com/example/bot/issues/new?template=bug.md');
 	});
 
@@ -79,9 +82,34 @@ describe('Slash command /about', () => {
 
 		await aboutCommand.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'ABOUT_NOT_CONFIGURED',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('ABOUT_NOT_CONFIGURED', { ephemeral: true }));
+	});
+
+	it('accepte GITHUB_URL seul (issues dérivées)', async () => {
+		process.env.GITHUB_URL = 'https://github.com/example/bot';
+		loadCommand();
+		const interaction = {
+			guild: { id: 'guild-123' },
+			client: {},
+			reply: jest.fn().mockResolvedValue(undefined),
+		};
+		await aboutCommand.execute(interaction);
+		const content = getV2Text(interaction.reply.mock.calls[0][0]);
+		expect(content).toContain('ABOUT_GITHUB');
+		expect(content).toContain('ABOUT_ISSUES');
+	});
+
+	it('accepte GITHUB_ISSUES_URL sans GITHUB_URL', async () => {
+		process.env.GITHUB_ISSUES_URL = 'https://github.com/example/bot/issues';
+		loadCommand();
+		const interaction = {
+			guild: { id: 'guild-123' },
+			client: {},
+			reply: jest.fn().mockResolvedValue(undefined),
+		};
+		await aboutCommand.execute(interaction);
+		const content = getV2Text(interaction.reply.mock.calls[0][0]);
+		expect(content).toContain('ABOUT_ISSUES');
+		expect(content).not.toContain('ABOUT_GITHUB:');
 	});
 });

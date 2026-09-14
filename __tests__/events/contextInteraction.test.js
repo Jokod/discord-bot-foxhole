@@ -4,6 +4,8 @@ const mockServerFindOne = jest.fn();
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 jest.mock('../../data/models.js', () => ({ Server: { findOne: (...args) => mockServerFindOne(...args) } }));
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('contextInteraction event', () => {
 	let contextInteraction;
 
@@ -62,7 +64,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'SERVER_IS_NOT_INIT', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_NOT_INIT', { ephemeral: true }));
 	});
 
 	it('exécute MESSAGE context command', async () => {
@@ -89,7 +91,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
@@ -108,7 +110,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(followUp).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
@@ -142,26 +144,27 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
-	it('followUp COMMAND_EXECUTE_ERROR si MESSAGE command lève après defer', async () => {
+	it('editReply COMMAND_EXECUTE_ERROR si MESSAGE command lève après defer', async () => {
 		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
-		const followUp = jest.fn().mockResolvedValue(undefined);
+		const editReply = jest.fn().mockResolvedValue(undefined);
 		const interaction = createInteraction({
 			isUserContextMenuCommand: () => false,
 			isMessageContextMenuCommand: () => true,
 			replied: false,
 			deferred: true,
-			followUp,
+			editReply,
+			followUp: jest.fn(),
 		});
 		interaction.client.contextCommands.set('MESSAGE test', { execute: mockExecute });
 		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 		await contextInteraction.execute(interaction);
 
-		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(editReply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR'));
 		consoleSpy.mockRestore();
 	});
 

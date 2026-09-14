@@ -17,6 +17,8 @@ module.exports = {
 	FINISHED: 'Finished',
 	CONFIRM: 'Confirm',
 	BACK: 'Back',
+	BACK_TO_CATEGORIES: '← Categories',
+	BACK_TO_SUBCATEGORIES: '← Subcategories',
 	INTERACTION_ERROR: 'No interaction was found for this action.',
 	// ABOUT / LINKS
 	ABOUT_GITHUB: '**GitHub:** %url%',
@@ -85,6 +87,7 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Available commands: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
+	BOT_MISSING_CHANNEL_ACCESS: 'I cannot post in this channel (Missing Access / Missing Permissions). Give the bot **View Channel**, **Send Messages**, and **Embed Links** (plus thread permissions if Logs are enabled).',
 	NO_DM: 'I can\'t execute that command inside DMs!',
 	NO_PERMS: 'You don\'t have the permissions to use this command.',
 	// SERVER ---------------------------------------------
@@ -130,6 +133,13 @@ module.exports = {
 	OPERATION_NOT_EXIST: 'This operation does not exist.',
 	// OPERATION SUCCESS
 	OPERATION_CREATE_SUCCESS: 'Operation %title% has been created.',
+	OPERATION_STATUS_SCHEDULED: 'Status: Scheduled',
+	OPERATION_STATUS_LIVE: 'Status: In progress',
+	OPERATION_STATUS_DONE: 'Status: Finished',
+	OPERATION_CREATE_DESC_DATE: 'Use day/month/year, e.g. 24/08/2026',
+	OPERATION_CREATE_DESC_TIME: '24-hour clock, e.g. 18:30',
+	OPERATION_CREATE_DESC_DURATION: 'Length in minutes (1–999). Default 60.',
+	OPERATION_CREATE_DESC_DESCRIPTION: 'Short briefing for the squad (what / where / goals).',
 	OPERATION_LAUNCH_SUCCESS: 'Operation %title% has been launched',
 	OPERATION_FINISHED_SUCCESS: 'Operation %title% finished!',
 	OPERATION_CANCELED_SUCCESS: 'Operation %title% canceled!',
@@ -167,6 +177,8 @@ module.exports = {
 	ORDER_SUMMARY: '**%done%/%total%** done · **%current%/%target%** crates · **%remaining%** left',
 	ORDER_STOCK: 'Stock: %current%/%target%',
 	ORDER_FOOTER: '%lines% line(s) · %status%',
+	ORDER_SELECTED_HEADING: '**▸ Selected line**',
+	ORDER_SELECTED_DETAIL: '**%name%** · %priority%\n%stock%\n`%bar%` **%percent%%** · **%left%** left',
 	ORDER_STATUS_LABEL_OPEN: 'Open',
 	ORDER_STATUS_LABEL_CLOSED: 'Closed',
 	ORDER_SELECT_PLACEHOLDER: 'Select a line',
@@ -180,8 +192,8 @@ module.exports = {
 	ORDER_MAX: 'Max',
 	ORDER_CORRECT_TITLE: 'Correct line',
 	ORDER_ADD_TARGET_TITLE: 'Target quantity',
-	ORDER_FULL: 'This order board is full (**%max%/%max%** lines — limit: 2×25 selects). Use **Delete** before adding.',
-	ORDER_FULL_BANNER: '⚠️ **FULL — %count%/%max% lines** (limit: 2×25 selects). Cannot add more.',
+	ORDER_FULL: 'This order board is full (**%max%/%max%** lines). Remove lines or create another board with `/order create`.',
+	ORDER_FULL_BANNER: '⚠️ **FULL — %count%/%max% lines**. Remove lines or use `/order create`.',
 	ORDER_CURRENT: 'Current',
 	ORDER_TARGET: 'Target',
 	ORDER_NOT_EXIST: 'No order board named **%name%** in this channel. Use `/order create`.',
@@ -189,7 +201,6 @@ module.exports = {
 	ORDER_ALREADY_EXISTS: 'An order board named **%name%** already exists in this channel.',
 	ORDER_INVALID_NAME: 'Invalid order board name.',
 	ORDER_INVALID_TARGET: 'Enter a valid quantity (current ≥ 0, target ≥ 1).',
-	ORDER_EMBED_TRUNCATED: '…and more (showing part of %count% lines — use the selects).',
 	ORDER_CANNOT_MANAGE_ERROR: 'You cannot manage this order (line/board owner or server/channel manager only).',
 	ORDER_OPERATION_FINISHED: 'That operation is finished — pick an active one (autocomplete).',
 	ORDER_LINE_NOT_EXIST: 'This line no longer exists.',
@@ -203,9 +214,9 @@ module.exports = {
 	ORDER_LOG_REOPEN: '%user% reopened the board.',
 	ORDER_LOG_DELETE_LINE: '%user% removed **%name%**.',
 
-	MATERIAL_SELECT_TYPE: 'Select a material type to add',
-	MATERIAL_SELECT_CATEGORY: 'Select a category',
-	MATERIAL_SELECT_SUBCATEGORY: 'Select a subcategory',
+	MATERIAL_SELECT_TYPE: 'Step 3/3 — Select a material',
+	MATERIAL_SELECT_CATEGORY: 'Step 1/3 — Select a category',
+	MATERIAL_SELECT_SUBCATEGORY: 'Step 2/3 — Select a subcategory',
 
 	// New categories
 	CATEGORY_UTILITIES: 'Utilities',
@@ -266,6 +277,7 @@ module.exports = {
 
 	STOCKPILE: 'Stockpile',
 	STOCKPILE_LIST_CODES: 'List of stockpile codes',
+	STOCKPILE_LIST_FOOTER: '%active% active · %total% total',
 	STOCKPILE_TABLE_HEADER_STOCK: 'Stockpile',
 	STOCKPILE_TABLE_HEADER_CODE: 'Code',
 	STOCKPILE_TABLE_HEADER_EXPIRES: 'Date',
@@ -275,6 +287,10 @@ module.exports = {
 	STOCKPILE_PLACEHOLDER_CITY: 'City name (2-50)',
 	STOCKPILE_PLACEHOLDER_NAME: '3-50 characters, alphanumeric',
 	STOCKPILE_PLACEHOLDER_CODE: '6 digits, e.g. 123456',
+	STOCKPILE_DESC_REGION: 'Foxhole region name (letters, numbers, spaces, hyphens).',
+	STOCKPILE_DESC_CITY: 'Town or landmark near the stockpile.',
+	STOCKPILE_DESC_NAME: 'Display name on the list (3–50 characters).',
+	STOCKPILE_DESC_CODE: '6-digit in-game stockpile code.',
 
 	// STOCKPILE SUCCESS
 	STOCKPILE_CREATE_SUCCESS: 'Stock #%id% has been created.',
@@ -291,8 +307,9 @@ module.exports = {
 	STOCKPILE_LIST_EMPTY: 'There are no stocks.',
 	STOCKPILE_NOT_EXIST: 'This stock does not exist.',
 	STOCKPILE_INVALID_ID: 'The stock ID is invalid.',
-	STOCKPILE_MAX_REACHED: 'You have reached the maximum number of active stockpiles allowed.',
+	STOCKPILE_MAX_REACHED: 'You have reached the maximum of **%max%** active stockpiles. Remove some with `/stockpile manage` before adding more.',
 	STOCKPILE_CREATE_ERROR: 'An error occurred while creating the stock.',
+	DISPLAY_UPDATE_FAILED: 'Could not update the Discord display. The channel message was left unchanged — try again later.',
 	STOCKPILE_INVALID_NAME: 'The stock name is invalid.',
 	STOCKPILE_INVALID_PASSWORD: 'The code must be exactly 6 digits.',
 	STOCKPILE_INVALID_REGION: 'The region is invalid.',

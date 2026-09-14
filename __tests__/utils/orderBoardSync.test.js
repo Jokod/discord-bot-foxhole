@@ -12,8 +12,10 @@ jest.mock('../../utils/orderBoardLog.js', () => ({
 
 const mockSaveTracked = jest.fn().mockResolvedValue(undefined);
 const mockEditTracked = jest.fn().mockResolvedValue({ usedFallback: false });
+const mockFindTracked = jest.fn().mockResolvedValue(null);
 jest.mock('../../utils/trackedMessage.js', () => ({
 	saveTrackedMessage: (...args) => mockSaveTracked(...args),
+	findTrackedMessage: (...args) => mockFindTracked(...args),
 	editTrackedOrFallback: (...args) => mockEditTracked(...args),
 }));
 
@@ -45,6 +47,19 @@ jest.mock('../../data/models.js', () => ({
 	},
 }));
 
+
+const { MessageFlags } = require('discord.js');
+const { getV2Text } = require('../helpers/v2Payload.js');
+function v2TrackedMessage(edit = jest.fn().mockResolvedValue(undefined)) {
+	return {
+		id: 'msg-tracked',
+		edit,
+		deletable: true,
+		delete: jest.fn().mockResolvedValue(undefined),
+		flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+	};
+}
+
 const {
 	allocateLineId,
 	buildOrderPayload,
@@ -59,6 +74,7 @@ const { createLogThread } = require('../../utils/orderBoardLog.js');
 describe('orderBoardSync', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockFindTracked.mockResolvedValue(null);
 		mockOrderLineFind.mockReturnValue({
 			lean: () => Promise.resolve([]),
 		});
@@ -89,9 +105,11 @@ describe('orderBoardSync', () => {
 		await bootstrapOrderBoard(channel, client, board);
 
 		expect(send).toHaveBeenCalledWith(expect.objectContaining({
-			embeds: expect.any(Array),
 			components: expect.any(Array),
+			flags: expect.anything(),
 		}));
+		expect(send.mock.calls[0][0].content).toBeUndefined();
+		expect(send.mock.calls[0][0].embeds).toBeUndefined();
 		expect(mockSaveTracked).toHaveBeenCalledWith(
 			'g1',
 			'c1',
@@ -112,15 +130,54 @@ describe('orderBoardSync', () => {
 			page: 0,
 		};
 		mockFindById.mockResolvedValue(board);
-		const channel = { id: 'c1', isTextBased: () => true };
+		const edit = jest.fn().mockResolvedValue(undefined);
+		mockFindTracked.mockResolvedValue(v2TrackedMessage(edit));
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn() };
 		const client = { traductions: new Map(), channels: { fetch: jest.fn() } };
 
 		const ok = await refreshOrderBoard(client, board, channel);
 		expect(ok).toBe(true);
-		expect(mockEditTracked).toHaveBeenCalledWith(expect.objectContaining({
-			messageType: 'order_board:b1',
-			channel,
+		expect(mockFindTracked).toHaveBeenCalled();
+		expect(edit).toHaveBeenCalledWith(expect.objectContaining({
+			components: expect.any(Array),
+			flags: expect.anything(),
 		}));
+	});
+
+	it('refreshOrderBoard cutover legacy: saveTracked après repost', async () => {
+		const board = {
+			_id: 'b1',
+			guild_id: 'g1',
+			channel_id: 'c1',
+			name: 'OP',
+			kind: 'transfer',
+			status: 'open',
+			page: 0,
+			log_thread_id: 'th-existing',
+		};
+		mockFindById.mockResolvedValue(board);
+		const del = jest.fn().mockResolvedValue(undefined);
+		mockFindTracked.mockResolvedValue({
+			id: 'old',
+			delete: del,
+			flags: { has: () => false },
+		});
+		const send = jest.fn().mockResolvedValue({ id: 'msg-new' });
+		const channel = { id: 'c1', isTextBased: () => true, send };
+		const client = { traductions: new Map(), channels: { fetch: jest.fn() } };
+
+		const ok = await refreshOrderBoard(client, board, channel);
+		expect(ok).toBe(true);
+		expect(del).toHaveBeenCalled();
+		expect(send).toHaveBeenCalled();
+		expect(mockSaveTracked).toHaveBeenCalledWith(
+			'g1',
+			'c1',
+			'msg-new',
+			'order_board:b1',
+			expect.anything(),
+		);
+		expect(createLogThread).not.toHaveBeenCalled();
 	});
 
 	it('refreshOrderBoard retourne false si board absent', async () => {
@@ -159,7 +216,7 @@ describe('orderBoardSync', () => {
 		jest.useFakeTimers();
 		const board = { _id: 'b1', guild_id: 'g1', channel_id: 'c1', name: 'OP', kind: 'prod', status: 'open' };
 		mockFindById.mockResolvedValue(board);
-		const channel = { id: 'c1', isTextBased: () => true };
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn().mockResolvedValue({ id: 'msg-new' }) };
 		const client = { traductions: new Map() };
 
 		const first = refreshOrderBoardDebounced(client, board, channel);
@@ -172,6 +229,7 @@ describe('orderBoardSync', () => {
 
 	describe('buildOrderPayload', () => {
 		it('trie les lignes par priorité puis line_id', async () => {
+			mockFindTracked.mockResolvedValue(null);
 			mockOrderLineFind.mockReturnValue({
 				lean: () => Promise.resolve([
 					{ line_id: '2', priority: 'low' },
@@ -196,6 +254,7 @@ describe('orderBoardSync', () => {
 		});
 
 		it('utilise le titre opération ou fallback operation_id', async () => {
+			mockFindTracked.mockResolvedValue(null);
 			mockOrderLineFind.mockReturnValue({ lean: () => Promise.resolve([]) });
 			const board = {
 				_id: 'b1',
@@ -210,14 +269,15 @@ describe('orderBoardSync', () => {
 
 			mockOpFindOne.mockReturnValue({ lean: () => Promise.resolve({ title: 'Assault' }) });
 			const withTitle = await buildOrderPayload(client, board);
-			expect(withTitle.embed.data.description).toContain('Assault');
+			expect(getV2Text(withTitle.payload)).toContain('Assault');
 
 			mockOpFindOne.mockReturnValue({ lean: () => Promise.resolve(null) });
 			const withFallback = await buildOrderPayload(client, board);
-			expect(withFallback.embed.data.description).toContain('op-42');
+			expect(getV2Text(withFallback.payload)).toContain('op-42');
 		});
 
 		it('auto-sélectionne la première ligne si sélection invalide', async () => {
+			mockFindTracked.mockResolvedValue(null);
 			mockOrderLineFind.mockReturnValue({
 				lean: () => Promise.resolve([
 					{ line_id: '10', priority: 'neutral' },
@@ -245,6 +305,7 @@ describe('orderBoardSync', () => {
 		});
 
 		it('efface la sélection quand il n’y a plus de lignes', async () => {
+			mockFindTracked.mockResolvedValue(null);
 			mockOrderLineFind.mockReturnValue({ lean: () => Promise.resolve([]) });
 			const board = {
 				_id: 'b1',
@@ -295,7 +356,7 @@ describe('orderBoardSync', () => {
 			page: 0,
 		};
 		mockFindById.mockResolvedValue(board);
-		const channel = { id: 'c1', isTextBased: () => true };
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn().mockResolvedValue({ id: 'msg-new' }) };
 		const fetch = jest.fn().mockResolvedValue(channel);
 		const client = { traductions: new Map(), channels: { fetch } };
 
@@ -306,7 +367,7 @@ describe('orderBoardSync', () => {
 	});
 
 	it('refreshOrderBoard recrée le log thread après usedFallback', async () => {
-		mockEditTracked.mockResolvedValueOnce({ usedFallback: true });
+		mockFindTracked.mockResolvedValueOnce(null);
 		const board = {
 			_id: 'b1',
 			guild_id: 'g1',
@@ -317,7 +378,7 @@ describe('orderBoardSync', () => {
 			page: 0,
 		};
 		mockFindById.mockResolvedValue({ ...board });
-		const channel = { id: 'c1', isTextBased: () => true };
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn().mockResolvedValue({ id: 'msg-new' }) };
 		const client = { traductions: new Map() };
 
 		await refreshOrderBoard(client, board, channel);
@@ -353,7 +414,7 @@ describe('orderBoardSync', () => {
 		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		mockFindById.mockRejectedValue(new Error('db down'));
 		const board = { _id: 'b1', guild_id: 'g1', channel_id: 'c1', name: 'OP', kind: 'prod', status: 'open' };
-		const channel = { id: 'c1', isTextBased: () => true };
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn().mockResolvedValue({ id: 'msg-new' }) };
 		const client = { traductions: new Map() };
 
 		const promise = refreshOrderBoardDebounced(client, board, channel);
@@ -377,7 +438,7 @@ describe('orderBoardSync', () => {
 		mockFindById
 			.mockResolvedValueOnce(boards[0])
 			.mockResolvedValueOnce(null);
-		const channel = { id: 'c1', isTextBased: () => true };
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn().mockResolvedValue({ id: 'msg-new' }) };
 		const client = {
 			traductions: new Map(),
 			channels: { fetch: jest.fn().mockResolvedValue(channel) },
@@ -405,12 +466,9 @@ describe('orderBoardSync', () => {
 		expect(await refreshOrderBoard(client, board)).toBe(false);
 	});
 
-	it('refreshOrderBoard exécute fallbackSend quand editTracked le demande', async () => {
+	it('refreshOrderBoard envoie un nouveau message si aucun tracké', async () => {
 		const send = jest.fn().mockResolvedValue({ id: 'msg-new' });
-		mockEditTracked.mockImplementationOnce(async ({ fallbackSend }) => {
-			await fallbackSend();
-			return { usedFallback: true };
-		});
+		mockFindTracked.mockResolvedValueOnce(null);
 		const board = { _id: 'b1', guild_id: 'g1', channel_id: 'c1', name: 'OP', kind: 'prod', status: 'open', page: 0, log_thread_id: 'th1' };
 		mockFindById.mockResolvedValue(board);
 		const channel = { id: 'c1', isTextBased: () => true, send };
@@ -418,7 +476,11 @@ describe('orderBoardSync', () => {
 
 		await refreshOrderBoard(client, board, channel);
 
-		expect(send).toHaveBeenCalled();
+		expect(send).toHaveBeenCalledWith(expect.objectContaining({
+			components: expect.any(Array),
+			flags: expect.anything(),
+		}));
+		expect(mockSaveTracked).toHaveBeenCalled();
 		expect(createLogThread).not.toHaveBeenCalled();
 	});
 
@@ -459,6 +521,7 @@ describe('orderBoardSync', () => {
 	});
 
 	it('buildOrderPayload conserve selected_line_id valide', async () => {
+		mockFindTracked.mockResolvedValue(null);
 		mockOrderLineFind.mockReturnValue({
 			lean: () => Promise.resolve([
 				{ line_id: '10', priority: 'neutral' },
@@ -480,6 +543,7 @@ describe('orderBoardSync', () => {
 	});
 
 	it('buildOrderPayload sortLines avec lines null', async () => {
+		mockFindTracked.mockResolvedValue(null);
 		mockOrderLineFind.mockReturnValue({ lean: () => Promise.resolve(null) });
 		const board = {
 			_id: 'b1',
@@ -550,8 +614,9 @@ describe('orderBoardSync', () => {
 			guild_id: 'g1',
 			channel_id: 'c1',
 		});
+		mockFindTracked.mockResolvedValue(null);
 		mockOrderLineFind.mockReturnValue({ lean: () => Promise.resolve([]) });
-		const channel = { id: 'c1', isTextBased: () => true };
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn().mockResolvedValue({ id: 'msg-new' }) };
 		const client = { traductions: new Map(), channels: { fetch: jest.fn() } };
 		const p = refreshOrderBoardDebounced(client, { _id: 'b1', guild_id: 'g1' }, channel);
 		jest.runAllTimersAsync();
@@ -585,7 +650,7 @@ describe('orderBoardSync', () => {
 
 	it('refreshOrderBoard createLogThread catch ignore erreur', async () => {
 		createLogThread.mockRejectedValueOnce(new Error('thread fail'));
-		mockEditTracked.mockResolvedValueOnce({ usedFallback: true });
+		mockFindTracked.mockResolvedValueOnce(null);
 		const board = {
 			_id: 'b1',
 			guild_id: 'g1',
@@ -596,7 +661,7 @@ describe('orderBoardSync', () => {
 			page: 0,
 		};
 		mockFindById.mockResolvedValue({ ...board });
-		const channel = { id: 'c1', isTextBased: () => true };
+		const channel = { id: 'c1', isTextBased: () => true, send: jest.fn().mockResolvedValue({ id: 'msg-new' }) };
 		const client = { traductions: new Map() };
 		await expect(refreshOrderBoard(client, board, channel)).resolves.toBe(true);
 	});

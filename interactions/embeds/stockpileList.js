@@ -1,25 +1,53 @@
 const {
-	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
 } = require('discord.js');
-const { getRandomColor } = require('../../utils/colors.js');
 const { formatForDisplay } = require('../../utils/formatLocation.js');
 const { safeEscapeMarkdown } = require('../../utils/markdown.js');
 const { STOCKPILE_MAX_ACTIVE } = require('../../utils/constants.js');
+const { buildV2Payload, v2Text, joinBlocks } = require('../../utils/componentsV2.js');
+
+/** Stable accent for stockpile list (no urgency). */
+const STOCKPILE_ACCENT = 0xF1C40F;
+const STOCKPILE_ACCENT_WARN = 0xE67E22;
+const STOCKPILE_ACCENT_CRITICAL = 0xE74C3C;
+const ONE_HOUR_MS = 60 * 60 * 1000;
+const SIX_HOURS_MS = 6 * ONE_HOUR_MS;
+
+/** Discord limite les labels de bouton à 80 caractères. */
+const DISCORD_MAX_BUTTON_LABEL_LENGTH = 80;
 
 /**
- * Construit l'embed de la liste des stockpiles pour un serveur.
+ * Accent by soonest active expiry: red ≤1h, orange ≤6h, else yellow.
+ * @param {Array<{ deleted?: boolean, expiresAt?: Date|string }>} stocks
+ * @param {number} [nowMs]
+ */
+function accentForStockpiles(stocks, nowMs) {
+	const now = nowMs == null ? Date.now() : nowMs;
+	let accent = STOCKPILE_ACCENT;
+	for (const s of stocks || []) {
+		if (s.deleted) continue;
+		const expiresAt = s.expiresAt instanceof Date ? s.expiresAt : new Date(s.expiresAt);
+		if (Number.isNaN(expiresAt.getTime())) continue;
+		const left = expiresAt.getTime() - now;
+		if (left <= ONE_HOUR_MS) return STOCKPILE_ACCENT_CRITICAL;
+		if (left <= SIX_HOURS_MS) accent = STOCKPILE_ACCENT_WARN;
+	}
+	return accent;
+}
+
+/**
+ * Construit le texte de la liste des stockpiles pour un serveur.
  * Supprime les stocks expirés avant de construire la liste.
  * @param {import('mongoose').Model} Stockpile - Modèle Stockpile
  * @param {string} guildId - ID du serveur
  * @param {Translate} translations - Instance des traductions
- * @returns {Promise<{ embed: EmbedBuilder | null, isEmpty: boolean, stocks: object[] }>}
+ * @returns {Promise<{ body: string | null, children: Array|null, isEmpty: boolean, stocks: object[], accentColor: number }>}
  */
-async function buildStockpileListEmbed(Stockpile, guildId, translations) {
+async function buildStockpileListDisplay(Stockpile, guildId, translations) {
 	await Stockpile.deleteMany({
 		server_id: guildId,
 		expiresAt: { $lte: new Date() },
@@ -27,12 +55,66 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 
 	const allStocks = await Stockpile.find({ server_id: guildId });
 	const sortedById = allStocks.slice().sort((a, b) => Number(a.id) - Number(b.id));
+	const accentColor = accentForStockpiles(sortedById);
 
 	if (sortedById.length === 0) {
-		return { embed: null, isEmpty: true, stocks: [] };
+		return {
+			body: null,
+			children: null,
+			isEmpty: true,
+			stocks: [],
+			accentColor,
+		};
 	}
 
-	// Grouper par région puis ville ; chaque liste est déjà triée par id (ordre de sortedById)
+	const parts = buildStockpileTextParts(sortedById, translations);
+	const body = [parts.titleText, parts.bodyText, parts.footerText].filter(Boolean).join('\n\n');
+
+	return {
+		body,
+		children: parts.children,
+		isEmpty: false,
+		stocks: sortedById,
+		accentColor,
+	};
+}
+
+/**
+ * Urgency prefix for a stockpile row.
+ * @param {{ deleted?: boolean, expiresAt?: Date|string }} stock
+ * @param {number} nowMs
+ */
+function urgencyPrefix(stock, nowMs) {
+	if (stock.deleted) return '';
+	const expiresAt = stock.expiresAt instanceof Date ? stock.expiresAt : new Date(stock.expiresAt);
+	if (Number.isNaN(expiresAt.getTime())) return '';
+	const left = expiresAt.getTime() - nowMs;
+	if (left <= ONE_HOUR_MS) return '🔴 ';
+	if (left <= SIX_HOURS_MS) return '🟠 ';
+	return '';
+}
+
+/**
+ * Build stockpile list text parts for an arbitrary stock array.
+ * Layout: title+footer → region blocks (separated).
+ * @param {Array} stocks
+ * @param {{ translate: Function }} translations
+ * @param {number} [nowMs]
+ * @returns {{ titleText: string, bodyText: string, footerText: string, children: Array }}
+ */
+function buildStockpileTextParts(stocks, translations, nowMs) {
+	const now = nowMs == null ? Date.now() : nowMs;
+	const sortedById = (stocks || []).slice().sort((a, b) => Number(a.id) - Number(b.id));
+	if (!sortedById.length) {
+		const empty = translations.translate('STOCKPILE_LIST_EMPTY');
+		return {
+			titleText: empty,
+			bodyText: '',
+			footerText: '',
+			children: [empty],
+		};
+	}
+
 	const byRegion = new Map();
 	for (const s of sortedById) {
 		if (!byRegion.has(s.region)) byRegion.set(s.region, new Map());
@@ -41,7 +123,6 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 		byCity.get(s.city).push(s);
 	}
 
-	// Afficher les blocs (region, city) dans l’ordre du plus petit id (ordre de première apparition dans sortedById)
 	const seenBlocks = new Map();
 	const blockOrder = [];
 	for (const s of sortedById) {
@@ -53,42 +134,55 @@ async function buildStockpileListEmbed(Stockpile, guildId, translations) {
 	}
 	blockOrder.sort((a, b) => seenBlocks.get(`${a.region}\0${a.city}`) - seenBlocks.get(`${b.region}\0${b.city}`));
 
-	const headerStock = translations.translate('STOCKPILE_TABLE_HEADER_STOCK');
-	const headerCode = translations.translate('STOCKPILE_TABLE_HEADER_CODE');
-	const headerDate = translations.translate('STOCKPILE_TABLE_HEADER_EXPIRES');
-	const sep = '  |  ';
-	const lines = [];
-	let lastRegion = null;
+	/** @type {string[]} */
+	const regionBlocks = [];
+	/** @type {Map<string, string[]>} */
+	const linesByRegion = new Map();
+
 	for (const { region, city } of blockOrder) {
-		if (lastRegion !== region) {
-			if (lastRegion !== null) lines.push('');
-			lines.push(`📍 **${safeEscapeMarkdown(formatForDisplay(region))}**`);
-			lastRegion = region;
+		if (!linesByRegion.has(region)) linesByRegion.set(region, []);
+		const regionLines = linesByRegion.get(region);
+		if (regionLines.length === 0) {
+			regionLines.push(`### 📍 ${safeEscapeMarkdown(formatForDisplay(region))}`);
 		}
-		lines.push(`🏭 **${safeEscapeMarkdown(formatForDisplay(city))}**`);
-		lines.push(`**${headerStock}**${sep}**${headerCode}**${sep}**${headerDate}**`);
+		regionLines.push(`**🏭 ${safeEscapeMarkdown(formatForDisplay(city))}**`);
 		const list = byRegion.get(region).get(city);
 		for (const s of list) {
 			const expiresAt = s.expiresAt instanceof Date ? s.expiresAt : new Date(s.expiresAt);
 			const expiresTs = Math.floor(expiresAt.getTime() / 1000);
 			const creator = s.owner_id ? `<@${s.owner_id}>` : translations.translate('NONE');
-			const idDisplay = s.deleted ? `${s.id} ❌` : s.id;
-			const row = `${idDisplay} • **${safeEscapeMarkdown(s.name)}**${sep}\`${safeEscapeMarkdown(s.password)}\`${sep}<t:${expiresTs}:R> • ${creator}`;
-			lines.push(s.deleted ? `~~${row}~~` : row);
+			const idDisplay = s.deleted ? `#${s.id} ❌` : `#${s.id}`;
+			const urg = urgencyPrefix(s, now);
+			const row = `${urg}${idDisplay} · **${safeEscapeMarkdown(s.name)}**\n\`${safeEscapeMarkdown(s.password)}\` · <t:${expiresTs}:R> · ${creator}`;
+			regionLines.push(s.deleted ? `~~${row}~~` : row);
 		}
-		lines.push('');
+		regionLines.push('');
 	}
 
-	const embed = new EmbedBuilder()
-		.setColor(getRandomColor())
-		.setTitle(`🔑 ${translations.translate('STOCKPILE_LIST_CODES')}`)
-		.setDescription(lines.join('\n'));
+	for (const lines of linesByRegion.values()) {
+		regionBlocks.push(lines.join('\n').trimEnd());
+	}
 
-	return { embed, isEmpty: false, stocks: sortedById };
+	const title = `🔑 ${translations.translate('STOCKPILE_LIST_CODES')}`;
+	const activeCount = sortedById.filter((s) => !s.deleted).length;
+	const footer = translations.translate('STOCKPILE_LIST_FOOTER', {
+		active: activeCount,
+		total: sortedById.length,
+	});
+	const titleText = `### ${title}`;
+	const footerText = `*${footer}*`;
+	const bodyText = regionBlocks.join('\n\n');
+	const children = joinBlocks(
+		[[titleText, footerText], ...regionBlocks],
+		{ break: 'large' },
+	);
+	return {
+		titleText,
+		bodyText,
+		footerText,
+		children,
+	};
 }
-
-/** Discord limite les labels de bouton à 80 caractères. */
-const DISCORD_MAX_BUTTON_LABEL_LENGTH = 80;
 
 /**
  * @param {Array<{ id: string, _id: unknown, name?: string }>} stocks
@@ -107,17 +201,19 @@ function countStockIds(stocks) {
  * @param {Map<string, number>} idCounts
  */
 function buildStockpileButtonLabel(stock, idCounts) {
-	const base = `#${stock.id}`;
-	if ((idCounts.get(stock.id) || 0) <= 1) {
-		return base.slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH);
+	const namePart = (stock.name || '').trim();
+	let label = namePart
+		? `#${stock.id} · ${namePart}`
+		: `#${stock.id}`;
+
+	if ((idCounts.get(stock.id) || 0) > 1) {
+		const shortName = namePart.slice(0, 12);
+		label = shortName
+			? `#${stock.id} · ${shortName}`
+			: `#${stock.id}…${String(stock._id).slice(-4)}`;
 	}
 
-	const namePart = (stock.name || '').trim().slice(0, 12);
-	const disambiguated = namePart
-		? `${base} ${namePart}`
-		: `${base}…${String(stock._id).slice(-4)}`;
-
-	return disambiguated.slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH);
+	return label.slice(0, DISCORD_MAX_BUTTON_LABEL_LENGTH);
 }
 
 /**
@@ -217,32 +313,60 @@ async function buildStockpileManageComponents(Stockpile, guildId, translations) 
 }
 
 /**
- * Payload du panneau manage (embed + composants admin).
+ * Payload V2 de la liste publique.
  * @param {import('mongoose').Model} Stockpile
  * @param {string} guildId
  * @param {{ translate: (key: string, vars?: object) => string }} translations
  */
-async function buildStockpileManagePayload(Stockpile, guildId, translations) {
-	const { embed, isEmpty } = await buildStockpileListEmbed(Stockpile, guildId, translations);
+async function buildStockpileListPayload(Stockpile, guildId, translations) {
+	const { children, isEmpty, accentColor } = await buildStockpileListDisplay(Stockpile, guildId, translations);
+	if (isEmpty) {
+		return v2Text(translations.translate('STOCKPILE_LIST_EMPTY'), { accentColor });
+	}
+	const actionRows = await buildStockpileListComponents(Stockpile, guildId, translations);
+	return buildV2Payload({
+		children,
+		actionRows,
+		accentColor,
+	});
+}
+
+/**
+ * Payload V2 du panneau manage.
+ * @param {import('mongoose').Model} Stockpile
+ * @param {string} guildId
+ * @param {{ translate: (key: string, vars?: object) => string }} translations
+ * @param {{ ephemeral?: boolean }} [opts]
+ */
+async function buildStockpileManagePayload(Stockpile, guildId, translations, { ephemeral = true } = {}) {
+	const { children, isEmpty, accentColor } = await buildStockpileListDisplay(Stockpile, guildId, translations);
 	const components = await buildStockpileManageComponents(Stockpile, guildId, translations);
 
 	if (isEmpty) {
-		return {
-			content: translations.translate('STOCKPILE_LIST_EMPTY'),
-			embeds: [],
-			components,
-		};
+		return buildV2Payload({
+			children: [translations.translate('STOCKPILE_LIST_EMPTY')],
+			actionRows: components,
+			accentColor,
+			ephemeral,
+		});
 	}
 
-	return {
-		content: '',
-		embeds: [embed],
-		components,
-	};
+	return buildV2Payload({
+		children,
+		actionRows: components,
+		accentColor,
+		ephemeral,
+	});
 }
 
 module.exports = {
-	buildStockpileListEmbed,
+	STOCKPILE_ACCENT,
+	STOCKPILE_ACCENT_WARN,
+	STOCKPILE_ACCENT_CRITICAL,
+	accentForStockpiles,
+	buildStockpileListDisplay,
+	buildStockpileTextParts,
+	buildStockpileListPayload,
 	buildStockpileListComponents,
 	buildStockpileManageComponents,
 	buildStockpileManagePayload,

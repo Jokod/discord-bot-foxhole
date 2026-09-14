@@ -4,17 +4,14 @@ jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() =
 
 jest.mock('../../utils/colors.js', () => ({ getRandomColor: jest.fn().mockReturnValue(0xabcdef) }));
 
-const mockBuildStockpileListEmbed = jest.fn();
-const mockBuildStockpileListComponents = jest.fn().mockResolvedValue([]);
+const mockBuildStockpileListPayload = jest.fn();
 const mockBuildStockpileManagePayload = jest.fn().mockResolvedValue({
-	content: 'manage',
-	embeds: [],
+	flags: 64,
 	components: [],
 });
 jest.mock('../../interactions/embeds/stockpileList.js', () => ({
-	buildStockpileListEmbed: mockBuildStockpileListEmbed,
-	buildStockpileListComponents: mockBuildStockpileListComponents,
-	buildStockpileManagePayload: mockBuildStockpileManagePayload,
+	buildStockpileListPayload: (...args) => mockBuildStockpileListPayload(...args),
+	buildStockpileManagePayload: (...args) => mockBuildStockpileManagePayload(...args),
 }));
 
 const mockCanAccessStockpileManage = jest.fn();
@@ -71,6 +68,9 @@ jest.mock('../../data/models.js', () => ({
 	},
 }));
 
+const { v2Text } = require('../../utils/componentsV2.js');
+const { MessageFlags } = require('discord.js');
+
 describe('Slash command /stockpile - add|list|manage', () => {
 	let stockpileCommand;
 
@@ -79,6 +79,7 @@ describe('Slash command /stockpile - add|list|manage', () => {
 		mockEditTrackedCalls.length = 0;
 		mockFindTrackedMessage.mockResolvedValue(null);
 		mockCanAccessStockpileManage.mockResolvedValue(true);
+		mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
 		stockpileCommand = require('../../interactions/slash/stockpile/stockpile.js');
 	});
 
@@ -112,9 +113,7 @@ describe('Slash command /stockpile - add|list|manage', () => {
 	it('répond NO_DM quand guild null (DM)', async () => {
 		const interaction = createInteraction('add', { guild: null });
 		await stockpileCommand.execute(interaction);
-		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'NO_DM', flags: 64 }),
-		);
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('NO_DM', { ephemeral: true }));
 	});
 
 	describe('add', () => {
@@ -128,52 +127,54 @@ describe('Slash command /stockpile - add|list|manage', () => {
 	});
 
 	describe('list - isolation serveur', () => {
-		it('répond LIST_EMPTY et buildStockpileListEmbed est appelé avec guild.id', async () => {
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+		it('répond LIST_EMPTY et buildStockpileListPayload est appelé avec guild.id', async () => {
+			mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
 			expect(interaction.deferReply).toHaveBeenCalledWith();
-			expect(mockBuildStockpileListEmbed).toHaveBeenCalledWith(
+			expect(mockBuildStockpileListPayload).toHaveBeenCalledWith(
 				expect.anything(),
 				'guild-123',
 				expect.anything(),
 			);
-			expect(interaction.editReply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'STOCKPILE_LIST_EMPTY' }),
-			);
+			expect(interaction.editReply).toHaveBeenCalledWith(v2Text('STOCKPILE_LIST_EMPTY'));
 		});
 
-		it('affiche l’embed quand la liste n’est pas vide', async () => {
-			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+		it('affiche le payload V2 quand la liste n’est pas vide', async () => {
+			const payload = {
+				flags: MessageFlags.IsComponentsV2,
+				components: [{ toJSON: () => ({ type: 10, content: 'List' }) }],
+			};
+			mockBuildStockpileListPayload.mockResolvedValue(payload);
 			mockFindTrackedMessage.mockResolvedValue(null);
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
 			expect(interaction.deferReply).toHaveBeenCalledWith();
-			expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
-			expect(mockBuildStockpileListComponents).toHaveBeenCalledWith(
-				expect.anything(),
-				'guild-123',
-				expect.anything(),
-			);
+			expect(interaction.editReply).toHaveBeenCalledWith(payload);
 			expect(mockSaveTrackedMessage).toHaveBeenCalled();
 		});
 
 		it('édite le message existant pour list au lieu de reply quand trouvé', async () => {
-			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			const payload = {
+				flags: MessageFlags.IsComponentsV2,
+				components: [{ toJSON: () => ({ type: 10, content: 'List' }) }],
+			};
+			mockBuildStockpileListPayload.mockResolvedValue(payload);
 			const editMock = jest.fn().mockResolvedValue(undefined);
 			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
-			expect(editMock).toHaveBeenCalledWith(expect.objectContaining({ embeds: [fakeEmbed] }));
+			expect(editMock).toHaveBeenCalledWith(payload);
 			expect(interaction.editReply).not.toHaveBeenCalled();
 			expect(interaction.deleteReply).toHaveBeenCalled();
 		});
 
 		it('utilise fallbackMatcher pour retrouver le message liste', async () => {
-			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			const payload = {
+				flags: MessageFlags.IsComponentsV2,
+				components: [],
+			};
+			mockBuildStockpileListPayload.mockResolvedValue(payload);
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
 			const opts = mockEditTrackedCalls[0];
@@ -183,11 +184,43 @@ describe('Slash command /stockpile - add|list|manage', () => {
 			}]);
 			expect(matched).toBeTruthy();
 			expect(opts.fallbackMatcher([])).toBeNull();
+
+			const v2Matched = opts.fallbackMatcher([{
+				author: { id: 'bot-123' },
+				embeds: [],
+				flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+				components: [{ type: 10, content: '🔑 STOCKPILE_LIST_CODES\nbody' }],
+			}]);
+			expect(v2Matched).toBeTruthy();
+
+			expect(opts.fallbackMatcher([{
+				author: { id: 'bot-123' },
+				embeds: [],
+				flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+				components: [{ type: 10, content: 'other' }],
+			}])).toBeNull();
+
+			expect(opts.fallbackMatcher([{
+				author: { id: 'bot-123' },
+				embeds: [{ title: 'wrong title' }],
+				flags: { has: () => false },
+			}])).toBeNull();
+
+			expect(opts.fallbackMatcher([{
+				embeds: [],
+				flags: { has: () => false },
+			}])).toBeNull();
+
+			expect(opts.fallbackMatcher([{
+				author: { id: 'bot-123' },
+				embeds: [],
+				flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+			}])).toBeNull();
 		});
 
 		it('deleteReply ignore les erreurs quand message existant édité', async () => {
-			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			const payload = { flags: MessageFlags.IsComponentsV2, components: [] };
+			mockBuildStockpileListPayload.mockResolvedValue(payload);
 			const editMock = jest.fn().mockResolvedValue(undefined);
 			mockFindTrackedMessage.mockResolvedValue({ edit: editMock });
 			const interaction = createInteraction('list');
@@ -197,26 +230,25 @@ describe('Slash command /stockpile - add|list|manage', () => {
 		});
 
 		it('list vide via editTrackedOrFallback fallbackSend', async () => {
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+			mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
 			const opts = mockEditTrackedCalls[0];
 			await opts.fallbackSend();
-			expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'STOCKPILE_LIST_EMPTY',
-			}));
+			expect(interaction.editReply).toHaveBeenCalledWith(v2Text('STOCKPILE_LIST_EMPTY'));
 		});
 
 		it('list non vide exécute fallbackSend', async () => {
-			const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
-			mockBuildStockpileListEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
+			const payload = {
+				flags: MessageFlags.IsComponentsV2,
+				components: [{ toJSON: () => ({ type: 10, content: 'List' }) }],
+			};
+			mockBuildStockpileListPayload.mockResolvedValue(payload);
 			const interaction = createInteraction('list');
 			await stockpileCommand.execute(interaction);
 			const opts = mockEditTrackedCalls[0];
 			await opts.fallbackSend();
-			expect(interaction.editReply).toHaveBeenCalledWith(expect.objectContaining({
-				embeds: [fakeEmbed],
-			}));
+			expect(interaction.editReply).toHaveBeenCalledWith(payload);
 		});
 	});
 
@@ -226,13 +258,16 @@ describe('Slash command /stockpile - add|list|manage', () => {
 			const interaction = createInteraction('manage');
 			await stockpileCommand.execute(interaction);
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'STOCKPILE_MANAGE_NO_ACCESS', flags: 64 }),
+				v2Text('STOCKPILE_MANAGE_NO_ACCESS', { ephemeral: true }),
 			);
 			expect(interaction.deferReply).not.toHaveBeenCalled();
 		});
 
 		it('répond en éphémère avec le panneau manage', async () => {
-			const payload = { content: '', embeds: [{ title: 'm' }], components: [] };
+			const payload = {
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+				components: [],
+			};
 			mockBuildStockpileManagePayload.mockResolvedValue(payload);
 			const interaction = createInteraction('manage');
 			await stockpileCommand.execute(interaction);
@@ -250,7 +285,7 @@ describe('Slash command /stockpile - add|list|manage', () => {
 		const interaction = createInteraction('unknown_subcommand');
 		await stockpileCommand.execute(interaction);
 		expect(interaction.reply).toHaveBeenCalledWith(
-			expect.objectContaining({ content: 'COMMAND_UNKNOWN', flags: 64 }),
+			v2Text('COMMAND_UNKNOWN', { ephemeral: true }),
 		);
 	});
 });

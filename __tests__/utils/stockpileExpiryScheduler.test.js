@@ -1,3 +1,4 @@
+const { getV2Text } = require('../helpers/v2Payload.js');
 const mockTranslate = jest.fn((key, params = {}) => {
 	const parts = Object.entries(params).map(([k, v]) => `${k}=${v}`);
 	return [key, ...parts].join(' ');
@@ -103,7 +104,7 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 		await checkExpiringStockpiles(client);
 
 		expect(channelSend).toHaveBeenCalledTimes(1);
-		const content = channelSend.mock.calls[0][0].content;
+		const content = getV2Text(channelSend.mock.calls[0][0]);
 		expect(content).toContain('NOTIFICATION_EXPIRING_IN_30M');
 		expect(content).not.toContain('NOTIFICATION_EXPIRING_IN_12H');
 		expect(content).not.toContain('NOTIFICATION_EXPIRING_IN_1H');
@@ -146,7 +147,7 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 				creator: '<@201326790432653312> ',
 			}),
 		);
-		const content = channelSend.mock.calls[0][0].content;
+		const content = getV2Text(channelSend.mock.calls[0][0]);
 		expect(content).toContain('<@201326790432653312>');
 	});
 
@@ -179,7 +180,7 @@ describe('stockpileExpiryScheduler.checkExpiringStockpiles', () => {
 				creator: '',
 			}),
 		);
-		const content = channelSend.mock.calls[0][0].content;
+		const content = getV2Text(channelSend.mock.calls[0][0]);
 		expect(content).not.toContain('<@0>');
 	});
 

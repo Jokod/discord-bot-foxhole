@@ -1,6 +1,12 @@
 const { Stockpile, TrackedMessage } = require('../data/models.js');
 const Translate = require('./translations.js');
-const { buildStockpileListEmbed, buildStockpileListComponents } = require('../interactions/embeds/stockpileList.js');
+const { buildStockpileListPayload } = require('../interactions/embeds/stockpileList.js');
+const {
+	findTrackedMessage,
+	saveTrackedMessage,
+} = require('./trackedMessage.js');
+const { editOrRepostV2, sendV2 } = require('./componentsV2.js');
+const { withAsyncLock, trackedLockKey } = require('./asyncLock.js');
 
 /**
  * Réattribue des ids uniques aux stockpiles en doublon (même server_id + id).
@@ -31,7 +37,8 @@ async function repairDuplicateStockpileIds(guildId) {
 }
 
 /**
- * Met à jour un message de liste stockpile tracké (embed + boutons à jour).
+ * Met à jour un message de liste stockpile tracké (V2 + boutons).
+ * Recrée le message si le tracké a disparu (aligné sur order boards).
  * @param {import('discord.js').Client} client
  * @param {{ server_id: string, channel_id: string, message_id: string }} tracked
  * @returns {Promise<boolean>}
@@ -41,25 +48,40 @@ async function refreshTrackedStockpileList(client, tracked) {
 		const channel = await client.channels.fetch(tracked.channel_id).catch(() => null);
 		if (!channel?.isTextBased?.()) return false;
 
-		const msg = await channel.messages.fetch(tracked.message_id).catch(() => null);
-		if (!msg) return false;
-
 		const translations = new Translate(client, tracked.server_id);
-		const { embed, isEmpty } = await buildStockpileListEmbed(Stockpile, tracked.server_id, translations);
+		const payload = await buildStockpileListPayload(Stockpile, tracked.server_id, translations);
+		const messageType = 'stockpile_list';
 
-		if (isEmpty) {
-			await msg.edit({
-				content: translations.translate('STOCKPILE_LIST_EMPTY'),
-				embeds: [],
-				components: [],
+		return await withAsyncLock(trackedLockKey(tracked.server_id, messageType), async () => {
+			const existing = await findTrackedMessage(channel, tracked.server_id, messageType, {
+				model: TrackedMessage,
 			});
-		}
-		else {
-			const components = await buildStockpileListComponents(Stockpile, tracked.server_id, translations);
-			await msg.edit({ content: '', embeds: [embed], components });
-		}
 
-		return true;
+			if (existing) {
+				const { message, reposted } = await editOrRepostV2(existing, channel, payload);
+				if (reposted) {
+					await saveTrackedMessage(
+						tracked.server_id,
+						channel.id,
+						message.id,
+						messageType,
+						TrackedMessage,
+					);
+				}
+				return true;
+			}
+
+			// Tracked row exists in DB but Discord message is gone — recreate like order boards.
+			const sent = await sendV2(channel, payload);
+			await saveTrackedMessage(
+				tracked.server_id,
+				channel.id,
+				sent.id,
+				messageType,
+				TrackedMessage,
+			);
+			return true;
+		});
 	}
 	catch {
 		return false;

@@ -1,4 +1,4 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const Translate = require('../../../utils/translations.js');
 const { getRandomColor } = require('../../../utils/colors.js');
 const { discordTs, formatElapsed } = require('../../../utils/discord.js');
@@ -8,8 +8,13 @@ const {
 	getWarReport,
 	getWarStatusSummary,
 } = require('../../../utils/foxholeWarApi.js');
+const { v2Text, buildV2Payload, joinBlocks } = require('../../../utils/componentsV2.js');
 
 const FOXHOLE_STATS_URL = 'https://foxholestats.com/';
+
+function fieldLine(name, value) {
+	return `**${name}** · ${value}`;
+}
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -111,26 +116,17 @@ module.exports = {
 				const steamData = await getSteamPlayers();
 				const playerCount = steamData?.response?.player_count;
 				if (typeof playerCount !== 'number') {
-					return interaction.editReply({
-						content: translations.translate('FOXHOLE_ALL_UNAVAILABLE'),
-					});
+					return interaction.editReply(v2Text(translations.translate('FOXHOLE_ALL_UNAVAILABLE')));
 				}
-				const embed = new EmbedBuilder()
-					.setColor(getRandomColor())
-					.setTitle(translations.translate('FOXHOLE_TITLE'))
-					.addFields(
-						{
-							name: translations.translate('FOXHOLE_PLAYERS_CURRENT'),
-							value: playerCount.toLocaleString(),
-							inline: true,
-						},
-						{
-							name: translations.translate('FOXHOLE_WAR_TITLE'),
-							value: translations.translate('FOXHOLE_UNAVAILABLE'),
-							inline: false,
-						},
-					);
-				return interaction.editReply({ embeds: [embed] });
+				const title = `### ${translations.translate('FOXHOLE_TITLE')}`;
+				const body = [
+					fieldLine(translations.translate('FOXHOLE_PLAYERS_CURRENT'), playerCount.toLocaleString()),
+					fieldLine(translations.translate('FOXHOLE_WAR_TITLE'), translations.translate('FOXHOLE_UNAVAILABLE')),
+				].join('\n');
+				return interaction.editReply(buildV2Payload({
+					children: joinBlocks([title, body], { break: 'large' }),
+					accentColor: getRandomColor(),
+				}));
 			}
 
 			let winnerKey = 'FOXHOLE_WINNER_NONE';
@@ -140,131 +136,118 @@ module.exports = {
 			const need = summary.effectiveRequiredVictoryTowns ?? summary.requiredVictoryTowns;
 			const vt = summary.victoryTowns;
 
-			const embed = new EmbedBuilder()
-				.setColor(summary.ended ? 0x6b4f2f : getRandomColor())
-				.setTitle(translations.translate(
-					summary.ended ? 'FOXHOLE_WAR_TITLE_ENDED' : 'FOXHOLE_TITLE',
-				));
+			const title = `### ${translations.translate(summary.ended ? 'FOXHOLE_WAR_TITLE_ENDED' : 'FOXHOLE_TITLE')}`;
 
-			embed.addFields({
-				name: translations.translate('FOXHOLE_PLAYERS_CURRENT'),
-				value: summary.playersOnline != null
-					? Number(summary.playersOnline).toLocaleString()
-					: translations.translate('FOXHOLE_UNAVAILABLE'),
-				inline: true,
-			});
-
-			embed.addFields(
-				{
-					name: translations.translate('FOXHOLE_WAR_NUMBER'),
-					value: String(summary.warNumber),
-					inline: true,
-				},
-				{
-					name: translations.translate('FOXHOLE_WAR_WINNER'),
-					value: translations.translate(winnerKey),
-					inline: true,
-				},
-			);
+			/** @type {string[]} */
+			const overview = [
+				fieldLine(
+					translations.translate('FOXHOLE_PLAYERS_CURRENT'),
+					summary.playersOnline != null
+						? Number(summary.playersOnline).toLocaleString()
+						: translations.translate('FOXHOLE_UNAVAILABLE'),
+				),
+				fieldLine(translations.translate('FOXHOLE_WAR_NUMBER'), String(summary.warNumber)),
+				fieldLine(translations.translate('FOXHOLE_WAR_WINNER'), translations.translate(winnerKey)),
+			];
 
 			if (summary.dayOfWar != null) {
-				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_DAY'),
-					value: translations.translate('FOXHOLE_WAR_DAY_VALUE', { n: summary.dayOfWar }),
-					inline: true,
-				});
+				overview.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_DAY'),
+					translations.translate('FOXHOLE_WAR_DAY_VALUE', { n: summary.dayOfWar }),
+				));
 			}
 			if (summary.elapsed?.days != null) {
-				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_ELAPSED'),
-					value: formatElapsed(summary.elapsed, translations, 'FOXHOLE_WAR_ELAPSED_VALUE'),
-					inline: true,
-				});
+				overview.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_ELAPSED'),
+					formatElapsed(summary.elapsed, translations, 'FOXHOLE_WAR_ELAPSED_VALUE'),
+				));
 			}
 
+			/** @type {string[]} */
+			const towns = [];
 			if (vt) {
-				embed.addFields(
-					{
-						name: translations.translate('FOXHOLE_WAR_COLONIAL_TOWNS'),
-						value: need != null ? `${vt.colonial} / ${need}` : String(vt.colonial),
-						inline: true,
-					},
-					{
-						name: translations.translate('FOXHOLE_WAR_WARDEN_TOWNS'),
-						value: need != null ? `${vt.warden} / ${need}` : String(vt.warden),
-						inline: true,
-					},
-				);
+				towns.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_COLONIAL_TOWNS'),
+					need != null ? `${vt.colonial} / ${need}` : String(vt.colonial),
+				));
+				towns.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_WARDEN_TOWNS'),
+					need != null ? `${vt.warden} / ${need}` : String(vt.warden),
+				));
 				if (vt.scorched) {
-					embed.addFields({
-						name: translations.translate('FOXHOLE_WAR_SCORCHED_TOWNS'),
-						value: String(vt.scorched),
-						inline: true,
-					});
+					towns.push(fieldLine(
+						translations.translate('FOXHOLE_WAR_SCORCHED_TOWNS'),
+						String(vt.scorched),
+					));
 				}
 			}
 			else if (summary.requiredVictoryTowns != null) {
-				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_REQUIRED_TOWNS'),
-					value: String(summary.requiredVictoryTowns),
-					inline: true,
-				});
+				towns.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_REQUIRED_TOWNS'),
+					String(summary.requiredVictoryTowns),
+				));
 			}
 
 			if (summary.shortRequiredVictoryTowns != null) {
-				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_SHORT_REQUIRED_TOWNS'),
-					value: String(summary.shortRequiredVictoryTowns),
-					inline: true,
-				});
+				towns.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_SHORT_REQUIRED_TOWNS'),
+					String(summary.shortRequiredVictoryTowns),
+				));
 			}
 
-			embed.addFields({
-				name: translations.translate('FOXHOLE_WAR_START'),
-				value: discordTs(summary.conquestStartTime),
-				inline: false,
-			});
+			/** @type {string[]} */
+			const timing = [
+				fieldLine(
+					translations.translate('FOXHOLE_WAR_START'),
+					discordTs(summary.conquestStartTime),
+				),
+			];
 
 			if (summary.ended && summary.conquestEndTime) {
-				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_END'),
-					value: discordTs(summary.conquestEndTime),
-					inline: false,
-				});
+				timing.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_END'),
+					discordTs(summary.conquestEndTime),
+				));
 			}
 			else if (!summary.ended && summary.scheduledConquestEndTime) {
-				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_SCHEDULED_END'),
-					value: `${discordTs(summary.scheduledConquestEndTime)} (${discordTs(summary.scheduledConquestEndTime, 'R')})`,
-					inline: false,
-				});
+				timing.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_SCHEDULED_END'),
+					`${discordTs(summary.scheduledConquestEndTime)} (${discordTs(summary.scheduledConquestEndTime, 'R')})`,
+				));
 			}
 			else if (summary.conquestEndTime) {
-				embed.addFields({
-					name: translations.translate('FOXHOLE_WAR_END'),
-					value: discordTs(summary.conquestEndTime),
-					inline: false,
-				});
+				timing.push(fieldLine(
+					translations.translate('FOXHOLE_WAR_END'),
+					discordTs(summary.conquestEndTime),
+				));
 			}
 
-			return interaction.editReply({ embeds: [embed] });
+			return interaction.editReply(buildV2Payload({
+				children: joinBlocks([
+					title,
+					overview.join('\n'),
+					towns.length ? towns.join('\n') : null,
+					timing.join('\n'),
+				], { break: 'large' }),
+				accentColor: summary.ended ? 0x6b4f2f : getRandomColor(),
+			}));
 		}
 
 		if (sub === 'maps') {
 			const maps = await getMaps();
 
 			if (!Array.isArray(maps) || maps.length === 0) {
-				return interaction.editReply({
-					content: translations.translate('FOXHOLE_MAPS_UNAVAILABLE'),
-				});
+				return interaction.editReply(v2Text(translations.translate('FOXHOLE_MAPS_UNAVAILABLE')));
 			}
 
-			const embed = new EmbedBuilder()
-				.setColor(getRandomColor())
-				.setTitle(translations.translate('FOXHOLE_MAPS_TITLE'))
-				.setDescription(`${maps.join('\n')}\n\n${FOXHOLE_STATS_URL}`);
-
-			return interaction.editReply({ embeds: [embed] });
+			return interaction.editReply(buildV2Payload({
+				children: joinBlocks([
+					`### ${translations.translate('FOXHOLE_MAPS_TITLE')}`,
+					maps.join('\n'),
+					FOXHOLE_STATS_URL,
+				], { break: 'large' }),
+				accentColor: getRandomColor(),
+			}));
 		}
 
 		if (sub === 'report') {
@@ -272,26 +255,27 @@ module.exports = {
 			const report = await getWarReport(mapName);
 
 			if (!report || typeof report.totalEnlistments !== 'number') {
-				return interaction.editReply({
-					content: translations.translate('FOXHOLE_REPORT_UNAVAILABLE', { map: mapName }),
-				});
+				return interaction.editReply(v2Text(
+					translations.translate('FOXHOLE_REPORT_UNAVAILABLE', { map: mapName }),
+				));
 			}
 
-			const embed = new EmbedBuilder()
-				.setColor(getRandomColor())
-				.setTitle(translations.translate('FOXHOLE_REPORT_TITLE', { map: mapName }))
-				.addFields(
-					{ name: translations.translate('FOXHOLE_REPORT_ENLISTMENTS'), value: String(report.totalEnlistments), inline: true },
-					{ name: translations.translate('FOXHOLE_REPORT_COLONIAL_CASUALTIES'), value: String(report.colonialCasualties ?? 0), inline: true },
-					{ name: translations.translate('FOXHOLE_REPORT_WARDEN_CASUALTIES'), value: String(report.wardenCasualties ?? 0), inline: true },
-					{ name: translations.translate('FOXHOLE_REPORT_DAY'), value: String(report.dayOfWar ?? '—'), inline: true },
-				);
+			const stats = [
+				fieldLine(translations.translate('FOXHOLE_REPORT_ENLISTMENTS'), String(report.totalEnlistments)),
+				fieldLine(translations.translate('FOXHOLE_REPORT_COLONIAL_CASUALTIES'), String(report.colonialCasualties ?? 0)),
+				fieldLine(translations.translate('FOXHOLE_REPORT_WARDEN_CASUALTIES'), String(report.wardenCasualties ?? 0)),
+				fieldLine(translations.translate('FOXHOLE_REPORT_DAY'), String(report.dayOfWar ?? '—')),
+			].join('\n');
 
-			return interaction.editReply({ embeds: [embed] });
+			return interaction.editReply(buildV2Payload({
+				children: joinBlocks([
+					`### ${translations.translate('FOXHOLE_REPORT_TITLE', { map: mapName })}`,
+					stats,
+				], { break: 'large' }),
+				accentColor: getRandomColor(),
+			}));
 		}
 
-		return interaction.editReply({
-			content: translations.translate('COMMAND_UNKNOWN'),
-		});
+		return interaction.editReply(v2Text(translations.translate('COMMAND_UNKNOWN')));
 	},
 };

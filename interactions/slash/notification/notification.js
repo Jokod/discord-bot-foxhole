@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { NotificationSubscription } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
 
 const NOTIFICATION_TYPES = [
 	{
@@ -131,10 +132,7 @@ module.exports = {
 
 		if (subcommand === 'on') {
 			if (!canManage) {
-				return interaction.reply({
-					content: translations.translate('NOTIFICATION_NO_PERMS'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('NOTIFICATION_NO_PERMS'), { ephemeral: true }));
 			}
 			const type = options.getString('type');
 			const existing = await NotificationSubscription.findOne({
@@ -143,28 +141,19 @@ module.exports = {
 				notification_type: type,
 			});
 			if (existing) {
-				return interaction.reply({
-					content: translations.translate('NOTIFICATION_ALREADY_SUBSCRIBED'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('NOTIFICATION_ALREADY_SUBSCRIBED'), { ephemeral: true }));
 			}
 			await NotificationSubscription.create({
 				guild_id: guild.id,
 				channel_id: channelId,
 				notification_type: type,
 			});
-			return interaction.reply({
-				content: translations.translate('NOTIFICATION_SUBSCRIBE_SUCCESS'),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(translations.translate('NOTIFICATION_SUBSCRIBE_SUCCESS'), { ephemeral: true }));
 		}
 
 		if (subcommand === 'off') {
 			if (!canManage) {
-				return interaction.reply({
-					content: translations.translate('NOTIFICATION_NO_PERMS'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('NOTIFICATION_NO_PERMS'), { ephemeral: true }));
 			}
 			const type = options.getString('type');
 			const deleted = await NotificationSubscription.deleteOne({
@@ -173,15 +162,9 @@ module.exports = {
 				notification_type: type,
 			});
 			if (deleted.deletedCount === 0) {
-				return interaction.reply({
-					content: translations.translate('NOTIFICATION_NOT_SUBSCRIBED'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('NOTIFICATION_NOT_SUBSCRIBED'), { ephemeral: true }));
 			}
-			return interaction.reply({
-				content: translations.translate('NOTIFICATION_UNSUBSCRIBE_SUCCESS'),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(translations.translate('NOTIFICATION_UNSUBSCRIBE_SUCCESS'), { ephemeral: true }));
 		}
 
 		if (subcommand === 'list') {
@@ -189,10 +172,7 @@ module.exports = {
 			const all = await NotificationSubscription.find({ guild_id: guild.id }).lean();
 			const listed = all.filter((sub) => knownTypes.has(sub.notification_type));
 			if (listed.length === 0) {
-				return interaction.reply({
-					content: translations.translate('NOTIFICATION_LIST_EMPTY'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('NOTIFICATION_LIST_EMPTY'), { ephemeral: true }));
 			}
 			const byType = new Map();
 			for (const sub of listed) {
@@ -204,10 +184,7 @@ module.exports = {
 			for (const [type, channelIds] of byType) {
 				lines.push(`**${typeLabel(type)}**: ${channelIds.join(', ')}`);
 			}
-			return interaction.reply({
-				content: `${translations.translate('NOTIFICATION_LIST_HEADER')}\n${lines.join('\n')}`,
-				flags: 64,
-			});
+			return interaction.reply(v2Text(`${translations.translate('NOTIFICATION_LIST_HEADER')}\n${lines.join('\n')}`, { ephemeral: true }));
 		}
 	},
 };

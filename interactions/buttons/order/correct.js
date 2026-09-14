@@ -1,13 +1,9 @@
-const {
-	ModalBuilder,
-	TextInputBuilder,
-	TextInputStyle,
-	ActionRowBuilder,
-} = require('discord.js');
 const Translate = require('../../../utils/translations.js');
 const { decode, encode } = require('../../../shared/customId.js');
 const { findBoardById } = require('../../../services/order/index.js');
 const { OrderLine } = require('../../../data/models.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
+const { buildLabeledModal, TextInputStyle } = require('../../../utils/modalLabels.js');
 
 module.exports = {
 	id: 'order_correct',
@@ -20,15 +16,15 @@ module.exports = {
 		const explicitLineId = parsed?.parts?.[1];
 
 		if (!boardId) {
-			return interaction.reply({ content: translations.translate('INTERACTION_ERROR'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('INTERACTION_ERROR'), { ephemeral: true }));
 		}
 
 		const board = await findBoardById(boardId, guild.id);
 		if (!board) {
-			return interaction.reply({ content: translations.translate('ORDER_BOARD_NOT_EXIST'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_BOARD_NOT_EXIST'), { ephemeral: true }));
 		}
 		if (board.status === 'closed') {
-			return interaction.reply({ content: translations.translate('ORDER_STATUS_CLOSED'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_STATUS_CLOSED'), { ephemeral: true }));
 		}
 
 		const lineId = explicitLineId && explicitLineId !== '0'
@@ -42,35 +38,33 @@ module.exports = {
 			}).lean()
 			: null;
 		if (!line) {
-			return interaction.reply({ content: translations.translate('ORDER_NO_SELECTION'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_NO_SELECTION'), { ephemeral: true }));
 		}
 
-		const modal = new ModalBuilder()
-			.setCustomId(encode('order_correct_modal', boardId, line.line_id))
-			.setTitle(translations.translate('ORDER_CORRECT_TITLE').slice(0, 45));
-
-		const currentInput = new TextInputBuilder()
-			.setCustomId('order_current')
-			.setLabel(translations.translate('ORDER_CURRENT').slice(0, 45))
-			.setStyle(TextInputStyle.Short)
-			.setRequired(true)
-			.setValue(String(Number(line.current) || 0))
-			.setMinLength(1)
-			.setMaxLength(6);
-
-		const targetInput = new TextInputBuilder()
-			.setCustomId('order_target')
-			.setLabel(translations.translate('ORDER_TARGET').slice(0, 45))
-			.setStyle(TextInputStyle.Short)
-			.setRequired(true)
-			.setValue(String(Math.max(1, Number(line.target) || 1)))
-			.setMinLength(1)
-			.setMaxLength(6);
-
-		modal.addComponents(
-			new ActionRowBuilder().addComponents(currentInput),
-			new ActionRowBuilder().addComponents(targetInput),
-		);
+		const modal = buildLabeledModal({
+			customId: encode('order_correct_modal', boardId, line.line_id),
+			title: translations.translate('ORDER_CORRECT_TITLE'),
+			fields: [
+				{
+					customId: 'order_current',
+					label: translations.translate('ORDER_CURRENT'),
+					style: TextInputStyle.Short,
+					required: true,
+					value: String(Number(line.current) || 0),
+					minLength: 1,
+					maxLength: 6,
+				},
+				{
+					customId: 'order_target',
+					label: translations.translate('ORDER_TARGET'),
+					style: TextInputStyle.Short,
+					required: true,
+					value: String(Math.max(1, Number(line.target) || 1)),
+					minLength: 1,
+					maxLength: 6,
+				},
+			],
+		});
 		return interaction.showModal(modal);
 	},
 };

@@ -1,4 +1,4 @@
-const { OrderBoard, OrderLine } = require('../../data/models.js');
+const { OrderBoard, OrderLine, Operation } = require('../../data/models.js');
 const {
 	allocateLineId,
 	bootstrapOrderBoard,
@@ -308,6 +308,22 @@ async function countLines(board) {
 	});
 }
 
+/**
+ * @param {object} board
+ * @returns {Promise<string|null>}
+ */
+async function resolveOperationTitle(board) {
+	if (!board?.operation_id) return null;
+	const op = await Operation.findOne({
+		guild_id: board.guild_id,
+		operation_id: board.operation_id,
+	}).lean();
+	return op?.title || board.operation_id;
+}
+
+/**
+ * Create a line. Structural capacity (MAX_ORDER_LINES) is enforced before persist.
+ */
 async function createLine(board, { name, category, target, ownerId, priority }) {
 	const count = await countLines(board);
 	if (count >= MAX_ORDER_LINES) {
@@ -315,6 +331,9 @@ async function createLine(board, { name, category, target, ownerId, priority }) 
 		err.code = 'ORDER_FULL';
 		throw err;
 	}
+
+	const resolvedPriority = normalizePriority(priority ?? DEFAULT_PRIORITY);
+	const targetQty = Math.max(1, Number(target) || 0);
 
 	const lineId = await allocateLineId(board.guild_id, board._id);
 	const line = await OrderLine.create({
@@ -324,9 +343,9 @@ async function createLine(board, { name, category, target, ownerId, priority }) 
 		owner_id: ownerId,
 		name,
 		category,
-		priority: normalizePriority(priority ?? DEFAULT_PRIORITY),
+		priority: resolvedPriority,
 		current: 0,
-		target: Math.max(1, Number(target) || 0),
+		target: targetQty,
 	});
 
 	const afterCount = await countLines(board);
@@ -386,6 +405,7 @@ module.exports = {
 	countLines,
 	listLines,
 	sortLines,
+	resolveOperationTitle,
 	refreshOrderBoard,
 	refreshOrderBoardDebounced,
 	bootstrapOrderBoard,

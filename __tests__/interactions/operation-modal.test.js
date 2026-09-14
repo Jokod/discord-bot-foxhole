@@ -26,6 +26,8 @@ jest.mock('../../messages/react.js', () => ({
 const modalCreate = require('../../interactions/modals/operation/create.js');
 const React = require('../../messages/react.js');
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('Modal create operation', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -64,9 +66,7 @@ describe('Modal create operation', () => {
 			description: 'ok',
 		});
 		await modalCreate.execute(i);
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'OPERATION_DATE_FORMAT_ERROR',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('OPERATION_DATE_FORMAT_ERROR', { ephemeral: true }));
 	});
 
 	it('refuse time / duration / description invalides', async () => {
@@ -119,9 +119,7 @@ describe('Modal create operation', () => {
 		});
 		await modalCreate.execute(i);
 		err.mockRestore();
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'OPERATION_CREATE_ERROR',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('OPERATION_CREATE_ERROR', { ephemeral: true }));
 	});
 
 	it('followUp CREATE_ERROR si déjà replied', async () => {
@@ -136,9 +134,7 @@ describe('Modal create operation', () => {
 		i.reply.mockResolvedValue({ resource: { message: { id: 'msg-1' } } });
 		await modalCreate.execute(i);
 		err.mockRestore();
-		expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'OPERATION_CREATE_ERROR',
-		}));
+		expect(i.followUp).toHaveBeenCalledWith(v2Text('OPERATION_CREATE_ERROR', { ephemeral: true }));
 	});
 
 	it('utilise fetchReply si resource.message absent', async () => {

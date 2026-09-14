@@ -1,5 +1,6 @@
 const mockTranslate = jest.fn((key, params) => {
 	if (params?.id != null) return `${key}#${params.id}`;
+	if (params?.max != null) return `${key}:${params.max}`;
 	return key;
 });
 
@@ -16,22 +17,22 @@ jest.mock('../../utils/trackedMessage.js', () => ({
 	editTrackedOrFallback: jest.fn().mockResolvedValue(undefined),
 }));
 
-const mockBuildEmbed = jest.fn();
-const mockBuildComponents = jest.fn().mockResolvedValue([]);
+const mockBuildStockpileListPayload = jest.fn();
 jest.mock('../../interactions/embeds/stockpileList.js', () => ({
-	buildStockpileListEmbed: (...args) => mockBuildEmbed(...args),
-	buildStockpileListComponents: (...args) => mockBuildComponents(...args),
+	buildStockpileListPayload: (...args) => mockBuildStockpileListPayload(...args),
 }));
 
 const mockCount = jest.fn();
 const mockFind = jest.fn();
-const mockCreate = jest.fn().mockResolvedValue({});
+const mockCreate = jest.fn().mockResolvedValue({ _id: 'created1' });
+const mockDeleteOne = jest.fn().mockResolvedValue({ deletedCount: 1 });
 
 jest.mock('../../data/models.js', () => ({
 	Stockpile: {
 		countDocuments: (...args) => mockCount(...args),
 		find: (...args) => mockFind(...args),
 		create: (...args) => mockCreate(...args),
+		deleteOne: (...args) => mockDeleteOne(...args),
 	},
 	TrackedMessage: {},
 }));
@@ -40,12 +41,15 @@ const { sendToSubscribers } = require('../../utils/notifications.js');
 const { editTrackedOrFallback } = require('../../utils/trackedMessage.js');
 const addModal = require('../../interactions/modals/stockpile/add.js');
 
+const { v2Text, getV2Text, MessageFlags } = require('../helpers/v2Payload.js');
+
 describe('Modal stockpile add', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockCount.mockResolvedValue(0);
 		mockFind.mockReturnValue({ lean: async () => [{ id: '2' }, { id: '5' }] });
-		mockBuildEmbed.mockResolvedValue({ embed: { toJSON: () => ({}) }, isEmpty: false });
+		mockBuildStockpileListPayload.mockResolvedValue(v2Text('list body'));
+		mockCreate.mockResolvedValue({ _id: 'created1' });
 	});
 
 	function interaction(fields, extra = {}) {
@@ -53,7 +57,10 @@ describe('Modal stockpile add', () => {
 			client: { traductions: new Map(), user: { id: 'bot' } },
 			guild: extra.guild === null ? null : { id: 'g1' },
 			channelId: 'c1',
-			channel: { id: 'c1' },
+			channel: {
+				id: 'c1',
+				send: jest.fn().mockResolvedValue({ id: 'new-list' }),
+			},
 			user: { id: 'u1' },
 			fields: {
 				getTextInputValue: (id) => fields[id] ?? '',
@@ -69,7 +76,7 @@ describe('Modal stockpile add', () => {
 	it('refuse en DM', async () => {
 		const i = interaction({}, { guild: null });
 		await addModal.execute(i);
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'NO_DM' }));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('NO_DM', { ephemeral: true }));
 	});
 
 	it('refuse champs invalides', async () => {
@@ -80,7 +87,7 @@ describe('Modal stockpile add', () => {
 			stock_code: '12',
 		});
 		await addModal.execute(i);
-		const content = i.reply.mock.calls[0][0].content;
+		const content = getV2Text(i.reply.mock.calls[0][0]);
 		expect(content).toContain('STOCKPILE_INVALID_REGION');
 		expect(content).toContain('STOCKPILE_INVALID_NAME');
 		expect(content).toContain('STOCKPILE_INVALID_PASSWORD');
@@ -120,9 +127,39 @@ describe('Modal stockpile add', () => {
 		});
 		await addModal.execute(i);
 		expect(mockCreate).not.toHaveBeenCalled();
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'STOCKPILE_MAX_REACHED',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('STOCKPILE_MAX_REACHED:15', { ephemeral: true }));
+	});
+
+	it('rollback et DISPLAY_UPDATE_FAILED si edit Discord échoue', async () => {
+		const err = new Error('Invalid Form Body');
+		err.code = 50035;
+		editTrackedOrFallback.mockRejectedValueOnce(err);
+		mockDeleteOne.mockRejectedValueOnce(new Error('delete fail'));
+		const i = interaction({
+			stock_region: 'Basin',
+			stock_city: 'Town',
+			stock_name: 'Seaport Alpha',
+			stock_code: '123456',
+		});
+		await addModal.execute(i);
+		expect(mockCreate).toHaveBeenCalled();
+		expect(mockDeleteOne).toHaveBeenCalledWith({ _id: 'created1' });
+		expect(i.reply).toHaveBeenCalledWith(v2Text('DISPLAY_UPDATE_FAILED', { ephemeral: true }));
+		expect(sendToSubscribers).not.toHaveBeenCalled();
+	});
+
+	it('CREATE_ERROR si edit échoue pour une autre raison', async () => {
+		editTrackedOrFallback.mockRejectedValueOnce(new Error('weird'));
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const i = interaction({
+			stock_region: 'Basin',
+			stock_city: 'Town',
+			stock_name: 'Seaport Alpha',
+			stock_code: '123456',
+		});
+		await addModal.execute(i);
+		err.mockRestore();
+		expect(i.reply).toHaveBeenCalledWith(v2Text('STOCKPILE_CREATE_ERROR', { ephemeral: true }));
 	});
 
 	it('crée le stock et met à jour la liste', async () => {
@@ -138,19 +175,19 @@ describe('Modal stockpile add', () => {
 			server_id: 'g1',
 			name: 'Seaport Alpha',
 			password: '123456',
+			region: 'basin',
+			city: 'town',
 			owner_id: 'u1',
 		}));
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'STOCKPILE_CREATE_SUCCESS#6',
-		}));
+		expect(editTrackedOrFallback).toHaveBeenCalled();
+		expect(i.reply).toHaveBeenCalledWith(v2Text('STOCKPILE_CREATE_SUCCESS#6', { ephemeral: true }));
 		expect(sendToSubscribers).toHaveBeenCalled();
 		const factory = sendToSubscribers.mock.calls[0][3];
-		expect(factory({ translate: mockTranslate }).content).toContain('NOTIFICATION_STOCKPILE_ADDED');
-		expect(editTrackedOrFallback).toHaveBeenCalled();
+		expect(getV2Text(factory({ translate: mockTranslate }))).toContain('NOTIFICATION_STOCKPILE_ADDED');
 	});
 
 	it('met à jour liste vide après création', async () => {
-		mockBuildEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+		mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
 		const i = interaction({
 			stock_region: 'Basin',
 			stock_city: 'Town',
@@ -159,7 +196,7 @@ describe('Modal stockpile add', () => {
 		});
 		await addModal.execute(i);
 		expect(editTrackedOrFallback).toHaveBeenCalledWith(expect.objectContaining({
-			editPayload: expect.objectContaining({ content: 'STOCKPILE_LIST_EMPTY' }),
+			editPayload: v2Text('STOCKPILE_LIST_EMPTY'),
 		}));
 	});
 
@@ -174,15 +211,15 @@ describe('Modal stockpile add', () => {
 		});
 		await addModal.execute(i);
 		err.mockRestore();
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'STOCKPILE_CREATE_ERROR',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('STOCKPILE_CREATE_ERROR', { ephemeral: true }));
 	});
 
-	it('met à jour embed + composants si liste non vide', async () => {
-		const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
-		mockBuildEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
-		mockBuildComponents.mockResolvedValue([{ fake: 'row' }]);
+	it('met à jour payload V2 si liste non vide', async () => {
+		const payload = {
+			flags: MessageFlags.IsComponentsV2,
+			components: [{ toJSON: () => ({ type: 10, content: 'List' }) }],
+		};
+		mockBuildStockpileListPayload.mockResolvedValue(payload);
 		const i = interaction({
 			stock_region: 'Basin',
 			stock_city: 'Town',
@@ -190,9 +227,9 @@ describe('Modal stockpile add', () => {
 			stock_code: '123456',
 		});
 		await addModal.execute(i);
-		expect(mockBuildComponents).toHaveBeenCalled();
+		expect(mockBuildStockpileListPayload).toHaveBeenCalled();
 		expect(editTrackedOrFallback).toHaveBeenCalledWith(expect.objectContaining({
-			editPayload: expect.objectContaining({ embeds: [fakeEmbed] }),
+			editPayload: payload,
 		}));
 	});
 
@@ -208,7 +245,7 @@ describe('Modal stockpile add', () => {
 	});
 
 	it('exécute fallbackMatcher et fallbackSend liste vide', async () => {
-		mockBuildEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+		mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
 		const i = interaction({
 			stock_region: 'Basin',
 			stock_city: 'Town',
@@ -222,15 +259,15 @@ describe('Modal stockpile add', () => {
 			embeds: [{ title: '🔑 STOCKPILE_LIST_CODES' }],
 		}])).toBeTruthy();
 		await opts.fallbackSend();
-		expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'STOCKPILE_LIST_EMPTY',
-		}));
+		expect(i.channel.send).toHaveBeenCalled();
 	});
 
 	it('exécute fallbackSend liste non vide', async () => {
-		const fakeEmbed = { toJSON: () => ({ title: 'List' }) };
-		mockBuildEmbed.mockResolvedValue({ embed: fakeEmbed, isEmpty: false });
-		mockBuildComponents.mockResolvedValue([]);
+		const payload = {
+			flags: MessageFlags.IsComponentsV2,
+			components: [{ toJSON: () => ({ type: 10, content: 'List' }) }],
+		};
+		mockBuildStockpileListPayload.mockResolvedValue(payload);
 		const i = interaction({
 			stock_region: 'Basin',
 			stock_city: 'Town',
@@ -240,13 +277,40 @@ describe('Modal stockpile add', () => {
 		await addModal.execute(i);
 		const opts = editTrackedOrFallback.mock.calls[0][0];
 		await opts.fallbackSend();
-		expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-			embeds: [fakeEmbed],
-		}));
+		expect(i.channel.send).toHaveBeenCalled();
+	});
+
+	it('exécute fallbackMatcher V2 par contenu des components', async () => {
+		mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
+		const i = interaction({
+			stock_region: 'Basin',
+			stock_city: 'Town',
+			stock_name: 'Seaport Alpha',
+			stock_code: '123456',
+		});
+		await addModal.execute(i);
+		const opts = editTrackedOrFallback.mock.calls[0][0];
+		expect(opts.fallbackMatcher([{
+			author: { id: 'bot' },
+			embeds: [],
+			flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+			components: [{ content: '🔑 STOCKPILE_LIST_CODES' }],
+		}])).toBeTruthy();
+		expect(opts.fallbackMatcher([{
+			author: { id: 'bot' },
+			embeds: [],
+			flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+			components: null,
+		}])).toBeNull();
+		expect(opts.fallbackMatcher([{
+			author: { id: 'bot' },
+			embeds: [{ title: 'nope' }],
+			flags: { has: () => false },
+		}])).toBeNull();
 	});
 
 	it('exécute fallbackMatcher sans correspondance', async () => {
-		mockBuildEmbed.mockResolvedValue({ embed: null, isEmpty: true });
+		mockBuildStockpileListPayload.mockResolvedValue(v2Text('STOCKPILE_LIST_EMPTY'));
 		const i = interaction({
 			stock_region: 'Basin',
 			stock_city: 'Town',
@@ -280,7 +344,7 @@ describe('Modal stockpile add', () => {
 			client: { traductions: new Map(), user: { id: 'bot' } },
 			guild: { id: 'g1' },
 			channelId: 'c1',
-			channel: { id: 'c1' },
+			channel: { id: 'c1', send: jest.fn() },
 			user: { id: 'u1' },
 			fields: { getTextInputValue: () => undefined },
 			reply: jest.fn().mockResolvedValue(undefined),
@@ -289,7 +353,8 @@ describe('Modal stockpile add', () => {
 			deferred: false,
 		};
 		await addModal.execute(i);
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ flags: 64 }));
+		expect(Number(i.reply.mock.calls[0][0].flags) & MessageFlags.Ephemeral).toBeTruthy();
+		expect(Number(i.reply.mock.calls[0][0].flags) & MessageFlags.IsComponentsV2).toBeTruthy();
 	});
 
 	it('followUp CREATE_ERROR si déjà replied', async () => {
@@ -303,8 +368,6 @@ describe('Modal stockpile add', () => {
 		}, { replied: true });
 		await addModal.execute(i);
 		err.mockRestore();
-		expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'STOCKPILE_CREATE_ERROR',
-		}));
+		expect(i.followUp).toHaveBeenCalledWith(v2Text('STOCKPILE_CREATE_ERROR', { ephemeral: true }));
 	});
 });

@@ -1,3 +1,4 @@
+const { getV2Text, MessageFlags } = require('../helpers/v2Payload.js');
 const mockTranslate = jest.fn((key) => key);
 
 jest.mock('../../utils/translations.js', () => {
@@ -23,6 +24,8 @@ jest.mock('../../data/models.js', () => {
 
 	return { Server: ServerMock };
 });
+
+const { v2Text } = require('../../utils/componentsV2.js');
 
 describe('Slash command /setup', () => {
 	let setupCommand;
@@ -86,10 +89,7 @@ describe('Slash command /setup', () => {
 		await setupCommand.execute(interaction);
 
 		expect(ServerModel.findOne).toHaveBeenCalledWith({ guild_id: interaction.guild.id });
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'SERVER_IS_ALREADY_INIT',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_ALREADY_INIT', { ephemeral: true }));
 	});
 
 	it('crée un nouveau serveur, met à jour les traductions et renvoie un embed quand le serveur n’existe pas', async () => {
@@ -118,20 +118,16 @@ describe('Slash command /setup', () => {
 		// Vérifie la réponse envoyée
 		expect(interaction.reply).toHaveBeenCalledTimes(1);
 		const replyArg = interaction.reply.mock.calls[0][0];
-		expect(replyArg.content).toBe('SERVER_IS_INIT');
-		expect(replyArg.flags).toBe(64);
-		expect(replyArg.embeds).toHaveLength(1);
-
-		const embed = replyArg.embeds[0];
-		const embedData = embed.data ?? embed;
-		expect(embedData.title).toBe('SERVER_TITLE_CONFIGURATION');
-
-		const fields = embedData.fields ?? [];
-		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_NAME' && f.value === interaction.guild.name)).toBe(true);
-		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_ID' && f.value === interaction.guild.id)).toBe(true);
-		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_LANG' && f.value === 'en')).toBe(true);
-		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_CAMP' && f.value === 'warden')).toBe(true);
-		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_LOGS' && f.value === 'SERVER_LOGS_DISABLED')).toBe(true);
+		expect(Number(replyArg.flags) & MessageFlags.IsComponentsV2).toBeTruthy();
+		expect(Number(replyArg.flags) & MessageFlags.Ephemeral).toBeTruthy();
+		const body = getV2Text(replyArg);
+		expect(body).toContain('SERVER_IS_INIT');
+		expect(body).toContain('SERVER_TITLE_CONFIGURATION');
+		expect(body).toContain(interaction.guild.name);
+		expect(body).toContain(interaction.guild.id);
+		expect(body).toContain('en');
+		expect(body).toContain('warden');
+		expect(body).toContain('SERVER_LOGS_DISABLED');
 	});
 
 	it('enregistre logs:true quand l’option est passée', async () => {
@@ -141,9 +137,7 @@ describe('Slash command /setup', () => {
 		await setupCommand.execute(interaction);
 
 		expect(ServerModel).toHaveBeenCalledWith(expect.objectContaining({ logs: true }));
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = (embed.data ?? embed).fields ?? [];
-		expect(fields.some((f) => f.name === 'SERVER_FIELD_GUILD_LOGS' && f.value === 'SERVER_LOGS_ENABLED')).toBe(true);
+		expect(getV2Text(interaction.reply.mock.calls[0][0])).toContain('SERVER_LOGS_ENABLED');
 	});
 });
 

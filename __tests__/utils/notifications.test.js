@@ -8,6 +8,8 @@ jest.mock('../../data/models.js', () => ({
 }));
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('notifications utility', () => {
 	let notifications;
 
@@ -41,6 +43,8 @@ describe('notifications utility', () => {
 	});
 
 	describe('sendToSubscribers', () => {
+		const v2Payload = () => v2Text('Test');
+
 		it('ne fait rien si aucun abonnement', async () => {
 			mockFind.mockReturnValue({ lean: jest.fn().mockResolvedValue([]) });
 			const buildPayload = jest.fn();
@@ -56,7 +60,7 @@ describe('notifications utility', () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }, { channel_id: 'ch2' }]),
 			});
-			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const buildPayload = jest.fn().mockReturnValue(v2Payload());
 			const mockSend = jest.fn().mockResolvedValue(undefined);
 			const client = {
 				channels: {
@@ -72,13 +76,14 @@ describe('notifications utility', () => {
 			expect(client.channels.fetch).toHaveBeenCalledWith('ch1');
 			expect(client.channels.fetch).toHaveBeenCalledWith('ch2');
 			expect(mockSend).toHaveBeenCalledTimes(2);
+			expect(mockSend).toHaveBeenCalledWith(v2Text('Test'));
 		});
 
 		it('ignore les canaux d\'une autre guild', async () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
 			});
-			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const buildPayload = jest.fn().mockReturnValue(v2Payload());
 			const mockSend = jest.fn();
 			const client = {
 				channels: {
@@ -99,7 +104,7 @@ describe('notifications utility', () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
 			});
-			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const buildPayload = jest.fn().mockReturnValue(v2Payload());
 			const mockSend = jest.fn();
 			const client = {
 				channels: {
@@ -120,7 +125,7 @@ describe('notifications utility', () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }, { channel_id: 'ch2' }]),
 			});
-			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const buildPayload = jest.fn().mockReturnValue(v2Payload());
 			const mockSend = jest.fn().mockResolvedValue(undefined);
 			const client = {
 				channels: {
@@ -139,7 +144,7 @@ describe('notifications utility', () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }, { channel_id: 'ch2' }]),
 			});
-			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const buildPayload = jest.fn().mockReturnValue(v2Payload());
 			const mockSend = jest.fn().mockResolvedValue(undefined);
 			const client = {
 				channels: {
@@ -158,7 +163,7 @@ describe('notifications utility', () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
 			});
-			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const buildPayload = jest.fn().mockReturnValue(v2Payload());
 			const client = {
 				channels: {
 					fetch: jest.fn().mockImplementation(() => {
@@ -175,7 +180,7 @@ describe('notifications utility', () => {
 			mockFind.mockReturnValue({
 				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
 			});
-			const buildPayload = jest.fn().mockReturnValue({ content: 'Test' });
+			const buildPayload = jest.fn().mockReturnValue(v2Payload());
 			const client = {
 				channels: {
 					fetch: jest.fn().mockResolvedValue({
@@ -188,6 +193,17 @@ describe('notifications utility', () => {
 
 			await expect(notifications.sendToSubscribers(client, 'guild-1', 'stockpile_activity', buildPayload))
 				.resolves.toBeUndefined();
+		});
+
+		it('rejette un buildPayload legacy (content)', async () => {
+			mockFind.mockReturnValue({
+				lean: jest.fn().mockResolvedValue([{ channel_id: 'ch1' }]),
+			});
+			const buildPayload = jest.fn().mockReturnValue({ content: 'legacy' });
+			const client = { channels: { fetch: jest.fn() } };
+
+			await expect(notifications.sendToSubscribers(client, 'guild-1', 'stockpile_activity', buildPayload))
+				.rejects.toThrow(/content/);
 		});
 	});
 });

@@ -320,6 +320,8 @@
 	"AUTH_BODY_LARGE": "请求体过大",
 	"AUTH_JSON": "无效 JSON",
 	"kpi.seen": "{n} 已见",
+	"kpi.vus": "已见",
+	"kpi.activeCount": "{n} 活跃",
 	"kpi.members": "成员",
 	"kpi.boardsLabel": "面板",
 	"kpi.boardsOpen": "{n} 个开放",

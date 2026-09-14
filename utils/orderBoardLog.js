@@ -4,6 +4,7 @@ const { ChannelType } = require('discord.js');
 const { OrderBoard, TrackedMessage, Server } = require('../data/models.js');
 const Translate = require('./translations.js');
 const { MESSAGE_TYPE_BOARD } = require('../interactions/embeds/orderBoard.js');
+const { sendV2, v2Text } = require('./componentsV2.js');
 
 /**
  * @param {string} guildId
@@ -88,7 +89,7 @@ async function appendOrderLog(client, board, content) {
 	if (!(await isOrderLogsEnabled(board.guild_id))) return false;
 	const thread = await resolveLogThread(client, board);
 	if (!thread) return false;
-	await thread.send({ content: String(content).slice(0, 2000) }).catch(() => undefined);
+	await sendV2(thread, v2Text(String(content).slice(0, 2000))).catch(() => undefined);
 	return true;
 }
 

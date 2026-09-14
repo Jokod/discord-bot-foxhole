@@ -1,6 +1,8 @@
-const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { Server } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
+const { v2Text, buildV2Payload } = require('../../../utils/componentsV2.js');
+const { getRandomColor } = require('../../../utils/colors.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -89,10 +91,7 @@ module.exports = {
 		const translations = new Translate(interaction.client, guild.id);
 
 		if (server) {
-			await interaction.reply({
-				content: translations.translate('SERVER_IS_ALREADY_INIT'),
-				flags: 64,
-			});
+			await interaction.reply(v2Text(translations.translate('SERVER_IS_ALREADY_INIT'), { ephemeral: true }));
 			return;
 		}
 
@@ -111,24 +110,22 @@ module.exports = {
 
 		interaction.client.traductions.set(guild.id, lang);
 
-		const embed = new EmbedBuilder()
-			.setTitle(translations.translate('SERVER_TITLE_CONFIGURATION'))
-			.addFields(
-				{ name: translations.translate('SERVER_FIELD_GUILD_NAME'), value: guild.name, inline: false },
-				{ name: translations.translate('SERVER_FIELD_GUILD_ID'), value: guild.id, inline: false },
-				{ name: translations.translate('SERVER_FIELD_GUILD_LANG'), value: newServer.lang, inline: false },
-				{ name: translations.translate('SERVER_FIELD_GUILD_CAMP'), value: newServer.camp, inline: false },
-				{
-					name: translations.translate('SERVER_FIELD_GUILD_LOGS'),
-					value: translations.translate(logs ? 'SERVER_LOGS_ENABLED' : 'SERVER_LOGS_DISABLED'),
-					inline: false,
-				},
-			);
+		const body = [
+			`**${translations.translate('SERVER_TITLE_CONFIGURATION')}**`,
+			'',
+			`**${translations.translate('SERVER_FIELD_GUILD_NAME')}:** ${guild.name}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_ID')}:** ${guild.id}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_LANG')}:** ${newServer.lang}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_CAMP')}:** ${newServer.camp}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_LOGS')}:** ${translations.translate(logs ? 'SERVER_LOGS_ENABLED' : 'SERVER_LOGS_DISABLED')}`,
+			'',
+			translations.translate('SERVER_IS_INIT'),
+		].join('\n');
 
-		return interaction.reply({
-			content: translations.translate('SERVER_IS_INIT'),
-			embeds: [embed],
-			flags: 64,
-		});
+		return interaction.reply(buildV2Payload({
+			children: [body],
+			ephemeral: true,
+			accentColor: getRandomColor(),
+		}));
 	},
 };

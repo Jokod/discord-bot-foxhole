@@ -320,6 +320,8 @@
 	"AUTH_BODY_LARGE": "Request body too large",
 	"AUTH_JSON": "Invalid JSON",
 	"kpi.seen": "{n} seen",
+	"kpi.vus": "Seen",
+	"kpi.activeCount": "{n} active",
 	"kpi.members": "Members",
 	"kpi.boardsLabel": "Boards",
 	"kpi.boardsOpen": "{n} open",

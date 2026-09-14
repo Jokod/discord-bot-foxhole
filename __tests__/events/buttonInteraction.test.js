@@ -9,6 +9,8 @@ jest.mock('../../data/models.js', () => ({
 	Server: { findOne: (...args) => mockServerFindOne(...args) },
 }));
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('buttonInteraction event', () => {
 	let buttonInteraction;
 
@@ -68,10 +70,7 @@ describe('buttonInteraction event', () => {
 		await buttonInteraction.execute(interaction);
 
 		expect(mockExecute).not.toHaveBeenCalled();
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'SERVER_IS_NOT_INIT',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_NOT_INIT', { ephemeral: true }));
 	});
 
 	it('exécute la commande si serveur présent et command non init', async () => {
@@ -104,10 +103,7 @@ describe('buttonInteraction event', () => {
 
 		await buttonInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'COMMAND_EXECUTE_ERROR',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		expect(consoleSpy).toHaveBeenCalled();
 
 		consoleSpy.mockRestore();
@@ -122,10 +118,7 @@ describe('buttonInteraction event', () => {
 
 		await buttonInteraction.execute(interaction);
 
-		expect(followUp).toHaveBeenCalledWith({
-			content: 'COMMAND_EXECUTE_ERROR',
-			flags: 64,
-		});
+		expect(followUp).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 

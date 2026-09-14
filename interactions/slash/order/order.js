@@ -5,6 +5,8 @@ const { Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 const { canManageBoard } = require('../../../utils/order-permissions.js');
+const { botCanPostInChannel } = require('../../../utils/discordAccess.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
 const {
 	createBoard,
 	deleteBoard,
@@ -172,26 +174,21 @@ module.exports = {
 			const to = options.getString('destination')?.trim() || null;
 
 			if (!name) {
-				return interaction.reply({
-					content: translations.translate('ORDER_INVALID_NAME'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('ORDER_INVALID_NAME'), { ephemeral: true }));
 			}
 
 			if (operationId) {
 				const op = await Operation.findOne({ guild_id: guild.id, operation_id: operationId });
 				if (!op) {
-					return interaction.reply({
-						content: translations.translate('OPERATION_NOT_EXIST'),
-						flags: 64,
-					});
+					return interaction.reply(v2Text(translations.translate('OPERATION_NOT_EXIST'), { ephemeral: true }));
 				}
 				if (op.status === 'finished') {
-					return interaction.reply({
-						content: translations.translate('ORDER_OPERATION_FINISHED'),
-						flags: 64,
-					});
+					return interaction.reply(v2Text(translations.translate('ORDER_OPERATION_FINISHED'), { ephemeral: true }));
 				}
+			}
+
+			if (!botCanPostInChannel(channel, guild)) {
+				return interaction.reply(v2Text(translations.translate('BOT_MISSING_CHANNEL_ACCESS'), { ephemeral: true }));
 			}
 
 			await interaction.deferReply({ flags: 64 });
@@ -214,9 +211,9 @@ module.exports = {
 			}
 			catch (err) {
 				if (err.code === 'ORDER_ALREADY_EXISTS') {
-					return interaction.editReply({
-						content: translations.translate('ORDER_ALREADY_EXISTS', { name: safeEscapeMarkdown(name) }),
-					});
+					return interaction.editReply(v2Text(
+						translations.translate('ORDER_ALREADY_EXISTS', { name: safeEscapeMarkdown(name) }),
+					));
 				}
 				throw err;
 			}
@@ -225,25 +222,19 @@ module.exports = {
 		case 'remove': {
 			const name = options.getString('name').trim();
 			if (!name) {
-				return interaction.reply({
-					content: translations.translate('ORDER_INVALID_NAME'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('ORDER_INVALID_NAME'), { ephemeral: true }));
 			}
 
 			const board = await findBoardByChannelAndName(guild.id, channel.id, name);
 			if (!board) {
-				return interaction.reply({
-					content: translations.translate('ORDER_NOT_EXIST', { name: safeEscapeMarkdown(name) }),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(
+					translations.translate('ORDER_NOT_EXIST', { name: safeEscapeMarkdown(name) }),
+					{ ephemeral: true },
+				));
 			}
 
 			if (!canManageBoard(interaction, board)) {
-				return interaction.reply({
-					content: translations.translate('ORDER_CANNOT_MANAGE_ERROR'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('ORDER_CANNOT_MANAGE_ERROR'), { ephemeral: true }));
 			}
 
 			await interaction.deferReply({ flags: 64 });

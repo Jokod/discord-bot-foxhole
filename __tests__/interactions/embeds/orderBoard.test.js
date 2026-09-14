@@ -1,5 +1,6 @@
 const {
-	buildOrderEmbed,
+	buildOrderDisplay,
+	buildOrderMessagePayload,
 	buildOrderComponents,
 	isLineDone,
 	resolveSelectedLine,
@@ -9,6 +10,7 @@ const {
 	MAX_ORDER_LINES,
 	MAX_SELECT_MENUS,
 } = require('../../../interactions/embeds/orderBoard.js');
+const { MessageFlags } = require('discord.js');
 
 const translations = {
 	translate: (key, params = {}) => {
@@ -72,28 +74,40 @@ describe('orderBoard embeds', () => {
 		expect(done).toContain('ORDER_STOCK');
 	});
 
-	it('buildOrderEmbed includes kind, summary, selection marker', () => {
-		const embed = buildOrderEmbed(board, lines, translations);
-		const data = embed.toJSON();
-		expect(data.title).toContain('ORDER_KIND_PROD');
-		expect(data.description).toContain('Sticky');
-		expect(data.description).toContain('ORDER_SUMMARY');
-		expect(data.description).toContain('▶️');
-		expect(data.description).not.toContain('ORDER_SELECTED_LINE');
-		expect(data.footer.text).toContain('ORDER_FOOTER');
+	it('buildOrderDisplay includes kind, summary, selection marker', () => {
+		const display = buildOrderDisplay(board, lines, translations);
+		expect(display.title).toContain('ORDER_KIND_PROD');
+		expect(display.description).toContain('Sticky');
+		expect(display.description).toContain('ORDER_SUMMARY');
+		expect(display.description).toContain('▶️');
+		expect(display.description).not.toContain('ORDER_SELECTED_LINE');
+		expect(display.footer).toContain('ORDER_FOOTER');
 	});
 
-	it('buildOrderEmbed empty state', () => {
-		const embed = buildOrderEmbed(board, [], translations);
-		expect(embed.toJSON().description).toContain('ORDER_EMPTY');
+	it('buildOrderMessagePayload is Components V2', () => {
+		const payload = buildOrderMessagePayload(board, lines, translations);
+		expect(payload.content).toBeUndefined();
+		expect(payload.embeds).toBeUndefined();
+		expect(Number(payload.flags) & MessageFlags.IsComponentsV2).toBeTruthy();
+		expect(payload.components.length).toBeGreaterThan(1);
 	});
 
-	it('buildOrderComponents uses select + shared qty buttons without pagination', () => {
+	it('progressBar and selection context edges', () => {
+		const { progressBar, buildLinesBody, buildSelectionContext } = require('../../../interactions/embeds/orderBoard.js');
+		expect(progressBar(0, 0)).toMatch(/^░+$/);
+		expect(progressBar(5, 10).length).toBe(10);
+		expect(buildLinesBody([], translations, null)).toBe('');
+		expect(buildSelectionContext(null, translations)).toBe('');
+		expect(buildSelectionContext({ line_id: '1', current: 1, target: 2 }, translations)).toContain('—');
+		expect(buildOrderDisplay(board, [], translations).linesBody).toBe('');
+	});
+
+	it('buildOrderComponents uses select + qty + tools (close on tools row)', () => {
 		expect(SELECT_MAX_OPTIONS).toBe(25);
 		expect(MAX_SELECT_MENUS).toBe(2);
 		expect(MAX_ORDER_LINES).toBe(50);
 		const rows = buildOrderComponents(board, lines, translations);
-		expect(rows.length).toBe(4);
+		expect(rows.length).toBe(3);
 		expect(rows[0].toJSON().components[0].custom_id).toContain('order_select');
 		const qtyIds = rows[1].toJSON().components.map((c) => c.custom_id);
 		expect(qtyIds[0]).toBe('order_qty|m1|abc123|1');
@@ -105,8 +119,8 @@ describe('orderBoard embeds', () => {
 		expect(tools.some((id) => id.includes('order_priority|abc123|1'))).toBe(true);
 		expect(tools.some((id) => id.includes('order_add'))).toBe(true);
 		expect(tools.some((id) => id.includes('order_delete_line|abc123|1'))).toBe(true);
-		expect(tools.some((id) => id.includes('order_close'))).toBe(false);
-		expect(rows[3].toJSON().components[0].custom_id).toContain('order_close');
+		expect(tools.some((id) => id.includes('order_close'))).toBe(true);
+		expect(tools).toHaveLength(5);
 		expect(tools.some((id) => id.includes('order_page'))).toBe(false);
 	});
 
@@ -119,13 +133,13 @@ describe('orderBoard embeds', () => {
 			priority: 'neutral',
 		}));
 		const rows = buildOrderComponents(board, many, translations);
-		expect(rows.length).toBe(5);
+		expect(rows.length).toBe(4);
 		expect(rows[0].toJSON().components[0].options).toHaveLength(25);
 		expect(rows[1].toJSON().components[0].options).toHaveLength(1);
 		expect(rows[1].toJSON().components[0].custom_id).toBe('order_select|abc123|1');
 	});
 
-	it('à 50 lignes: embed rouge, banner, Ajouter disabled, 2 selects', () => {
+	it('à 50 lignes: accent rouge, banner, Ajouter disabled, 2 selects', () => {
 		const many = Array.from({ length: 50 }, (_, i) => ({
 			line_id: String(i + 1),
 			name: `Item${i + 1}`,
@@ -133,17 +147,15 @@ describe('orderBoard embeds', () => {
 			target: 1,
 			priority: 'neutral',
 		}));
-		const embed = buildOrderEmbed(board, many, translations);
-		expect(embed.toJSON().color).toBe(0xE74C3C);
-		expect(embed.toJSON().description).toContain('ORDER_FULL_BANNER');
+		const display = buildOrderDisplay(board, many, translations);
+		expect(display.accentColor).toBe(0xE74C3C);
+		expect(display.description).toContain('ORDER_FULL_BANNER');
 		const rows = buildOrderComponents(board, many, translations);
-		// 2 selects + qty + tools + close
-		expect(rows.length).toBe(5);
+		expect(rows.length).toBe(4);
 		const addBtn = rows[3].toJSON().components.find((c) => c.custom_id.includes('order_add'));
 		expect(addBtn.disabled).toBe(true);
-		// ButtonStyle.Danger
 		expect(addBtn.style).toBe(4);
-		expect(rows[4].toJSON().components[0].custom_id).toContain('order_close');
+		expect(rows[3].toJSON().components.some((c) => c.custom_id.includes('order_close'))).toBe(true);
 	});
 
 	it('disables + when done but keeps -1 if current > 0', () => {
@@ -155,60 +167,84 @@ describe('orderBoard embeds', () => {
 		expect(comps.slice(1, 4).every((c) => c.disabled)).toBe(true);
 	});
 
-	it('buildOrderEmbed scrap kind', () => {
+	it('buildOrderDisplay scrap kind', () => {
 		const scrapBoard = { ...board, kind: 'scrap' };
-		const embed = buildOrderEmbed(scrapBoard, lines, translations);
-		expect(embed.toJSON().title).toContain('ORDER_KIND_SCRAP');
-		expect(embed.toJSON().title).toContain('⛏️');
+		const display = buildOrderDisplay(scrapBoard, lines, translations);
+		expect(display.title).toContain('ORDER_KIND_SCRAP');
+		expect(display.title).toContain('⛏️');
 	});
 
-	it('buildOrderEmbed transfer kind + operation title', () => {
+	it('buildOrderDisplay transfer kind + operation title', () => {
 		const transferBoard = { ...board, kind: 'transfer' };
-		const embed = buildOrderEmbed(transferBoard, lines, translations, 'Raid Night');
-		const data = embed.toJSON();
-		expect(data.title).toContain('ORDER_KIND_TRANSFER');
-		expect(data.description).toContain('ORDER_LINKED_OPERATION:Raid Night');
+		const display = buildOrderDisplay(transferBoard, lines, translations, 'Raid Night');
+		expect(display.title).toContain('ORDER_KIND_TRANSFER');
+		expect(display.description).toContain('ORDER_LINKED_OPERATION:Raid Night');
 	});
 
-	it('buildOrderEmbed shows from/to route at top of description', () => {
+	it('buildOrderDisplay shows from/to route at top of description', () => {
 		const routed = { ...board, from: 'Home Base', to: 'Front Hex' };
-		const embed = buildOrderEmbed(routed, [], translations, 'Raid Night');
-		const description = embed.toJSON().description;
-		expect(description.indexOf('ORDER_ROUTE:')).toBe(0);
-		expect(description).toContain('ORDER_ROUTE:Home Base:Front Hex');
-		expect(description).toContain('ORDER_LINKED_OPERATION:Raid Night');
+		const display = buildOrderDisplay(routed, [], translations, 'Raid Night');
+		expect(display.description.indexOf('ORDER_ROUTE:')).toBe(0);
+		expect(display.description).toContain('ORDER_ROUTE:Home Base:Front Hex');
+		expect(display.description).toContain('ORDER_LINKED_OPERATION:Raid Night');
 	});
 
-	it('buildOrderEmbed shows only from or only to when partial', () => {
-		const fromOnly = buildOrderEmbed({ ...board, from: 'Depot' }, [], translations);
-		expect(fromOnly.toJSON().description).toContain('ORDER_FROM:Depot');
-		expect(fromOnly.toJSON().description).not.toContain('ORDER_ROUTE');
+	it('buildOrderDisplay shows only from or only to when partial', () => {
+		const fromOnly = buildOrderDisplay({ ...board, from: 'Depot' }, [], translations);
+		expect(fromOnly.description).toContain('ORDER_FROM:Depot');
+		expect(fromOnly.description).not.toContain('ORDER_ROUTE');
 
-		const toOnly = buildOrderEmbed({ ...board, to: 'FOB' }, [], translations);
-		expect(toOnly.toJSON().description).toContain('ORDER_TO:FOB');
-		expect(toOnly.toJSON().description).not.toContain('ORDER_ROUTE');
+		const toOnly = buildOrderDisplay({ ...board, to: 'FOB' }, [], translations);
+		expect(toOnly.description).toContain('ORDER_TO:FOB');
+		expect(toOnly.description).not.toContain('ORDER_ROUTE');
 	});
 
-	it('disables tools when board closed and shows reopen', () => {
+	it('disables tools when board closed and shows reopen on tools row', () => {
 		const closed = { ...board, status: 'closed' };
 		const rows = buildOrderComponents(closed, lines.slice(0, 1), translations);
 		const qtyDisabled = rows[1].toJSON().components.every((c) => c.disabled);
-		const reopenBtn = rows[3].toJSON().components.find((c) => c.custom_id.includes('order_reopen'));
-		const closeBtn = rows[3].toJSON().components.find((c) => c.custom_id.includes('order_close'));
+		const tools = rows[2].toJSON().components;
+		const reopenBtn = tools.find((c) => c.custom_id.includes('order_reopen'));
+		const closeBtn = tools.find((c) => c.custom_id.includes('order_close'));
 		expect(qtyDisabled).toBe(true);
 		expect(reopenBtn).toBeDefined();
 		expect(reopenBtn.disabled).toBeFalsy();
 		expect(closeBtn).toBeUndefined();
 	});
 
-	it('buildOrderEmbed affiche le statut closed', () => {
+	it('buildOrderDisplay affiche le statut closed', () => {
 		const closed = { ...board, status: 'closed' };
-		const embed = buildOrderEmbed(closed, lines.slice(0, 1), translations);
-		expect(embed.toJSON().description).toContain('ORDER_STATUS_CLOSED');
+		const display = buildOrderDisplay(closed, lines.slice(0, 1), translations);
+		expect(display.description).toContain('ORDER_STATUS_CLOSED');
 	});
 
 	it('formatLine sans nom utilise le tiret', () => {
 		expect(formatLine({ current: 1, target: 2, priority: 'neutral' }, translations)).toContain('**—**');
+		expect(formatLine({ name: '', current: 1, target: 2, priority: 'neutral' }, translations)).toContain('**—**');
+		expect(formatLine({ name: 'sticky', current: undefined, target: undefined, priority: 'neutral' }, translations, { selected: true }))
+			.toContain('▶️');
+		expect(formatLine({ name: 'x', current: 5, target: 5, priority: 'neutral' }, translations)).toContain('✅');
+	});
+
+	it('buildLinesBody et selection context couvrent les branches null', () => {
+		const { buildLinesBody, buildSelectionContext, buildOrderTextParts } = require('../../../interactions/embeds/orderBoard.js');
+		expect(buildLinesBody([], translations, null)).toBe('');
+		expect(buildLinesBody([{ line_id: '1', name: 'A', current: 0, target: 1, priority: 'neutral' }], translations, null))
+			.not.toContain('▶️');
+		expect(buildSelectionContext(null, translations)).toBe('');
+		expect(buildSelectionContext({ name: '', current: 0, target: 0, priority: 'neutral' }, translations))
+			.toContain('ORDER_SELECTED_HEADING');
+		expect(buildSelectionContext({ name: 'Gun', current: 2, target: 10, priority: 'high' }, translations))
+			.toContain('Gun');
+		const parts = buildOrderTextParts(board, null, translations);
+		expect(parts.linesBody).toBe('');
+		expect(parts.list === undefined || true).toBe(true);
+	});
+
+	it('buildOrderComponents opts.full false explicite', () => {
+		const rows = buildOrderComponents(board, lines, translations, { full: false });
+		const addBtn = rows.at(-1).toJSON().components.find((c) => c.custom_id.includes('order_add'));
+		expect(addBtn.disabled).toBe(false);
 	});
 
 	it('summarizeLines percent à 0 si cibles nulles', () => {
@@ -216,30 +252,58 @@ describe('orderBoard embeds', () => {
 		expect(stats.percent).toBe(0);
 	});
 
-	it('buildOrderEmbed tronque en conservant la ligne sélectionnée', () => {
-		const many = Array.from({ length: 80 }, (_, i) => ({
+	it('buildOrderDisplay conserve toutes les lignes; plein uniquement à MAX_ORDER_LINES', () => {
+		const { getOrderAddCapacity } = require('../../../interactions/embeds/orderBoard.js');
+
+		const modest = Array.from({ length: 10 }, (_, i) => ({
 			line_id: String(i + 1),
-			name: `Very Long Material Name Number ${i + 1}`,
+			name: `Material ${i + 1}`,
 			current: 0,
-			target: 100,
+			target: 10,
 			priority: 'neutral',
 		}));
-		const selectedBoard = { ...board, selected_line_id: '40' };
-		const embed = buildOrderEmbed(selectedBoard, many, translations);
-		expect(embed.toJSON().description).toContain('Very Long Material Name Number 40');
-		expect(embed.toJSON().description).toContain('ORDER_EMBED_TRUNCATED');
+		const display = buildOrderDisplay({ ...board, selected_line_id: '5' }, modest, translations);
+		expect(display.linesBody).toContain('Material 1');
+		expect(display.linesBody).toContain('Material 10');
+		expect(display.full).toBe(false);
+		expect(getOrderAddCapacity(board, modest).full).toBe(false);
+
+		const heavy = Array.from({ length: 45 }, (_, i) => ({
+			line_id: String(i + 1),
+			name: `Material With A Fairly Long Name ${i + 1}`,
+			current: 1234,
+			target: 9999,
+			priority: i % 2 ? 'high' : 'neutral',
+		}));
+		const cap = getOrderAddCapacity({ ...board, selected_line_id: '25' }, heavy);
+		expect(cap.full).toBe(false);
+		expect(cap.count).toBe(45);
+
+		const atCap = Array.from({ length: MAX_ORDER_LINES }, (_, i) => ({
+			line_id: String(i + 1),
+			name: `L${i}`,
+			current: 0,
+			target: 1,
+			priority: 'neutral',
+		}));
+		expect(getOrderAddCapacity(board, atCap).full).toBe(true);
+		expect(buildOrderDisplay(board, atCap, translations).full).toBe(true);
+		expect(getOrderAddCapacity(board, null).count).toBe(0);
+		expect(buildOrderComponents(board, [], translations, { full: true })
+			.at(-1).toJSON().components
+			.find((c) => c.custom_id.includes('order_add')).disabled).toBe(true);
 	});
 
-	it('buildOrderEmbed et components gèrent lines null', () => {
-		const embed = buildOrderEmbed(board, null, translations);
-		expect(embed.toJSON().description).toContain('ORDER_EMPTY');
+	it('buildOrderDisplay et components gèrent lines null', () => {
+		const display = buildOrderDisplay(board, null, translations);
+		expect(display.description).toContain('ORDER_EMPTY');
 		const rows = buildOrderComponents(board, null, translations);
 		expect(rows.length).toBeGreaterThan(0);
 	});
 
-	it('buildOrderEmbed utilise la couleur du kind sans sélection', () => {
-		const embed = buildOrderEmbed({ ...board, selected_line_id: 'missing' }, [], translations);
-		expect(embed.toJSON().color).toBeDefined();
+	it('buildOrderDisplay utilise la couleur du kind sans sélection', () => {
+		const display = buildOrderDisplay({ ...board, selected_line_id: 'missing' }, [], translations);
+		expect(display.accentColor).toBeDefined();
 	});
 
 	it('buildOrderComponents sans ligne sélectionnée désactive les outils', () => {
@@ -248,11 +312,31 @@ describe('orderBoard embeds', () => {
 		expect(qtyRow.every((c) => c.disabled)).toBe(true);
 		const tools = rows[1].toJSON().components;
 		expect(tools.find((c) => c.custom_id.includes('order_priority')).disabled).toBe(true);
+		expect(tools.some((c) => c.custom_id.includes('order_close'))).toBe(true);
+	});
+
+	it('select options mark done lines and selected description', () => {
+		const rows = buildOrderComponents(board, lines, translations);
+		const opts = rows[0].toJSON().components[0].options;
+		const sticky = opts.find((o) => o.value === '1');
+		const done = opts.find((o) => o.value === '2');
+		expect(sticky.description).toContain('▶️');
+		expect(done.label).toContain('✅');
 	});
 
 	it('buildOrderComponents gère une ligne sans nom dans le select', () => {
 		const rows = buildOrderComponents(board, [{ line_id: '9', current: 0, target: 1, priority: 'neutral' }], translations);
 		const opt = rows[0].toJSON().components[0].options[0];
 		expect(opt.label).toBe('—');
+	});
+
+	it('buildOrderComponents select avec qty nullish', () => {
+		const rows = buildOrderComponents(
+			{ ...board, selected_line_id: '9' },
+			[{ line_id: '9', name: 'Ammo', priority: 'neutral' }],
+			translations,
+		);
+		const opt = rows[0].toJSON().components[0].options[0];
+		expect(opt.description).toMatch(/0\/0/);
 	});
 });

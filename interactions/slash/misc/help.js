@@ -1,7 +1,8 @@
-const { EmbedBuilder, SlashCommandBuilder, ApplicationCommandOptionType } = require('discord.js');
+const { SlashCommandBuilder, ApplicationCommandOptionType } = require('discord.js');
 const { getRandomColor } = require('../../../utils/colors.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
+const { buildV2Payload, joinBlocks } = require('../../../utils/componentsV2.js');
 
 const SUB_TYPES = new Set([
 	ApplicationCommandOptionType.Subcommand,
@@ -172,20 +173,29 @@ function resolveSlashCommand(slashCommands, baseName, lang) {
 	return null;
 }
 
-function applyNotFound(helpEmbed, translations, rawName, slashCommands, lang) {
+function buildNotFoundBody(translations, rawName, slashCommands, lang) {
 	const names = listCommandNames(slashCommands, lang);
-	helpEmbed
-		.setDescription(
-			[
-				translations.translate('HELP_COMMAND_NOT_FOUND', {
-					command: safeEscapeMarkdown(rawName),
-				}),
-				translations.translate('HELP_NOT_FOUND_HINT', {
-					commands: '`' + names.join('`, `') + '`',
-				}),
-			].join('\n'),
-		)
-		.setColor(0xFF0000);
+	return [
+		translations.translate('HELP_COMMAND_NOT_FOUND', {
+			command: safeEscapeMarkdown(rawName),
+		}),
+		translations.translate('HELP_NOT_FOUND_HINT', {
+			commands: '`' + names.join('`, `') + '`',
+		}),
+	].join('\n');
+}
+
+function replyHelp(interaction, title, body, { accentColor, footer } = {}) {
+	const zones = [
+		`### ${title}`,
+		body,
+		footer ? `*${footer}*` : null,
+	];
+	return interaction.reply(buildV2Payload({
+		children: joinBlocks(zones, { break: 'large' }),
+		ephemeral: true,
+		accentColor: accentColor ?? getRandomColor(),
+	}));
 }
 
 module.exports = {
@@ -231,7 +241,6 @@ module.exports = {
 		let currentLang = interaction.client.traductions.get(guildId);
 		if (!interaction.client.languages.has(currentLang)) currentLang = 'en';
 
-		const helpEmbed = new EmbedBuilder().setColor(getRandomColor());
 		const rawName = interaction.options.getString('command');
 		const slashCommands = interaction.client.slashCommands;
 
@@ -245,18 +254,12 @@ module.exports = {
 				})
 				.sort((a, b) => a.localeCompare(b));
 
-			helpEmbed
-				.setTitle(translations.translate('HELP_TITLE_LIST'))
-				.setDescription(
-					[
-						lines.join('\n'),
-						'',
-						translations.translate('HELP_LIST_HINT'),
-					].join('\n'),
-				);
-
-			await interaction.reply({ embeds: [helpEmbed], flags: 64 });
-			return;
+			return replyHelp(
+				interaction,
+				translations.translate('HELP_TITLE_LIST'),
+				lines.join('\n'),
+				{ footer: translations.translate('HELP_LIST_HINT') },
+			);
 		}
 
 		const name = rawName.toLowerCase().trim();
@@ -267,16 +270,16 @@ module.exports = {
 		}
 		const subPath = parts.slice(1);
 
-		helpEmbed.setTitle(
-			translations.translate('HELP_TITLE_COMMAND', { command: safeEscapeMarkdown(rawName) }),
-		);
-
+		const title = translations.translate('HELP_TITLE_COMMAND', { command: safeEscapeMarkdown(rawName) });
 		const command = resolveSlashCommand(slashCommands, baseName, currentLang);
 
 		if (!command) {
-			applyNotFound(helpEmbed, translations, rawName, slashCommands, currentLang);
-			await interaction.reply({ embeds: [helpEmbed], flags: 64 });
-			return;
+			return replyHelp(
+				interaction,
+				title,
+				buildNotFoundBody(translations, rawName, slashCommands, currentLang),
+				{ accentColor: 0xFF0000 },
+			);
 		}
 
 		const data = command.data.toJSON();
@@ -287,33 +290,30 @@ module.exports = {
 			const { target: targetSub, pathNames } = resolveSubcommand(options, subPath, currentLang);
 
 			if (!targetSub) {
-				applyNotFound(helpEmbed, translations, rawName, slashCommands, currentLang);
-				await interaction.reply({ embeds: [helpEmbed], flags: 64 });
-				return;
+				return replyHelp(
+					interaction,
+					title,
+					buildNotFoundBody(translations, rawName, slashCommands, currentLang),
+					{ accentColor: 0xFF0000 },
+				);
 			}
 
 			const params = targetSub.options ?? [];
-			helpEmbed.setDescription(localizedDesc(targetSub, currentLang));
-
-			helpEmbed.addFields({
-				name: translations.translate('HELP_SECTION_USAGE'),
-				value: formatUsageLine(baseDisplayName, pathNames, params, currentLang, translations),
-			});
+			const sections = [localizedDesc(targetSub, currentLang)];
+			sections.push('', `**${translations.translate('HELP_SECTION_USAGE')}**`);
+			sections.push(formatUsageLine(baseDisplayName, pathNames, params, currentLang, translations));
 
 			if (params.length > 0) {
 				const lines = params.map((p) => formatParamLine(p, currentLang, translations));
-				helpEmbed.addFields({
-					name: translations.translate('HELP_SECTION_PARAMETERS'),
-					value: lines.join('\n'),
-				});
+				sections.push('', `**${translations.translate('HELP_SECTION_PARAMETERS')}**`);
+				sections.push(lines.join('\n'));
 			}
 
-			await interaction.reply({ embeds: [helpEmbed], flags: 64 });
-			return;
+			return replyHelp(interaction, title, sections.join('\n'));
 		}
 
 		const localizedDescription = localizedDesc(data, currentLang);
-		helpEmbed.setDescription(localizedDescription || '—');
+		const sections = [localizedDescription || '—'];
 
 		const subcommands = options.filter((o) => SUB_TYPES.has(o.type));
 		const params = options.filter((o) => !SUB_TYPES.has(o.type));
@@ -344,12 +344,10 @@ module.exports = {
 				}
 			}
 
-			helpEmbed.addFields({
-				name: translations.translate('HELP_SECTION_SUBCOMMANDS'),
-				value: lines.length > 0
-					? lines.join('\n')
-					: translations.translate('HELP_NO_SUBCOMMANDS'),
-			});
+			sections.push('', `**${translations.translate('HELP_SECTION_SUBCOMMANDS')}**`);
+			sections.push(lines.length > 0
+				? lines.join('\n')
+				: translations.translate('HELP_NO_SUBCOMMANDS'));
 		}
 
 		if (params.length > 0) {
@@ -357,20 +355,19 @@ module.exports = {
 				? listCommandNames(slashCommands, currentLang)
 				: null;
 
-			helpEmbed.addFields({
-				name: translations.translate('HELP_SECTION_USAGE'),
-				value: formatUsageLine(baseDisplayName, [], params, currentLang, translations),
-			});
+			sections.push('', `**${translations.translate('HELP_SECTION_USAGE')}**`);
+			sections.push(formatUsageLine(baseDisplayName, [], params, currentLang, translations));
 
 			const lines = params.map((p) => formatParamLine(p, currentLang, translations, { allCommands }));
-			helpEmbed.addFields({
-				name: translations.translate('HELP_SECTION_PARAMETERS'),
-				value: lines.join('\n'),
-			});
+			sections.push('', `**${translations.translate('HELP_SECTION_PARAMETERS')}**`);
+			sections.push(lines.join('\n'));
 		}
 
-		helpEmbed.setFooter({ text: translations.translate('HELP_LIST_HINT') });
-
-		await interaction.reply({ embeds: [helpEmbed], flags: 64 });
+		return replyHelp(
+			interaction,
+			title,
+			sections.join('\n'),
+			{ footer: translations.translate('HELP_LIST_HINT') },
+		);
 	},
 };

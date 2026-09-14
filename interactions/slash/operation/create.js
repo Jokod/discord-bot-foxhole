@@ -1,7 +1,9 @@
-const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 const { isValidOperationTitle } = require('../../../utils/operation-text.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
+const { buildLabeledModal, TextInputStyle } = require('../../../utils/modalLabels.js');
 
 module.exports = {
 	init: true,
@@ -47,60 +49,59 @@ module.exports = {
 		const translations = new Translate(interaction.client, interaction.guild.id);
 
 		if (!isValidOperationTitle(title)) {
-			await interaction.reply({
-				content: translations.translate('OPERATION_TITLE_FORMAT_ERROR'),
-				flags: 64,
-			});
+			await interaction.reply(v2Text(translations.translate('OPERATION_TITLE_FORMAT_ERROR'), { ephemeral: true }));
 			return;
 		}
 
 		interaction.client.sessions[`${interaction.guild.id}:${interaction.user.id}`] = { title: title };
 
-		const modal = new ModalBuilder()
-			.setCustomId('modal_create_operation')
-			.setTitle(translations.translate('OPERATION_CREATE_TITLE', { title: safeEscapeMarkdown(title) }));
-
-		const dateField = new TextInputBuilder()
-			.setCustomId('date')
-			.setLabel(translations.translate('OPERATION_CREATE_LABEL_DATE'))
-			.setPlaceholder(translations.translate('OPERATION_CREATE_PLACEHOLDER_DATE'))
-			.setStyle(TextInputStyle.Short)
-			.setMinLength(10)
-			.setMaxLength(10)
-			.setRequired(true);
-
-		const timeField = new TextInputBuilder()
-			.setCustomId('time')
-			.setLabel(translations.translate('OPERATION_CREATE_LABEL_TIME'))
-			.setPlaceholder(translations.translate('OPERATION_CREATE_PLACEHOLDER_TIME'))
-			.setStyle(TextInputStyle.Short)
-			.setMinLength(5)
-			.setMaxLength(5)
-			.setRequired(true);
-
-		const durationField = new TextInputBuilder()
-			.setCustomId('duration')
-			.setLabel(translations.translate('OPERATION_CREATE_LABEL_DURATION'))
-			.setValue('60')
-			.setStyle(TextInputStyle.Short)
-			.setMinLength(1)
-			.setMaxLength(3)
-			.setRequired(true);
-
-		const descriptionField = new TextInputBuilder()
-			.setCustomId('description')
-			.setLabel(translations.translate('OPERATION_CREATE_LABEL_DESCRIPTION'))
-			.setStyle(TextInputStyle.Paragraph)
-			.setMinLength(1)
-			.setMaxLength(1000)
-			.setRequired(true);
-
-		const firstActionRow = new ActionRowBuilder().addComponents(dateField);
-		const secondActionRow = new ActionRowBuilder().addComponents(timeField);
-		const thirdActionRow = new ActionRowBuilder().addComponents(durationField);
-		const fourthActionRow = new ActionRowBuilder().addComponents(descriptionField);
-
-		modal.addComponents(firstActionRow, secondActionRow, thirdActionRow, fourthActionRow);
+		const modal = buildLabeledModal({
+			customId: 'modal_create_operation',
+			title: translations.translate('OPERATION_CREATE_TITLE', { title: safeEscapeMarkdown(title) }),
+			fields: [
+				{
+					customId: 'date',
+					label: translations.translate('OPERATION_CREATE_LABEL_DATE'),
+					description: translations.translate('OPERATION_CREATE_DESC_DATE'),
+					placeholder: translations.translate('OPERATION_CREATE_PLACEHOLDER_DATE'),
+					style: TextInputStyle.Short,
+					minLength: 10,
+					maxLength: 10,
+					required: true,
+				},
+				{
+					customId: 'time',
+					label: translations.translate('OPERATION_CREATE_LABEL_TIME'),
+					description: translations.translate('OPERATION_CREATE_DESC_TIME'),
+					placeholder: translations.translate('OPERATION_CREATE_PLACEHOLDER_TIME'),
+					style: TextInputStyle.Short,
+					minLength: 5,
+					maxLength: 5,
+					required: true,
+				},
+				{
+					customId: 'duration',
+					label: translations.translate('OPERATION_CREATE_LABEL_DURATION'),
+					description: translations.translate('OPERATION_CREATE_DESC_DURATION'),
+					placeholder: '60',
+					style: TextInputStyle.Short,
+					value: '60',
+					minLength: 1,
+					maxLength: 3,
+					required: true,
+				},
+				{
+					customId: 'description',
+					label: translations.translate('OPERATION_CREATE_LABEL_DESCRIPTION'),
+					description: translations.translate('OPERATION_CREATE_DESC_DESCRIPTION'),
+					placeholder: translations.translate('OPERATION_CREATE_DESC_DESCRIPTION'),
+					style: TextInputStyle.Paragraph,
+					minLength: 1,
+					maxLength: 1000,
+					required: true,
+				},
+			],
+		});
 
 		await interaction.showModal(modal);
 	},

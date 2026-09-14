@@ -7,6 +7,8 @@ jest.mock('../../utils/markdown.js', () => ({
 
 const createSlash = require('../../interactions/slash/operation/create.js');
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('Slash /operation', () => {
 	function interaction(title) {
 		return {
@@ -24,9 +26,7 @@ describe('Slash /operation', () => {
 	it('refuse un titre invalide', async () => {
 		const i = interaction('BAD$$$');
 		await createSlash.execute(i);
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'OPERATION_TITLE_FORMAT_ERROR',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('OPERATION_TITLE_FORMAT_ERROR', { ephemeral: true }));
 		expect(i.showModal).not.toHaveBeenCalled();
 	});
 

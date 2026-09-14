@@ -3,6 +3,8 @@ const mockServerFindOne = jest.fn();
 const mockServerFindOneAndUpdate = jest.fn();
 
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
+
+const { getV2Text, expectV2Call, MessageFlags, v2Text } = require('../helpers/v2Payload.js');
 jest.mock('../../data/models.js', () => ({
 	Server: {
 		findOne: (...args) => mockServerFindOne(...args),
@@ -82,24 +84,20 @@ describe('Slash command /server', () => {
 
 		await serverCommand.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'SERVER_IS_NOT_INIT',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_NOT_INIT', { ephemeral: true }));
 	});
 
-	it('subcommand infos: répond avec un embed de configuration', async () => {
+	it('subcommand infos: répond avec un affichage V2 de configuration', async () => {
 		mockServerFindOne.mockResolvedValue({ guild_id: 'guild-123', lang: 'en', camp: 'warden' });
 		const interaction = createInteraction('infos');
 
 		await serverCommand.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({
-			embeds: [expect.any(Object)],
-			flags: 64,
-		});
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.fields ?? embed.fields).toBeDefined();
+		const payload = interaction.reply.mock.calls[0][0];
+		expect(Number(payload.flags) & MessageFlags.IsComponentsV2).toBeTruthy();
+		expect(Number(payload.flags) & MessageFlags.Ephemeral).toBeTruthy();
+		expect(getV2Text(payload)).toContain('SERVER_TITLE_CONFIGURATION');
+		expect(getV2Text(payload)).toContain('Test Guild');
 	});
 
 	it('subcommand lang: met à jour la langue et traductions', async () => {
@@ -115,10 +113,7 @@ describe('Slash command /server', () => {
 			{ returnDocument: 'after' },
 		);
 		expect(interaction.client.traductions.get('guild-123')).toBe('fr');
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: expect.stringContaining('SERVER_SET_LANG_REPLY'),
-			flags: 64,
-		});
+		expectV2Call(interaction.reply, { text: 'SERVER_SET_LANG_REPLY' });
 	});
 
 	it('subcommand camp: met à jour le camp', async () => {
@@ -133,12 +128,8 @@ describe('Slash command /server', () => {
 			{ camp: 'colonial' },
 			{ returnDocument: 'after' },
 		);
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: expect.stringContaining('SERVER_SET_CAMP_REPLY'),
-			flags: 64,
-		});
+		expectV2Call(interaction.reply, { text: 'SERVER_SET_CAMP_REPLY' });
 	});
-
 	it('subcommand logs enabled: active et backfill les threads', async () => {
 		mockServerFindOne.mockResolvedValue({ guild_id: 'guild-123', lang: 'en', camp: 'warden', logs: false });
 		mockServerFindOneAndUpdate.mockResolvedValue({ logs: true });
@@ -153,10 +144,7 @@ describe('Slash command /server', () => {
 		);
 		expect(deleteAllOrderLogThreads).not.toHaveBeenCalled();
 		expect(ensureAllOrderLogThreads).toHaveBeenCalledWith(interaction.client, 'guild-123');
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'SERVER_SET_LOGS_ON_REPLY',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_SET_LOGS_ON_REPLY', { ephemeral: true }));
 	});
 
 	it('subcommand logs disabled: désactive et purge les threads', async () => {
@@ -172,10 +160,7 @@ describe('Slash command /server', () => {
 			{ returnDocument: 'after' },
 		);
 		expect(deleteAllOrderLogThreads).toHaveBeenCalledWith(interaction.client, 'guild-123');
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'SERVER_SET_LOGS_OFF_REPLY',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_SET_LOGS_OFF_REPLY', { ephemeral: true }));
 	});
 
 	it('subcommand reset: refuse sans permission', async () => {
@@ -185,10 +170,7 @@ describe('Slash command /server', () => {
 		await serverCommand.execute(interaction);
 
 		expect(mockPreviewServerWarData).not.toHaveBeenCalled();
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'NO_PERMS',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('NO_PERMS', { ephemeral: true }));
 	});
 
 	it('subcommand reset: aperçu + boutons sans alerte war si guerre inactive', async () => {
@@ -200,14 +182,15 @@ describe('Slash command /server', () => {
 
 		expect(mockPreviewServerWarData).toHaveBeenCalledWith('guild-123');
 		const payload = interaction.reply.mock.calls[0][0];
-		expect(payload.content).toContain('SERVER_RESET_PREVIEW');
-		expect(payload.content).not.toContain('SERVER_RESET_WAR_WARNING');
-		expect(payload.flags).toBe(64);
-		expect(payload.components).toHaveLength(1);
-		const buttons = payload.components[0].components;
-		expect(buttons).toHaveLength(2);
-		expect(buttons[0].data.custom_id).toBe('server_reset_confirm');
-		expect(buttons[1].data.custom_id).toBe('server_reset_cancel');
+		expect(getV2Text(payload)).toContain('SERVER_RESET_PREVIEW');
+		expect(getV2Text(payload)).not.toContain('SERVER_RESET_WAR_WARNING');
+		expect(Number(payload.flags) & MessageFlags.IsComponentsV2).toBeTruthy();
+		expect(Number(payload.flags) & MessageFlags.Ephemeral).toBeTruthy();
+		expect(payload.components.length).toBeGreaterThanOrEqual(1);
+		const actionRow = payload.components.find((c) => c.components?.length);
+		expect(actionRow.components).toHaveLength(2);
+		expect(actionRow.components[0].data.custom_id).toBe('server_reset_confirm');
+		expect(actionRow.components[1].data.custom_id).toBe('server_reset_cancel');
 	});
 
 	it('subcommand reset: alerte war si guerre en cours', async () => {
@@ -223,9 +206,9 @@ describe('Slash command /server', () => {
 		await serverCommand.execute(interaction);
 
 		const payload = interaction.reply.mock.calls[0][0];
-		expect(payload.content).toContain('SERVER_RESET_WAR_WARNING');
-		expect(payload.content).toContain('SERVER_RESET_PREVIEW');
-		expect(payload.components).toHaveLength(1);
+		expect(getV2Text(payload)).toContain('SERVER_RESET_WAR_WARNING');
+		expect(getV2Text(payload)).toContain('SERVER_RESET_PREVIEW');
+		expect(payload.components.length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('subcommand reset: utilise ? si dayOfWar absent', async () => {
@@ -240,8 +223,8 @@ describe('Slash command /server', () => {
 		await serverCommand.execute(interaction);
 
 		const payload = interaction.reply.mock.calls[0][0];
-		expect(payload.content).toContain('SERVER_RESET_WAR_WARNING');
-		expect(payload.content).toContain('"day":"?"');
+		expect(getV2Text(payload)).toContain('SERVER_RESET_WAR_WARNING');
+		expect(getV2Text(payload)).toContain('"day":"?"');
 	});
 
 	it('subcommand reset: ignore l\'erreur war API et affiche l\'aperçu', async () => {
@@ -252,9 +235,9 @@ describe('Slash command /server', () => {
 		await serverCommand.execute(interaction);
 
 		const payload = interaction.reply.mock.calls[0][0];
-		expect(payload.content).toContain('SERVER_RESET_PREVIEW');
-		expect(payload.content).not.toContain('SERVER_RESET_WAR_WARNING');
-		expect(payload.components).toHaveLength(1);
+		expect(getV2Text(payload)).toContain('SERVER_RESET_PREVIEW');
+		expect(getV2Text(payload)).not.toContain('SERVER_RESET_WAR_WARNING');
+		expect(payload.components.length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('répond COMMAND_UNKNOWN pour un subcommand inconnu', async () => {
@@ -263,9 +246,6 @@ describe('Slash command /server', () => {
 
 		await serverCommand.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'COMMAND_UNKNOWN',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_UNKNOWN', { ephemeral: true }));
 	});
 });

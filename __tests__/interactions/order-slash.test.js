@@ -28,17 +28,27 @@ jest.mock('../../data/models.js', () => ({
 const { canManageBoard } = require('../../utils/order-permissions.js');
 const orderCommand = require('../../interactions/slash/order/order.js');
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('Slash /order', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockTranslate.mockImplementation((key) => key);
 	});
 
-	function interaction(subcommand, { strings = {}, userId = 'u1' } = {}) {
+	function interaction(subcommand, { strings = {}, userId = 'u1', channelPerms = null } = {}) {
+		const perms = channelPerms ?? { has: () => true };
 		return {
 			client: { traductions: new Map() },
-			guild: { id: 'g1' },
-			channel: { id: 'c1' },
+			guild: {
+				id: 'g1',
+				members: { me: { id: 'bot1' } },
+			},
+			channel: {
+				id: 'c1',
+				isTextBased: () => true,
+				permissionsFor: () => perms,
+			},
 			user: { id: userId },
 			options: {
 				getSubcommand: () => subcommand,
@@ -73,7 +83,7 @@ describe('Slash /order', () => {
 			const i = interaction('create', { strings: { name: '   ', type: 'prod' } });
 			await orderCommand.execute(i);
 			expect(mockCreateBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_NAME' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_INVALID_NAME', { ephemeral: true }));
 		});
 
 		it('refuse opération inexistante', async () => {
@@ -83,7 +93,7 @@ describe('Slash /order', () => {
 			});
 			await orderCommand.execute(i);
 			expect(mockCreateBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'OPERATION_NOT_EXIST' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('OPERATION_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('gère ORDER_ALREADY_EXISTS', async () => {
@@ -92,7 +102,25 @@ describe('Slash /order', () => {
 			mockCreateBoard.mockRejectedValue(err);
 			const i = interaction('create', { strings: { name: 'OP', type: 'prod' } });
 			await orderCommand.execute(i);
-			expect(i.editReply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_ALREADY_EXISTS' }));
+			expect(i.editReply).toHaveBeenCalledWith(v2Text('ORDER_ALREADY_EXISTS'));
+		});
+
+		it('refuse si le bot n\'a pas accès au salon', async () => {
+			const i = interaction('create', {
+				strings: { name: 'OP', type: 'prod' },
+				channelPerms: { has: () => false },
+			});
+			await orderCommand.execute(i);
+			expect(mockCreateBoard).not.toHaveBeenCalled();
+			expect(i.reply).toHaveBeenCalledWith(v2Text('BOT_MISSING_CHANNEL_ACCESS', { ephemeral: true }));
+		});
+
+		it('propage Missing Access pour le handler central', async () => {
+			const err = new Error('Missing Access');
+			err.code = 50001;
+			mockCreateBoard.mockRejectedValue(err);
+			const i = interaction('create', { strings: { name: 'OP', type: 'prod' } });
+			await expect(orderCommand.execute(i)).rejects.toMatchObject({ code: 50001 });
 		});
 
 		it('refuse opération terminée', async () => {
@@ -102,9 +130,7 @@ describe('Slash /order', () => {
 			});
 			await orderCommand.execute(i);
 			expect(mockCreateBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_OPERATION_FINISHED',
-			}));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_OPERATION_FINISHED', { ephemeral: true }));
 		});
 
 		it('propage les erreurs non gérées', async () => {
@@ -163,7 +189,7 @@ describe('Slash /order', () => {
 			const i = interaction('remove', { strings: { name: '  ' } });
 			await orderCommand.execute(i);
 			expect(mockDeleteBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_NAME' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_INVALID_NAME', { ephemeral: true }));
 		});
 
 		it('supprime si board trouvé et permission ok', async () => {
@@ -193,7 +219,7 @@ describe('Slash /order', () => {
 			const i = interaction('remove', { strings: { name: 'Nope' } });
 			await orderCommand.execute(i);
 			expect(mockDeleteBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_NOT_EXIST' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('refuse sans permission', async () => {
@@ -202,9 +228,7 @@ describe('Slash /order', () => {
 			const i = interaction('remove', { strings: { name: 'OP' } });
 			await orderCommand.execute(i);
 			expect(mockDeleteBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_CANNOT_MANAGE_ERROR',
-			}));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_CANNOT_MANAGE_ERROR', { ephemeral: true }));
 		});
 	});
 
