@@ -1,9 +1,28 @@
+const { getV2Text, getV2AccentColor, MessageFlags } = require('../helpers/v2Payload.js');
 const { Collection } = require('discord.js');
 
 const mockTranslate = jest.fn((key, params) => (params ? `${key}` : key));
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 jest.mock('../../utils/colors.js', () => ({ getRandomColor: jest.fn().mockReturnValue(0x3498db) }));
 jest.mock('../../utils/markdown.js', () => ({ safeEscapeMarkdown: (s) => s }));
+
+function helpText(interaction) {
+	return getV2Text(interaction.reply.mock.calls[0][0]);
+}
+
+function helpAccent(interaction) {
+	return getV2AccentColor(interaction.reply.mock.calls[0][0]);
+}
+
+function helpSections(text) {
+	const sections = [];
+	for (const name of ['HELP_SECTION_PARAMETERS', 'HELP_SECTION_USAGE', 'HELP_SECTION_SUBCOMMANDS']) {
+		if (text.includes(name)) {
+			sections.push({ name, value: text.slice(text.indexOf(name)) });
+		}
+	}
+	return sections;
+}
 
 describe('Slash command /help', () => {
 	let helpCommand;
@@ -57,18 +76,13 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({
-			embeds: [expect.objectContaining({
-				data: expect.objectContaining({
-					title: 'HELP_TITLE_LIST',
-					description: expect.stringMatching(/about[\s\S]*HELP_LIST_HINT/),
-				}),
-			})],
-			flags: 64,
-		});
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const desc = embed.data?.description ?? embed.description;
-		expect(desc).toContain('Bot links');
+		const payload = interaction.reply.mock.calls[0][0];
+		expect(Number(payload.flags) & MessageFlags.IsComponentsV2).toBeTruthy();
+		expect(Number(payload.flags) & MessageFlags.Ephemeral).toBeTruthy();
+		const text = helpText(interaction);
+		expect(text).toContain('HELP_TITLE_LIST');
+		expect(text).toMatch(/about[\s\S]*HELP_LIST_HINT/);
+		expect(text).toContain('Bot links');
 	});
 
 	it('avec commande inconnue: HELP_COMMAND_NOT_FOUND + hint', async () => {
@@ -76,11 +90,10 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const desc = embed.data?.description ?? embed.description;
-		expect(desc).toContain('HELP_COMMAND_NOT_FOUND');
-		expect(desc).toContain('HELP_NOT_FOUND_HINT');
-		expect(embed.data?.color ?? embed.color).toBe(0xFF0000);
+		const text = helpText(interaction);
+		expect(text).toContain('HELP_COMMAND_NOT_FOUND');
+		expect(text).toContain('HELP_NOT_FOUND_HINT');
+		expect(helpAccent(interaction)).toBe(0xFF0000);
 	});
 
 	it('avec commande connue par nom: affiche l\'aide', async () => {
@@ -88,9 +101,9 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.title ?? embed.title).toContain('HELP_TITLE_COMMAND');
-		expect(embed.data?.description ?? embed.description).toContain('Bot links');
+		const text = helpText(interaction);
+		expect(text).toContain('HELP_TITLE_COMMAND');
+		expect(text).toContain('Bot links');
 	});
 
 	it('avec préfixe /: normalise correctement', async () => {
@@ -98,12 +111,8 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({
-			embeds: [expect.any(Object)],
-			flags: 64,
-		});
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('Bot links');
+		expect(Number(interaction.reply.mock.calls[0][0].flags) & MessageFlags.IsComponentsV2).toBeTruthy();
+		expect(helpText(interaction)).toContain('Bot links');
 	});
 
 	it('utilise en si la langue courante est absente de languages', async () => {
@@ -131,8 +140,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toBeDefined();
+		expect(helpText(interaction)).toBeDefined();
 	});
 
 	it('affiche l\'aide pour une sous-commande spécifique', async () => {
@@ -142,9 +150,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const desc = embed.data?.description ?? embed.description;
-		expect(desc).toContain('Displays the server configuration');
+		expect(helpText(interaction)).toContain('Displays the server configuration');
 	});
 
 	it('affiche HELP_COMMAND_NOT_FOUND quand la sous-commande n\'existe pas', async () => {
@@ -154,9 +160,8 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
-		expect(embed.data?.color ?? embed.color).toBe(0xFF0000);
+		expect(helpText(interaction)).toContain('HELP_COMMAND_NOT_FOUND');
+		expect(helpAccent(interaction)).toBe(0xFF0000);
 	});
 
 	it('affiche les paramètres pour une sous-commande avec options (ex: server lang)', async () => {
@@ -166,12 +171,11 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? embed.fields ?? [];
-		const paramsField = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		const sections = helpSections(helpText(interaction));
+		const paramsField = sections.find((s) => s.name === 'HELP_SECTION_PARAMETERS');
 		expect(paramsField).toBeDefined();
 		expect(paramsField.value).toContain('lang');
-		expect(fields.some((f) => f.name === 'HELP_SECTION_USAGE')).toBe(true);
+		expect(sections.some((s) => s.name === 'HELP_SECTION_USAGE')).toBe(true);
 	});
 
 	it('résout une sous-commande dans un SubcommandGroup (group sub)', async () => {
@@ -202,11 +206,10 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const desc = embed.data?.description ?? embed.description;
-		expect(desc).toContain('Sub in group');
-		const fields = embed.data?.fields ?? [];
-		expect(fields.every((f) => f.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
+		const text = helpText(interaction);
+		expect(text).toContain('Sub in group');
+		const sections = helpSections(text);
+		expect(sections.every((s) => s.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
 	});
 
 	it('affiche l\'aide de base avec paramètres pour la commande help elle-même', async () => {
@@ -214,11 +217,10 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? embed.fields ?? [];
-		expect(fields.some((f) => f.name === 'HELP_SECTION_PARAMETERS')).toBe(true);
-		expect(fields.some((f) => f.name === 'HELP_SECTION_USAGE')).toBe(true);
-		expect(fields.every((f) => f.name !== 'HELP_SECTION_SUBCOMMANDS')).toBe(true);
+		const sections = helpSections(helpText(interaction));
+		expect(sections.some((s) => s.name === 'HELP_SECTION_PARAMETERS')).toBe(true);
+		expect(sections.some((s) => s.name === 'HELP_SECTION_USAGE')).toBe(true);
+		expect(sections.every((s) => s.name !== 'HELP_SECTION_SUBCOMMANDS')).toBe(true);
 	});
 
 	it('order create: affiche choices, required, autocomplete et usage', async () => {
@@ -228,10 +230,9 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? [];
-		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
-		const usage = fields.find((f) => f.name === 'HELP_SECTION_USAGE');
+		const sections = helpSections(helpText(interaction));
+		const params = sections.find((s) => s.name === 'HELP_SECTION_PARAMETERS');
+		const usage = sections.find((s) => s.name === 'HELP_SECTION_USAGE');
 		expect(params).toBeDefined();
 		expect(params.value).toContain('type');
 		expect(params.value).toContain('name');
@@ -250,11 +251,10 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const desc = embed.data?.description ?? embed.description;
-		expect(desc).toMatch(/tableau|Créer|create/i);
-		const fields = embed.data?.fields ?? [];
-		expect(fields.some((f) => f.name === 'HELP_SECTION_PARAMETERS')).toBe(true);
+		const text = helpText(interaction);
+		expect(text).toMatch(/tableau|Créer|create/i);
+		const sections = helpSections(text);
+		expect(sections.some((s) => s.name === 'HELP_SECTION_PARAMETERS')).toBe(true);
 	});
 
 	it('order parent: sous-commandes avec hint params, sans section params vide', async () => {
@@ -264,13 +264,12 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? [];
-		const subs = fields.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
+		const sections = helpSections(helpText(interaction));
+		const subs = sections.find((s) => s.name === 'HELP_SECTION_SUBCOMMANDS');
 		expect(subs).toBeDefined();
 		expect(subs.value).toContain('create');
 		expect(subs.value).toContain('`type`*');
-		expect(fields.every((f) => f.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
+		expect(sections.every((s) => s.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
 	});
 
 	it('HELP_COMMAND_NOT_FOUND si le chemin sous-commande dépasse 2 niveaux', async () => {
@@ -301,8 +300,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
+		expect(helpText(interaction)).toContain('HELP_COMMAND_NOT_FOUND');
 	});
 
 	it('résout la commande par nom normalisé (sans clé directe dans la Collection)', async () => {
@@ -320,8 +318,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('Bot links via normalized lookup');
+		expect(helpText(interaction)).toContain('Bot links via normalized lookup');
 	});
 
 	it('parent avec SubcommandGroup: liste les sous-commandes du groupe', async () => {
@@ -354,9 +351,8 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? embed.fields ?? [];
-		const subs = fields.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
+		const sections = helpSections(helpText(interaction));
+		const subs = sections.find((s) => s.name === 'HELP_SECTION_SUBCOMMANDS');
 		expect(subs).toBeDefined();
 		expect(subs.value).toContain('admin');
 		expect(subs.value).toContain('reset');
@@ -387,10 +383,9 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? [];
-		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
-		const usage = fields.find((f) => f.name === 'HELP_SECTION_USAGE');
+		const sections = helpSections(helpText(interaction));
+		const params = sections.find((s) => s.name === 'HELP_SECTION_PARAMETERS');
+		const usage = sections.find((s) => s.name === 'HELP_SECTION_USAGE');
 		expect(params.value).toContain('HELP_PARAM_BOOLEAN');
 		expect(usage.value).toContain('HELP_PARAM_BOOLEAN');
 	});
@@ -420,9 +415,8 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? [];
-		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		const sections = helpSections(helpText(interaction));
+		const params = sections.find((s) => s.name === 'HELP_SECTION_PARAMETERS');
 		expect(params.value).toContain('HELP_PARAM_LENGTH');
 	});
 
@@ -443,8 +437,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('Liens du bot');
+		expect(helpText(interaction)).toContain('Liens du bot');
 	});
 
 	it('commande sans description: affiche un tiret', async () => {
@@ -457,8 +450,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toBe('—');
+		expect(helpText(interaction)).toContain('—');
 	});
 
 	it('sous-commande group introuvable: HELP_COMMAND_NOT_FOUND', async () => {
@@ -483,8 +475,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
+		expect(helpText(interaction)).toContain('HELP_COMMAND_NOT_FOUND');
 	});
 
 	it('paramètre optionnel sans extras ni choices', async () => {
@@ -510,10 +501,9 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		const fields = embed.data?.fields ?? [];
-		const params = fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
-		const usage = fields.find((f) => f.name === 'HELP_SECTION_USAGE');
+		const sections = helpSections(helpText(interaction));
+		const params = sections.find((s) => s.name === 'HELP_SECTION_PARAMETERS');
+		const usage = sections.find((s) => s.name === 'HELP_SECTION_USAGE');
 		expect(params.value).toContain('note');
 		expect(params.value).not.toContain('HELP_PARAM_CHOICES');
 		expect(usage.value).toContain('[note:<…>]');
@@ -541,8 +531,8 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const fields = interaction.reply.mock.calls[0][0].embeds[0].data?.fields ?? [];
-		expect(fields.find((f) => f.name === 'HELP_SECTION_PARAMETERS').value).toContain('HELP_PARAM_LENGTH');
+		const sections = helpSections(helpText(interaction));
+		expect(sections.find((s) => s.name === 'HELP_SECTION_PARAMETERS').value).toContain('HELP_PARAM_LENGTH');
 	});
 
 	it('commande avec options undefined: pas de crash', async () => {
@@ -577,9 +567,9 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const fields = interaction.reply.mock.calls[0][0].embeds[0].data?.fields ?? [];
-		expect(fields.every((f) => f.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
-		expect(fields.some((f) => f.name === 'HELP_SECTION_USAGE')).toBe(true);
+		const sections = helpSections(helpText(interaction));
+		expect(sections.every((s) => s.name !== 'HELP_SECTION_PARAMETERS')).toBe(true);
+		expect(sections.some((s) => s.name === 'HELP_SECTION_USAGE')).toBe(true);
 	});
 
 	it('parent SubcommandGroup: ignore les entrées non-subcommand dans le groupe', async () => {
@@ -610,8 +600,8 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const subs = interaction.reply.mock.calls[0][0].embeds[0].data?.fields
-			?.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
+		const sections = helpSections(helpText(interaction));
+		const subs = sections.find((s) => s.name === 'HELP_SECTION_SUBCOMMANDS');
 		expect(subs.value).toContain('keep');
 		expect(subs.value).not.toContain('skip');
 	});
@@ -624,9 +614,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const desc = interaction.reply.mock.calls[0][0].embeds[0].data?.description
-			?? interaction.reply.mock.calls[0][0].embeds[0].description;
-		expect(desc).toMatch(/configuration du serveur|Displays the server configuration/i);
+		expect(helpText(interaction)).toMatch(/configuration du serveur|Displays the server configuration/i);
 	});
 
 	it('parent avec SubcommandGroup sans options: HELP_NO_SUBCOMMANDS', async () => {
@@ -649,9 +637,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const subs = interaction.reply.mock.calls[0][0].embeds[0].data?.fields
-			?.find((f) => f.name === 'HELP_SECTION_SUBCOMMANDS');
-		expect(subs.value).toBe('HELP_NO_SUBCOMMANDS');
+		expect(helpText(interaction)).toContain('HELP_NO_SUBCOMMANDS');
 	});
 
 	it('commande avec options undefined au niveau data', async () => {
@@ -684,8 +670,7 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
+		expect(helpText(interaction)).toContain('HELP_COMMAND_NOT_FOUND');
 	});
 
 	it('paramètre avec seulement max_length', async () => {
@@ -710,8 +695,8 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const params = interaction.reply.mock.calls[0][0].embeds[0].data?.fields
-			?.find((f) => f.name === 'HELP_SECTION_PARAMETERS');
+		const sections = helpSections(helpText(interaction));
+		const params = sections.find((s) => s.name === 'HELP_SECTION_PARAMETERS');
 		expect(params.value).toContain('HELP_PARAM_LENGTH');
 	});
 
@@ -720,7 +705,6 @@ describe('Slash command /help', () => {
 
 		await helpCommand.execute(interaction);
 
-		const embed = interaction.reply.mock.calls[0][0].embeds[0];
-		expect(embed.data?.description ?? embed.description).toContain('HELP_COMMAND_NOT_FOUND');
+		expect(helpText(interaction)).toContain('HELP_COMMAND_NOT_FOUND');
 	});
 });

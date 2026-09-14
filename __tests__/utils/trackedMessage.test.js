@@ -229,28 +229,40 @@ describe('utils/trackedMessage', () => {
 	});
 
 	describe('editTrackedOrFallback', () => {
-		it('édite le message trouvé et n’appelle pas fallbackSend', async () => {
-			const editMock = jest.fn().mockResolvedValue(undefined);
+		const { MessageFlags } = require('discord.js');
+		const { v2Text } = require('../../utils/componentsV2.js');
+
+		it('édite le message V2 trouvé et n’appelle pas fallbackSend', async () => {
+			const editMock = jest.fn().mockResolvedValue({ id: 'msg-1' });
 			const fallbackSend = jest.fn();
 			TrackedMessage.findOne.mockResolvedValue({ message_id: 'msg-1', _id: 'doc-1' });
 			const channel = {
 				id: 'ch-1',
 				isTextBased: () => true,
-				messages: { fetch: jest.fn().mockResolvedValue({ id: 'msg-1', edit: editMock }) },
+				send: jest.fn(),
+				messages: {
+					fetch: jest.fn().mockResolvedValue({
+						id: 'msg-1',
+						edit: editMock,
+						flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+					}),
+				},
 			};
 
-			await editTrackedOrFallback({
+			const result = await editTrackedOrFallback({
 				channel,
 				serverId: 'guild-1',
 				messageType: 'stockpile_list',
 				model: TrackedMessage,
 				fallbackMatcher: null,
-				editPayload: { content: 'test' },
+				editPayload: v2Text('test'),
 				fallbackSend,
 			});
 
-			expect(editMock).toHaveBeenCalledWith({ content: 'test' });
+			expect(editMock).toHaveBeenCalled();
 			expect(fallbackSend).not.toHaveBeenCalled();
+			expect(result.usedFallback).toBe(false);
+			expect(result.reposted).toBe(false);
 		});
 
 		it('appelle fallbackSend et sauvegarde quand aucun message trouvé', async () => {
@@ -269,7 +281,7 @@ describe('utils/trackedMessage', () => {
 				messageType: 'stockpile_list',
 				model: TrackedMessage,
 				fallbackMatcher: null,
-				editPayload: { content: 'test' },
+				editPayload: v2Text('test'),
 				fallbackSend,
 			});
 
@@ -281,29 +293,69 @@ describe('utils/trackedMessage', () => {
 			);
 		});
 
-		it('appelle fallbackSend quand l’édition échoue', async () => {
-			const editMock = jest.fn().mockRejectedValue(new Error('Unknown'));
+		it('cutover legacy: delete + channel.send, pas fallbackSend', async () => {
+			const editMock = jest.fn().mockRejectedValue(new Error('should not edit legacy'));
+			const deleteMock = jest.fn().mockResolvedValue(undefined);
+			const sendMock = jest.fn().mockResolvedValue({ id: 'msg-new' });
 			TrackedMessage.findOne.mockResolvedValue({ message_id: 'msg-1', _id: 'doc-1' });
 			const channel = {
 				id: 'ch-1',
 				isTextBased: () => true,
-				messages: { fetch: jest.fn().mockResolvedValue({ id: 'msg-1', edit: editMock }) },
+				send: sendMock,
+				messages: {
+					fetch: jest.fn().mockResolvedValue({
+						id: 'msg-1',
+						edit: editMock,
+						delete: deleteMock,
+						flags: { has: () => false },
+					}),
+				},
 			};
-			const fakeMsg = { id: 'msg-fallback' };
-			const fallbackSend = jest.fn().mockResolvedValue(fakeMsg);
+			const fallbackSend = jest.fn();
 
-			await editTrackedOrFallback({
+			const result = await editTrackedOrFallback({
 				channel,
 				serverId: 'guild-1',
 				messageType: 'stockpile_list',
 				model: TrackedMessage,
 				fallbackMatcher: null,
-				editPayload: { content: 'test' },
+				editPayload: v2Text('test'),
 				fallbackSend,
 			});
 
-			expect(editMock).toHaveBeenCalled();
-			expect(fallbackSend).toHaveBeenCalled();
+			expect(deleteMock).toHaveBeenCalled();
+			expect(sendMock).toHaveBeenCalled();
+			expect(fallbackSend).not.toHaveBeenCalled();
+			expect(result.reposted).toBe(true);
+			expect(result.usedFallback).toBe(true);
+		});
+
+		it('propage l’erreur si l’édition d’un message V2 échoue', async () => {
+			const editMock = jest.fn().mockRejectedValue(new Error('rate limit'));
+			TrackedMessage.findOne.mockResolvedValue({ message_id: 'msg-1', _id: 'doc-1' });
+			const channel = {
+				id: 'ch-1',
+				isTextBased: () => true,
+				send: jest.fn(),
+				messages: {
+					fetch: jest.fn().mockResolvedValue({
+						id: 'msg-1',
+						edit: editMock,
+						delete: jest.fn(),
+						flags: { has: (f) => f === MessageFlags.IsComponentsV2 },
+					}),
+				},
+			};
+
+			await expect(editTrackedOrFallback({
+				channel,
+				serverId: 'guild-1',
+				messageType: 'stockpile_list',
+				model: TrackedMessage,
+				fallbackMatcher: null,
+				editPayload: v2Text('test'),
+				fallbackSend: jest.fn(),
+			})).rejects.toThrow('rate limit');
 		});
 
 		it('ne sauvegarde pas si fallbackSend ne retourne pas d\'id', async () => {
@@ -320,7 +372,7 @@ describe('utils/trackedMessage', () => {
 				serverId: 'guild-1',
 				messageType: 'stockpile_list',
 				model: TrackedMessage,
-				editPayload: { content: 'test' },
+				editPayload: v2Text('test'),
 				fallbackSend,
 			});
 

@@ -43,12 +43,12 @@ function isValidOperationDescription(value) {
 		return false;
 	}
 
-	if (!OPERATION_DESCRIPTION_REGEX.test(value)) {
+	// Défense en profondeur contre les pings globaux même si @ était ajouté au charset plus tard.
+	if (/@(everyone|here)/i.test(value)) {
 		return false;
 	}
 
-	// Défense en profondeur contre les pings globaux même si @ était ajouté plus tard.
-	if (/@(everyone|here)/i.test(value)) {
+	if (!OPERATION_DESCRIPTION_REGEX.test(value)) {
 		return false;
 	}
 

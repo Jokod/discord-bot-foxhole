@@ -4,6 +4,8 @@ const mockServerFindOne = jest.fn();
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
 jest.mock('../../data/models.js', () => ({ Server: { findOne: (...args) => mockServerFindOne(...args) } }));
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('contextInteraction event', () => {
 	let contextInteraction;
 
@@ -62,7 +64,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'SERVER_IS_NOT_INIT', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_NOT_INIT', { ephemeral: true }));
 	});
 
 	it('exécute MESSAGE context command', async () => {
@@ -89,7 +91,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
@@ -108,7 +110,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(followUp).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
@@ -142,7 +144,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
@@ -162,7 +164,7 @@ describe('contextInteraction event', () => {
 
 		await contextInteraction.execute(interaction);
 
-		expect(editReply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR' });
+		expect(editReply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR'));
 		consoleSpy.mockRestore();
 	});
 

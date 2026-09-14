@@ -1,13 +1,20 @@
 const { OrderBoard, OrderLine, TrackedMessage, Operation } = require('../data/models.js');
 const Translate = require('./translations.js');
-const { saveTrackedMessage, editTrackedOrFallback } = require('./trackedMessage.js');
+const {
+	saveTrackedMessage,
+	findTrackedMessage,
+} = require('./trackedMessage.js');
 const {
 	MESSAGE_TYPE_BOARD,
-	buildOrderEmbed,
-	buildOrderComponents,
+	buildOrderMessagePayload,
 } = require('../interactions/embeds/orderBoard.js');
 const { getPrioritySortRank } = require('./material-priority.js');
 const { createLogThread } = require('./orderBoardLog.js');
+const {
+	sendV2,
+	editOrRepostV2,
+} = require('./componentsV2.js');
+const { withAsyncLock, trackedLockKey } = require('./asyncLock.js');
 
 const refreshTimers = new Map();
 const REFRESH_DEBOUNCE_MS = 300;
@@ -71,9 +78,8 @@ async function buildOrderPayload(client, board) {
 		await OrderBoard.updateOne({ _id: board._id }, { selected_line_id: null });
 	}
 
-	const embed = buildOrderEmbed(board, lines, translations, operationTitle);
-	const components = buildOrderComponents(board, lines, translations);
-	return { embed, components, lines, translations };
+	const payload = buildOrderMessagePayload(board, lines, translations, operationTitle);
+	return { payload, lines, translations };
 }
 
 /**
@@ -82,8 +88,8 @@ async function buildOrderPayload(client, board) {
  * @param {object} board
  */
 async function bootstrapOrderBoard(channel, client, board) {
-	const { embed, components, translations } = await buildOrderPayload(client, board);
-	const msg = await channel.send({ embeds: [embed], components });
+	const { payload, translations } = await buildOrderPayload(client, board);
+	const msg = await sendV2(channel, payload);
 	await saveTrackedMessage(
 		board.guild_id,
 		channel.id,
@@ -117,23 +123,47 @@ async function refreshOrderBoard(client, board, channel) {
 	}
 	if (!textChannel?.isTextBased?.()) return false;
 
-	const { embed, components, translations } = await buildOrderPayload(client, fresh);
 	const messageType = `${MESSAGE_TYPE_BOARD}:${fresh._id}`;
 
-	const result = await editTrackedOrFallback({
-		channel: textChannel,
-		serverId: fresh.guild_id,
-		messageType,
-		model: TrackedMessage,
-		editPayload: { content: '', embeds: [embed], components },
-		fallbackSend: async () => textChannel.send({ embeds: [embed], components }),
+	return withAsyncLock(trackedLockKey(fresh.guild_id, messageType), async () => {
+		const { payload, translations } = await buildOrderPayload(client, fresh);
+
+		const existing = await findTrackedMessage(textChannel, fresh.guild_id, messageType, {
+			model: TrackedMessage,
+		});
+
+		let usedFallback = false;
+		if (existing) {
+			const { message, reposted } = await editOrRepostV2(existing, textChannel, payload);
+			if (reposted) {
+				usedFallback = true;
+				await saveTrackedMessage(
+					fresh.guild_id,
+					textChannel.id,
+					message.id,
+					messageType,
+					TrackedMessage,
+				);
+			}
+		}
+		else {
+			usedFallback = true;
+			const sent = await sendV2(textChannel, payload);
+			await saveTrackedMessage(
+				fresh.guild_id,
+				textChannel.id,
+				sent.id,
+				messageType,
+				TrackedMessage,
+			);
+		}
+
+		if (usedFallback && !fresh.log_thread_id) {
+			await createLogThread(textChannel, fresh, translations).catch(() => undefined);
+		}
+
+		return true;
 	});
-
-	if (result?.usedFallback && !fresh.log_thread_id) {
-		await createLogThread(textChannel, fresh, translations).catch(() => undefined);
-	}
-
-	return true;
 }
 
 async function deleteOrderTrackedMessages(guildId, boardMongoId, channel = null, client = null) {

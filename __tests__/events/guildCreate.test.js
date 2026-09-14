@@ -65,6 +65,23 @@ describe('guildCreate event', () => {
 		);
 	});
 
+	it('log une erreur avec guild.id si leave échoue et name absent', async () => {
+		getBlockedGuildIds.mockResolvedValue(new Set(['g-blocked']));
+		cleanupGuildData.mockResolvedValue(undefined);
+		const guild = {
+			id: 'g-blocked',
+			name: null,
+			leave: jest.fn().mockRejectedValue(new Error('no permission')),
+		};
+
+		await guildCreate.execute(guild);
+
+		expect(console.error).toHaveBeenCalledWith(
+			'[Blocked] Impossible de quitter le serveur g-blocked (g-blocked):',
+			'no permission',
+		);
+	});
+
 	it('cleanup blacklisté utilise guild.id si name absent', async () => {
 		getBlockedGuildIds.mockResolvedValue(new Set(['g-blocked']));
 		cleanupGuildData.mockResolvedValue(undefined);

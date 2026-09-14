@@ -25,6 +25,7 @@ const {
 	Events,
 } = require('discord.js');
 const mongoose = require('mongoose');
+const { v2Text, sendV2 } = require('../utils/componentsV2.js');
 const {
 	collectKnownChannels,
 	loadAnnounceChannelDocs,
@@ -167,7 +168,7 @@ async function main() {
 		for (const { channel, source } of candidates) {
 			const label = `#${channel.name} (${channel.id}, via ${source})`;
 			try {
-				await channel.send({ content: message });
+				await sendV2(channel, v2Text(message));
 				console.log(`SENT  ${g.name} → ${label}`);
 				report.push({
 					guild: g.name,

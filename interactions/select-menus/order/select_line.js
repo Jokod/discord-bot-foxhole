@@ -1,5 +1,6 @@
 const Translate = require('../../../utils/translations.js');
 const { decode } = require('../../../shared/customId.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
 const {
 	findBoardById,
 	setSelectedLine,
@@ -16,15 +17,15 @@ module.exports = {
 		const lineId = values?.[0];
 
 		if (!boardId || !lineId) {
-			return interaction.reply({ content: translations.translate('INTERACTION_ERROR'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('INTERACTION_ERROR'), { ephemeral: true }));
 		}
 
 		const board = await findBoardById(boardId, guild.id);
 		if (!board) {
-			return interaction.reply({ content: translations.translate('ORDER_BOARD_NOT_EXIST'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_BOARD_NOT_EXIST'), { ephemeral: true }));
 		}
 		if (board.status === 'closed') {
-			return interaction.reply({ content: translations.translate('ORDER_STATUS_CLOSED'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_STATUS_CLOSED'), { ephemeral: true }));
 		}
 
 		await setSelectedLine(board, lineId);

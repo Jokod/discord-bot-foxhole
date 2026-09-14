@@ -2,6 +2,7 @@ const Translate = require('../../../utils/translations.js');
 const { decode } = require('../../../shared/customId.js');
 const { createMaterialSelectRows, getCamp } = require('../../../utils/stockCatalog.js');
 const { findBoardById } = require('../../../services/order/index.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
 
 module.exports = {
 	id: 'order_sub',
@@ -15,15 +16,15 @@ module.exports = {
 		const [categoryKey, subcategoryKey] = compound.split('__');
 
 		if (!boardId || !categoryKey || !subcategoryKey) {
-			return interaction.reply({ content: translations.translate('INTERACTION_ERROR'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('INTERACTION_ERROR'), { ephemeral: true }));
 		}
 
 		const board = await findBoardById(boardId, guild.id);
 		if (!board) {
-			return interaction.reply({ content: translations.translate('ORDER_BOARD_NOT_EXIST'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_BOARD_NOT_EXIST'), { ephemeral: true }));
 		}
 		if (board.status === 'closed') {
-			return interaction.reply({ content: translations.translate('ORDER_STATUS_CLOSED'), flags: 64 });
+			return interaction.reply(v2Text(translations.translate('ORDER_STATUS_CLOSED'), { ephemeral: true }));
 		}
 
 		const camp = await getCamp(guild.id);

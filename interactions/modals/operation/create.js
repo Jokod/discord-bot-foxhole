@@ -4,6 +4,8 @@ const React = require('../../../messages/react.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 const { isValidOperationDescription } = require('../../../utils/operation-text.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
+const { buildOperationMessagePayload } = require('../../../utils/operationMessage.js');
 
 module.exports = {
 	id: 'modal_create_operation',
@@ -23,31 +25,19 @@ module.exports = {
 		const timeRegex = new RegExp('^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$');
 		const durationRegex = new RegExp('^[0-9]{1,3}$');
 		if (!dateRegex.test(dateField)) {
-			return await interaction.reply({
-				content: translations.translate('OPERATION_DATE_FORMAT_ERROR'),
-				flags: 64,
-			});
+			return await interaction.reply(v2Text(translations.translate('OPERATION_DATE_FORMAT_ERROR'), { ephemeral: true }));
 		}
 
 		if (!timeRegex.test(timeField)) {
-			return await interaction.reply({
-				content: translations.translate('OPERATION_TIME_FORMAT_ERROR'),
-				flags: 64,
-			});
+			return await interaction.reply(v2Text(translations.translate('OPERATION_TIME_FORMAT_ERROR'), { ephemeral: true }));
 		}
 
 		if (!durationRegex.test(durationField)) {
-			return await interaction.reply({
-				content: translations.translate('OPERATION_DURATION_FORMAT_ERROR'),
-				flags: 64,
-			});
+			return await interaction.reply(v2Text(translations.translate('OPERATION_DURATION_FORMAT_ERROR'), { ephemeral: true }));
 		}
 
 		if (!isValidOperationDescription(descriptionField)) {
-			return await interaction.reply({
-				content: translations.translate('OPERATION_DESCRIPTION_FORMAT_ERROR'),
-				flags: 64,
-			});
+			return await interaction.reply(v2Text(translations.translate('OPERATION_DESCRIPTION_FORMAT_ERROR'), { ephemeral: true }));
 		}
 
 		const dateParts = dateField.split('/');
@@ -92,11 +82,23 @@ module.exports = {
 				{ upsert: true },
 			);
 
-			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${interaction.user.id}>\n**${translations.translate('DATE')}:** <t:${timestamp}:d>\n**${translations.translate('HOURS')}:** <t:${timestamp}:t>\n**${translations.translate('DURATION')}:** ${durationField} min\n**${translations.translate('DESCRIPTION')}:** ${safeEscapeMarkdown(descriptionField)}`;
+			const operation = {
+				title,
+				owner_id: interaction.user.id,
+				date: `<t:${timestamp}:d>`,
+				time: `<t:${timestamp}:t>`,
+				duration: durationField,
+				description: descriptionField,
+			};
 
 			const response = await interaction.reply({
-				content: `${translations.translate('OPERATION_CREATE_SUCCESS', { title: safeEscapeMarkdown(title) })}.\n${content}`,
-				components: [actionRow],
+				...buildOperationMessagePayload(
+					'pending',
+					operation,
+					translations,
+					translations.translate('OPERATION_CREATE_SUCCESS', { title: safeEscapeMarkdown(title) }),
+					[actionRow],
+				),
 				withResponse: true,
 			});
 
@@ -116,10 +118,7 @@ module.exports = {
 		catch (error) {
 			console.error(error);
 
-			const payload = {
-				content: translations.translate('OPERATION_CREATE_ERROR'),
-				flags: 64,
-			};
+			const payload = v2Text(translations.translate('OPERATION_CREATE_ERROR'), { ephemeral: true });
 			if (interaction.replied || interaction.deferred) {
 				await interaction.followUp(payload).catch(console.error);
 			}

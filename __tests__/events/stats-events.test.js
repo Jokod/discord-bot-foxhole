@@ -41,6 +41,8 @@ jest.mock('../../utils/translations.js', () => {
 	return fn;
 });
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('Stats events', () => {
 	describe('slashCreate – stats update on command', () => {
 		beforeEach(() => {
@@ -176,10 +178,7 @@ describe('Stats events', () => {
 			};
 
 			await slashCreate.execute(interaction);
-			expect(interaction.reply).toHaveBeenCalledWith({
-				content: 'SERVER_IS_NOT_INIT',
-				flags: 64,
-			});
+			expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_NOT_INIT', { ephemeral: true }));
 		});
 
 		it('should editReply COMMAND_EXECUTE_ERROR when command throws after defer', async () => {
@@ -209,9 +208,7 @@ describe('Stats events', () => {
 
 			await slashCreate.execute(interaction);
 
-			expect(editReply).toHaveBeenCalledWith({
-				content: 'COMMAND_EXECUTE_ERROR',
-			});
+			expect(editReply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR'));
 			consoleSpy.mockRestore();
 		});
 
@@ -244,9 +241,7 @@ describe('Stats events', () => {
 
 			await slashCreate.execute(interaction);
 
-			expect(editReply).toHaveBeenCalledWith({
-				content: 'BOT_MISSING_CHANNEL_ACCESS',
-			});
+			expect(editReply).toHaveBeenCalledWith(v2Text('BOT_MISSING_CHANNEL_ACCESS'));
 			expect(errorSpy).not.toHaveBeenCalled();
 			warnSpy.mockRestore();
 			errorSpy.mockRestore();
@@ -278,10 +273,7 @@ describe('Stats events', () => {
 
 			await slashCreate.execute(interaction);
 
-			expect(reply).toHaveBeenCalledWith({
-				content: 'COMMAND_EXECUTE_ERROR',
-				flags: 64,
-			});
+			expect(reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 			consoleSpy.mockRestore();
 		});
 
@@ -810,6 +802,52 @@ describe('Stats events', () => {
 			expect(leave).toHaveBeenCalled();
 			expect(consoleSpy).toHaveBeenCalledWith(
 				'[Blocked] Impossible de quitter le serveur Server A (guild-a):',
+				'leave failed',
+			);
+			consoleSpy.mockRestore();
+		});
+
+		it('should log leave failure with guild id when name is missing on ready', async () => {
+			jest.resetModules();
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.distinct = mockStatsDistinct;
+			Server.distinct = jest.fn().mockResolvedValue([]);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
+
+			const leave = jest.fn().mockRejectedValue(new Error('leave failed'));
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						['guild-a', {
+							id: 'guild-a',
+							name: null,
+							createdAt: new Date(),
+							memberCount: 1,
+							members: { me: null },
+							leave,
+						}],
+					]),
+				},
+			};
+
+			const prev = process.env.BLOCKED_GUILD_IDS;
+			process.env.BLOCKED_GUILD_IDS = 'guild-a';
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			const onReady = require('../../events/onReady.js');
+			await onReady.execute(client);
+			process.env.BLOCKED_GUILD_IDS = prev;
+
+			expect(leave).toHaveBeenCalled();
+			expect(consoleSpy).toHaveBeenCalledWith(
+				'[Blocked] Impossible de quitter le serveur guild-a (guild-a):',
 				'leave failed',
 			);
 			consoleSpy.mockRestore();

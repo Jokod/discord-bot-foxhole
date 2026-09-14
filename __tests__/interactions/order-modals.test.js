@@ -2,23 +2,35 @@ jest.mock('../../utils/orderBoardLog.js', () => ({
 	appendOrderLog: jest.fn().mockResolvedValue(true),
 }));
 
-const mockFindBoard = jest.fn();
-const mockGetDraft = jest.fn();
-const mockConsumeDraft = jest.fn();
-const mockCreateLine = jest.fn();
-const mockCountLines = jest.fn().mockResolvedValue(0);
-const mockCorrectLine = jest.fn();
-const mockRefresh = jest.fn().mockResolvedValue(true);
-
 jest.mock('../../services/order/index.js', () => ({
 	findBoardById: (...args) => mockFindBoard(...args),
 	getDraft: (...args) => mockGetDraft(...args),
 	consumeDraft: (...args) => mockConsumeDraft(...args),
 	createLine: (...args) => mockCreateLine(...args),
+	deleteLine: (...args) => mockDeleteLine(...args),
 	countLines: (...args) => mockCountLines(...args),
+	listLines: (...args) => mockListLines(...args),
+	resolveOperationTitle: (...args) => mockResolveOp(...args),
 	correctLine: (...args) => mockCorrectLine(...args),
 	refreshOrderBoard: (...args) => mockRefresh(...args),
 }));
+
+jest.mock('../../data/models.js', () => ({
+	Operation: {
+		findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) }),
+	},
+}));
+
+const mockFindBoard = jest.fn();
+const mockGetDraft = jest.fn();
+const mockConsumeDraft = jest.fn();
+const mockCreateLine = jest.fn();
+const mockDeleteLine = jest.fn().mockResolvedValue({ deletedCount: 1 });
+const mockCountLines = jest.fn().mockResolvedValue(0);
+const mockListLines = jest.fn().mockResolvedValue([]);
+const mockResolveOp = jest.fn().mockResolvedValue(null);
+const mockCorrectLine = jest.fn();
+const mockRefresh = jest.fn().mockResolvedValue(true);
 
 const mockTranslate = jest.fn((key) => key);
 jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() => ({ translate: mockTranslate })));
@@ -26,10 +38,14 @@ jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() =
 const addModal = require('../../interactions/modals/order/add.js');
 const correctModal = require('../../interactions/modals/order/correct.js');
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('Order modals', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockCountLines.mockResolvedValue(0);
+		mockListLines.mockResolvedValue([]);
+		mockResolveOp.mockResolvedValue(null);
 	});
 
 	function interaction(customId, fields) {
@@ -68,21 +84,51 @@ describe('Order modals', () => {
 			expect(mockRefresh).toHaveBeenCalled();
 		});
 
-		it('refuse si board plein avant de consommer le draft', async () => {
+		it('refuse si board plein (ORDER_FULL via createLine)', async () => {
 			mockFindBoard.mockResolvedValue({ _id: 'b1', guild_id: 'g1', status: 'open' });
-			mockCountLines.mockResolvedValue(50);
+			mockGetDraft.mockReturnValue({ name: 'Sticky', category: 'utilities' });
+			const err = new Error('full');
+			err.code = 'ORDER_FULL';
+			mockCreateLine.mockRejectedValue(err);
 			const i = interaction('order_add_modal|b1', { order_target: '20' });
 			await addModal.execute(i);
+			expect(i.deferReply).toHaveBeenCalled();
 			expect(mockConsumeDraft).not.toHaveBeenCalled();
-			expect(mockCreateLine).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_FULL' }));
+			expect(i.editReply).toHaveBeenCalledWith(v2Text('ORDER_FULL'));
+		});
+
+		it('rollback et DISPLAY_UPDATE_FAILED si refresh Discord échoue', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', guild_id: 'g1', status: 'open' });
+			mockGetDraft.mockReturnValue({ name: 'Sticky', category: 'utilities' });
+			mockConsumeDraft.mockResolvedValue({ name: 'Sticky', category: 'utilities' });
+			mockCreateLine.mockResolvedValue({ line_id: '9' });
+			const err = new Error('Invalid Form Body');
+			err.code = 50035;
+			mockRefresh.mockRejectedValueOnce(err);
+			mockDeleteLine.mockRejectedValueOnce(new Error('rollback fail'));
+			const i = interaction('order_add_modal|b1', { order_target: '20' });
+			i.editReply.mockRejectedValueOnce(new Error('edit fail'));
+			await addModal.execute(i);
+			expect(mockDeleteLine).toHaveBeenCalledWith('g1', 'b1', '9');
+			expect(i.deleteReply).not.toHaveBeenCalled();
+		});
+
+		it('propage les erreurs refresh non-Discord', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', guild_id: 'g1', status: 'open' });
+			mockGetDraft.mockReturnValue({ name: 'Sticky', category: 'utilities' });
+			mockConsumeDraft.mockResolvedValue({ name: 'Sticky', category: 'utilities' });
+			mockCreateLine.mockResolvedValue({ line_id: '9' });
+			mockRefresh.mockRejectedValueOnce(new Error('network'));
+			const i = interaction('order_add_modal|b1', { order_target: '20' });
+			await expect(addModal.execute(i)).rejects.toThrow('network');
+			expect(mockDeleteLine).not.toHaveBeenCalled();
 		});
 
 		it('refuse target invalide', async () => {
 			const i = interaction('order_add_modal|b1', { order_target: '0' });
 			await addModal.execute(i);
 			expect(mockCreateLine).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_TARGET' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_INVALID_TARGET', { ephemeral: true }));
 		});
 
 		it('refuse sans draft', async () => {
@@ -90,7 +136,7 @@ describe('Order modals', () => {
 			mockGetDraft.mockReturnValue(null);
 			const i = interaction('order_add_modal|b1', { order_target: '5' });
 			await addModal.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse board closed', async () => {
@@ -98,7 +144,7 @@ describe('Order modals', () => {
 			const i = interaction('order_add_modal|b1', { order_target: '5' });
 			await addModal.execute(i);
 			expect(mockCreateLine).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_STATUS_CLOSED' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_STATUS_CLOSED', { ephemeral: true }));
 		});
 	});
 
@@ -122,7 +168,7 @@ describe('Order modals', () => {
 				order_target: '0',
 			});
 			await correctModal.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_TARGET' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_INVALID_TARGET', { ephemeral: true }));
 		});
 
 		it('refuse board manquant / closed', async () => {
@@ -147,9 +193,7 @@ describe('Order modals', () => {
 				order_target: '2',
 			});
 			await correctModal.execute(i);
-			expect(i.editReply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_LINE_NOT_EXIST',
-			}));
+			expect(i.editReply).toHaveBeenCalledWith(v2Text('ORDER_LINE_NOT_EXIST'));
 		});
 	});
 
@@ -157,14 +201,14 @@ describe('Order modals', () => {
 		it('refuse customId invalide', async () => {
 			const i = interaction('order_add_modal', { order_target: '5' });
 			await addModal.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_TARGET' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_INVALID_TARGET', { ephemeral: true }));
 		});
 
 		it('refuse board manquant', async () => {
 			mockFindBoard.mockResolvedValue(null);
 			const i = interaction('order_add_modal|b1', { order_target: '5' });
 			await addModal.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_BOARD_NOT_EXIST' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_BOARD_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('gère ORDER_FULL levé par createLine', async () => {
@@ -175,9 +219,7 @@ describe('Order modals', () => {
 			mockCreateLine.mockRejectedValue(err);
 			const i = interaction('order_add_modal|b1', { order_target: '5' });
 			await addModal.execute(i);
-			expect(i.editReply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_FULL',
-			}));
+			expect(i.editReply).toHaveBeenCalledWith(v2Text('ORDER_FULL'));
 		});
 
 		it('relance les erreurs non ORDER_FULL', async () => {
@@ -218,7 +260,7 @@ describe('Order modals', () => {
 				order_target: '2',
 			});
 			await correctModal.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_INVALID_TARGET' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_INVALID_TARGET', { ephemeral: true }));
 		});
 
 		it('log avec tiret si ligne sans nom', async () => {

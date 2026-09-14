@@ -1,4 +1,5 @@
 const { handleInteractionError } = require('../../utils/interactionErrors.js');
+const { v2Text } = require('../../utils/componentsV2.js');
 
 describe('handleInteractionError', () => {
 	const translations = { translate: (key) => key };
@@ -23,10 +24,7 @@ describe('handleInteractionError', () => {
 			followUp: jest.fn(),
 		};
 		await handleInteractionError(interaction, translations, new Error('boom'));
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'COMMAND_EXECUTE_ERROR',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		expect(console.error).toHaveBeenCalled();
 	});
 
@@ -40,9 +38,7 @@ describe('handleInteractionError', () => {
 			followUp: jest.fn(),
 		};
 		await handleInteractionError(interaction, translations, { code: 50001, message: 'Missing Access' });
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'BOT_MISSING_CHANNEL_ACCESS',
-		});
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('BOT_MISSING_CHANNEL_ACCESS'));
 		expect(interaction.followUp).not.toHaveBeenCalled();
 		expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('c1'));
 		expect(console.error).not.toHaveBeenCalled();
@@ -58,9 +54,7 @@ describe('handleInteractionError', () => {
 			followUp: jest.fn(),
 		};
 		await handleInteractionError(interaction, translations, { code: 50013, message: 'Missing Permissions' });
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: 'BOT_MISSING_CHANNEL_ACCESS',
-		});
+		expect(interaction.editReply).toHaveBeenCalledWith(v2Text('BOT_MISSING_CHANNEL_ACCESS'));
 		expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('code 50013'));
 	});
 
@@ -100,10 +94,7 @@ describe('handleInteractionError', () => {
 			followUp: jest.fn().mockResolvedValue(undefined),
 		};
 		await handleInteractionError(interaction, translations, new Error('x'));
-		expect(interaction.followUp).toHaveBeenCalledWith({
-			content: 'COMMAND_EXECUTE_ERROR',
-			flags: 64,
-		});
+		expect(interaction.followUp).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 	});
 
 	it('followUp si deferred et déjà replied', async () => {

@@ -16,7 +16,7 @@
 	D.selectedMaterialName = null;
 	D.autoRefresh = true;
 	D.timer = null;
-	D.sortKey = 'command_count';
+	D.sortKey = 'last_command_at';
 	D.sortDir = 'desc';
 	D.cmdSortKey = 'total';
 	D.cmdSortDir = 'desc';
@@ -228,7 +228,7 @@
 		D.raw = data;
 		const envPill = `<span class="pill ${data.env_file === '.env.prod' ? 'prod' : ''}">${D.escapeHtml(data.env_file || '?')} · ${D.escapeHtml(data.db_name || '?')}</span>`;
 		document.getElementById('meta').innerHTML =
-		`${envPill} ${D.fmt.dt(data.generated_at)} · ${t('meta.activeSeen', { active: D.fmt.n(data.kpis.active_guilds), seen: D.fmt.n(data.kpis.total_seen_guilds) })}`;
+		`${envPill} ${D.fmt.dt(data.generated_at)} · ${t('kpi.seen', { n: D.fmt.n(data.kpis.total_seen_guilds) })}`;
 		if (data.session) renderFooterSession(data.session);
 		D.renderWar(data);
 		D.renderKpis(data);

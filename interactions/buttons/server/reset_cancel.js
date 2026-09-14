@@ -1,4 +1,5 @@
 const Translate = require('../../../utils/translations.js');
+const { buildV2Payload } = require('../../../utils/componentsV2.js');
 
 module.exports = {
 	id: 'server_reset_cancel',
@@ -8,9 +9,9 @@ module.exports = {
 		const { client, guild } = interaction;
 		const translations = new Translate(client, guild.id);
 
-		return interaction.update({
-			content: translations.translate('SERVER_RESET_CANCELLED'),
-			components: [],
-		});
+		return interaction.update(buildV2Payload({
+			children: [translations.translate('SERVER_RESET_CANCELLED')],
+			actionRows: [],
+		}));
 	},
 };

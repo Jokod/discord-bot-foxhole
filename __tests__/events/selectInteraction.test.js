@@ -6,6 +6,8 @@ jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() =
 jest.mock('../../messages/defaultSelectError', () => ({ execute: mockDefaultSelectError }));
 jest.mock('../../data/models.js', () => ({ Server: { findOne: (...args) => mockServerFindOne(...args) } }));
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('selectInteraction event', () => {
 	let selectInteraction;
 
@@ -62,7 +64,7 @@ describe('selectInteraction event', () => {
 
 		await selectInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'SERVER_IS_NOT_INIT', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_NOT_INIT', { ephemeral: true }));
 	});
 
 	it('exécute la commande et répond COMMAND_EXECUTE_ERROR si erreur', async () => {
@@ -73,7 +75,7 @@ describe('selectInteraction event', () => {
 
 		await selectInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
@@ -86,7 +88,7 @@ describe('selectInteraction event', () => {
 
 		await selectInteraction.execute(interaction);
 
-		expect(editReply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR' });
+		expect(editReply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR'));
 		consoleSpy.mockRestore();
 	});
 

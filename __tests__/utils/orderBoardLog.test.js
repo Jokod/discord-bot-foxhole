@@ -22,6 +22,8 @@ const {
 } = require('../../utils/orderBoardLog.js');
 const { OrderBoard, TrackedMessage, Server } = require('../../data/models.js');
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('orderBoardLog', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -103,7 +105,7 @@ describe('orderBoardLog', () => {
 		};
 		const board = { _id: 'b1', guild_id: 'g1', log_thread_id: 'th1' };
 		await expect(appendOrderLog(client, board, 'hello')).resolves.toBe(true);
-		expect(send).toHaveBeenCalledWith({ content: 'hello' });
+		expect(send).toHaveBeenCalledWith(v2Text('hello'));
 	});
 
 	it('resolveLogThread re-verrouille si besoin', async () => {

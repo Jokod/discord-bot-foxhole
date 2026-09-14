@@ -71,6 +71,7 @@ describe('dashboard contacts', () => {
 								member_count: 10,
 								command_count: 5,
 								owner_id: 'owner1',
+								last_command_at: '2026-08-20T12:00:00.000Z',
 							},
 							{
 								guild_id: 'g2',
@@ -82,6 +83,15 @@ describe('dashboard contacts', () => {
 					}),
 				})),
 				updateOne,
+			},
+			servers: {
+				find: jest.fn(() => ({
+					project: () => ({
+						toArray: async () => ([
+							{ guild_id: 'g1', lang: 'fr' },
+						]),
+					}),
+				})),
 			},
 			stockpiles: {
 				find: jest.fn(() => ({
@@ -113,6 +123,9 @@ describe('dashboard contacts', () => {
 		expect(data.kpis.active_guilds).toBe(1);
 		expect(data.kpis.left_guilds).toBe(1);
 		expect(data.guilds[0].guild_id).toBe('g1');
+		expect(data.guilds[0].lang).toBe('fr');
+		expect(data.guilds[0].activity).toBeTruthy();
+		expect(data.guilds[1].lang).toBeNull();
 		expect(data.guilds[0].owner.user_id).toBe('owner1');
 		expect(data.guilds[0].creators[0]).toMatchObject({
 			user_id: 'creator1',

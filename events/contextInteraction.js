@@ -1,6 +1,7 @@
 const { Events } = require('discord.js');
 const { Server } = require('../data/models.js');
 const Translate = require('../utils/translations.js');
+const { v2Text } = require('../utils/componentsV2.js');
 const { handleInteractionError } = require('../utils/interactionErrors.js');
 
 module.exports = {
@@ -28,10 +29,7 @@ module.exports = {
 			const server = await Server.findOne({ guild_id: guildId });
 
 			if (command.init && !server) {
-				return interaction.reply({
-					content: translations.translate('SERVER_IS_NOT_INIT'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('SERVER_IS_NOT_INIT'), { ephemeral: true }));
 			}
 
 			try {

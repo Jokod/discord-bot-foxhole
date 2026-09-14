@@ -8,6 +8,11 @@ const {
 const { Server } = require('../data/models.js');
 const { categories, getMaterialsBySubcategory } = require('../data/fournis.js');
 const { encode } = require('./customId.js');
+const { buildV2Payload, separator } = require('../utils/componentsV2.js');
+
+function wizardTitle(translations, stepKey) {
+	return `**${translations.translate(stepKey)}**`;
+}
 
 function createCategoryRows(translations, boardId) {
 	const buttons = Object.keys(categories)
@@ -56,7 +61,7 @@ function createSubcategoryRows(boardId, categoryKey, translations) {
 		new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId(encode('order_back', boardId))
-				.setLabel(translations.translate('BACK'))
+				.setLabel(translations.translate('BACK_TO_CATEGORIES').slice(0, 80))
 				.setStyle(ButtonStyle.Secondary),
 		),
 	);
@@ -71,17 +76,22 @@ async function createMaterialSelectRows(boardId, categoryKey, subcategoryKey, ca
 	}
 
 	if (materials.length === 0) {
-		return {
-			content: translations.translate('MATERIAL_SUBCATEGORY_EMPTY'),
-			components: [
+		return buildV2Payload({
+			children: [
+				wizardTitle(translations, 'MATERIAL_SELECT_TYPE'),
+				separator(),
+				translations.translate('MATERIAL_SUBCATEGORY_EMPTY'),
+			],
+			actionRows: [
 				new ActionRowBuilder().addComponents(
 					new ButtonBuilder()
 						.setCustomId(encode('order_cat', boardId, categoryKey))
-						.setLabel(translations.translate('BACK'))
+						.setLabel(translations.translate('BACK_TO_SUBCATEGORIES').slice(0, 80))
 						.setStyle(ButtonStyle.Secondary),
 				),
 			],
-		};
+			ephemeral: true,
+		});
 	}
 
 	const rows = [];
@@ -113,15 +123,19 @@ async function createMaterialSelectRows(boardId, categoryKey, subcategoryKey, ca
 		new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId(encode('order_cat', boardId, categoryKey))
-				.setLabel(translations.translate('BACK'))
+				.setLabel(translations.translate('BACK_TO_SUBCATEGORIES').slice(0, 80))
 				.setStyle(ButtonStyle.Secondary),
 		),
 	);
 
-	return {
-		content: translations.translate('MATERIAL_SELECT_TYPE'),
-		components: rows,
-	};
+	return buildV2Payload({
+		children: [
+			wizardTitle(translations, 'MATERIAL_SELECT_TYPE'),
+			separator(),
+		],
+		actionRows: rows,
+		ephemeral: true,
+	});
 }
 
 async function getCamp(guildId) {
@@ -134,4 +148,5 @@ module.exports = {
 	createSubcategoryRows,
 	createMaterialSelectRows,
 	getCamp,
+	wizardTitle,
 };

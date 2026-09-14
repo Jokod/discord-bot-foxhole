@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const { mapUser, discordFetch } = require('../../utils/discordRest');
+const { activityBucket } = require('./summary');
 
 const contactsCache = { at: 0, data: null };
 const CONTACTS_TTL_MS = 5 * 60 * 1000;
@@ -22,11 +23,12 @@ async function loadContacts({ force = false } = {}) {
 	}
 
 	const db = mongoose.connection.db;
-	const [allStats, stockpiles, operations, orderboards, orderlines] = await Promise.all([
+	const [allStats, servers, stockpiles, operations, orderboards, orderlines] = await Promise.all([
 		db.collection('stats').find({}).project({
 			guild_id: 1, name: 1, member_count: 1, joined_at: 1, left_at: 1,
 			command_count: 1, last_command_at: 1, owner_id: 1,
 		}).toArray(),
+		db.collection('servers').find({}).project({ guild_id: 1, lang: 1 }).toArray(),
 		db.collection('stockpiles').find({
 			owner_id: { $exists: true, $nin: [null, '', '0'] },
 			deleted: { $ne: true },
@@ -42,6 +44,8 @@ async function loadContacts({ force = false } = {}) {
 		}).project({ guild_id: 1, owner_id: 1 }).toArray(),
 	]);
 
+	const serverByGuild = new Map(servers.map((s) => [s.guild_id, s]));
+	const now = Date.now();
 	const creatorsByGuild = new Map();
 	for (const s of stockpiles) bumpCreator(creatorsByGuild, s.server_id, s.owner_id, 'stockpiles');
 	for (const o of operations) bumpCreator(creatorsByGuild, o.guild_id, o.owner_id, 'operations');
@@ -111,6 +115,7 @@ async function loadContacts({ force = false } = {}) {
 			creators.push({ ...user, ...c });
 		}
 
+		const setup = serverByGuild.get(g.guild_id);
 		guildsOut.push({
 			guild_id: g.guild_id,
 			name: g.name || g.guild_id,
@@ -120,6 +125,8 @@ async function loadContacts({ force = false } = {}) {
 			left_at: g.left_at || null,
 			command_count: g.command_count || 0,
 			last_command_at: g.last_command_at || null,
+			lang: setup?.lang || null,
+			activity: activityBucket(g.last_command_at, now),
 			owner_id: ownerId,
 			owner,
 			creators,

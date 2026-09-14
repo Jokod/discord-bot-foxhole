@@ -84,6 +84,13 @@ describe('wiki-sync / wiki-route', () => {
 		})).toBeNull();
 	});
 
+	it('Structure sans construction_type/type → null', () => {
+		expect(routeWikiInfoboxToMaterialFile({
+			kind: 'Structure',
+			fields: { name: 'Bare Structure' },
+		})).toBeNull();
+	});
+
 	it('ressource nommée → fichier resources dédié', () => {
 		expect(routeWikiInfoboxToMaterialFile(itemFields({ name: 'Salvage' }))).toEqual({
 			relPath: 'resources/salvage.json',

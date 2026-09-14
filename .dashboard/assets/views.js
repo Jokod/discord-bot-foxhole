@@ -15,7 +15,7 @@
 		const { fmt } = getStore();
 		const k = data.kpis;
 		const items = [
-			[t('kpi.active'), k.active_guilds, t('kpi.seen', { n: k.total_seen_guilds })],
+			[t('kpi.vus'), k.total_seen_guilds, t('kpi.activeCount', { n: fmt.n(k.active_guilds) })],
 			[t('chart.setup'), k.setup_servers, fmt.pct(k.setup_rate_pct)],
 			[t('kpi.noSetup'), k.pending_setup, ''],
 			[t('kpi.left'), k.left_guilds, ''],

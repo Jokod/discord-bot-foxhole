@@ -6,6 +6,8 @@ jest.mock('../../utils/translations.js', () => jest.fn().mockImplementation(() =
 jest.mock('../../messages/defaultModalError', () => ({ execute: mockDefaultModalError }));
 jest.mock('../../data/models.js', () => ({ Server: { findOne: (...args) => mockServerFindOne(...args) } }));
 
+const { v2Text } = require('../../utils/componentsV2.js');
+
 describe('modalInteraction event', () => {
 	let modalInteraction;
 
@@ -59,7 +61,7 @@ describe('modalInteraction event', () => {
 
 		await modalInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'SERVER_IS_NOT_INIT', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('SERVER_IS_NOT_INIT', { ephemeral: true }));
 	});
 
 	it('exécute la commande et répond COMMAND_EXECUTE_ERROR si erreur', async () => {
@@ -70,7 +72,7 @@ describe('modalInteraction event', () => {
 
 		await modalInteraction.execute(interaction);
 
-		expect(interaction.reply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		consoleSpy.mockRestore();
 	});
 
@@ -82,7 +84,7 @@ describe('modalInteraction event', () => {
 
 		await modalInteraction.execute(interaction);
 
-		expect(interaction.followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(interaction.followUp).toHaveBeenCalledWith(v2Text('COMMAND_EXECUTE_ERROR', { ephemeral: true }));
 		expect(interaction.reply).not.toHaveBeenCalled();
 		consoleSpy.mockRestore();
 	});

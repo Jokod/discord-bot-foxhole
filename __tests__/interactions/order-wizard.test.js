@@ -20,8 +20,8 @@ jest.mock('../../utils/order-permissions.js', () => ({
 const mockCreateCategoryRows = jest.fn(() => [{ fake: 'cats' }]);
 const mockCreateSubcategoryRows = jest.fn(() => [{ fake: 'subs' }]);
 const mockCreateMaterialSelectRows = jest.fn(async () => ({
-	content: 'MATERIAL_SELECT_TYPE',
-	components: [{ fake: 'mats' }],
+	flags: 1 << 15,
+	components: [{ toJSON: () => ({ type: 10, content: 'MATERIAL_SELECT_TYPE' }) }, { fake: 'mats' }],
 }));
 const mockGetCamp = jest.fn(async () => 'warden');
 
@@ -52,6 +52,8 @@ const { canManageLine } = require('../../utils/order-permissions.js');
 const { OrderLine } = require('../../data/models.js');
 const { appendOrderLog } = require('../../utils/orderBoardLog.js');
 
+const { getV2Text, v2Text } = require('../helpers/v2Payload.js');
+
 describe('Order wizard handlers', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -81,21 +83,21 @@ describe('Order wizard handlers', () => {
 		it('refuse customId invalide', async () => {
 			const i = base('order_back');
 			await back.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse board manquant', async () => {
 			mockFindBoard.mockResolvedValue(null);
 			const i = base('order_back|b1');
 			await back.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_BOARD_NOT_EXIST' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_BOARD_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('refuse board closed', async () => {
 			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'closed' });
 			const i = base('order_back|b1');
 			await back.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_STATUS_CLOSED' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_STATUS_CLOSED', { ephemeral: true }));
 		});
 
 		it('affiche les catégories', async () => {
@@ -103,9 +105,8 @@ describe('Order wizard handlers', () => {
 			const i = base('order_back|b1');
 			await back.execute(i);
 			expect(mockCreateCategoryRows).toHaveBeenCalled();
-			expect(i.update).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'MATERIAL_SELECT_CATEGORY',
-			}));
+			expect(i.update).toHaveBeenCalledWith(expect.objectContaining({ components: expect.any(Array), flags: expect.anything() }));
+			expect(getV2Text(i.update.mock.calls[0][0])).toContain('MATERIAL_SELECT_CATEGORY');
 		});
 	});
 
@@ -113,7 +114,7 @@ describe('Order wizard handlers', () => {
 		it('refuse customId incomplet', async () => {
 			const i = base('order_cat|b1');
 			await cat.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('affiche les sous-catégories', async () => {
@@ -121,16 +122,15 @@ describe('Order wizard handlers', () => {
 			const i = base('order_cat|b1|resources');
 			await cat.execute(i);
 			expect(mockCreateSubcategoryRows).toHaveBeenCalledWith('b1', 'resources', expect.anything());
-			expect(i.update).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'MATERIAL_SELECT_SUBCATEGORY',
-			}));
+			expect(i.update).toHaveBeenCalledWith(expect.objectContaining({ components: expect.any(Array), flags: expect.anything() }));
+			expect(getV2Text(i.update.mock.calls[0][0])).toContain('MATERIAL_SELECT_SUBCATEGORY');
 		});
 
 		it('refuse board closed', async () => {
 			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'closed' });
 			const i = base('order_cat|b1|resources');
 			await cat.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_STATUS_CLOSED' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_STATUS_CLOSED', { ephemeral: true }));
 		});
 	});
 
@@ -138,13 +138,13 @@ describe('Order wizard handlers', () => {
 		it('refuse compound invalide', async () => {
 			const i = base('order_sub|b1|resources');
 			await sub.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse customId sans sous-catégorie', async () => {
 			const i = base('order_sub|b1');
 			await sub.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('affiche le select matériaux', async () => {
@@ -155,16 +155,15 @@ describe('Order wizard handlers', () => {
 			expect(mockCreateMaterialSelectRows).toHaveBeenCalledWith(
 				'b1', 'resources', 'bmat', 'warden', expect.anything(),
 			);
-			expect(i.update).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'MATERIAL_SELECT_TYPE',
-			}));
+			expect(i.update).toHaveBeenCalledWith(expect.objectContaining({ components: expect.any(Array), flags: expect.anything() }));
+			expect(getV2Text(i.update.mock.calls[0][0])).toContain('MATERIAL_SELECT_TYPE');
 		});
 
 		it('refuse board manquant', async () => {
 			mockFindBoard.mockResolvedValue(null);
 			const i = base('order_sub|b1|resources__bmat');
 			await sub.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_BOARD_NOT_EXIST' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_BOARD_NOT_EXIST', { ephemeral: true }));
 		});
 	});
 
@@ -172,7 +171,7 @@ describe('Order wizard handlers', () => {
 		it('refuse sans boardId', async () => {
 			const i = base('order_correct');
 			await correct.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse sans sélection', async () => {
@@ -180,7 +179,7 @@ describe('Order wizard handlers', () => {
 			OrderLine.findOne.mockReturnValue({ lean: async () => null });
 			const i = base('order_correct|b1');
 			await correct.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_NO_SELECTION' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_NO_SELECTION', { ephemeral: true }));
 		});
 
 		it('ouvre le modal de correction', async () => {
@@ -200,16 +199,17 @@ describe('Order wizard handlers', () => {
 			const i = base('order_correct|b1|3');
 			await correct.execute(i);
 			const modal = i.showModal.mock.calls[0][0];
-			const rows = modal.toJSON().components;
-			expect(rows[0].components[0].value).toBe('0');
-			expect(rows[1].components[0].value).toBe('1');
+			const labels = modal.toJSON().components;
+			expect(labels[0].type).toBe(18);
+			expect(labels[0].component.value).toBe('0');
+			expect(labels[1].component.value).toBe('1');
 		});
 
 		it('refuse board closed', async () => {
 			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'closed' });
 			const i = base('order_correct|b1|3');
 			await correct.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_STATUS_CLOSED' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_STATUS_CLOSED', { ephemeral: true }));
 		});
 	});
 
@@ -220,9 +220,7 @@ describe('Order wizard handlers', () => {
 			const i = base('order_delete_line|b1|3');
 			await deleteLine.execute(i);
 			expect(mockDeleteLine).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_CANNOT_MANAGE_ERROR',
-			}));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_CANNOT_MANAGE_ERROR', { ephemeral: true }));
 		});
 
 		it('supprime la ligne et refresh', async () => {
@@ -252,9 +250,7 @@ describe('Order wizard handlers', () => {
 			mockDeleteLine.mockResolvedValue({ deletedCount: 0 });
 			const i = base('order_delete_line|b1|3');
 			await deleteLine.execute(i);
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_LINE_NOT_EXIST',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('ORDER_LINE_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('ignore followUp rejeté si delete échoue', async () => {
@@ -270,7 +266,7 @@ describe('Order wizard handlers', () => {
 			OrderLine.findOne.mockReturnValue({ lean: async () => null });
 			const i = base('order_delete_line|b1');
 			await deleteLine.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_NO_SELECTION' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_NO_SELECTION', { ephemeral: true }));
 		});
 	});
 
@@ -278,7 +274,7 @@ describe('Order wizard handlers', () => {
 		it('refuse valeurs manquantes', async () => {
 			const i = base('order_catalog|b1|resources', { values: [] });
 			await catalog.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('setDraft puis ouvre le modal quantité', async () => {
@@ -300,14 +296,14 @@ describe('Order wizard handlers', () => {
 			const i = base('order_catalog|b1|resources|1', { values: ['Basic Materials'] });
 			await catalog.execute(i);
 			expect(mockSetDraft).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_STATUS_CLOSED' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_STATUS_CLOSED', { ephemeral: true }));
 		});
 
 		it('refuse board manquant', async () => {
 			mockFindBoard.mockResolvedValue(null);
 			const i = base('order_catalog|b1|resources|1', { values: ['Basic Materials'] });
 			await catalog.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_BOARD_NOT_EXIST' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_BOARD_NOT_EXIST', { ephemeral: true }));
 		});
 	});
 

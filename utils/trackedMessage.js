@@ -61,18 +61,17 @@ async function saveTrackedMessage(serverId, channelId, messageId, messageType, m
 }
 
 /**
- * Édite le message tracked ou appelle le fallback si absent / échec d’édition.
- * Garantit que le contenu est toujours affiché (édité ou envoyé).
+ * Édite le message tracked (cutover V2 via delete+repost si legacy), ou fallbackSend si absent.
  *
  * @param {Object} options
  * @param {import('discord.js').TextChannel} options.channel
  * @param {string} options.serverId
  * @param {string} options.messageType
  * @param {import('mongoose').Model} options.model
- * @param {Function} [options.fallbackMatcher] - pour findTrackedMessage
- * @param {Object} options.editPayload - { content?, embeds?, components? }
- * @param {Function} options.fallbackSend - async () => Message | undefined - envoie le contenu et retourne le message
- * @returns {Promise<{ usedFallback: boolean }>}
+ * @param {Function} [options.fallbackMatcher]
+ * @param {Object} options.editPayload - Components V2 payload
+ * @param {Function} options.fallbackSend - async () => Message | undefined
+ * @returns {Promise<{ usedFallback: boolean, message?: import('discord.js').Message|null, reposted?: boolean }>}
  */
 async function editTrackedOrFallback({
 	channel,
@@ -83,21 +82,25 @@ async function editTrackedOrFallback({
 	editPayload,
 	fallbackSend,
 }) {
-	const message = await findTrackedMessage(channel, serverId, messageType, { model, fallbackMatcher });
-	if (message) {
-		try {
-			await message.edit(editPayload);
-			return { usedFallback: false };
+	const { editOrRepostV2 } = require('./componentsV2.js');
+	const { withAsyncLock, trackedLockKey } = require('./asyncLock.js');
+
+	return withAsyncLock(trackedLockKey(serverId, messageType), async () => {
+		const message = await findTrackedMessage(channel, serverId, messageType, { model, fallbackMatcher });
+		if (message) {
+			const { message: result, reposted } = await editOrRepostV2(message, channel, editPayload);
+			if (reposted) {
+				await saveTrackedMessage(serverId, channel?.id, result.id, messageType, model);
+			}
+			return { usedFallback: reposted, message: result, reposted };
 		}
-		catch {
-			// edit failed, fallback will send
+
+		const sent = await fallbackSend();
+		if (sent?.id) {
+			await saveTrackedMessage(serverId, channel?.id, sent.id, messageType, model);
 		}
-	}
-	const sent = await fallbackSend();
-	if (sent?.id) {
-		await saveTrackedMessage(serverId, channel?.id, sent.id, messageType, model);
-	}
-	return { usedFallback: true, message: sent || null };
+		return { usedFallback: true, message: sent || null, reposted: false };
+	});
 }
 
 module.exports = { findTrackedMessage, saveTrackedMessage, editTrackedOrFallback };

@@ -2,6 +2,8 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
+const { buildOperationMessagePayload } = require('../../../utils/operationMessage.js');
 
 module.exports = {
 	id: 'button_create_operation_start',
@@ -15,17 +17,11 @@ module.exports = {
 			const operation = await Operation.findOne({ guild_id: guild.id, operation_id: `${operationId}` });
 
 			if (!operation) {
-				return await interaction.reply({
-					content: translations.translate('OPERATION_NOT_EXIST'),
-					flags: 64,
-				});
+				return await interaction.reply(v2Text(translations.translate('OPERATION_NOT_EXIST'), { ephemeral: true }));
 			}
 
 			if (user.id !== operation.owner_id) {
-				return await interaction.reply({
-					content: translations.translate('OPERATION_ARE_NO_OWNER_ERROR'),
-					flags: 64,
-				});
+				return await interaction.reply(v2Text(translations.translate('OPERATION_ARE_NO_OWNER_ERROR'), { ephemeral: true }));
 			}
 
 			const finishedButton = new ButtonBuilder()
@@ -40,23 +36,19 @@ module.exports = {
 
 			const ActionRow = new ActionRowBuilder().addComponents(finishedButton, cancelButton);
 
-			const content = `**${translations.translate('OPERATION_CREATOR')}:** <@${operation.owner_id}>\n**${translations.translate('DATE')}:** ${operation.date}\n**${translations.translate('HOURS')}:** ${operation.time}\n**${translations.translate('DURATION')}:** ${operation.duration} min\n**${translations.translate('DESCRIPTION')}:** ${safeEscapeMarkdown(
-				operation.description,
-			)}`;
-
 			await Operation.updateOne({ guild_id: guild.id, operation_id: `${operationId}` }, { status: 'started' });
 
-			await interaction.update({
-				content: `${translations.translate('OPERATION_LAUNCH_SUCCESS', { title: safeEscapeMarkdown(operation.title) })}\n${content}`,
-				components: [ActionRow],
-			});
+			await interaction.update(buildOperationMessagePayload(
+				'started',
+				operation,
+				translations,
+				translations.translate('OPERATION_LAUNCH_SUCCESS', { title: safeEscapeMarkdown(operation.title) }),
+				[ActionRow],
+			));
 		}
 		catch (err) {
 			console.error(err);
-			return await interaction.reply({
-				content: translations.translate('OPERATION_LAUNCH_ERROR'),
-				flags: 64,
-			});
+			return await interaction.reply(v2Text(translations.translate('OPERATION_LAUNCH_ERROR'), { ephemeral: true }));
 		}
 	},
 };

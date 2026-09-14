@@ -47,7 +47,7 @@ Not a Foxhole inventory. Counts **progress on a short order** (OP, haul, or farm
 - `/order remove name:<Name>` — Delete board + Discord message + log thread if any (autocomplete; owner or Manage Guild/Channels).
 
 **On the board:** Select a line · **-1 / +1 / +4 / +9 / Max** · Priority · Add · Correct · Delete · Close / Reopen.  
-Up to **50 lines** (Discord: **2** selects × 25). At capacity the embed turns **red**, **Add** is disabled, and further adds are rejected. Long lists may truncate in the embed (use the selects).
+Up to **50 lines** (Discord: **2** selects × 25). At capacity the board turns **red**, **Add** is disabled, and further adds are rejected with an **ephemeral** message. Remove lines or create another board with `/order create` (nothing is created automatically). Components V2 — no silent truncation of the line list.
 
 **User permissions**
 
@@ -64,7 +64,6 @@ Up to **50 lines** (Discord: **2** selects × 25). At capacity the embed turns *
 |------------|-----|
 | View Channel | Read the channel and the tracked board message |
 | Send Messages | Post the board (or a replacement if the old message is gone) |
-| Embed Links | Order boards use embeds |
 | Read Message History | Find and edit the tracked board message |
 | Manage Messages | Edit the board message when lines change |
 
@@ -80,6 +79,8 @@ If **order Logs** are enabled (`/setup logs:true` or `/server logs enabled:true`
 ## Stockpiles (depot codes)
 
 Soft-delete marks a depot with ❌ on the list; it stays until **Cleanup** or expiry purge.
+
+Up to **15 active** stockpiles (reset buttons on the public list). At capacity, `/stockpile add` is rejected with an **ephemeral** message — remove depots with `/stockpile manage` before adding more (no second list / quota).
 
 - `/stockpile add` — Modal (region, city, name, 6-digit code).
 - `/stockpile list` — Public tracked list + **reset** timer buttons only.

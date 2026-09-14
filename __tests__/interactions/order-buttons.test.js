@@ -8,6 +8,7 @@ const mockCloseBoard = jest.fn();
 const mockReopenBoard = jest.fn();
 const mockListLines = jest.fn();
 const mockCountLines = jest.fn().mockResolvedValue(0);
+const mockResolveOp = jest.fn().mockResolvedValue(null);
 const mockCyclePriority = jest.fn();
 const mockSetSelected = jest.fn();
 const mockRefresh = jest.fn().mockResolvedValue(true);
@@ -22,6 +23,7 @@ jest.mock('../../services/order/index.js', () => ({
 	reopenBoard: (...args) => mockReopenBoard(...args),
 	listLines: (...args) => mockListLines(...args),
 	countLines: (...args) => mockCountLines(...args),
+	resolveOperationTitle: (...args) => mockResolveOp(...args),
 	cycleLinePriority: (...args) => mockCyclePriority(...args),
 	setSelectedLine: (...args) => mockSetSelected(...args),
 	refreshOrderBoard: (...args) => mockRefresh(...args),
@@ -42,6 +44,9 @@ jest.mock('../../data/models.js', () => ({
 		find: jest.fn(() => ({ lean: async () => [] })),
 		findOne: jest.fn(() => ({ lean: async () => null, sort: () => ({ lean: async () => null }) })),
 	},
+	Operation: {
+		findOne: jest.fn(() => ({ lean: async () => null })),
+	},
 }));
 
 jest.mock('../../utils/orderBoardLog.js', () => ({
@@ -58,11 +63,15 @@ const { canManageBoard, canManageLine } = require('../../utils/order-permissions
 const { OrderLine } = require('../../data/models.js');
 const { appendOrderLog } = require('../../utils/orderBoardLog.js');
 
+const { getV2Text, v2Text } = require('../helpers/v2Payload.js');
+
 describe('Order buttons', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		canManageBoard.mockReturnValue(true);
 		canManageLine.mockReturnValue(true);
+		mockListLines.mockResolvedValue([]);
+		mockResolveOp.mockResolvedValue(null);
 		OrderLine.find.mockReturnValue({ lean: async () => [] });
 		OrderLine.findOne.mockReturnValue({
 			lean: async () => ({ line_id: '3', name: 'Sticky', owner_id: 'u1' }),
@@ -133,20 +142,20 @@ describe('Order buttons', () => {
 			const i = base('order_qty|p1|b1|3');
 			await qty.execute(i);
 			expect(mockApplyIncrement).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_STATUS_CLOSED' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_STATUS_CLOSED', { ephemeral: true }));
 		});
 
 		it('refuse customId invalide', async () => {
 			const i = base('order_qty|xx|b1');
 			await qty.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'INTERACTION_ERROR' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('INTERACTION_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse board manquant', async () => {
 			mockFindBoard.mockResolvedValue(null);
 			const i = base('order_qty|p1|b1|3');
 			await qty.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_BOARD_NOT_EXIST' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_BOARD_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('utilise la première ligne si aucune sélection', async () => {
@@ -171,7 +180,7 @@ describe('Order buttons', () => {
 			});
 			const i = base('order_qty|p1|b1');
 			await qty.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_NO_SELECTION' }));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_NO_SELECTION', { ephemeral: true }));
 		});
 
 		it('followUp si ligne introuvable après increment', async () => {
@@ -179,9 +188,7 @@ describe('Order buttons', () => {
 			mockApplyIncrement.mockResolvedValue(null);
 			const i = base('order_qty|p1|b1|3');
 			await qty.execute(i);
-			expect(i.followUp).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_LINE_NOT_EXIST',
-			}));
+			expect(i.followUp).toHaveBeenCalledWith(v2Text('ORDER_LINE_NOT_EXIST', { ephemeral: true }));
 		});
 
 		it('ignore le log si quantité inchangée', async () => {
@@ -306,9 +313,7 @@ describe('Order buttons', () => {
 			const i = base('order_close|b1');
 			await close.execute(i);
 			expect(mockCloseBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_CANNOT_MANAGE_ERROR',
-			}));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_CANNOT_MANAGE_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse customId / board manquant', async () => {
@@ -338,9 +343,7 @@ describe('Order buttons', () => {
 			const i = base('order_reopen|b1');
 			await reopen.execute(i);
 			expect(mockReopenBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_STATUS_ALREADY_OPEN',
-			}));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_STATUS_ALREADY_OPEN', { ephemeral: true }));
 		});
 
 		it('refuse sans permission', async () => {
@@ -349,9 +352,7 @@ describe('Order buttons', () => {
 			const i = base('order_reopen|b1');
 			await reopen.execute(i);
 			expect(mockReopenBoard).not.toHaveBeenCalled();
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_CANNOT_MANAGE_ERROR',
-			}));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_CANNOT_MANAGE_ERROR', { ephemeral: true }));
 		});
 
 		it('refuse customId / board manquant', async () => {
@@ -370,21 +371,16 @@ describe('Order buttons', () => {
 			mockCountLines.mockResolvedValue(0);
 			const i = base('order_add|b1');
 			await add.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'MATERIAL_SELECT_CATEGORY',
-				flags: 64,
-			}));
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ components: expect.any(Array), flags: expect.anything() }));
+			expect(getV2Text(i.reply.mock.calls[0][0])).toContain('MATERIAL_SELECT_CATEGORY');
 		});
 
-		it('refuse si board plein', async () => {
-			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open' });
+		it('refuse si board plein (count)', async () => {
+			mockFindBoard.mockResolvedValue({ _id: 'b1', status: 'open', guild_id: 'g1' });
 			mockCountLines.mockResolvedValue(50);
 			const i = base('order_add|b1');
 			await add.execute(i);
-			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-				content: 'ORDER_FULL',
-				flags: 64,
-			}));
+			expect(i.reply).toHaveBeenCalledWith(v2Text('ORDER_FULL', { ephemeral: true }));
 		});
 
 		it('refuse customId / board manquant / closed', async () => {

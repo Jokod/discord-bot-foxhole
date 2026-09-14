@@ -1,4 +1,5 @@
 const { isMissingAccessError, getDiscordErrorCode } = require('./discordAccess.js');
+const { v2Text, editReplyV2, followUpV2, replyV2 } = require('./componentsV2.js');
 
 /**
  * Log + ephemeral reply/followUp for a failed interaction command.
@@ -20,17 +21,18 @@ async function handleInteractionError(interaction, translations, err) {
 	const content = translations.translate(
 		missingAccess ? 'BOT_MISSING_CHANNEL_ACCESS' : 'COMMAND_EXECUTE_ERROR',
 	);
+	const payload = v2Text(content, { ephemeral: true });
 
 	try {
 		// Ephemeral can only be set on the initial reply or a followUp — not on editReply.
 		if (interaction.deferred && !interaction.replied) {
-			await interaction.editReply({ content });
+			await editReplyV2(interaction, v2Text(content));
 		}
 		else if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({ content, flags: 64 });
+			await followUpV2(interaction, payload);
 		}
 		else {
-			await interaction.reply({ content, flags: 64 });
+			await replyV2(interaction, payload);
 		}
 	}
 	catch (replyErr) {

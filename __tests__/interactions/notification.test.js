@@ -15,6 +15,8 @@ jest.mock('../../data/models.js', () => ({
 
 const { NotificationSubscription } = require('../../data/models.js');
 
+const { getV2Text, v2Text, MessageFlags } = require('../helpers/v2Payload.js');
+
 describe('Slash command /notify', () => {
 	let notificationCommand;
 
@@ -59,7 +61,7 @@ describe('Slash command /notify', () => {
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.findOne).not.toHaveBeenCalled();
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_NO_PERMS', flags: 64 }),
+				v2Text('NOTIFICATION_NO_PERMS', { ephemeral: true }),
 			);
 		});
 
@@ -74,7 +76,7 @@ describe('Slash command /notify', () => {
 			});
 			expect(NotificationSubscription.create).not.toHaveBeenCalled();
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_ALREADY_SUBSCRIBED', flags: 64 }),
+				v2Text('NOTIFICATION_ALREADY_SUBSCRIBED', { ephemeral: true }),
 			);
 		});
 
@@ -89,7 +91,7 @@ describe('Slash command /notify', () => {
 				notification_type: 'stockpile_expiring',
 			});
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_SUBSCRIBE_SUCCESS', flags: 64 }),
+				v2Text('NOTIFICATION_SUBSCRIBE_SUCCESS', { ephemeral: true }),
 			);
 		});
 	});
@@ -101,7 +103,7 @@ describe('Slash command /notify', () => {
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.deleteOne).not.toHaveBeenCalled();
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_NO_PERMS', flags: 64 }),
+				v2Text('NOTIFICATION_NO_PERMS', { ephemeral: true }),
 			);
 		});
 
@@ -115,7 +117,7 @@ describe('Slash command /notify', () => {
 				notification_type: 'stockpile_activity',
 			});
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_NOT_SUBSCRIBED', flags: 64 }),
+				v2Text('NOTIFICATION_NOT_SUBSCRIBED', { ephemeral: true }),
 			);
 		});
 
@@ -129,7 +131,7 @@ describe('Slash command /notify', () => {
 				notification_type: 'stockpile_expiring',
 			});
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_UNSUBSCRIBE_SUCCESS', flags: 64 }),
+				v2Text('NOTIFICATION_UNSUBSCRIBE_SUCCESS', { ephemeral: true }),
 			);
 		});
 	});
@@ -141,7 +143,7 @@ describe('Slash command /notify', () => {
 			await notificationCommand.execute(interaction);
 			expect(NotificationSubscription.find).toHaveBeenCalledWith({ guild_id: 'guild-123' });
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_LIST_EMPTY', flags: 64 }),
+				v2Text('NOTIFICATION_LIST_EMPTY', { ephemeral: true }),
 			);
 		});
 
@@ -156,13 +158,10 @@ describe('Slash command /notify', () => {
 			const interaction = createInteraction('list');
 			await notificationCommand.execute(interaction);
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({
-					content: expect.stringContaining('NOTIFICATION_LIST_HEADER'),
-					flags: 64,
-				}),
+				expect.objectContaining({ components: expect.any(Array), flags: expect.anything() }),
 			);
-			expect(interaction.reply.mock.calls[0][0].content).toContain('<#ch-1>');
-			expect(interaction.reply.mock.calls[0][0].content).toContain('<#ch-2>');
+			expect(getV2Text(interaction.reply.mock.calls[0][0])).toContain('<#ch-1>');
+			expect(getV2Text(interaction.reply.mock.calls[0][0])).toContain('<#ch-2>');
 		});
 
 		it('ignore les abonnements de type inconnu', async () => {
@@ -174,7 +173,7 @@ describe('Slash command /notify', () => {
 			});
 			const interaction = createInteraction('list');
 			await notificationCommand.execute(interaction);
-			const content = interaction.reply.mock.calls[0][0].content;
+			const content = getV2Text(interaction.reply.mock.calls[0][0]);
 			expect(content).toContain('<#ch-1>');
 			expect(content).not.toContain('<#ch-old>');
 		});
@@ -188,7 +187,7 @@ describe('Slash command /notify', () => {
 			const interaction = createInteraction('list');
 			await notificationCommand.execute(interaction);
 			expect(interaction.reply).toHaveBeenCalledWith(
-				expect.objectContaining({ content: 'NOTIFICATION_LIST_EMPTY', flags: 64 }),
+				v2Text('NOTIFICATION_LIST_EMPTY', { ephemeral: true }),
 			);
 		});
 
@@ -211,7 +210,7 @@ describe('Slash command /notify', () => {
 			const interaction = createInteraction('list');
 			await notificationCommand.execute(interaction);
 			findSpy.mockRestore();
-			expect(interaction.reply.mock.calls[0][0].content).toContain('**stockpile_activity**:');
+			expect(getV2Text(interaction.reply.mock.calls[0][0])).toContain('**stockpile_activity**:');
 		});
 	});
 

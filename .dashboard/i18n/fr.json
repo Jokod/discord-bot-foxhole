@@ -320,6 +320,8 @@
 	"AUTH_BODY_LARGE": "Corps de requête trop volumineux",
 	"AUTH_JSON": "JSON invalide",
 	"kpi.seen": "{n} vus",
+	"kpi.vus": "Vus",
+	"kpi.activeCount": "{n} actifs",
 	"kpi.members": "Membres",
 	"kpi.boardsLabel": "Tableaux",
 	"kpi.boardsOpen": "{n} ouverts",

@@ -1,19 +1,16 @@
 const {
 	SlashCommandBuilder,
-	ActionRowBuilder,
-	ModalBuilder,
-	TextInputBuilder,
-	TextInputStyle,
 } = require('discord.js');
 const { Stockpile, TrackedMessage } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { editTrackedOrFallback } = require('../../../utils/trackedMessage.js');
 const {
-	buildStockpileListEmbed,
-	buildStockpileListComponents,
+	buildStockpileListPayload,
 	buildStockpileManagePayload,
 } = require('../../embeds/stockpileList.js');
 const { canAccessStockpileManage } = require('../../../utils/stockpile-permissions.js');
+const { v2Text, isComponentsV2Message } = require('../../../utils/componentsV2.js');
+const { buildLabeledModal, TextInputStyle } = require('../../../utils/modalLabels.js');
 
 module.exports = {
 	init: true,
@@ -87,67 +84,72 @@ module.exports = {
 		const { client, guild, options } = interaction;
 		const translations = new Translate(client, guild?.id);
 		if (!guild) {
-			return interaction.reply({
-				content: translations.translate('NO_DM'),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(translations.translate('NO_DM'), { ephemeral: true }));
 		}
 		const subcommand = options.getSubcommand();
 
 		const MESSAGE_TYPE = 'stockpile_list';
 		const expectedListTitle = `🔑 ${translations.translate('STOCKPILE_LIST_CODES')}`;
 		const fallbackMatcher = (msgs) =>
-			msgs.find((m) => m.author?.id === client.user.id && m.embeds?.[0]?.title === expectedListTitle) ?? null;
+			msgs.find((m) => {
+				if (m.author?.id !== client.user.id) return false;
+				if (m.embeds?.[0]?.title === expectedListTitle) return true;
+				if (isComponentsV2Message(m)) {
+					const raw = JSON.stringify(m.components ?? []);
+					return raw.includes(expectedListTitle);
+				}
+				return false;
+			}) ?? null;
 
 		switch (subcommand) {
 		case 'add':
 			{
-				const modal = new ModalBuilder()
-					.setCustomId('modal_stockpile_add')
-					.setTitle(translations.translate('STOCKPILE'));
-
-				const regionInput = new TextInputBuilder()
-					.setCustomId('stock_region')
-					.setLabel(translations.translate('STOCKPILE_REGION'))
-					.setPlaceholder(translations.translate('STOCKPILE_PLACEHOLDER_REGION'))
-					.setStyle(TextInputStyle.Short)
-					.setMinLength(2)
-					.setMaxLength(50)
-					.setRequired(true);
-
-				const cityInput = new TextInputBuilder()
-					.setCustomId('stock_city')
-					.setLabel(translations.translate('STOCKPILE_CITY'))
-					.setPlaceholder(translations.translate('STOCKPILE_PLACEHOLDER_CITY'))
-					.setStyle(TextInputStyle.Short)
-					.setMinLength(2)
-					.setMaxLength(50)
-					.setRequired(true);
-
-				const nameInput = new TextInputBuilder()
-					.setCustomId('stock_name')
-					.setLabel(translations.translate('NAME'))
-					.setPlaceholder(translations.translate('STOCKPILE_PLACEHOLDER_NAME'))
-					.setStyle(TextInputStyle.Short)
-					.setMinLength(3)
-					.setMaxLength(50)
-					.setRequired(true);
-
-				const codeInput = new TextInputBuilder()
-					.setCustomId('stock_code')
-					.setLabel(translations.translate('PASSWORD'))
-					.setPlaceholder(translations.translate('STOCKPILE_PLACEHOLDER_CODE'))
-					.setStyle(TextInputStyle.Short)
-					.setMinLength(6)
-					.setMaxLength(6)
-					.setRequired(true);
-
-				modal.addComponents(
-					new ActionRowBuilder().addComponents(regionInput),
-					new ActionRowBuilder().addComponents(cityInput),
-					new ActionRowBuilder().addComponents(nameInput),
-					new ActionRowBuilder().addComponents(codeInput),
-				);
+				const modal = buildLabeledModal({
+					customId: 'modal_stockpile_add',
+					title: translations.translate('STOCKPILE'),
+					fields: [
+						{
+							customId: 'stock_region',
+							label: translations.translate('STOCKPILE_REGION'),
+							description: translations.translate('STOCKPILE_DESC_REGION'),
+							placeholder: translations.translate('STOCKPILE_PLACEHOLDER_REGION'),
+							style: TextInputStyle.Short,
+							minLength: 2,
+							maxLength: 50,
+							required: true,
+						},
+						{
+							customId: 'stock_city',
+							label: translations.translate('STOCKPILE_CITY'),
+							description: translations.translate('STOCKPILE_DESC_CITY'),
+							placeholder: translations.translate('STOCKPILE_PLACEHOLDER_CITY'),
+							style: TextInputStyle.Short,
+							minLength: 2,
+							maxLength: 50,
+							required: true,
+						},
+						{
+							customId: 'stock_name',
+							label: translations.translate('NAME'),
+							description: translations.translate('STOCKPILE_DESC_NAME'),
+							placeholder: translations.translate('STOCKPILE_PLACEHOLDER_NAME'),
+							style: TextInputStyle.Short,
+							minLength: 3,
+							maxLength: 50,
+							required: true,
+						},
+						{
+							customId: 'stock_code',
+							label: translations.translate('PASSWORD'),
+							description: translations.translate('STOCKPILE_DESC_CODE'),
+							placeholder: translations.translate('STOCKPILE_PLACEHOLDER_CODE'),
+							style: TextInputStyle.Short,
+							minLength: 6,
+							maxLength: 6,
+							required: true,
+						},
+					],
+				});
 
 				await interaction.showModal(modal);
 			}
@@ -155,41 +157,19 @@ module.exports = {
 
 		case 'list': {
 			await interaction.deferReply();
-			const { embed, isEmpty: listEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
-			let result;
-			if (listEmpty) {
-				result = await editTrackedOrFallback({
-					channel: interaction.channel,
-					serverId: guild.id,
-					messageType: MESSAGE_TYPE,
-					model: TrackedMessage,
-					fallbackMatcher,
-					editPayload: {
-						content: translations.translate('STOCKPILE_LIST_EMPTY'),
-						embeds: [],
-						components: [],
-					},
-					fallbackSend: () => interaction.editReply({
-						content: translations.translate('STOCKPILE_LIST_EMPTY'),
-						embeds: [],
-						components: [],
-					}),
-				});
-			}
-			else {
-				const components = await buildStockpileListComponents(Stockpile, guild.id, translations);
-				const payload = { content: '', embeds: [embed], components };
-				result = await editTrackedOrFallback({
-					channel: interaction.channel,
-					serverId: guild.id,
-					messageType: MESSAGE_TYPE,
-					model: TrackedMessage,
-					fallbackMatcher,
-					editPayload: payload,
-					fallbackSend: () => interaction.editReply(payload),
-				});
-			}
-			if (!result.usedFallback) {
+			const payload = await buildStockpileListPayload(Stockpile, guild.id, translations);
+			const result = await editTrackedOrFallback({
+				channel: interaction.channel,
+				serverId: guild.id,
+				messageType: MESSAGE_TYPE,
+				model: TrackedMessage,
+				fallbackMatcher,
+				editPayload: payload,
+				fallbackSend: () => interaction.editReply(payload),
+			});
+			// Edited in-channel, or legacy cutover reposted via channel.send — drop the deferred ack.
+			// Only keep the interaction reply when it *is* the list (fallbackSend = editReply).
+			if (!result.usedFallback || result.reposted) {
 				await interaction.deleteReply().catch(() => undefined);
 			}
 			break;
@@ -197,10 +177,7 @@ module.exports = {
 
 		case 'manage': {
 			if (!(await canAccessStockpileManage(interaction, Stockpile))) {
-				return interaction.reply({
-					content: translations.translate('STOCKPILE_MANAGE_NO_ACCESS'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('STOCKPILE_MANAGE_NO_ACCESS'), { ephemeral: true }));
 			}
 
 			await interaction.deferReply({ flags: 64 });
@@ -210,10 +187,7 @@ module.exports = {
 		}
 
 		default:
-			return interaction.reply({
-				content: translations.translate('COMMAND_UNKNOWN'),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(translations.translate('COMMAND_UNKNOWN'), { ephemeral: true }));
 		}
 	},
 };

@@ -1,7 +1,8 @@
 const { Stockpile } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
-const { buildStockpileListEmbed, buildStockpileListComponents } = require('../../embeds/stockpileList.js');
+const { buildStockpileListPayload } = require('../../embeds/stockpileList.js');
 const { STOCKPILE_RESET_DURATION_MS } = require('../../../utils/constants.js');
+const { v2Text } = require('../../../utils/componentsV2.js');
 
 module.exports = {
 	id: 'stockpile_reset',
@@ -17,10 +18,7 @@ module.exports = {
 		const isNumericId = /^\d+$/.test(stockRef) && stockRef.length < 24;
 		const isObjectId = /^[a-f0-9]{24}$/i.test(stockRef);
 		if (!stockRef || (!isNumericId && !isObjectId)) {
-			return interaction.followUp({
-				content: translations.translate('STOCKPILE_INVALID_ID'),
-				flags: 64,
-			});
+			return interaction.followUp(v2Text(translations.translate('STOCKPILE_INVALID_ID'), { ephemeral: true }));
 		}
 
 		const stockToReset = isObjectId
@@ -28,16 +26,10 @@ module.exports = {
 			: await Stockpile.findOne({ server_id: guild.id, id: stockRef });
 
 		if (!stockToReset) {
-			return interaction.followUp({
-				content: translations.translate('STOCKPILE_NOT_EXIST'),
-				flags: 64,
-			});
+			return interaction.followUp(v2Text(translations.translate('STOCKPILE_NOT_EXIST'), { ephemeral: true }));
 		}
 		if (stockToReset.deleted) {
-			return interaction.followUp({
-				content: translations.translate('STOCKPILE_ALREADY_DELETED'),
-				flags: 64,
-			});
+			return interaction.followUp(v2Text(translations.translate('STOCKPILE_ALREADY_DELETED'), { ephemeral: true }));
 		}
 
 		const resetNow = new Date();
@@ -46,28 +38,12 @@ module.exports = {
 		stockToReset.expiry_reminders_sent = [];
 		await stockToReset.save();
 
-		const { embed, isEmpty } = await buildStockpileListEmbed(Stockpile, guild.id, translations);
+		const payload = await buildStockpileListPayload(Stockpile, guild.id, translations);
+		await interaction.editReply(payload);
 
-		if (isEmpty) {
-			await interaction.editReply({
-				content: translations.translate('STOCKPILE_LIST_EMPTY'),
-				embeds: [],
-				components: [],
-			});
-		}
-		else {
-			const components = await buildStockpileListComponents(Stockpile, guild.id, translations);
-			await interaction.editReply({
-				content: '',
-				embeds: [embed],
-				components,
-			});
-		}
-
-		await interaction.followUp({
-			content: translations.translate('STOCKPILE_RESET_SUCCESS', { id: stockToReset.id }),
-			flags: 64,
-		});
+		await interaction.followUp(v2Text(
+			translations.translate('STOCKPILE_RESET_SUCCESS', { id: stockToReset.id }),
+			{ ephemeral: true },
+		));
 	},
 };
-

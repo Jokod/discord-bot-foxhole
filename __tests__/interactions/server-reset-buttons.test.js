@@ -10,6 +10,8 @@ jest.mock('../../utils/serverReset.js', () => ({
 const confirmHandler = require('../../interactions/buttons/server/reset_confirm.js');
 const cancelHandler = require('../../interactions/buttons/server/reset_cancel.js');
 
+const { v2Text, expectV2Call } = require('../helpers/v2Payload.js');
+
 describe('Server reset buttons', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -38,10 +40,7 @@ describe('Server reset buttons', () => {
 		const interaction = createInteraction({ canManage: false });
 		await confirmHandler.execute(interaction);
 		expect(mockResetServerWarData).not.toHaveBeenCalled();
-		expect(interaction.reply).toHaveBeenCalledWith({
-			content: 'NO_PERMS',
-			flags: 64,
-		});
+		expect(interaction.reply).toHaveBeenCalledWith(v2Text('NO_PERMS', { ephemeral: true }));
 	});
 
 	it('confirm: exécute le wipe et retire les boutons', async () => {
@@ -49,19 +48,13 @@ describe('Server reset buttons', () => {
 		await confirmHandler.execute(interaction);
 		expect(interaction.deferUpdate).toHaveBeenCalled();
 		expect(mockResetServerWarData).toHaveBeenCalledWith(interaction.client, 'guild-123');
-		expect(interaction.editReply).toHaveBeenCalledWith({
-			content: expect.stringContaining('SERVER_RESET_SUCCESS'),
-			components: [],
-		});
+		expectV2Call(interaction.editReply, { ephemeral: false, text: 'SERVER_RESET_SUCCESS' });
 	});
 
 	it('cancel: annule sans wipe', async () => {
 		const interaction = createInteraction();
 		await cancelHandler.execute(interaction);
 		expect(mockResetServerWarData).not.toHaveBeenCalled();
-		expect(interaction.update).toHaveBeenCalledWith({
-			content: 'SERVER_RESET_CANCELLED',
-			components: [],
-		});
+		expectV2Call(interaction.update, { ephemeral: false, text: 'SERVER_RESET_CANCELLED' });
 	});
 });

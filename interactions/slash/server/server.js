@@ -2,7 +2,6 @@ const {
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
-	EmbedBuilder,
 	SlashCommandBuilder,
 	PermissionFlagsBits,
 } = require('discord.js');
@@ -12,6 +11,8 @@ const { deleteAllOrderLogThreads, ensureAllOrderLogThreads } = require('../../..
 const { previewServerWarData } = require('../../../utils/serverReset.js');
 const { getWarStatusSummary } = require('../../../utils/foxholeWarApi.js');
 const { encode } = require('../../../shared/customId.js');
+const { v2Text, buildV2Payload } = require('../../../utils/componentsV2.js');
+const { getRandomColor } = require('../../../utils/colors.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -187,36 +188,30 @@ module.exports = {
 		const translations = new Translate(interaction.client, guild.id);
 
 		if (!server) {
-			return interaction.reply({
-				content: translations.translate('SERVER_IS_NOT_INIT'),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(translations.translate('SERVER_IS_NOT_INIT'), { ephemeral: true }));
 		}
 
 		const logsEnabled = Boolean(server.logs);
-		const embed = new EmbedBuilder()
-			.setTitle(translations.translate('SERVER_TITLE_CONFIGURATION'))
-			.addFields(
-				{ name: translations.translate('SERVER_FIELD_GUILD_NAME'), value: guild.name, inline: false },
-				{ name: translations.translate('SERVER_FIELD_GUILD_ID'), value: guild.id, inline: false },
-				{ name: translations.translate('SERVER_FIELD_GUILD_LANG'), value: server.lang, inline: false },
-				{ name: translations.translate('SERVER_FIELD_GUILD_CAMP'), value: server.camp, inline: false },
-				{
-					name: translations.translate('SERVER_FIELD_GUILD_LOGS'),
-					value: translations.translate(logsEnabled ? 'SERVER_LOGS_ENABLED' : 'SERVER_LOGS_DISABLED'),
-					inline: false,
-				},
-			);
+		const configBody = [
+			`**${translations.translate('SERVER_TITLE_CONFIGURATION')}**`,
+			'',
+			`**${translations.translate('SERVER_FIELD_GUILD_NAME')}:** ${guild.name}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_ID')}:** ${guild.id}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_LANG')}:** ${server.lang}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_CAMP')}:** ${server.camp}`,
+			`**${translations.translate('SERVER_FIELD_GUILD_LOGS')}:** ${translations.translate(logsEnabled ? 'SERVER_LOGS_ENABLED' : 'SERVER_LOGS_DISABLED')}`,
+		].join('\n');
 
 		const lang = interaction.options.getString('lang');
 		const camp = interaction.options.getString('camp');
 
 		switch (subcommand) {
 		case 'infos':
-			return interaction.reply({
-				embeds: [embed],
-				flags: 64,
-			});
+			return interaction.reply(buildV2Payload({
+				children: [configBody],
+				ephemeral: true,
+				accentColor: getRandomColor(),
+			}));
 		case 'lang':
 			await Server.findOneAndUpdate(
 				{ guild_id: guild.id },
@@ -226,10 +221,10 @@ module.exports = {
 
 			interaction.client.traductions.set(guild.id, lang);
 
-			return interaction.reply({
-				content: translations.translate('SERVER_SET_LANG_REPLY', { lang: lang.toUpperCase() }),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(
+				translations.translate('SERVER_SET_LANG_REPLY', { lang: lang.toUpperCase() }),
+				{ ephemeral: true },
+			));
 		case 'camp':
 			await Server.findOneAndUpdate(
 				{ guild_id: guild.id },
@@ -237,10 +232,10 @@ module.exports = {
 				{ returnDocument: 'after' },
 			);
 
-			return interaction.reply({
-				content: translations.translate('SERVER_SET_CAMP_REPLY', { camp: camp.toUpperCase() }),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(
+				translations.translate('SERVER_SET_CAMP_REPLY', { camp: camp.toUpperCase() }),
+				{ ephemeral: true },
+			));
 		case 'logs': {
 			const enabled = interaction.options.getBoolean('enabled');
 			await Server.findOneAndUpdate(
@@ -256,20 +251,17 @@ module.exports = {
 				await ensureAllOrderLogThreads(interaction.client, guild.id);
 			}
 
-			return interaction.reply({
-				content: translations.translate(
+			return interaction.reply(v2Text(
+				translations.translate(
 					enabled ? 'SERVER_SET_LOGS_ON_REPLY' : 'SERVER_SET_LOGS_OFF_REPLY',
 				),
-				flags: 64,
-			});
+				{ ephemeral: true },
+			));
 		}
 		case 'reset': {
 			const canManage = interaction.member?.permissions?.has(PermissionFlagsBits.ManageGuild);
 			if (!canManage) {
-				return interaction.reply({
-					content: translations.translate('NO_PERMS'),
-					flags: 64,
-				});
+				return interaction.reply(v2Text(translations.translate('NO_PERMS'), { ephemeral: true }));
 			}
 
 			const [preview, war] = await Promise.all([
@@ -301,17 +293,14 @@ module.exports = {
 					.setStyle(ButtonStyle.Secondary),
 			);
 
-			return interaction.reply({
-				content,
-				components: [row],
-				flags: 64,
-			});
+			return interaction.reply(buildV2Payload({
+				children: [content],
+				actionRows: [row],
+				ephemeral: true,
+			}));
 		}
 		default:
-			return interaction.reply({
-				content: translations.translate('COMMAND_UNKNOWN'),
-				flags: 64,
-			});
+			return interaction.reply(v2Text(translations.translate('COMMAND_UNKNOWN'), { ephemeral: true }));
 		}
 	},
 };

@@ -1,6 +1,7 @@
 const { PermissionFlagsBits } = require('discord.js');
 const {
 	isMissingAccessError,
+	isUnknownMessageError,
 	botCanPostInChannel,
 	getDiscordErrorCode,
 } = require('../../utils/discordAccess.js');
@@ -18,6 +19,14 @@ describe('discordAccess', () => {
 			expect(getDiscordErrorCode({ rawError: { code: 50013 } })).toBe(50013);
 			expect(getDiscordErrorCode({ code: 'nope', rawError: { code: 50008 } })).toBe(50008);
 			expect(getDiscordErrorCode({ code: 'nope' })).toBeNull();
+		});
+	});
+
+	describe('isUnknownMessageError', () => {
+		it('détecte 10008', () => {
+			expect(isUnknownMessageError({ code: 10008 })).toBe(true);
+			expect(isUnknownMessageError({ rawError: { code: 10008 } })).toBe(true);
+			expect(isUnknownMessageError({ code: 50035 })).toBe(false);
 		});
 	});
 
@@ -68,12 +77,11 @@ describe('discordAccess', () => {
 			expect(botCanPostInChannel(returnsNull, { members: { me: { id: 'bot' } } })).toBe(true);
 		});
 
-		it('vérifie ViewChannel + SendMessages + EmbedLinks', () => {
+		it('vérifie ViewChannel + SendMessages (EmbedLinks optionnel)', () => {
 			const me = { id: 'bot' };
 			const has = jest.fn((flag) => [
 				PermissionFlagsBits.ViewChannel,
 				PermissionFlagsBits.SendMessages,
-				PermissionFlagsBits.EmbedLinks,
 			].includes(flag));
 			const channel = {
 				isTextBased: () => true,
@@ -97,8 +105,8 @@ describe('discordAccess', () => {
 				isTextBased: () => true,
 				permissionsFor: () => ({ has }),
 			};
-			expect(botCanPostInChannel(channel, { members: { me: {} } })).toBe(false);
-			expect(botCanPostInChannel(channel, { members: { me: {} } }, { embeds: false })).toBe(true);
+			expect(botCanPostInChannel(channel, { members: { me: {} } }, { embeds: true })).toBe(false);
+			expect(botCanPostInChannel(channel, { members: { me: {} } })).toBe(true);
 		});
 	});
 });

@@ -3,6 +3,7 @@ const Translate = require('./translations.js');
 const { formatForDisplay } = require('./formatLocation.js');
 const { safeEscapeMarkdown } = require('./markdown.js');
 const { refreshTrackedStockpileLists } = require('./stockpileListSync.js');
+const { sendV2, buildV2Payload, separator } = require('./componentsV2.js');
 
 /** Run every 5 minutes. */
 const CHECK_INTERVAL_MS = 5 * 60 * 1000;
@@ -101,26 +102,43 @@ async function checkExpiringStockpiles(client) {
 
 		const translations = new Translate(client, sub.guild_id);
 		const title = translations.translate('NOTIFICATION_STOCKPILE_EXPIRING_ALERT');
-		const lines = items.map(({ stock: s, window }) => {
-			const region = safeEscapeMarkdown(formatForDisplay(s.region || ''));
-			const city = safeEscapeMarkdown(formatForDisplay(s.city || ''));
+		const byWindow = new Map();
+		for (const { stock: s, window } of items) {
+			if (!byWindow.has(window)) byWindow.set(window, []);
+			byWindow.get(window).push(s);
+		}
+		const windowOrder = ['30m', '1h', '6h', '12h'];
+		/** @type {Array<string|object>} */
+		const children = [`**${title}**`];
+		for (const window of windowOrder) {
+			const stocks = byWindow.get(window);
+			if (!stocks?.length) continue;
 			const windowLabel = formatWindowLabel(window, translations);
-			const creator = s.owner_id && s.owner_id !== '0' ? `<@${s.owner_id}> ` : '';
-			return translations.translate('NOTIFICATION_STOCKPILE_EXPIRING_LINE', {
-				creator,
-				id: s.id,
-				name: safeEscapeMarkdown(s.name),
-				region,
-				city,
-				window: windowLabel,
+			const lines = stocks.map((s) => {
+				const region = safeEscapeMarkdown(formatForDisplay(s.region || ''));
+				const city = safeEscapeMarkdown(formatForDisplay(s.city || ''));
+				const creator = s.owner_id && s.owner_id !== '0' ? `<@${s.owner_id}> ` : '';
+				return translations.translate('NOTIFICATION_STOCKPILE_EXPIRING_LINE', {
+					creator,
+					id: s.id,
+					name: safeEscapeMarkdown(s.name),
+					region,
+					city,
+					window: windowLabel,
+				});
 			});
+			children.push(separator());
+			children.push(`**${windowLabel}**\n${lines.join('\n')}`);
+		}
+		const payload = buildV2Payload({
+			children,
+			accentColor: 0xE67E22,
 		});
-		const content = `${title}\n${lines.join('\n')}`;
 
 		try {
 			const channel = await client.channels.fetch(sub.channel_id).catch(() => null);
 			if (channel?.isSendable()) {
-				await channel.send({ content });
+				await sendV2(channel, payload);
 			}
 		}
 		catch {

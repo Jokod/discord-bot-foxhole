@@ -33,15 +33,27 @@ function isMissingAccessError(err) {
 	return code != null && CHANNEL_ACCESS_ERROR_CODES.has(code);
 }
 
+/** Unknown Message — message was deleted or never existed. */
+const UNKNOWN_MESSAGE_ERROR_CODE = 10008;
+
+/**
+ * @param {unknown} err
+ * @returns {boolean}
+ */
+function isUnknownMessageError(err) {
+	return getDiscordErrorCode(err) === UNKNOWN_MESSAGE_ERROR_CODE;
+}
+
 /**
  * Whether the bot can post a normal message (optionally with embeds) in this channel.
+ * Defaults to embeds=false (Components V2 does not require EmbedLinks).
  * @param {import('discord.js').GuildBasedChannel | import('discord.js').TextBasedChannel | null | undefined} channel
  * @param {import('discord.js').Guild | null | undefined} guild
  * @param {{ embeds?: boolean }} [options]
  * @returns {boolean}
  */
 function botCanPostInChannel(channel, guild, options = {}) {
-	const { embeds = true } = options;
+	const { embeds = false } = options;
 	if (!channel || typeof channel.isTextBased !== 'function' || !channel.isTextBased()) {
 		return false;
 	}
@@ -64,7 +76,9 @@ function botCanPostInChannel(channel, guild, options = {}) {
 
 module.exports = {
 	CHANNEL_ACCESS_ERROR_CODES,
+	UNKNOWN_MESSAGE_ERROR_CODE,
 	getDiscordErrorCode,
 	isMissingAccessError,
+	isUnknownMessageError,
 	botCanPostInChannel,
 };

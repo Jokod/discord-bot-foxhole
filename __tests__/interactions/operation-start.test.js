@@ -17,6 +17,8 @@ jest.mock('../../data/models.js', () => ({
 
 const startHandler = require('../../interactions/buttons/operation/start.js');
 
+const { getV2Text, v2Text } = require('../helpers/v2Payload.js');
+
 describe('Operation start button', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -38,18 +40,14 @@ describe('Operation start button', () => {
 		mockFindOne.mockResolvedValue(null);
 		const i = base();
 		await startHandler.execute(i);
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'OPERATION_NOT_EXIST',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('OPERATION_NOT_EXIST', { ephemeral: true }));
 	});
 
 	it('refuse si pas owner', async () => {
 		mockFindOne.mockResolvedValue({ owner_id: 'other', title: 'Op' });
 		const i = base();
 		await startHandler.execute(i);
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'OPERATION_ARE_NO_OWNER_ERROR',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('OPERATION_ARE_NO_OWNER_ERROR', { ephemeral: true }));
 	});
 
 	it('démarre l’opération et remplace les boutons', async () => {
@@ -68,11 +66,15 @@ describe('Operation start button', () => {
 			{ status: 'started' },
 		);
 		expect(i.update).toHaveBeenCalledWith(expect.objectContaining({
-			content: expect.stringContaining('OPERATION_LAUNCH_SUCCESS'),
 			components: expect.any(Array),
+			flags: expect.anything(),
 		}));
-		const row = i.update.mock.calls[0][0].components[0];
-		expect(row.components.map((b) => b.data.custom_id)).toEqual([
+		expect(getV2Text(i.update.mock.calls[0][0])).toContain('OPERATION_LAUNCH_SUCCESS');
+		const actionRow = i.update.mock.calls[0][0].components.find((c) => {
+			const j = typeof c.toJSON === 'function' ? c.toJSON() : c;
+			return j.type === 1;
+		});
+		expect(actionRow.components.map((b) => b.data.custom_id)).toEqual([
 			'button_create_operation_finished',
 			'button_create_operation_cancel',
 		]);
@@ -84,8 +86,6 @@ describe('Operation start button', () => {
 		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		await startHandler.execute(i);
 		err.mockRestore();
-		expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({
-			content: 'OPERATION_LAUNCH_ERROR',
-		}));
+		expect(i.reply).toHaveBeenCalledWith(v2Text('OPERATION_LAUNCH_ERROR', { ephemeral: true }));
 	});
 });
