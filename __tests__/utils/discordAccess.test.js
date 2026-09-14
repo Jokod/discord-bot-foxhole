@@ -2,8 +2,11 @@ const { PermissionFlagsBits } = require('discord.js');
 const {
 	isMissingAccessError,
 	isUnknownMessageError,
+	isExpiredInteractionError,
 	botCanPostInChannel,
 	getDiscordErrorCode,
+	buildBotInviteUrl,
+	missingChannelAccessText,
 } = require('../../utils/discordAccess.js');
 
 describe('discordAccess', () => {
@@ -49,6 +52,21 @@ describe('discordAccess', () => {
 			expect(isMissingAccessError({ code: 10008 })).toBe(false);
 			expect(isMissingAccessError({ status: 403 })).toBe(false);
 			expect(isMissingAccessError(new Error('boom'))).toBe(false);
+		});
+
+		it('détecte le message Discord sans code numérique', () => {
+			expect(isMissingAccessError(new Error('Missing Access'))).toBe(true);
+			expect(isMissingAccessError({ message: 'Missing Permissions' })).toBe(true);
+		});
+	});
+
+	describe('isExpiredInteractionError', () => {
+		it('détecte 10062 et 40060', () => {
+			expect(isExpiredInteractionError({ code: 10062 })).toBe(true);
+			expect(isExpiredInteractionError({ code: 40060 })).toBe(true);
+			expect(isExpiredInteractionError({ rawError: { code: 10062 } })).toBe(true);
+			expect(isExpiredInteractionError({ code: 50001 })).toBe(false);
+			expect(isExpiredInteractionError(null)).toBe(false);
 		});
 	});
 
@@ -107,6 +125,32 @@ describe('discordAccess', () => {
 			};
 			expect(botCanPostInChannel(channel, { members: { me: {} } }, { embeds: true })).toBe(false);
 			expect(botCanPostInChannel(channel, { members: { me: {} } })).toBe(true);
+		});
+	});
+
+	describe('buildBotInviteUrl / missingChannelAccessText', () => {
+		const { BOT_INVITE_PERMISSIONS } = require('../../utils/constants.js');
+
+		it('construit l’URL OAuth avec CLIENT_ID', () => {
+			expect(buildBotInviteUrl('123')).toBe(
+				`https://discord.com/api/oauth2/authorize?client_id=123&permissions=${BOT_INVITE_PERMISSIONS}&scope=bot%20applications.commands`,
+			);
+			expect(buildBotInviteUrl('')).toBeNull();
+			expect(buildBotInviteUrl('  ')).toBeNull();
+		});
+
+		it('missingChannelAccessText injecte l’URL dans la traduction', () => {
+			const prev = process.env.CLIENT_ID;
+			process.env.CLIENT_ID = 'app-1';
+			const translate = jest.fn((key, params) => `${key}:${params.url}`);
+			expect(missingChannelAccessText({ translate })).toContain('client_id=app-1');
+			expect(translate).toHaveBeenCalledWith('BOT_MISSING_CHANNEL_ACCESS', {
+				url: expect.stringContaining('client_id=app-1'),
+			});
+			delete process.env.CLIENT_ID;
+			expect(missingChannelAccessText({ translate: (k, p) => `${k}:${p.url}` }))
+				.toContain('developers/applications');
+			process.env.CLIENT_ID = prev;
 		});
 	});
 });

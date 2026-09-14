@@ -32,11 +32,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install dashboard dependencies
+        run: npm ci --prefix .dashboard
+
       - name: Lint
         run: npm run lint
 
       - name: i18n key parity (en/es/fr/ru/zh-cn + ORDER_*)
         run: node scripts/check-i18n-parity.js
+
+      - name: Version parity (root ↔ dashboard)
+        run: node scripts/check-version-parity.js
+
+      - name: Dashboard Vue unit tests
+        run: npm run test --prefix .dashboard
 
       - name: Unit tests with coverage thresholds
         run: npm run test:coverage -- --ci --forceExit

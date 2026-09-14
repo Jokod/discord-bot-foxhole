@@ -20,6 +20,8 @@
 	"action.logout": "Déconnexion",
 	"lang.label": "Langue",
 	"banner.defaultCreds": "Change le mot de passe par défaut dans Paramètres avant d’accéder aux stats.",
+	"banner.updateAvailable": "Mise à jour disponible : {local} → {latest}.",
+	"banner.updateLink": "Voir sur GitHub",
 	"meta.loading": "Chargement…",
 	"meta.changePassword": "Change le mot de passe pour charger les stats",
 	"footer.since": "Depuis {when}",

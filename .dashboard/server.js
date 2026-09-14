@@ -31,10 +31,11 @@ const I18N_FILES = new Set(['en.json', 'es.json', 'fr.json', 'ru.json', 'zh-CN.j
 const ROOT = path.join(__dirname, '..');
 const SWAGGER_HTML = path.join(__dirname, 'docs', 'swagger.html');
 const ENV_FILE = process.env.DASHBOARD_ENV_FILE
-	|| (fs.existsSync(path.join(ROOT, '.env.prod')) ? '.env.prod' : '.env');
+	|| (fs.existsSync(path.join(ROOT, '.env')) ? '.env' : '.env.prod');
 const ENV_PATH = path.isAbsolute(ENV_FILE) ? ENV_FILE : path.join(ROOT, ENV_FILE);
 
 require('dotenv').config({ path: ENV_PATH, quiet: true });
+console.log(`[dashboard] env file: ${ENV_FILE}`);
 
 const {
 	sendJson,

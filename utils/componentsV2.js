@@ -124,8 +124,8 @@ function section({ text, button, thumbnail }) {
 	if (!displays.length) displays.push(textDisplay('\u200b'));
 
 	const s = new SectionBuilder().addTextDisplayComponents(...displays);
-	if (button) s.setButtonAccessory(button);
-	else if (thumbnail) s.setThumbnailAccessory(thumbnail);
+	if (button) {s.setButtonAccessory(button);}
+	else if (thumbnail) {s.setThumbnailAccessory(thumbnail);}
 	else {
 		throw new Error('section() requires button or thumbnail accessory');
 	}

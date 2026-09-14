@@ -112,6 +112,9 @@ describe('Slash /order', () => {
 			});
 			await orderCommand.execute(i);
 			expect(mockCreateBoard).not.toHaveBeenCalled();
+			expect(mockTranslate).toHaveBeenCalledWith('BOT_MISSING_CHANNEL_ACCESS', expect.objectContaining({
+				url: expect.stringContaining('oauth2/authorize'),
+			}));
 			expect(i.reply).toHaveBeenCalledWith(v2Text('BOT_MISSING_CHANNEL_ACCESS', { ephemeral: true }));
 		});
 

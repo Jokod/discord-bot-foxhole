@@ -27,17 +27,17 @@ module.exports = {
 
 		startStockpileExpiryScheduler(client);
 		void syncAllStockpileLists(client).catch((err) => {
-			console.error('[StockpileList] Échec de la synchronisation au démarrage:', err);
+			console.error('[StockpileList] Startup sync failed:', err);
 		});
 
 		try {
 			const { syncAllOrderBoards } = require('../utils/orderBoardSync.js');
 			void syncAllOrderBoards(client).catch((err) => {
-				console.error('[OrderBoard] Échec de la synchronisation au démarrage:', err);
+				console.error('[OrderBoard] Startup sync failed:', err);
 			});
 		}
 		catch (err) {
-			console.error('[OrderBoard] syncAllOrderBoards indisponible:', err.message);
+			console.error('[OrderBoard] syncAllOrderBoards unavailable:', err.message);
 		}
 
 		const purgedStats = await purgeEmptyStatsRecords();
@@ -57,10 +57,10 @@ module.exports = {
 						guildName: guild.name ?? id,
 					});
 					await guild.leave();
-					console.log(`[Blocked] Bot retiré du serveur ${guild.name} (${id}).`);
+					console.log(`[Blocked] Left guild ${guild.name} (${id}).`);
 				}
 				catch (err) {
-					console.error(`[Blocked] Impossible de quitter le serveur ${guild.name ?? id} (${id}):`, err.message);
+					console.error(`[Blocked] Failed to leave guild ${guild.name ?? id} (${id}):`, err.message);
 				}
 			}
 		}
@@ -122,7 +122,7 @@ module.exports = {
 				});
 			}
 
-			console.log(`[Stats] ${orphanedIds.size} serveur(s) orphelin(s) nettoyé(s) au démarrage.`);
+			console.log(`[Stats] Cleaned ${orphanedIds.size} orphaned guild(s) on startup.`);
 		}
 	},
 };

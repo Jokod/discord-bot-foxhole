@@ -9,7 +9,7 @@ module.exports = {
 			catch (err) {
 				if (isMissingAccessError(err) || err.status === 403) {
 					const code = err.code ?? err.rawError?.code ?? err.status;
-					console.warn(`[React] Accès/permissions refusés sur le canal ${message.channelId} (code ${code})`);
+					console.warn(`[React] Channel access/permissions denied on channel ${message.channelId} (code ${code})`);
 					return;
 				}
 				throw err;

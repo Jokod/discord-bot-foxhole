@@ -104,14 +104,14 @@ describe('Translate', () => {
 		it('should not report errors when all languages have same keys', () => {
 			const consoleSpy = jest.spyOn(console, 'log');
 			Translate.prototype.compareTranslationKeys(mockClient);
-			expect(consoleSpy).toHaveBeenCalledWith('Aucune erreur dans les fichiers de traduction.');
+			expect(consoleSpy).toHaveBeenCalledWith('No errors in translation files.');
 		});
 
 		it('should report missing keys', () => {
 			mockClient.languages.set('fr', { HELLO: 'Bonjour' });
 			const consoleSpy = jest.spyOn(console, 'error');
 			Translate.prototype.compareTranslationKeys(mockClient);
-			expect(consoleSpy).toHaveBeenCalledWith('Clés manquantes :', ['WELCOME', 'GOODBYE']);
+			expect(consoleSpy).toHaveBeenCalledWith('Missing keys:', ['WELCOME', 'GOODBYE']);
 		});
 
 		it('should report extra keys', () => {
@@ -123,7 +123,7 @@ describe('Translate', () => {
 			});
 			const consoleSpy = jest.spyOn(console, 'error');
 			Translate.prototype.compareTranslationKeys(mockClient);
-			expect(consoleSpy).toHaveBeenCalledWith('Clés en trop :', ['EXTRA_KEY']);
+			expect(consoleSpy).toHaveBeenCalledWith('Extra keys:', ['EXTRA_KEY']);
 		});
 	});
 });

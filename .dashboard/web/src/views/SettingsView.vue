@@ -34,8 +34,8 @@
           v-if="auth.user?.wiki_sync?.enabled"
           type="button"
           class="settings-nav-item"
-          :class="{ active: tab === 'wiki-sync' }"
-          @click="goTab('wiki-sync')"
+          :class="{ active: tab === 'wiki' }"
+          @click="goTab('wiki')"
         >
           {{ t('settings.nav.wiki') }}
         </button>
@@ -155,8 +155,12 @@
             <p class="settings-hint">
               {{ t('settings.api.authHeader') }}
             </p>
+            <LoadingState
+              v-if="tokensLoading && !tokens.length"
+              :message="t('meta.loading')"
+            />
             <div
-              v-if="tokens.length"
+              v-else-if="tokens.length"
               class="table-wrap settings-table-wrap"
             >
               <table class="settings-table">
@@ -198,13 +202,13 @@
               </table>
             </div>
             <EmptyState
-              v-else
+              v-else-if="tokensReady"
               :message="t('profile.apiTokens.empty')"
             />
           </div>
         </SectionPanel>
         <SectionPanel
-          v-if="tab === 'wiki-sync'"
+          v-if="tab === 'wiki'"
           :title="t('materials.wikiSync.title')"
           :subtitle="t('materials.wikiSync.sub')"
           class="wiki-sync-panel"
@@ -372,6 +376,7 @@ import { I18nT, useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { api } from '@/api/client';
 import EmptyState from '@/components/EmptyState.vue';
+import LoadingState from '@/components/LoadingState.vue';
 import PageShell from '@/components/PageShell.vue';
 import SectionPanel from '@/components/SectionPanel.vue';
 import { API_SCOPE_DEFS } from '@/lib/apiScopes';
@@ -393,11 +398,15 @@ const router = useRouter();
 const tab = computed(() => {
 	const raw = route.params.tab as string | undefined;
 	if (raw === 'api-tokens') return 'api';
+	if (raw === 'wiki-sync') return 'wiki';
 	return (raw as SettingsTab) || 'account';
 });
 const apiEnabled = computed(() => Boolean(auth.user?.api?.enabled));
 const writeOk = computed(() => Boolean(auth.user?.wiki_sync?.write_enabled));
 const tokens = ref<ApiToken[]>([]);
+const tokensLoading = ref(false);
+const tokensReady = ref(false);
+let tokensLoadSeq = 0;
 
 const activeScopes = computed(() => {
 	const enabled = new Set(auth.user?.api?.scopes || []);
@@ -424,17 +433,21 @@ const profileOk = ref('');
 watch(() => auth.user?.username, (u) => { if (u) profileUser.value = u; });
 
 watch(() => [route.params.tab, apiEnabled.value, auth.user?.wiki_sync?.enabled] as const, ([raw, enabled, wikiEnabled]) => {
-	const normalized = raw === 'api-tokens' ? 'api' : raw;
+	const normalized = raw === 'api-tokens' ? 'api' : raw === 'wiki-sync' ? 'wiki' : raw;
 	if (normalized === 'api' && !enabled) {
 		router.replace({ name: 'settings', params: { tab: 'account' } });
 		return;
 	}
-	if (normalized === 'wiki-sync' && !wikiEnabled) {
+	if (normalized === 'wiki' && !wikiEnabled) {
 		router.replace({ name: 'settings', params: { tab: 'account' } });
 		return;
 	}
 	if (raw === 'api-tokens') {
 		router.replace({ name: 'settings', params: { tab: 'api' } });
+		return;
+	}
+	if (raw === 'wiki-sync') {
+		router.replace({ name: 'settings', params: { tab: 'wiki' } });
 	}
 }, { immediate: true });
 
@@ -449,11 +462,23 @@ function scopeLabel(id: string) {
 
 async function loadTokens() {
 	if (!apiEnabled.value) return;
+	const seq = ++tokensLoadSeq;
+	tokensLoading.value = true;
 	try {
 		const data = await api<{ tokens: ApiToken[] }>('/api/profile/tokens');
+		if (seq !== tokensLoadSeq) return;
 		tokens.value = data.tokens || [];
 	}
-	catch { tokens.value = []; }
+	catch {
+		if (seq !== tokensLoadSeq) return;
+		tokens.value = [];
+	}
+	finally {
+		if (seq === tokensLoadSeq) {
+			tokensLoading.value = false;
+			tokensReady.value = true;
+		}
+	}
 }
 
 async function revoke(jti: string) {
@@ -550,7 +575,15 @@ function runWiki() {
 }
 
 onMounted(() => {
-	if (tab.value === 'api' && apiEnabled.value) loadTokens();
+	// Prefetch tokens so the API tab is ready when switching from wiki/account.
+	if (apiEnabled.value) loadTokens();
 });
-watch(tab, (tname) => { if (tname === 'api' && apiEnabled.value) loadTokens(); });
+watch(tab, (tname) => {
+	if (tname === 'api' && apiEnabled.value && !tokensReady.value && !tokensLoading.value) {
+		loadTokens();
+	}
+});
+watch(() => ui.apiTokensRevision, () => {
+	if (apiEnabled.value) loadTokens();
+});
 </script>

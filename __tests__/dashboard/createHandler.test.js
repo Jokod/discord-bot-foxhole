@@ -461,6 +461,42 @@ describe('dashboard createHandler', () => {
 			expect(jsonBody(res).session).toEqual({ ip: '1.1.1.1' });
 		});
 
+		it('GET /api/version returns update status', async () => {
+			const getVersionStatus = jest.fn().mockResolvedValue({
+				local: '1.0.7',
+				latest: '1.0.8',
+				updateAvailable: true,
+				releaseUrl: 'https://github.com/Jokod/discord-bot-foxhole/releases/tag/1.0.8',
+			});
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				publicLinks: () => ({ discord: null, github: null }),
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json', 'fr.json']),
+				fsApi,
+				env: { GITHUB_URL: 'https://github.com/Jokod/discord-bot-foxhole' },
+				getVersionStatus,
+			});
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			const res = mockRes();
+			await handler({ method: 'GET', url: '/api/version' }, res);
+			expect(getVersionStatus).toHaveBeenCalledWith({
+				githubUrl: 'https://github.com/Jokod/discord-bot-foxhole',
+			});
+			expect(jsonBody(res)).toMatchObject({ updateAvailable: true, latest: '1.0.8' });
+		});
+
 		it('GET /api/contacts sans url query utilise force false', async () => {
 			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
 			loadContacts.mockClear();

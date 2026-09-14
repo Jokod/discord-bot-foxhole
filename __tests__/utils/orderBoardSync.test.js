@@ -339,7 +339,7 @@ describe('orderBoardSync', () => {
 		await bootstrapOrderBoard(channel, client, board);
 
 		expect(errSpy).toHaveBeenCalledWith(
-			expect.stringContaining('[OrderBoard] log thread failed for serveur g1 (board b1):'),
+			expect.stringContaining('[OrderBoard] log thread failed for guild g1 (board b1):'),
 			'thread fail',
 		);
 		errSpy.mockRestore();
@@ -421,7 +421,7 @@ describe('orderBoardSync', () => {
 		await jest.runAllTimersAsync();
 		await expect(promise).resolves.toBe(false);
 		expect(errSpy).toHaveBeenCalledWith(
-			expect.stringContaining('[OrderBoard] debounced refresh failed for serveur g1 (board b1):'),
+			expect.stringContaining('[OrderBoard] debounced refresh failed for guild g1 (board b1):'),
 			'db down',
 		);
 		jest.useRealTimers();
@@ -446,7 +446,7 @@ describe('orderBoardSync', () => {
 
 		const result = await syncAllOrderBoards(client);
 
-		expect(result).toEqual({ ok: 1, fail: 1, total: 2 });
+		expect(result).toEqual({ ok: 1, fail: 1, accessDenied: 0, total: 2 });
 		expect(logSpy).toHaveBeenCalledWith('[OrderBoard] syncAllOrderBoards done: ok=1 fail=1 total=2');
 		logSpy.mockRestore();
 	});
@@ -494,12 +494,55 @@ describe('orderBoardSync', () => {
 
 		const result = await syncAllOrderBoards(client);
 
-		expect(result).toEqual({ ok: 0, fail: 1, total: 1 });
+		expect(result).toEqual({ ok: 0, fail: 1, accessDenied: 0, total: 1 });
 		expect(errSpy).toHaveBeenCalledWith(
-			expect.stringContaining('[OrderBoard] refresh failed for serveur g1 (board b1):'),
+			expect.stringContaining('[OrderBoard] refresh failed for guild g1 (board b1):'),
 			'boom',
 		);
 		errSpy.mockRestore();
+	});
+
+	it('syncAllOrderBoards log warn si Missing Access', async () => {
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+		mockOrderBoardFind.mockReturnValue({
+			lean: () => Promise.resolve([{ _id: 'b1', guild_id: 'g1', channel_id: 'c1' }]),
+		});
+		mockFindById.mockRejectedValue(Object.assign(new Error('Missing Access'), { code: 50001 }));
+		const client = { traductions: new Map(), channels: { fetch: jest.fn() } };
+
+		const result = await syncAllOrderBoards(client);
+
+		expect(result).toEqual({ ok: 0, fail: 1, accessDenied: 1, total: 1 });
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('[OrderBoard] refresh failed'),
+			'Missing Access',
+		);
+		expect(errSpy).not.toHaveBeenCalled();
+		expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('access_denied=1'));
+		errSpy.mockRestore();
+		warnSpy.mockRestore();
+		logSpy.mockRestore();
+	});
+
+	it('refreshOrderBoard retourne false et warn si botCanPostInChannel refuse', async () => {
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const board = { _id: 'b1', guild_id: 'g1', channel_id: 'c1', name: 'OP', kind: 'prod', status: 'open', page: 0 };
+		mockFindById.mockResolvedValue(board);
+		const channel = {
+			id: 'c1',
+			isTextBased: () => true,
+			guild: { members: { me: { id: 'bot' } } },
+			permissionsFor: () => ({ has: () => false }),
+			send: jest.fn(),
+		};
+		const client = { traductions: new Map(), guilds: { cache: new Map() } };
+
+		await expect(refreshOrderBoard(client, board, channel)).resolves.toBe(false);
+		expect(channel.send).not.toHaveBeenCalled();
+		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('access denied'));
+		warnSpy.mockRestore();
 	});
 
 	it('refreshOrderBoard retourne false si fetch channel reject', async () => {
@@ -645,6 +688,25 @@ describe('orderBoardSync', () => {
 		jest.runAllTimersAsync();
 		await expect(p).resolves.toBe(false);
 		errSpy.mockRestore();
+		jest.useRealTimers();
+	});
+
+	it('refreshOrderBoardDebounced warn si Missing Access', async () => {
+		jest.useFakeTimers();
+		mockFindById.mockRejectedValue(Object.assign(new Error('Missing Access'), { code: 50001 }));
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const client = { traductions: new Map(), channels: { fetch: jest.fn() } };
+		const p = refreshOrderBoardDebounced(client, { _id: 'b1', guild_id: 'g1' });
+		jest.runAllTimersAsync();
+		await expect(p).resolves.toBe(false);
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('[OrderBoard] debounced refresh failed'),
+			'Missing Access',
+		);
+		expect(errSpy).not.toHaveBeenCalled();
+		errSpy.mockRestore();
+		warnSpy.mockRestore();
 		jest.useRealTimers();
 	});
 

@@ -164,6 +164,12 @@ function closeReveal() {
 	ui.apiTokenReveal = null;
 	copied.value = false;
 	if (copiedTimer) clearTimeout(copiedTimer);
+	label.value = '';
+	password.value = '';
+	expires.value = 90;
+	selectedScopes.value = [];
+	error.value = '';
+	ui.bumpApiTokensRevision();
 }
 </script>
 

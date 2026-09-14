@@ -252,4 +252,4 @@ export interface WikiSyncJob {
 	error?: { message?: string };
 }
 
-export type SettingsTab = 'account' | 'api' | 'wiki-sync';
+export type SettingsTab = 'account' | 'api' | 'wiki';

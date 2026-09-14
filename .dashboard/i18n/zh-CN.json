@@ -20,6 +20,8 @@
 	"action.logout": "退出",
 	"lang.label": "语言",
 	"banner.defaultCreds": "请先在「设置」中修改默认密码再查看统计。",
+	"banner.updateAvailable": "有可用更新：{local} → {latest}。",
+	"banner.updateLink": "在 GitHub 查看",
 	"meta.loading": "加载中…",
 	"meta.changePassword": "请先修改密码以加载统计",
 	"footer.since": "自 {when}",

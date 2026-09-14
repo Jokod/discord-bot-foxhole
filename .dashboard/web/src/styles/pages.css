@@ -525,9 +525,20 @@
 
 .login-card .lang-field { margin-bottom: .15rem; }
 
+.login-card.is-loading .field {
+	opacity: .72;
+	pointer-events: none;
+}
+
+.login-card input:disabled,
+.login-card select:disabled,
 .login-card.is-loading input,
 .login-card.is-loading select {
-	opacity: .65;
+	opacity: 1;
+	background: color-mix(in srgb, var(--muted) 12%, #fffaf2);
+	color: color-mix(in srgb, var(--ink) 55%, var(--muted));
+	border-color: color-mix(in srgb, var(--line) 70%, var(--muted));
+	cursor: wait;
 }
 
 .login-card button[type="submit"]:disabled {

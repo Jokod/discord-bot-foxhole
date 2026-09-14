@@ -15,6 +15,10 @@ const {
 	editOrRepostV2,
 } = require('./componentsV2.js');
 const { withAsyncLock, trackedLockKey } = require('./asyncLock.js');
+const {
+	botCanPostInChannel,
+	isMissingAccessError,
+} = require('./discordAccess.js');
 
 const refreshTimers = new Map();
 const REFRESH_DEBOUNCE_MS = 300;
@@ -101,7 +105,7 @@ async function bootstrapOrderBoard(channel, client, board) {
 		await createLogThread(channel, board, translations);
 	}
 	catch (err) {
-		console.error(`[OrderBoard] log thread failed for serveur ${guildLabel(client, board.guild_id)} (board ${board._id}):`, err.message);
+		console.error(`[OrderBoard] log thread failed for guild ${guildLabel(client, board.guild_id)} (board ${board._id}):`, err.message);
 	}
 	return msg;
 }
@@ -122,6 +126,16 @@ async function refreshOrderBoard(client, board, channel) {
 		textChannel = await client.channels.fetch(fresh.channel_id).catch(() => null);
 	}
 	if (!textChannel?.isTextBased?.()) return false;
+
+	const guild = textChannel.guild
+		?? client?.guilds?.cache?.get(fresh.guild_id)
+		?? null;
+	if (!botCanPostInChannel(textChannel, guild)) {
+		console.warn(
+			`[OrderBoard] access denied on channel ${textChannel.id} (guild ${guildLabel(client, fresh.guild_id)}, board ${fresh._id})`,
+		);
+		return false;
+	}
 
 	const messageType = `${MESSAGE_TYPE_BOARD}:${fresh._id}`;
 
@@ -215,7 +229,9 @@ function refreshOrderBoardDebounced(client, board, channel) {
 			}
 			catch (err) {
 				resolve(false);
-				console.error(`[OrderBoard] debounced refresh failed for serveur ${guildLabel(client, board.guild_id)} (board ${key}):`, err.message);
+				const label = `[OrderBoard] debounced refresh failed for guild ${guildLabel(client, board.guild_id)} (board ${key}):`;
+				if (isMissingAccessError(err)) console.warn(label, err.message);
+				else console.error(label, err.message);
 			}
 		}, REFRESH_DEBOUNCE_MS);
 		refreshTimers.set(key, { timer, resolve });
@@ -229,6 +245,7 @@ async function syncAllOrderBoards(client) {
 	const boards = await OrderBoard.find({ status: { $in: ['open', 'closed'] } }).lean();
 	let ok = 0;
 	let fail = 0;
+	let accessDenied = 0;
 	for (const board of boards) {
 		try {
 			const success = await refreshOrderBoard(client, board);
@@ -237,11 +254,19 @@ async function syncAllOrderBoards(client) {
 		}
 		catch (err) {
 			fail += 1;
-			console.error(`[OrderBoard] refresh failed for serveur ${guildLabel(client, board.guild_id)} (board ${board._id}):`, err.message);
+			const label = `[OrderBoard] refresh failed for guild ${guildLabel(client, board.guild_id)} (board ${board._id}):`;
+			if (isMissingAccessError(err)) {
+				accessDenied += 1;
+				console.warn(label, err.message);
+			}
+			else {
+				console.error(label, err.message);
+			}
 		}
 	}
-	console.log(`[OrderBoard] syncAllOrderBoards done: ok=${ok} fail=${fail} total=${boards.length}`);
-	return { ok, fail, total: boards.length };
+	const accessNote = accessDenied > 0 ? ` access_denied=${accessDenied}` : '';
+	console.log(`[OrderBoard] syncAllOrderBoards done: ok=${ok} fail=${fail}${accessNote} total=${boards.length}`);
+	return { ok, fail, accessDenied, total: boards.length };
 }
 
 module.exports = {

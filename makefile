@@ -32,20 +32,25 @@ clean: # Clean
 ## —— Quality insurance ✨ ——————————————————————————————————————————————————————
 check: lint test ## Run all coding standards checks and tests
 
-lint: ## Lint files with eslint
+lint: ## Lint bot + dashboard (Vue/TS)
 	$(NPM) run lint
 
-fix: ## Fix files with eslint
+fix: ## Auto-fix bot + dashboard (Vue/TS)
 	$(NPM) run fix
 
-test: ## Run tests
+test: ## Run Jest + Vue dashboard tests
 	$(NPM) test
+	$(NPM) run test --prefix .dashboard
 
 test-watch: ## Run tests in watch mode
 	$(NPM) run test:watch
 
-test-coverage: ## Run tests with coverage
+test-coverage: ## Run Jest coverage + Vue dashboard tests
 	$(NPM) run test:coverage
+	$(NPM) run test --prefix .dashboard
+
+test-dashboard: ## Run Vue dashboard component tests only (Vitest)
+	$(NPM) run test --prefix .dashboard
 
 ## —— NPM 🐱 / JavaScript —————————————————————————————————————————————————————
 js-install:
@@ -120,60 +125,86 @@ mongo-restore: ## Restore last dump (or MONGO_RESTORE_DIR=…) into MONGODB_NAME
 ## —— Dashboard 📊 —————————————————————————————————————————————————————————————
 
 DASHBOARD_PORT     ?= 3847
-DASHBOARD_ENV_FILE ?= .env.prod
+DASHBOARD_ENV_FILE ?= .env
 DASHBOARD_PID      := .dashboard/var/dashboard.pid
+DASHBOARD_ENV_MARK := .dashboard/var/dashboard.envfile
 DASHBOARD_LOG      := .dashboard/var/logs/dashboard.log
 DASHBOARD_URL      := http://127.0.0.1:$(DASHBOARD_PORT)
 
-dashboard-start: ## Start stats dashboard on prod Mongo (.env.prod) — override: ENV_FILE=.env
+dashboard-start: ## Start stats dashboard (default: .env) — prod: DASHBOARD_ENV_FILE=.env.prod
+	@if [ ! -x .dashboard/node_modules/.bin/vite ] || [ ! -x .dashboard/node_modules/.bin/vue-tsc ]; then \
+		echo "Installing dashboard dependencies…"; \
+		npm install --prefix .dashboard || exit 1; \
+	fi
 	@if [ ! -f .dashboard/dist/index.html ]; then \
 		echo "Building dashboard frontend (dist/ missing)…"; \
 		npm run build --prefix .dashboard || exit 1; \
 	fi
 	@if [ -f "$(DASHBOARD_PID)" ] && kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
-		echo "Dashboard déjà démarré → $(DASHBOARD_URL) (pid $$(cat $(DASHBOARD_PID)))"; \
-	else \
-		mkdir -p .dashboard/var/logs; \
-		DASHBOARD_PORT=$(DASHBOARD_PORT) DASHBOARD_ENV_FILE=$(DASHBOARD_ENV_FILE) \
-			nohup node .dashboard/server.js > "$(DASHBOARD_LOG)" 2>&1 & echo $$! > "$(DASHBOARD_PID)"; \
-		i=0; \
-		while [ $$i -lt 40 ]; do \
-			if curl -sf "$(DASHBOARD_URL)/api/health" >/dev/null 2>&1; then \
-				echo "Dashboard démarré → $(DASHBOARD_URL) (env $(DASHBOARD_ENV_FILE), pid $$(cat $(DASHBOARD_PID)))"; \
-				exit 0; \
-			fi; \
-			if ! kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
-				echo "Échec du démarrage — voir $(DASHBOARD_LOG)"; \
-				rm -f "$(DASHBOARD_PID)"; \
-				exit 1; \
-			fi; \
-			i=$$((i+1)); \
-			sleep 0.25; \
-		done; \
-		echo "Dashboard démarré (encore en connexion) → $(DASHBOARD_URL) (pid $$(cat $(DASHBOARD_PID)))"; \
+		cur=$$(cat "$(DASHBOARD_ENV_MARK)" 2>/dev/null || echo ""); \
+		if [ "$$cur" = "$(DASHBOARD_ENV_FILE)" ]; then \
+			echo "Dashboard déjà démarré → $(DASHBOARD_URL) (env $(DASHBOARD_ENV_FILE), pid $$(cat $(DASHBOARD_PID)))"; \
+			exit 0; \
+		fi; \
+		echo "Env changé ($$cur → $(DASHBOARD_ENV_FILE)), redémarrage…"; \
+		$(MAKE) --no-print-directory dashboard-stop; \
 	fi
+	@mkdir -p .dashboard/var/logs; \
+	DASHBOARD_PORT=$(DASHBOARD_PORT) DASHBOARD_ENV_FILE=$(DASHBOARD_ENV_FILE) \
+		nohup node .dashboard/server.js > "$(DASHBOARD_LOG)" 2>&1 & echo $$! > "$(DASHBOARD_PID)"; \
+	echo "$(DASHBOARD_ENV_FILE)" > "$(DASHBOARD_ENV_MARK)"; \
+	i=0; \
+	while [ $$i -lt 40 ]; do \
+		if curl -sf "$(DASHBOARD_URL)/api/health" >/dev/null 2>&1; then \
+			echo "Dashboard démarré → $(DASHBOARD_URL) (env $(DASHBOARD_ENV_FILE), pid $$(cat $(DASHBOARD_PID)))"; \
+			exit 0; \
+		fi; \
+		if ! kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
+			echo "Échec du démarrage — voir $(DASHBOARD_LOG)"; \
+			rm -f "$(DASHBOARD_PID)" "$(DASHBOARD_ENV_MARK)"; \
+			exit 1; \
+		fi; \
+		i=$$((i+1)); \
+		sleep 0.25; \
+	done; \
+	echo "Dashboard démarré (encore en connexion) → $(DASHBOARD_URL) (env $(DASHBOARD_ENV_FILE), pid $$(cat $(DASHBOARD_PID)))"
 
 dashboard-stop: ## Stop the local stats dashboard
-	@if [ -f "$(DASHBOARD_PID)" ]; then \
+	@stopped=0; \
+	if [ -f "$(DASHBOARD_PID)" ]; then \
 		pid=$$(cat "$(DASHBOARD_PID)"); \
 		if kill -0 $$pid 2>/dev/null; then \
-			kill $$pid && echo "Dashboard arrêté (pid $$pid)"; \
+			kill $$pid 2>/dev/null || true; \
+			sleep 0.2; \
+			kill -0 $$pid 2>/dev/null && kill -9 $$pid 2>/dev/null || true; \
+			echo "Dashboard arrêté (pid $$pid)"; \
+			stopped=1; \
 		else \
 			echo "Processus déjà mort (pid $$pid)"; \
 		fi; \
-		rm -f "$(DASHBOARD_PID)"; \
-	else \
-		echo "Dashboard non démarré"; \
-	fi
+		rm -f "$(DASHBOARD_PID)" "$(DASHBOARD_ENV_MARK)"; \
+	fi; \
+	for pid in $$(pgrep -f 'node \.dashboard/server\.js' 2>/dev/null || true); do \
+		kill $$pid 2>/dev/null || true; \
+		sleep 0.1; \
+		kill -0 $$pid 2>/dev/null && kill -9 $$pid 2>/dev/null || true; \
+		echo "Dashboard orphelin arrêté (pid $$pid)"; \
+		stopped=1; \
+	done; \
+	rm -f "$(DASHBOARD_PID)" "$(DASHBOARD_ENV_MARK)"; \
+	if [ "$$stopped" = 0 ]; then echo "Dashboard non démarré"; fi
 
 dashboard-restart: dashboard-stop dashboard-start ## Restart the local stats dashboard
 
 dashboard-status: ## Show dashboard status
 	@if [ -f "$(DASHBOARD_PID)" ] && kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
-		echo "running  pid=$$(cat $(DASHBOARD_PID))  $(DASHBOARD_URL)"; \
+		envf=$$(cat "$(DASHBOARD_ENV_MARK)" 2>/dev/null || echo '?'); \
+		echo "running  pid=$$(cat $(DASHBOARD_PID))  env=$$envf  $(DASHBOARD_URL)"; \
+	elif pgrep -f 'node \.dashboard/server\.js' >/dev/null 2>&1; then \
+		echo "orphan  pids=$$(pgrep -f 'node \.dashboard/server\.js' | tr '\n' ' ')  → make dashboard-restart"; \
 	else \
 		echo "stopped"; \
-		rm -f "$(DASHBOARD_PID)"; \
+		rm -f "$(DASHBOARD_PID)" "$(DASHBOARD_ENV_MARK)"; \
 	fi
 
 dashboard-open: ## Open the dashboard in the browser (starts it if needed)

@@ -124,18 +124,36 @@ describe('dashboard server', () => {
 		delete process.env.DASHBOARD_ENV_FILE;
 	});
 
-	it('ENV_PATH utilise .env si .env.prod absent', () => {
+	it('ENV_PATH préfère .env si présent', () => {
 		delete process.env.DASHBOARD_ENV_FILE;
 		const fs = require('fs');
 		const actualExistsSync = fs.existsSync;
 		const existsSpy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
-			if (String(p).endsWith('.env.prod')) return false;
+			if (String(p).endsWith(`${path.sep}.env`) || String(p).endsWith('/.env')) return true;
 			return actualExistsSync.call(fs, p);
 		});
 		try {
 			const server = loadServerModule();
 			expect(server.ENV_PATH).toMatch(/\.env$/);
 			expect(server.ENV_PATH).not.toMatch(/\.env\.prod$/);
+		}
+		finally {
+			existsSpy.mockRestore();
+		}
+	});
+
+	it('ENV_PATH utilise .env.prod si .env absent', () => {
+		delete process.env.DASHBOARD_ENV_FILE;
+		const fs = require('fs');
+		const actualExistsSync = fs.existsSync;
+		const existsSpy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
+			if (String(p).endsWith(`${path.sep}.env`) || String(p).endsWith('/.env')) return false;
+			if (String(p).endsWith('.env.prod')) return true;
+			return actualExistsSync.call(fs, p);
+		});
+		try {
+			const server = loadServerModule();
+			expect(server.ENV_PATH).toMatch(/\.env\.prod$/);
 		}
 		finally {
 			existsSpy.mockRestore();
@@ -321,19 +339,39 @@ describe('dashboard server', () => {
 		}
 	});
 
-	it('utilise PORT/HOST par défaut et .env.prod si présent', async () => {
+	it('choisit favicon public quand dist absent', () => {
+		const fs = require('fs');
+		const actualExistsSync = fs.existsSync;
+		const existsSpy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
+			if (String(p).includes(`${path.sep}dist${path.sep}favicon.ico`)) return false;
+			if (String(p).endsWith('.env.prod')) return false;
+			return actualExistsSync.call(fs, p);
+		});
+		try {
+			loadServerModule();
+			expect(existsSpy).toHaveBeenCalledWith(
+				expect.stringMatching(/dist[/\\]favicon\.ico$/),
+			);
+		}
+		finally {
+			existsSpy.mockRestore();
+		}
+	});
+
+	it('utilise PORT/HOST par défaut et .env si présent', async () => {
 		delete process.env.DASHBOARD_PORT;
 		delete process.env.DASHBOARD_HOST;
 		delete process.env.DASHBOARD_ENV_FILE;
 		const fs = require('fs');
 		const actualExistsSync = fs.existsSync;
 		const existsSpy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
-			if (String(p).endsWith('.env.prod')) return true;
+			if (String(p).endsWith(`${path.sep}.env`) || String(p).endsWith('/.env')) return true;
 			return actualExistsSync.call(fs, p);
 		});
 		try {
 			const server = loadServerModule();
-			expect(server.ENV_PATH).toMatch(/\.env\.prod$/);
+			expect(server.ENV_PATH).toMatch(/\.env$/);
+			expect(server.ENV_PATH).not.toMatch(/\.env\.prod$/);
 			const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 			try {
 				await server.main();

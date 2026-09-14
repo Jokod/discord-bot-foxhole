@@ -160,7 +160,7 @@ describe('componentsV2', () => {
 	});
 
 	it('chunkMarkdown splits long text on newlines', () => {
-		const { chunkMarkdown, textDisplays, joinBlocks, section, sectionBreak } = require('../../utils/componentsV2.js');
+		const { chunkMarkdown, textDisplays, joinBlocks, sectionBreak } = require('../../utils/componentsV2.js');
 		const { ButtonBuilder, ButtonStyle, ActionRowBuilder, ThumbnailBuilder } = require('discord.js');
 		expect(chunkMarkdown('')).toEqual([]);
 		expect(chunkMarkdown(null)).toEqual([]);
@@ -207,7 +207,8 @@ describe('componentsV2', () => {
 		const splitOnNl = chunkMarkdown(`hello world\n${'y'.repeat(40)}`, 20);
 		expect(splitOnNl[0]).toBe('hello world');
 		expect(splitOnNl.join('')).toBe(`hello world${'y'.repeat(40)}`);
-		expect(chunkMarkdown('abcd', 2)).toEqual(['ab', 'cd']); // exact fit → empty remainder branch
+		// Exact fit → remainder branch after last chunk
+		expect(chunkMarkdown('abcd', 2)).toEqual(['ab', 'cd']);
 		expect(Number(buildV2Payload({ children: ['ephem'], ephemeral: true }).flags) & MessageFlags.Ephemeral)
 			.toBeTruthy();
 		expect(Number(buildV2Payload({ children: ['plain'], ephemeral: false }).flags) & MessageFlags.Ephemeral)

@@ -1,4 +1,9 @@
-const { isMissingAccessError, getDiscordErrorCode } = require('./discordAccess.js');
+const {
+	isMissingAccessError,
+	isExpiredInteractionError,
+	getDiscordErrorCode,
+	missingChannelAccessText,
+} = require('./discordAccess.js');
 const { v2Text, editReplyV2, followUpV2, replyV2 } = require('./componentsV2.js');
 
 /**
@@ -9,18 +14,25 @@ const { v2Text, editReplyV2, followUpV2, replyV2 } = require('./componentsV2.js'
  */
 async function handleInteractionError(interaction, translations, err) {
 	const missingAccess = isMissingAccessError(err);
+	const expired = isExpiredInteractionError(err);
+
 	if (missingAccess) {
 		const channelId = interaction.channelId ?? interaction.channel?.id ?? '?';
 		const code = getDiscordErrorCode(err);
-		console.warn(`[Interaction] Accès/permissions refusés sur le canal ${channelId} (code ${code})`);
+		console.warn(`[Interaction] Channel access/permissions denied on channel ${channelId} (code ${code})`);
+	}
+	else if (expired) {
+		const code = getDiscordErrorCode(err);
+		console.warn(`[Interaction] Interaction expired or already acknowledged (code ${code}) — skipping reply`);
+		return;
 	}
 	else {
 		console.error(err);
 	}
 
-	const content = translations.translate(
-		missingAccess ? 'BOT_MISSING_CHANNEL_ACCESS' : 'COMMAND_EXECUTE_ERROR',
-	);
+	const content = missingAccess
+		? missingChannelAccessText(translations)
+		: translations.translate('COMMAND_EXECUTE_ERROR');
 	const payload = v2Text(content, { ephemeral: true });
 
 	try {
@@ -36,6 +48,10 @@ async function handleInteractionError(interaction, translations, err) {
 		}
 	}
 	catch (replyErr) {
+		if (isExpiredInteractionError(replyErr)) {
+			console.warn('[Interaction] Cannot reply — interaction expired (10062/40060)');
+			return;
+		}
 		console.error('Failed to send error message to interaction:', replyErr);
 	}
 }

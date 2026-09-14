@@ -1,17 +1,23 @@
 # Testing
 
 ```bash
-npm test
+npm test                   # Jest
 npm run test:watch
-npm run test:coverage
-npm run test:ci          # lint + i18n parity + coverage (same gates as GitHub Actions)
-npm run i18n:check       # en/es/fr/ru/zh-cn key parity + ORDER_* presence
+npm run test:coverage      # Jest coverage (+ badge)
+make test                  # Jest + Vue dashboard Vitest
+make test-coverage         # Jest coverage + Vue dashboard Vitest
+make test-dashboard        # Vue component tests only
+npm run test:ci            # lint + i18n parity + dashboard Vitest + Jest coverage (same gates as GitHub Actions)
+npm run i18n:check         # en/es/fr/ru/zh-cn key parity + ORDER_* presence
+npm run version:check      # root ↔ .dashboard package.json version parity
 ```
 
-CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then the full Jest suite with a **global coverage threshold of 90%** (lines, statements, functions, branches) on `collectCoverageFrom`. Tag publishes (`.github/workflows/docker.yaml`) reuse that workflow before build & push. Tests live under `__tests__/` and mirror source layout; new files are picked up automatically.
+CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, dashboard Vitest, then the full Jest suite with a **global coverage threshold of 100%** (lines, statements, functions, branches) on `collectCoverageFrom`. Tag publishes (`.github/workflows/docker.yaml`) reuse that workflow before build & push. Tests live under `__tests__/` and mirror source layout; new files are picked up automatically.
 
 `npm run test:coverage` also refreshes `badges/coverage.json` (README shield). Commit that file when the rate changes meaningfully.
 
-Dashboard coverage lives under `__tests__/dashboard/` (auth, HTTP helpers, request handler, summary/contacts/materials load, guild-action adapter, **wiki-sync jobs**, **public API / JWT / OpenAPI**) plus `__tests__/utils/` for `guildAdminActions`, `blockedGuilds`, and `announceChannels`. Wiki sync coverage lives under `__tests__/scripts/wiki-sync/`. Vue frontend tests: `npm run test --prefix .dashboard`.
+Dashboard coverage lives under `__tests__/dashboard/` (auth, HTTP helpers, request handler, summary/contacts/materials load, guild-action adapter, **wiki-sync jobs**, **public API / JWT / OpenAPI**) plus `__tests__/utils/` for `guildAdminActions`, `blockedGuilds`, and `announceChannels`. Wiki sync coverage lives under `__tests__/scripts/wiki-sync/`.
+
+Vue frontend component tests live next to SFCs as `*.spec.ts` under `.dashboard/web/src/components/` and run via Vitest (`make test` / `make test-coverage` / `make test-dashboard`).
 
 Manual smoke after upgrades: checklist in [MIGRATION.md](MIGRATION.md). Ops / env: [SELF-HOST.md](SELF-HOST.md).

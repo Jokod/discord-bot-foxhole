@@ -20,6 +20,8 @@
 	"action.logout": "Sign out",
 	"lang.label": "Language",
 	"banner.defaultCreds": "Change the default password in Settings before accessing stats.",
+	"banner.updateAvailable": "Update available: {local} → {latest}.",
+	"banner.updateLink": "View on GitHub",
 	"meta.loading": "Loading…",
 	"meta.changePassword": "Change the password to load stats",
 	"footer.since": "Since {when}",

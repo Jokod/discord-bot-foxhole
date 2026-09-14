@@ -7,6 +7,7 @@ const {
 } = require('./trackedMessage.js');
 const { editOrRepostV2, sendV2 } = require('./componentsV2.js');
 const { withAsyncLock, trackedLockKey } = require('./asyncLock.js');
+const { botCanPostInChannel, isMissingAccessError } = require('./discordAccess.js');
 
 /**
  * Réattribue des ids uniques aux stockpiles en doublon (même server_id + id).
@@ -48,6 +49,16 @@ async function refreshTrackedStockpileList(client, tracked) {
 		const channel = await client.channels.fetch(tracked.channel_id).catch(() => null);
 		if (!channel?.isTextBased?.()) return false;
 
+		const guild = channel.guild
+			?? client?.guilds?.cache?.get(tracked.server_id)
+			?? null;
+		if (!botCanPostInChannel(channel, guild)) {
+			console.warn(
+				`[StockpileList] access denied on channel ${channel.id} (guild ${tracked.server_id})`,
+			);
+			return false;
+		}
+
 		const translations = new Translate(client, tracked.server_id);
 		const payload = await buildStockpileListPayload(Stockpile, tracked.server_id, translations);
 		const messageType = 'stockpile_list';
@@ -83,7 +94,13 @@ async function refreshTrackedStockpileList(client, tracked) {
 			return true;
 		});
 	}
-	catch {
+	catch (err) {
+		if (isMissingAccessError(err)) {
+			console.warn(
+				`[StockpileList] access denied (guild ${tracked.server_id}, channel ${tracked.channel_id}):`,
+				err.message,
+			);
+		}
 		return false;
 	}
 }
@@ -129,7 +146,7 @@ async function syncAllStockpileLists(client) {
 	const refreshed = await refreshTrackedStockpileLists(client, { guildIds });
 
 	if (repaired > 0 || refreshed > 0) {
-		console.log(`[StockpileList] ${repaired} id(s) corrigé(s), ${refreshed} liste(s) rafraîchie(s).`);
+		console.log(`[StockpileList] ${repaired} id(s) repaired, ${refreshed} list(s) refreshed.`);
 	}
 }
 

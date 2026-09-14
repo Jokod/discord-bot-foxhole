@@ -1,6 +1,6 @@
 {
 	"name": "foxbot-dashboard",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"private": true,
 	"description": "FoxBot maintainer stats dashboard",
 	"engines": {
@@ -14,7 +14,8 @@
 		"build": "vue-tsc --noEmit -p web/tsconfig.json && vite build --config web/vite.config.ts",
 		"test": "vitest run --config web/vitest.config.ts",
 		"test:watch": "vitest --config web/vitest.config.ts",
-		"lint": "eslint . && eslint -c eslint.web.config.js web"
+		"lint": "eslint . && eslint -c eslint.web.config.js web",
+		"fix": "eslint --fix . && eslint -c eslint.web.config.js --fix web"
 	},
 	"dependencies": {
 		"@fontsource/fraunces": "^5.3.0",

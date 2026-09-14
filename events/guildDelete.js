@@ -16,10 +16,10 @@ module.exports = {
 				guildName: guild.name ?? guild.id,
 				ownerId: guild.ownerId ?? null,
 			});
-			console.log(`[Stats] Bot retiré du serveur ${guild.name ?? guild.id}, nettoyage effectué.`);
+			console.log(`[Stats] Left guild ${guild.name ?? guild.id}, cleanup done.`);
 		}
 		catch (err) {
-			console.error(`[Stats] Impossible de nettoyer les données pour ${guild.name ?? guild.id} (${guild.id}):`, err.message);
+			console.error(`[Stats] Failed to clean data for ${guild.name ?? guild.id} (${guild.id}):`, err.message);
 		}
 	},
 };

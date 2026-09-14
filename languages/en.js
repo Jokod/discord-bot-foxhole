@@ -87,7 +87,7 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Available commands: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
-	BOT_MISSING_CHANNEL_ACCESS: 'I cannot post in this channel (Missing Access / Missing Permissions). Give the bot **View Channel**, **Send Messages**, and **Embed Links** (plus thread permissions if Logs are enabled).',
+	BOT_MISSING_CHANNEL_ACCESS: 'I cannot post in this channel (Missing Access / Missing Permissions).\n\n1. On this channel (and its category): allow the bot **View Channel**, **Send Messages**, and **Read Message History**.\n2. Or re-authorize FoxBot with the right permissions: %url%',
 	NO_DM: 'I can\'t execute that command inside DMs!',
 	NO_PERMS: 'You don\'t have the permissions to use this command.',
 	// SERVER ---------------------------------------------

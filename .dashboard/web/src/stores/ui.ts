@@ -13,6 +13,12 @@ export const useUiStore = defineStore('ui', () => {
 	const wikiConfirmOpen = ref(false);
 	const apiTokenModalOpen = ref(false);
 	const apiTokenReveal = ref<string | null>(null);
+	/** Bumped when the token list should reload (after create/reveal close). */
+	const apiTokensRevision = ref(0);
+
+	function bumpApiTokensRevision() {
+		apiTokensRevision.value += 1;
+	}
 
 	function openGuildDrawer(g: Guild) {
 		selectedGuild.value = g;
@@ -30,13 +36,16 @@ export const useUiStore = defineStore('ui', () => {
 
 	function closeDrawer() {
 		drawerOpen.value = false;
+	}
+
+	function clearDrawerSelection() {
 		selectedGuild.value = null;
 		selectedMaterial.value = null;
 	}
 
 	return {
 		drawerOpen, drawerKind, selectedGuild, selectedMaterial, userMenuOpen,
-		guildModal, wikiConfirmOpen, apiTokenModalOpen, apiTokenReveal,
-		openGuildDrawer, openMaterialDrawer, closeDrawer,
+		guildModal, wikiConfirmOpen, apiTokenModalOpen, apiTokenReveal, apiTokensRevision,
+		openGuildDrawer, openMaterialDrawer, closeDrawer, clearDrawerSelection, bumpApiTokensRevision,
 	};
 });

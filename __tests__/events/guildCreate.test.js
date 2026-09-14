@@ -77,7 +77,7 @@ describe('guildCreate event', () => {
 		await guildCreate.execute(guild);
 
 		expect(console.error).toHaveBeenCalledWith(
-			'[Blocked] Impossible de quitter le serveur g-blocked (g-blocked):',
+			'[Blocked] Failed to leave guild g-blocked (g-blocked):',
 			'no permission',
 		);
 	});

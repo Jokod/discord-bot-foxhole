@@ -87,7 +87,7 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Commandes disponibles : %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Une erreur est survenue lors de l\'exécution de la commande.',
-	BOT_MISSING_CHANNEL_ACCESS: 'Je ne peux pas écrire dans ce salon (Missing Access / Missing Permissions). Donnez au bot **Voir le salon**, **Envoyer des messages** et **Intégrer des liens** (et les perms de fils si les Logs sont activés).',
+	BOT_MISSING_CHANNEL_ACCESS: 'Je ne peux pas écrire dans ce salon (Missing Access / Missing Permissions).\n\n1. Sur ce salon (et sa catégorie) : autorisez le bot **Voir le salon**, **Envoyer des messages** et **Voir les anciens messages**.\n2. Ou réautorisez FoxBot avec les bons droits : %url%',
 	NO_DM: 'Je ne peux pas exécuter cette commande dans les DMs !',
 	NO_PERMS: 'Vous n\'avez pas les permissions pour utiliser cette commande.',
 	// SERVER ---------------------------------------------

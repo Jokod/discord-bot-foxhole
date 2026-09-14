@@ -91,7 +91,7 @@ async function checkExpiringStockpiles(client) {
 		const subscribedGuilds = new Set(subscriptions.map((s) => s.guild_id));
 		for (const gid of byGuild.keys()) {
 			if (!subscribedGuilds.has(gid)) {
-				console.log('[stockpileExpiryScheduler] no channel subscribed for stockpile_expiring on serveur', client?.guilds?.cache?.get(gid)?.name ?? gid);
+				console.log('[stockpileExpiryScheduler] no channel subscribed for stockpile_expiring on guild', client?.guilds?.cache?.get(gid)?.name ?? gid);
 			}
 		}
 	}

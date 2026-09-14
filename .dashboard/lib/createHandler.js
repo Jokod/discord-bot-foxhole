@@ -16,6 +16,7 @@ const { filterOpenApiSpec, isOpenApiRouteEnabled } = require('./api/openapi');
 const { isWikiSyncApiEnabled, isWikiWriteEnabled } = require('./wiki/sync');
 const { SWAGGER_CSP } = require('./csp');
 const { serveAvatar, isDiscordUserId } = require('./discordAvatar');
+const { getVersionStatus } = require('./versionCheck');
 
 function safeHttpUrl(value) {
 	const raw = String(value || '').trim();
@@ -114,6 +115,7 @@ function createRequestHandler(deps) {
 		handlePublicData,
 		swaggerHtmlPath,
 		env = process.env,
+		getVersionStatus: getVersionStatusFn = getVersionStatus,
 	} = deps;
 
 	return async function requestHandler(req, res) {
@@ -266,6 +268,10 @@ function createRequestHandler(deps) {
 				error: 'Change default password in Settings first',
 				code: 'AUTH_DEFAULT_BLOCK',
 			});
+		}
+
+		if (urlPath === '/api/version' && method === 'GET') {
+			return sendJson(res, 200, await getVersionStatusFn({ githubUrl: env.GITHUB_URL }));
 		}
 
 		if (urlPath === '/api/summary' && method === 'GET') {

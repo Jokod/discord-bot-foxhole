@@ -81,6 +81,19 @@ header.topbar {
 	color: var(--warn);
 }
 
+.banner.info {
+	background: #e8f0f7;
+	border-color: #b7c9dc;
+	color: #2a4a66;
+}
+
+.banner.info a {
+	color: inherit;
+	font-weight: 600;
+	margin-left: .35rem;
+	text-underline-offset: 2px;
+}
+
 .stats-chrome {
 	display: grid;
 	gap: var(--space-md);

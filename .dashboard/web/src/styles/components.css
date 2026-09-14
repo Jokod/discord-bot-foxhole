@@ -21,6 +21,13 @@
 	border-radius: inherit;
 }
 
+/** Conteneur pour confiner `.loading-state.overlay` (évite le backdrop plein écran). */
+.loading-host {
+	position: relative;
+	min-height: 12rem;
+	border-radius: var(--radius-sm);
+}
+
 .spinner {
 	width: 1.1rem;
 	height: 1.1rem;
@@ -321,14 +328,23 @@ th .arrow { font-size: .65rem; margin-left: .2rem; }
 	background: #fffaf2;
 	border-left: 1px solid var(--line);
 	box-shadow: -18px 0 40px rgba(0, 0, 0, .08);
-	transform: translateX(100%);
-	transition: transform var(--transition-normal);
+	transform: translateX(0);
 	z-index: var(--z-drawer);
 	padding: var(--space-md) var(--space-lg);
 	overflow: auto;
+	will-change: transform;
 }
 
-.drawer.open { transform: translateX(0); }
+.drawer-panel-enter-active,
+.drawer-panel-leave-active {
+	transition: transform var(--transition-normal);
+}
+
+.drawer-panel-enter-from,
+.drawer-panel-leave-to {
+	transform: translateX(100%);
+}
+
 .drawer h3 { font-family: Fraunces, Georgia, serif; margin: 0 0 .35rem; }
 
 .drawer-header {
@@ -351,13 +367,30 @@ th .arrow { font-size: .65rem; margin-left: .2rem; }
 	position: fixed;
 	inset: 0;
 	background: rgba(28, 25, 20, .28);
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity var(--transition-normal);
+	opacity: 1;
+	pointer-events: auto;
 	z-index: var(--z-backdrop);
+	will-change: opacity;
 }
 
-.backdrop.open { opacity: 1; pointer-events: auto; }
+.drawer-backdrop-enter-active,
+.drawer-backdrop-leave-active {
+	transition: opacity var(--transition-normal);
+}
+
+.drawer-backdrop-enter-from,
+.drawer-backdrop-leave-to {
+	opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.drawer-panel-enter-active,
+	.drawer-panel-leave-active,
+	.drawer-backdrop-enter-active,
+	.drawer-backdrop-leave-active {
+		transition: none;
+	}
+}
 
 .drawer-guild-actions {
 	margin-top: var(--space-md);

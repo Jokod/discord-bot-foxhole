@@ -20,6 +20,8 @@
 	"action.logout": "Выйти",
 	"lang.label": "Язык",
 	"banner.defaultCreds": "Смените пароль по умолчанию в Настройках, чтобы открыть статистику.",
+	"banner.updateAvailable": "Доступно обновление: {local} → {latest}.",
+	"banner.updateLink": "Открыть на GitHub",
 	"meta.loading": "Загрузка…",
 	"meta.changePassword": "Смените пароль, чтобы загрузить статистику",
 	"footer.since": "С {when}",

@@ -20,6 +20,8 @@
 	"action.logout": "Cerrar sesión",
 	"lang.label": "Idioma",
 	"banner.defaultCreds": "Cambia la contraseña por defecto en Ajustes antes de acceder a las estadísticas.",
+	"banner.updateAvailable": "Actualización disponible: {local} → {latest}.",
+	"banner.updateLink": "Ver en GitHub",
 	"meta.loading": "Cargando…",
 	"meta.changePassword": "Cambia la contraseña para cargar las estadísticas",
 	"footer.since": "Desde {when}",

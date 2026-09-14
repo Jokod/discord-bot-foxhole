@@ -27,24 +27,26 @@
         </template>
       </FilterBar>
 
-      <LoadingState
-        v-if="contacts.loading && !contacts.data"
-        overlay
-        :message="t('contacts.metaLoading')"
-      />
+      <div class="loading-host contacts-results">
+        <LoadingState
+          v-if="contacts.loading"
+          overlay
+          :message="t('contacts.metaLoading')"
+        />
 
-      <DiscordGuildList
-        v-else-if="contacts.view === 'guilds' && filteredGuilds.length"
-        :guilds="filteredGuilds"
-      />
-      <DiscordPeopleList
-        v-else-if="contacts.view === 'people' && filteredPeople.length"
-        :people="filteredPeople"
-      />
-      <EmptyState
-        v-else-if="!contacts.loading"
-        :message="contacts.view === 'guilds' ? t('contacts.emptyGuilds') : t('contacts.emptyPeople')"
-      />
+        <DiscordGuildList
+          v-if="contacts.view === 'guilds' && filteredGuilds.length"
+          :guilds="filteredGuilds"
+        />
+        <DiscordPeopleList
+          v-else-if="contacts.view === 'people' && filteredPeople.length"
+          :people="filteredPeople"
+        />
+        <EmptyState
+          v-else-if="!contacts.loading"
+          :message="contacts.view === 'guilds' ? t('contacts.emptyGuilds') : t('contacts.emptyPeople')"
+        />
+      </div>
     </SectionPanel>
   </PageShell>
 </template>

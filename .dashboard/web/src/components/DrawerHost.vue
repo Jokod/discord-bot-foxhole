@@ -1,104 +1,111 @@
 <template>
-  <div
-    v-if="ui.drawerOpen"
-    class="backdrop open"
-    @click="ui.closeDrawer()"
-  />
-  <aside
-    v-if="ui.drawerOpen"
-    class="drawer open"
-    aria-hidden="false"
-  >
-    <div class="drawer-header">
-      <strong>{{ drawerTitle }}</strong>
-      <button
-        type="button"
-        @click="ui.closeDrawer()"
-      >
-        {{ t('drawer.close') }}
-      </button>
-    </div>
-    <GuildDrawerBody
-      v-if="ui.drawerKind === 'guild' && ui.selectedGuild"
-      :guild="ui.selectedGuild"
-    />
-    <MaterialDrawerBody
-      v-else-if="ui.drawerKind === 'material' && ui.selectedMaterial"
-      :item="ui.selectedMaterial"
-    />
+  <Transition name="drawer-backdrop">
     <div
-      v-if="ui.drawerKind === 'guild' && ui.selectedGuild"
-      class="drawer-guild-actions"
+      v-if="ui.drawerOpen"
+      class="backdrop"
+      @click="ui.closeDrawer()"
+    />
+  </Transition>
+  <Transition
+    name="drawer-panel"
+    @after-leave="ui.clearDrawerSelection()"
+  >
+    <aside
+      v-if="ui.drawerOpen"
+      class="drawer"
+      aria-hidden="false"
     >
-      <h4 class="drawer-actions-title">
-        {{ t('drawer.actions') }}
-      </h4>
-      <div class="guild-action-row">
-        <div class="guild-action-copy">
-          <strong>{{ t('guilds.actLeave') }}</strong>
-          <p class="guild-action-hint">
-            {{ t('guilds.actLeaveHint') }}
-          </p>
-        </div>
+      <div class="drawer-header">
+        <strong>{{ drawerTitle }}</strong>
         <button
           type="button"
-          class="danger"
-          @click="openModal('leave')"
+          @click="ui.closeDrawer()"
         >
-          {{ t('guilds.actLeave') }}
+          {{ t('drawer.close') }}
         </button>
       </div>
+      <GuildDrawerBody
+        v-if="ui.drawerKind === 'guild' && ui.selectedGuild"
+        :guild="ui.selectedGuild"
+      />
+      <MaterialDrawerBody
+        v-else-if="ui.drawerKind === 'material' && ui.selectedMaterial"
+        :item="ui.selectedMaterial"
+      />
       <div
-        v-if="!blocked"
-        class="guild-action-row"
+        v-if="ui.drawerKind === 'guild' && ui.selectedGuild"
+        class="drawer-guild-actions"
       >
-        <div class="guild-action-copy">
-          <strong>{{ t('guilds.actBlacklist') }}</strong>
-          <p class="guild-action-hint">
-            {{ t('guilds.actBlacklistHint') }}
-          </p>
+        <h4 class="drawer-actions-title">
+          {{ t('drawer.actions') }}
+        </h4>
+        <div class="guild-action-row">
+          <div class="guild-action-copy">
+            <strong>{{ t('guilds.actLeave') }}</strong>
+            <p class="guild-action-hint">
+              {{ t('guilds.actLeaveHint') }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="danger"
+            @click="openModal('leave')"
+          >
+            {{ t('guilds.actLeave') }}
+          </button>
         </div>
-        <button
-          type="button"
-          class="danger"
-          @click="openModal('blacklist')"
+        <div
+          v-if="!blocked"
+          class="guild-action-row"
         >
-          {{ t('guilds.actBlacklist') }}
-        </button>
-      </div>
-      <div
-        v-if="blocked && canUnblacklist"
-        class="guild-action-row"
-      >
-        <div class="guild-action-copy">
-          <strong>{{ t('guilds.actUnblacklist') }}</strong>
-          <p class="guild-action-hint">
-            {{ t('guilds.actUnblacklistHint') }}
-          </p>
+          <div class="guild-action-copy">
+            <strong>{{ t('guilds.actBlacklist') }}</strong>
+            <p class="guild-action-hint">
+              {{ t('guilds.actBlacklistHint') }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="danger"
+            @click="openModal('blacklist')"
+          >
+            {{ t('guilds.actBlacklist') }}
+          </button>
         </div>
-        <button
-          type="button"
-          @click="openModal('unblacklist')"
+        <div
+          v-if="blocked && canUnblacklist"
+          class="guild-action-row"
         >
-          {{ t('guilds.actUnblacklist') }}
-        </button>
-      </div>
-      <div class="guild-action-row">
-        <div class="guild-action-copy">
-          <strong>{{ t('guilds.actBroadcast') }}</strong>
-          <p class="guild-action-hint">
-            {{ t('guilds.actBroadcastHint') }}
-          </p>
+          <div class="guild-action-copy">
+            <strong>{{ t('guilds.actUnblacklist') }}</strong>
+            <p class="guild-action-hint">
+              {{ t('guilds.actUnblacklistHint') }}
+            </p>
+          </div>
+          <button
+            type="button"
+            @click="openModal('unblacklist')"
+          >
+            {{ t('guilds.actUnblacklist') }}
+          </button>
         </div>
-        <button
-          type="button"
-          @click="openModal('broadcast')"
-        >
-          {{ t('guilds.actBroadcast') }}
-        </button>
+        <div class="guild-action-row">
+          <div class="guild-action-copy">
+            <strong>{{ t('guilds.actBroadcast') }}</strong>
+            <p class="guild-action-hint">
+              {{ t('guilds.actBroadcastHint') }}
+            </p>
+          </div>
+          <button
+            type="button"
+            @click="openModal('broadcast')"
+          >
+            {{ t('guilds.actBroadcast') }}
+          </button>
+        </div>
       </div>
-    </div>
-  </aside>
+    </aside>
+  </Transition>
 </template>
 
 <script setup lang="ts">

@@ -20,10 +20,10 @@ module.exports = {
 					guildName: guild.name ?? guild.id,
 				});
 				await guild.leave();
-				console.log(`[Blocked] Bot retiré du serveur ${guild.name} (${guild.id}) juste après l'invitation.`);
+				console.log(`[Blocked] Left guild ${guild.name} (${guild.id}) right after invite.`);
 			}
 			catch (err) {
-				console.error(`[Blocked] Impossible de quitter le serveur ${guild.name ?? guild.id} (${guild.id}):`, err.message);
+				console.error(`[Blocked] Failed to leave guild ${guild.name ?? guild.id} (${guild.id}):`, err.message);
 			}
 			return;
 		}
@@ -45,6 +45,6 @@ module.exports = {
 			},
 			{ upsert: true, returnDocument: 'after' },
 		);
-		console.log(`[Stats] Bot a rejoint le serveur ${guild.name ?? guild.id}.`);
+		console.log(`[Stats] Joined guild ${guild.name ?? guild.id}.`);
 	},
 };

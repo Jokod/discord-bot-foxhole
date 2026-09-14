@@ -87,7 +87,7 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: '可用命令：%commands%',
 
 	COMMAND_EXECUTE_ERROR: '执行命令时发生错误。',
-	BOT_MISSING_CHANNEL_ACCESS: '我无法在此频道发帖（Missing Access / Missing Permissions）。请授予机器人**查看频道**、**发送消息**和**嵌入链接**（若启用 Logs，还需线程权限）。',
+	BOT_MISSING_CHANNEL_ACCESS: '我无法在此频道发帖（Missing Access / Missing Permissions）。\n\n1. 请在此频道（及其分类）为机器人授予**查看频道**、**发送消息**和**查看消息历史**。\n2. 或通过此链接重新授权 FoxBot：%url%',
 	NO_DM: '我无法在私信中执行该命令！',
 	NO_PERMS: '您没有使用此命令的权限。',
 	// SERVER ---------------------------------------------

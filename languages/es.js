@@ -87,7 +87,7 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Comandos disponibles: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'Se produjo un error al ejecutar el comando.',
-	BOT_MISSING_CHANNEL_ACCESS: 'No puedo publicar en este canal (Missing Access / Missing Permissions). Dale al bot **Ver canal**, **Enviar mensajes** e **Insertar enlaces** (y permisos de hilos si Logs está activo).',
+	BOT_MISSING_CHANNEL_ACCESS: 'No puedo publicar en este canal (Missing Access / Missing Permissions).\n\n1. En este canal (y su categoría): permite al bot **Ver canal**, **Enviar mensajes** y **Ver historial de mensajes**.\n2. O vuelve a autorizar FoxBot con los permisos correctos: %url%',
 	NO_DM: '¡No puedo ejecutar ese comando en MD!',
 	NO_PERMS: 'No tienes permisos para usar este comando.',
 

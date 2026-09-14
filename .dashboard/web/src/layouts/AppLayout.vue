@@ -91,6 +91,18 @@
     >
       {{ t('banner.defaultCreds') }}
     </p>
+    <p
+      v-if="versionUpdate"
+      class="banner info"
+    >
+      {{ t('banner.updateAvailable', { local: versionUpdate.local, latest: versionUpdate.latest }) }}
+      <a
+        v-if="versionUpdate.releaseUrl"
+        :href="versionUpdate.releaseUrl"
+        target="_blank"
+        rel="noopener"
+      >{{ t('banner.updateLink') }}</a>
+    </p>
 
     <template v-if="!isSettings">
       <div class="stats-chrome">
@@ -249,6 +261,7 @@ import { useUiStore } from '@/stores/ui';
 import { useFormat } from '@/composables/useFormat';
 import { useClickOutside } from '@/composables/useClickOutside';
 import { persistLang, type AppLocale } from '@/i18n';
+import { api } from '@/api/client';
 
 const { t, locale } = useI18n();
 const fmt = useFormat();
@@ -259,6 +272,7 @@ const router = useRouter();
 const route = useRoute();
 const lang = ref(locale.value as AppLocale);
 const userMenuRef = ref<HTMLElement | null>(null);
+const versionUpdate = ref<{ local: string; latest: string; releaseUrl: string | null } | null>(null);
 
 const isSettings = computed(() => route.name === 'settings');
 
@@ -361,6 +375,17 @@ onMounted(() => {
 	if (!auth.user?.isDefault) {
 		summary.scheduleAuto(summary.autoRefresh, false);
 		if (!summary.data) summary.load(false).catch(() => {});
+		api<{ local: string; latest: string | null; updateAvailable: boolean; releaseUrl: string | null }>('/api/version')
+			.then((v) => {
+				if (v.updateAvailable && v.latest) {
+					versionUpdate.value = {
+						local: v.local,
+						latest: v.latest,
+						releaseUrl: v.releaseUrl,
+					};
+				}
+			})
+			.catch(() => {});
 	}
 });
 

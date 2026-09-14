@@ -51,17 +51,17 @@ class Translate {
 		});
 
 		if (Object.keys(errors).length === 0) {
-			console.log('Aucune erreur dans les fichiers de traduction.');
+			console.log('No errors in translation files.');
 		}
 		else {
-			console.log('Erreurs dans les fichiers de traduction :');
+			console.log('Errors in translation files:');
 			for (const lang in errors) {
-				console.log(`Pour la langue ${lang}:`);
+				console.log(`For language ${lang}:`);
 				if (errors[lang].keysMissing.length > 0) {
-					console.error('Clés manquantes :', errors[lang].keysMissing);
+					console.error('Missing keys:', errors[lang].keysMissing);
 				}
 				if (errors[lang].keysExtra.length > 0) {
-					console.error('Clés en trop :', errors[lang].keysExtra);
+					console.error('Extra keys:', errors[lang].keysExtra);
 				}
 			}
 		}

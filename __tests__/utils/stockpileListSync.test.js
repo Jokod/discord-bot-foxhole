@@ -266,6 +266,62 @@ describe('stockpileListSync', () => {
 			};
 			expect(await refreshTrackedStockpileList(client, { server_id: 'g', channel_id: 'c', message_id: 'm' })).toBe(false);
 		});
+
+		it('retourne false et warn si botCanPostInChannel refuse', async () => {
+			const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+			const client = {
+				channels: {
+					fetch: jest.fn().mockResolvedValue({
+						id: 'ch-1',
+						isTextBased: () => true,
+						guild: { members: { me: { id: 'bot' } } },
+						permissionsFor: () => ({ has: () => false }),
+						send: jest.fn(),
+					}),
+				},
+			};
+
+			const ok = await refreshTrackedStockpileList(client, {
+				server_id: 'guild-1',
+				channel_id: 'ch-1',
+				message_id: 'msg-1',
+			});
+
+			expect(ok).toBe(false);
+			expect(mockBuildStockpileListPayload).not.toHaveBeenCalled();
+			expect(warnSpy).toHaveBeenCalledWith(
+				expect.stringContaining('[StockpileList] access denied on channel ch-1'),
+			);
+			warnSpy.mockRestore();
+		});
+
+		it('warn si Missing Access pendant le refresh', async () => {
+			const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+			mockBuildStockpileListPayload.mockRejectedValue(
+				Object.assign(new Error('Missing Access'), { code: 50001 }),
+			);
+			const client = {
+				channels: {
+					fetch: jest.fn().mockResolvedValue({
+						id: 'c',
+						isTextBased: () => true,
+						messages: { fetch: jest.fn().mockResolvedValue(v2Message()) },
+					}),
+				},
+			};
+
+			await expect(refreshTrackedStockpileList(client, {
+				server_id: 'g',
+				channel_id: 'c',
+				message_id: 'm',
+			})).resolves.toBe(false);
+
+			expect(warnSpy).toHaveBeenCalledWith(
+				expect.stringContaining('[StockpileList] access denied (guild g, channel c):'),
+				'Missing Access',
+			);
+			warnSpy.mockRestore();
+		});
 	});
 
 	describe('refreshTrackedStockpileLists', () => {
@@ -360,7 +416,7 @@ describe('stockpileListSync', () => {
 				message_type: 'stockpile_list',
 				server_id: { $in: ['guild-1'] },
 			});
-			expect(logSpy).toHaveBeenCalledWith('[StockpileList] 0 id(s) corrigé(s), 1 liste(s) rafraîchie(s).');
+			expect(logSpy).toHaveBeenCalledWith('[StockpileList] 0 id(s) repaired, 1 list(s) refreshed.');
 
 			logSpy.mockRestore();
 		});

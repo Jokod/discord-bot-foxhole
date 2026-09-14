@@ -81,7 +81,7 @@ describe('handleInteractionError', () => {
 			reply: jest.fn(),
 		};
 		await handleInteractionError(none, translations, { code: 50001 });
-		expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('canal ?'));
+		expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('channel ?'));
 	});
 
 	it('followUp si déjà replied', async () => {
@@ -124,6 +124,39 @@ describe('handleInteractionError', () => {
 		expect(console.error).toHaveBeenCalledWith(
 			'Failed to send error message to interaction:',
 			expect.any(Error),
+		);
+	});
+
+	it('abandonne sans reply si interaction déjà expirée (10062)', async () => {
+		const interaction = {
+			replied: false,
+			deferred: false,
+			channelId: 'c1',
+			reply: jest.fn(),
+			editReply: jest.fn(),
+			followUp: jest.fn(),
+		};
+		await handleInteractionError(interaction, translations, { code: 10062, message: 'Unknown interaction' });
+		expect(interaction.reply).not.toHaveBeenCalled();
+		expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('10062'));
+		expect(console.error).not.toHaveBeenCalled();
+	});
+
+	it('warn si le reply d’erreur échoue avec 10062', async () => {
+		const interaction = {
+			replied: false,
+			deferred: false,
+			channelId: 'c1',
+			reply: jest.fn().mockRejectedValue({ code: 10062, message: 'Unknown interaction' }),
+			editReply: jest.fn(),
+			followUp: jest.fn(),
+		};
+		await handleInteractionError(interaction, translations, new Error('boom'));
+		expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('interaction expired'));
+		expect(console.error).toHaveBeenCalledWith(expect.any(Error));
+		expect(console.error).not.toHaveBeenCalledWith(
+			'Failed to send error message to interaction:',
+			expect.anything(),
 		);
 	});
 });

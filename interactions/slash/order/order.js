@@ -5,7 +5,7 @@ const { Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 const { canManageBoard } = require('../../../utils/order-permissions.js');
-const { botCanPostInChannel } = require('../../../utils/discordAccess.js');
+const { botCanPostInChannel, missingChannelAccessText } = require('../../../utils/discordAccess.js');
 const { v2Text } = require('../../../utils/componentsV2.js');
 const {
 	createBoard,
@@ -188,7 +188,7 @@ module.exports = {
 			}
 
 			if (!botCanPostInChannel(channel, guild)) {
-				return interaction.reply(v2Text(translations.translate('BOT_MISSING_CHANNEL_ACCESS'), { ephemeral: true }));
+				return interaction.reply(v2Text(missingChannelAccessText(translations), { ephemeral: true }));
 			}
 
 			await interaction.deferReply({ flags: 64 });

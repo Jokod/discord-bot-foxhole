@@ -37,7 +37,9 @@ jest.mock('../../utils/orderBoardSync.js', () => ({
 
 jest.mock('../../utils/translations.js', () => {
 	const fn = jest.fn();
-	fn.mockImplementation(() => ({ translate: jest.fn((k) => k) }));
+	fn.mockImplementation(() => ({
+		translate: jest.fn((k, p) => (p?.url ? `${k}:${p.url}` : k)),
+	}));
 	return fn;
 });
 
@@ -218,6 +220,7 @@ describe('Stats events', () => {
 			Server.findOne = jest.fn().mockResolvedValue({});
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			const slashCreate = require('../../events/slashCreate.js');
+			const { getV2Text } = require('../helpers/v2Payload.js');
 			const execute = jest.fn().mockRejectedValue({ code: 50001, message: 'Missing Access' });
 			const editReply = jest.fn().mockResolvedValue(undefined);
 			const interaction = {
@@ -241,7 +244,9 @@ describe('Stats events', () => {
 
 			await slashCreate.execute(interaction);
 
-			expect(editReply).toHaveBeenCalledWith(v2Text('BOT_MISSING_CHANNEL_ACCESS'));
+			const body = getV2Text(editReply.mock.calls[0][0]);
+			expect(body).toContain('BOT_MISSING_CHANNEL_ACCESS');
+			expect(body).toContain('oauth2/authorize?client_id=');
 			expect(errorSpy).not.toHaveBeenCalled();
 			warnSpy.mockRestore();
 			errorSpy.mockRestore();
@@ -801,7 +806,7 @@ describe('Stats events', () => {
 
 			expect(leave).toHaveBeenCalled();
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'[Blocked] Impossible de quitter le serveur Server A (guild-a):',
+				'[Blocked] Failed to leave guild Server A (guild-a):',
 				'leave failed',
 			);
 			consoleSpy.mockRestore();
@@ -847,7 +852,7 @@ describe('Stats events', () => {
 
 			expect(leave).toHaveBeenCalled();
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'[Blocked] Impossible de quitter le serveur guild-a (guild-a):',
+				'[Blocked] Failed to leave guild guild-a (guild-a):',
 				'leave failed',
 			);
 			consoleSpy.mockRestore();
@@ -872,11 +877,11 @@ describe('Stats events', () => {
 			await new Promise((resolve) => { setTimeout(resolve, 0); });
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'[StockpileList] Échec de la synchronisation au démarrage:',
+				'[StockpileList] Startup sync failed:',
 				expect.any(Error),
 			);
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'[OrderBoard] Échec de la synchronisation au démarrage:',
+				'[OrderBoard] Startup sync failed:',
 				expect.any(Error),
 			);
 			consoleSpy.mockRestore();
@@ -898,7 +903,7 @@ describe('Stats events', () => {
 			await onReady.execute(client);
 
 			expect(consoleSpy).toHaveBeenCalledWith(
-				'[OrderBoard] syncAllOrderBoards indisponible:',
+				'[OrderBoard] syncAllOrderBoards unavailable:',
 				'module missing',
 			);
 			consoleSpy.mockRestore();
@@ -979,7 +984,7 @@ describe('Stats events', () => {
 
 			await onReady.execute(client);
 
-			expect(consoleSpy).toHaveBeenCalledWith('[Stats] 1 serveur(s) orphelin(s) nettoyé(s) au démarrage.');
+			expect(consoleSpy).toHaveBeenCalledWith('[Stats] Cleaned 1 orphaned guild(s) on startup.');
 			consoleSpy.mockRestore();
 		});
 

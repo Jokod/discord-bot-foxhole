@@ -9,7 +9,7 @@ const {
 } = require('discord.js');
 const mongoose = require('mongoose');
 const getFiles = require('./utils/getFiles');
-const { BOT_INVITE_PERMISSIONS } = require('./utils/constants.js');
+const { buildBotInviteUrl } = require('./utils/discordAccess.js');
 const { Server, OrderBoard, Operation } = require('./data/models.js');
 const Translate = require('./utils/translations.js');
 
@@ -135,10 +135,10 @@ const registerSlashCommands = async () => {
 	}
 	catch (error) {
 		if (error.code === 50001) {
-			console.error('❌ Erreur: Le bot n\'a pas les permissions pour enregistrer les commandes slash.');
-			console.error('📝 Solution: Réinvitez le bot avec les scopes "bot" ET "applications.commands"');
-			console.error(`🔗 URL d'invitation: https://discord.com/api/oauth2/authorize?client_id=${process.env.CLIENT_ID}&permissions=${BOT_INVITE_PERMISSIONS}&scope=bot%20applications.commands`);
-			console.error('\n⚠️  Alternative: Changez APP_ENV=prod dans .env pour utiliser les commandes globales (prend 1h à se synchroniser)');
+			console.error('❌ Error: The bot lacks permission to register slash commands.');
+			console.error('📝 Fix: Re-invite the bot with both "bot" AND "applications.commands" scopes');
+			console.error(`🔗 Invite URL: ${buildBotInviteUrl() || '(CLIENT_ID missing)'}`);
+			console.error('\n⚠️  Alternative: Set APP_ENV=prod in .env to use global commands (can take up to 1h to sync)');
 		}
 		else {
 			console.error(error);
