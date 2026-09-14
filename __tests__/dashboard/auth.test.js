@@ -1,15 +1,21 @@
 'use strict';
 
-jest.mock('mongoose', () => ({
+const path = require('path');
+const mockCollection = jest.fn();
+jest.mock('../../.dashboard/lib/db', () => ({
 	connection: {
 		db: {
-			collection: jest.fn(),
+			collection: mockCollection,
 		},
 	},
 }));
 
+jest.mock('../../.dashboard/lib/api/tokens', () => ({
+	revokeAllTokens: jest.fn().mockResolvedValue(undefined),
+}));
+
 const crypto = require('crypto');
-const mongoose = require('mongoose');
+const mongoose = require('../../.dashboard/lib/db');
 const {
 	hashPassword,
 	verifyPassword,
@@ -21,6 +27,7 @@ const {
 	cookieSecureFlag,
 	trustProxy,
 	isLoopbackAddress,
+	isLoopbackHost,
 	ensureDefaultAdmin,
 	validateLogin,
 	updateCredentials,
@@ -37,7 +44,7 @@ const {
 	requireSession,
 	resetLoginAttemptsForTests,
 	DEFAULT_USERNAME,
-} = require('../../.dashboard/auth');
+} = require('../../.dashboard/lib/auth');
 
 describe('dashboard auth', () => {
 	const prev = {
@@ -64,7 +71,7 @@ describe('dashboard auth', () => {
 				return { acknowledged: true };
 			}),
 		};
-		mongoose.connection.db.collection.mockReturnValue(col);
+		mockCollection.mockReturnValue(col);
 	});
 
 	afterEach(() => {
@@ -111,6 +118,28 @@ describe('dashboard auth', () => {
 		expect(PASSWORD_MIN).toBeGreaterThanOrEqual(10);
 	});
 
+	it('isLoopbackHost ignore host header invalide', () => {
+		expect(isLoopbackHost('[')).toBe(false);
+		expect(isLoopbackHost('127.0.0.1:3847')).toBe(true);
+	});
+
+	it('updateCredentials logue si revokeAllTokens échoue', async () => {
+		const { revokeAllTokens } = require('../../.dashboard/lib/api/tokens');
+		await ensureDefaultAdmin();
+		revokeAllTokens.mockRejectedValueOnce({ code: 'DB_FAIL' });
+		const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		await updateCredentials({
+			currentPassword: 'admin',
+			username: 'ops',
+			newPassword: 'strong-pass-12',
+		});
+		expect(errSpy).toHaveBeenCalledWith(
+			'[dashboard] revoke API tokens on password change failed',
+			expect.objectContaining({ code: 'DB_FAIL' }),
+		);
+		errSpy.mockRestore();
+	});
+
 	it('assertSameOrigin allows missing Origin from loopback', () => {
 		expect(() => assertSameOrigin({
 			headers: { host: '127.0.0.1:3847' },
@@ -146,6 +175,22 @@ describe('dashboard auth', () => {
 			headers: { host: '127.0.0.1:3847', origin: 'https://stats.example.com' },
 			socket: { remoteAddress: '10.0.0.5' },
 		})).not.toThrow();
+	});
+
+	it('assertSameOrigin accepts loopback Origin from loopback proxy (Vite dev)', () => {
+		delete process.env.DASHBOARD_PUBLIC_ORIGIN;
+		expect(() => assertSameOrigin({
+			headers: { host: '127.0.0.1:3847', origin: 'http://localhost:5173' },
+			socket: { remoteAddress: '127.0.0.1' },
+		})).not.toThrow();
+	});
+
+	it('assertSameOrigin rejects foreign Origin from loopback client', () => {
+		delete process.env.DASHBOARD_PUBLIC_ORIGIN;
+		expect(() => assertSameOrigin({
+			headers: { host: '127.0.0.1:3847', origin: 'https://evil.example' },
+			socket: { remoteAddress: '127.0.0.1' },
+		})).toThrow(/Origin rejected/);
 	});
 
 	it('assertSameOrigin rejects foreign Origin', () => {

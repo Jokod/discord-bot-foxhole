@@ -10,7 +10,11 @@ const {
 	loadAllMaterialFiles,
 	writeMaterialFile,
 	applyCatalogMaintenance,
-} = require('../../../scripts/lib/wiki-sync/materials-store');
+	validateMaterialEntry,
+	validateMaterialList,
+	flushModifiedMaterialFiles,
+	catalogItemNames,
+} = require('../../../scripts/lib/wiki-sync/core/catalog');
 
 describe('wiki-sync / materials-store', () => {
 	describe('sortMaterialsByName', () => {
@@ -36,7 +40,36 @@ describe('wiki-sync / materials-store', () => {
 		});
 	});
 
-	describe('loadAllMaterialFiles + writeMaterialFile + applyCatalogMaintenance', () => {
+	describe('validateMaterialEntry', () => {
+		const valid = {
+			itemName: 'A',
+			faction: ['colonial'],
+			itemDesc: 'desc',
+			itemCategory: 'resources',
+		};
+
+		it('accepte une entrée valide', () => {
+			expect(() => validateMaterialEntry(valid)).not.toThrow();
+		});
+
+		it('rejette les entrées invalides', () => {
+			expect(() => validateMaterialEntry(null)).toThrow(/objet attendu/);
+			expect(() => validateMaterialEntry({})).toThrow(/itemName requis/);
+			expect(() => validateMaterialEntry({ itemName: 'A' })).toThrow(/faction\[\] requis/);
+			expect(() => validateMaterialEntry({ itemName: 'A', faction: [] })).toThrow(/itemDesc requis/);
+			expect(() => validateMaterialEntry({
+				itemName: 'A',
+				faction: [],
+				itemDesc: 'x',
+			})).toThrow(/itemCategory requis/);
+		});
+
+		it('validateMaterialList propage les erreurs', () => {
+			expect(() => validateMaterialList([valid, null])).toThrow(/objet attendu/);
+		});
+	});
+
+	describe('flushModifiedMaterialFiles + catalogItemNames', () => {
 		let tmpRoot;
 		let materialsRoot;
 		let stderrSpy;
@@ -170,5 +203,38 @@ describe('wiki-sync / materials-store', () => {
 			groups.find = () => undefined;
 			expect(() => applyCatalogMaintenance(groups, materialsRoot, false)).not.toThrow();
 		});
+
+		it('flushModifiedMaterialFiles ignore un path sans groupe', () => {
+			const fp = path.join(materialsRoot, 'ammunition', 'x.json');
+			writeJson('ammunition/x.json', [validEntry('Keep')]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			expect(() => flushModifiedMaterialFiles(['/missing.json'], groups)).not.toThrow();
+		});
+
+		it('flushModifiedMaterialFiles trie et réécrit le groupe trouvé', () => {
+			const fp = path.join(materialsRoot, 'ammunition', 'x.json');
+			writeJson('ammunition/x.json', [validEntry('B'), validEntry('A')]);
+			const groups = loadAllMaterialFiles(materialsRoot);
+			flushModifiedMaterialFiles([fp], groups);
+			const raw = JSON.parse(fs.readFileSync(fp, 'utf8'));
+			expect(raw.map((m) => m.itemName)).toEqual(['A', 'B']);
+		});
+
+		it('catalogItemNames ignore les uniforms FR', () => {
+			writeJson('utilities/uniforms.json', [
+				validEntry('Uniforme soldat'),
+				validEntry('Rifle'),
+			]);
+			expect(catalogItemNames(materialsRoot)).toEqual(['Rifle']);
+		});
 	});
+
+	function validEntry(itemName) {
+		return {
+			itemName,
+			faction: ['colonial'],
+			itemDesc: 'desc',
+			itemCategory: 'utilities',
+		};
+	}
 });

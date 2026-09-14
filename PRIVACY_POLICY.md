@@ -117,7 +117,7 @@ It does not sell or share collected data with third-party analytics providers.
 
 - **MongoDB** — configuration, features, and usage statistics.
 - **Log files** — `var/logs/` on the host that runs the Bot.
-- **Local dashboard** (optional, self-host / maintainer) — reads MongoDB and Discord for stats; binds to localhost by default (`127.0.0.1`), with optional reverse-proxy access behind login. See [docs/SELF-HOST.md](docs/SELF-HOST.md).
+- **Local dashboard** (optional, self-host / maintainer) — reads MongoDB and Discord for stats; binds to localhost by default (`127.0.0.1`), with optional reverse-proxy access behind login. See [docs/SELF-HOST.md](docs/SELF-HOST.md). An optional **public JWT API** (`DASHBOARD_API=1`) can expose allowlisted catalogue/KPI/guild data to tools you authorize via Profile tokens; guild scope exposes Discord server IDs.
 
 Access on the hosted instance is limited to the Bot runtime and the project maintainer.
 
@@ -157,7 +157,7 @@ We do not sell, rent, or share collected data with third parties, except if requ
 
 As a server admin you can:
 
-- Delete operations and order boards with bot commands / board buttons, or wipe boards, stockpiles, and operations with **`/server reset confirm:true`** (Manage Server).
+- Delete operations and order boards with bot commands / board buttons, or wipe boards, stockpiles, and operations with **`/server reset`** then **Confirm** (Manage Server).
 - Remove stockpiles from the stockpile list (Cleanup / Delete all) or via `/server reset`.
 - Turn off notifications with `/notify off`.
 - Remove the Bot from your server at any time (stops further collection; guild cleanup runs as above).

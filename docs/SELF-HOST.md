@@ -175,7 +175,7 @@ Routine **1.0.x** patches: usually no Mongo script — deploy + restart (see [MI
 | Dashboard (Docker) | `make docker-dashboard` → http://127.0.0.1:3847 |
 | Restart | Restart the process / container → resync open boards + stockpile lists + slash |
 | Logs (Docker) | `make docker-logs` |
-| New war (wipe game data) | `/server reset confirm:true` (Manage Server) — preview with `confirm:false` |
+| New war (wipe game data) | `/server reset` (Manage Server) — preview, then **Confirm** / **Cancel** buttons |
 | Order Logs threads | `/setup logs` or `/server logs` |
 | Stats dashboard (local) | See [Dashboard](#dashboard-stats-localhost) |
 | Dump MongoDB | `make mongo-dump` (`MONGO_ENV_FILE=.env.prod`; uses local `mongodump` or Docker `mongo:7`) |
@@ -185,17 +185,6 @@ Routine **1.0.x** patches: usually no Mongo script — deploy + restart (see [MI
 
 To post **releases** in an Announcements channel: Discord webhook + **`/github`** URL suffix, GitHub **Releases** event. In an Announcements channel, **Publish** the message so servers that **Follow** receive it.
 
-### One-shot announce to all guilds (optional)
-
-Maintainer script (not run by CI or the dashboard):
-
-```bash
-DASHBOARD_ENV_FILE=.env.prod node scripts/announce-guilds.js --dry-run
-DASHBOARD_ENV_FILE=.env.prod node scripts/announce-guilds.js --send
-```
-
-Message body: `data/announce.md` (or `--message-file=…`). Writes a per-guild summary to `data/announce-last-run.txt`. Exit code `1` if any guild failed.
-
 ---
 
 ## Dashboard (stats, localhost)
@@ -203,11 +192,13 @@ Message body: `data/announce.md` (or `--message-file=…`). Writes a per-guild s
 Small dashboard (KPIs, charts, guild list, Discord contacts, materials catalog) that reads **your** MongoDB.  
 **By default Compose publishes port `3847` on the host** (all interfaces). For localhost-only, set `DASHBOARD_PUBLISH=127.0.0.1:3847`. Prefer a reverse proxy for HTTPS; do not expose the raw port on the public internet.
 
-Protected by **login**. First seed creates `admin` / `admin` (`isDefault`). Data APIs stay locked until **you** change the password in **Profile** — the server never rotates credentials and never logs passwords. Stored hashed in MongoDB (`dashboard_auth`).
+Protected by **login**. First seed creates `admin` / `admin` (`isDefault`). Data APIs stay locked until **you** change the password in **Settings → Account** — the server never rotates credentials and never logs passwords. Stored hashed in MongoDB (`dashboard_auth`).
+
+The dashboard is a **standalone npm project** under [`.dashboard/`](../.dashboard/): Node backend (`server.js`) + Vue 3 frontend (`web/`, built to `dist/`). Chart.js, fonts, and Swagger UI come from npm — no CDN copies.
 
 | | |
 |--|--|
-| Code | [`.dashboard/`](../.dashboard/) (`assets/` for CSS/JS) |
+| Code | [`.dashboard/`](../.dashboard/) — backend in `lib/`, frontend in `web/`, build output in `dist/` |
 | URL | `http://127.0.0.1:3847` |
 | Env | Same file as the bot (`TOKEN`, `MONGODB_*`) + optional `DASHBOARD_*` |
 | Login | `admin` / `admin` until changed in Profile |
@@ -215,11 +206,18 @@ Protected by **login**. First seed creates `admin` / `admin` (`isDefault`). Data
 ### Start
 
 ```bash
+# Install + build frontend (once, or after pulling UI changes)
+cd .dashboard && npm install && npm run build
+
 # Node / Makefile (default env file = .env.prod)
 make dashboard-start DASHBOARD_ENV_FILE=.env
 
 # or
 DASHBOARD_ENV_FILE=.env npm run dashboard
+
+# Dev: backend + Vite HMR (two terminals)
+cd .dashboard && npm run dev          # :3847
+cd .dashboard && npm run web:dev      # :5173 → proxies /api to :3847
 
 # Docker (localhost only on the host)
 docker compose --profile dashboard up -d
@@ -257,8 +255,27 @@ The dashboard stays on **localhost** by default. Auth allows an optional reverse
 - **Server admin actions** (drawer): leave, blacklist, unblacklist, broadcast — each with a short explanation and a confirmation modal (`CONFIRM` for leave / blacklist / unblacklist)  
 - **Blacklisted servers**: list from Mongo `blocked_guilds` ∪ `BLOCKED_GUILD_IDS`; unblacklist only for Mongo (or `both`); env-only IDs stay until you edit the env  
 - Contacts: Discord owners + creators of ops / stockpiles / boards (resolved via `TOKEN`)  
-- **Materials**: full catalogue from `data/materials/` with search, category / subcategory / faction filters, grid or table view; icons served from `assets/icons/materials/` (emoji fallback)  
+- **Materials**: full catalogue from `data/materials/` with search, category / subcategory / faction filters, grid or table view; icons served from `assets/icons/materials/` (emoji fallback); **wiki sync** panel (dry-run by default, async jobs)  
 - Product: order boards, languages, factions, notifications, ops  
+
+#### Wiki sync (Materials tab)
+
+Preview or apply catalogue updates from [foxhole.wiki.gg](https://foxhole.wiki.gg). CLI (`npm run wiki:sync-materials`) is unchanged for CI/manual runs.
+
+| Variable | Role |
+|----------|------|
+| `WIKI_SYNC_WRITE=1` | Allow non-dry-run from dashboard |
+| `DASHBOARD_WIKI_SYNC=1` | Enable dashboard wiki-sync API (opt-in) |
+| `WIKI_SYNC_COOLDOWN_MS` | Min delay between job starts (default 5 min) |
+| `WIKI_SYNC_WRITE_COOLDOWN_MS` | Min delay between writes (default 15 min) |
+| `WIKI_SYNC_MAX_RUNS_PER_HOUR` | Quota per session (default 6) |
+| `WIKI_SYNC_MIN_INTERVAL_MS` / `WIKI_SYNC_MAX_REQUESTS_PER_RUN` | Wiki API rate limit (CLI + dashboard) |
+
+Mount `data/materials/` and `assets/icons/materials/` read-write if you want dashboard writes (Compose volume or bind mount).
+
+#### Public API (opt-in)
+
+See [API.md](API.md). Enable with `DASHBOARD_API=1` + `DASHBOARD_API_JWT_SECRET` + scope flags. JWT tokens are created in **Profile**, not in `.env`.
 
 The Contacts tab calls the Discord API (`TOKEN`): owners of guilds **where the bot is still present**, and username resolution. `owner_id` is also stored on `Stats` at join / ready / leave so it remains after departure. Broadcast / leave / blacklist need a valid `TOKEN` as well (Discord REST).
 

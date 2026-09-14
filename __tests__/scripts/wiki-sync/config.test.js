@@ -4,10 +4,37 @@ const {
 	WIKI_SCAN_CATEGORIES,
 	WIKI_HUB_TITLES,
 	PRUNE_CATALOG_ITEM_NAMES,
-	RESOURCE_NAME_TO_REL,
 } = require('../../../scripts/lib/wiki-sync/config');
+const { RESOURCE_NAME_TO_REL } = require('../../../scripts/lib/wiki-sync/config/routing/rules');
 
 describe('wiki-sync / config', () => {
+	afterEach(() => {
+		delete process.env.WIKI_SYNC_BATCH_DELAY_MS;
+		delete process.env.WIKI_SYNC_MIN_INTERVAL_MS;
+		delete process.env.WIKI_SYNC_CONCURRENCY;
+		delete process.env.WIKI_SYNC_MAX_REQUESTS_PER_RUN;
+	});
+
+	it('envInt retombe sur fallback pour valeur vide ou invalide', () => {
+		jest.resetModules();
+		process.env.WIKI_SYNC_BATCH_DELAY_MS = '';
+		process.env.WIKI_SYNC_MIN_INTERVAL_MS = 'abc';
+		process.env.WIKI_SYNC_CONCURRENCY = '-1';
+		const api = require('../../../scripts/lib/wiki-sync/config/api');
+		expect(api.BATCH_DELAY_MS).toBe(2000);
+		expect(api.MIN_INTERVAL_MS).toBe(0);
+		expect(api.CONCURRENCY).toBe(1);
+	});
+
+	it('envInt lit les entiers positifs depuis process.env', () => {
+		jest.resetModules();
+		process.env.WIKI_SYNC_BATCH_DELAY_MS = '1500';
+		process.env.WIKI_SYNC_MAX_REQUESTS_PER_RUN = '42';
+		const api = require('../../../scripts/lib/wiki-sync/config/api');
+		expect(api.BATCH_DELAY_MS).toBe(1500);
+		expect(api.MAX_REQUESTS_PER_RUN).toBe(42);
+	});
+
 	it('WIKI_SCAN_CATEGORIES couvre les catégories attendues', () => {
 		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Ammunition');
 		expect(WIKI_SCAN_CATEGORIES).toContain('Category:Uniforms');

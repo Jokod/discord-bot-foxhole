@@ -3,10 +3,19 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { listCatalog, resolveIconUrl, loadManifest } = require('../../.dashboard/lib/materials');
-const { PUBLIC_ICON_PREFIX } = require('../../scripts/lib/wiki-sync/sync-icons');
+const {
+	listCatalog,
+	resolveIconUrl,
+	loadManifest,
+	resetCatalogCacheForTests,
+} = require('../../.dashboard/lib/materials');
+const { PUBLIC_ICON_PREFIX } = require('../../scripts/lib/wiki-sync');
 
 describe('dashboard materials catalog', () => {
+	beforeEach(() => {
+		resetCatalogCacheForTests();
+	});
+
 	it('lists items with category / subcategory from data/materials', () => {
 		const catalog = listCatalog();
 		expect(catalog.categories.length).toBeGreaterThanOrEqual(5);
@@ -19,6 +28,15 @@ describe('dashboard materials catalog', () => {
 		});
 		expect(Array.isArray(sample.faction)).toBe(true);
 		expect(sample.wikiUrl).toContain('foxhole.wiki.gg');
+	});
+
+	it('réutilise le cache TTL pour le catalogue par défaut', () => {
+		const a = listCatalog();
+		const b = listCatalog();
+		expect(b).toBe(a);
+		const forced = listCatalog({ force: true });
+		expect(forced).not.toBe(a);
+		expect(forced.items.length).toBe(a.items.length);
 	});
 
 	it('sets iconUrl when manifest + file exist', () => {

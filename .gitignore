@@ -109,6 +109,11 @@ dist
 # TernJS port file
 .tern-port
 
-# database
-*.sqlite
-/var/mongo-dump/
+var/
+
+# Generated dashboard vendor assets (npm postinstall)
+.dashboard/dist/
+.dashboard/node_modules/
+
+# Wiki sync dev cache & reports
+.wiki-cache/

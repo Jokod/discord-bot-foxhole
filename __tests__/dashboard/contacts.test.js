@@ -1,6 +1,6 @@
 'use strict';
 
-jest.mock('mongoose', () => ({
+jest.mock('../../.dashboard/lib/db', () => ({
 	connection: {
 		db: {
 			collection: jest.fn(),
@@ -19,13 +19,27 @@ jest.mock('../../utils/discordRest', () => ({
 	discordFetch: jest.fn(),
 }));
 
-const mongoose = require('mongoose');
+const mongoose = require('../../.dashboard/lib/db');
 const { discordFetch, mapUser } = require('../../utils/discordRest');
 const {
 	bumpCreator,
 	loadContacts,
 	resetContactsCacheForTests,
+	mapLimited,
 } = require('../../.dashboard/lib/contacts');
+
+const emptyServersCollection = {
+	find: jest.fn(() => ({
+		project: jest.fn(() => ({ toArray: jest.fn(async () => []) })),
+	})),
+};
+
+function bindCollections(collections) {
+	mongoose.connection.db.collection.mockImplementation((name) => {
+		if (name === 'servers') return collections.servers || emptyServersCollection;
+		return collections[name];
+	});
+}
 
 describe('dashboard contacts', () => {
 	const prevToken = process.env.TOKEN;
@@ -56,6 +70,22 @@ describe('dashboard contacts', () => {
 			boards: 1,
 			lines: 0,
 		});
+	});
+
+	it('mapLimited retourne [] pour une liste vide', async () => {
+		const mapper = jest.fn();
+		await expect(mapLimited([], 5, mapper)).resolves.toEqual([]);
+		expect(mapper).not.toHaveBeenCalled();
+	});
+
+	it('mapLimited respecte la concurrence et l ordre', async () => {
+		const seen = [];
+		const out = await mapLimited([1, 2, 3], 2, async (n) => {
+			seen.push(n);
+			return n * 10;
+		});
+		expect(out).toEqual([10, 20, 30]);
+		expect(seen).toHaveLength(3);
 	});
 
 	it('loadContacts aggregates creators without discord token', async () => {
@@ -106,7 +136,7 @@ describe('dashboard contacts', () => {
 				})),
 			},
 		};
-		mongoose.connection.db.collection.mockImplementation((name) => collections[name]);
+		bindCollections(collections);
 
 		const data = await loadContacts();
 		expect(data.discord_token).toBe(false);
@@ -127,6 +157,43 @@ describe('dashboard contacts', () => {
 		const forced = await loadContacts({ force: true });
 		expect(forced).not.toBe(data);
 		expect(forced.kpis.guilds).toBe(2);
+	});
+
+	it('loadContacts inclut lang et activité depuis servers', async () => {
+		const recent = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+		const collections = {
+			stats: {
+				find: jest.fn(() => ({
+					project: () => ({
+						toArray: async () => ([{
+							guild_id: 'g1',
+							name: 'Alpha',
+							command_count: 3,
+							last_command_at: recent,
+						}]),
+					}),
+				})),
+			},
+			servers: {
+				find: jest.fn(() => ({
+					project: () => ({
+						toArray: async () => ([{ guild_id: 'g1', lang: 'fr' }]),
+					}),
+				})),
+			},
+			stockpiles: { find: jest.fn(() => ({ project: () => ({ toArray: async () => ([]) }) })) },
+			operations: { find: jest.fn(() => ({ project: () => ({ toArray: async () => ([]) }) })) },
+			orderboards: { find: jest.fn(() => ({ project: () => ({ toArray: async () => ([]) }) })) },
+			orderlines: { find: jest.fn(() => ({ project: () => ({ toArray: async () => ([]) }) })) },
+		};
+		bindCollections(collections);
+
+		const data = await loadContacts({ force: true });
+		expect(data.guilds[0]).toMatchObject({
+			lang: 'fr',
+			activity: '24h',
+			last_command_at: recent,
+		});
 	});
 
 	it('loadContacts resolves owners via discord and backfills', async () => {
@@ -213,17 +280,20 @@ describe('dashboard contacts', () => {
 									name: 'Active Low',
 									command_count: 1,
 									owner_id: 'owner-active',
+									last_command_at: '2026-01-10T00:00:00.000Z',
 								},
 								{
 									guild_id: 'g-same',
 									name: 'Same Owner',
 									command_count: 3,
 									owner_id: 'owner-same',
+									last_command_at: '2026-03-10T00:00:00.000Z',
 								},
 								{
 									guild_id: 'g-err',
 									name: 'Guild Err',
 									command_count: 9,
+									last_command_at: '2026-06-10T00:00:00.000Z',
 								},
 								{
 									guild_id: 'g-left',
@@ -266,8 +336,8 @@ describe('dashboard contacts', () => {
 		expect(active[2].guild_id).toBe('g-active');
 
 		const left = data.guilds.filter((g) => !g.active);
-		expect(left[0].guild_id).toBe('g-left');
-		expect(left[1].guild_id).toBe('g-left-low');
+		expect(left[0].guild_id).toBe('g-left-low');
+		expect(left[1].guild_id).toBe('g-left');
 
 		const creators = data.guilds.find((g) => g.guild_id === 'g-active').creators;
 		expect(creators[0].user_id).toBe('creator-a');
@@ -416,14 +486,14 @@ describe('dashboard contacts', () => {
 		expect(data.guilds[0].owner).toBeNull();
 	});
 
-	it('loadContacts trie actifs sans command_count comme zero', async () => {
+	it('loadContacts trie actifs sans last_command_at en dernier', async () => {
 		process.env.TOKEN = '';
 		mongoose.connection.db.collection.mockImplementation((name) => ({
 			find: () => ({
 				project: () => ({
 					toArray: async () => ([
 						{ guild_id: 'active-a' },
-						{ guild_id: 'active-b', command_count: 3 },
+						{ guild_id: 'active-b', last_command_at: '2026-06-01T00:00:00.000Z' },
 					]),
 				}),
 			}),
@@ -435,14 +505,14 @@ describe('dashboard contacts', () => {
 		expect(data.guilds[1].guild_id).toBe('active-a');
 	});
 
-	it('loadContacts trie actifs par command_count decroissant', async () => {
+	it('loadContacts trie actifs par récence decroissante', async () => {
 		process.env.TOKEN = '';
 		mongoose.connection.db.collection.mockImplementation((name) => ({
 			find: () => ({
 				project: () => ({
 					toArray: async () => ([
-						{ guild_id: 'active-low', command_count: 1 },
-						{ guild_id: 'active-high', command_count: 99 },
+						{ guild_id: 'active-low', command_count: 1, last_command_at: '2026-01-01T00:00:00.000Z' },
+						{ guild_id: 'active-high', command_count: 99, last_command_at: '2026-06-01T00:00:00.000Z' },
 					]),
 				}),
 			}),
@@ -504,14 +574,14 @@ describe('dashboard contacts', () => {
 		);
 	});
 
-	it('loadContacts trie par command_count quand même statut actif', async () => {
+	it('loadContacts trie par récence quand même statut actif', async () => {
 		process.env.TOKEN = '';
 		mongoose.connection.db.collection.mockImplementation((name) => ({
 			find: () => ({
 				project: () => ({
 					toArray: async () => ([
-						{ guild_id: 'g-low', command_count: 1 },
-						{ guild_id: 'g-high', command_count: 50 },
+						{ guild_id: 'g-low', command_count: 1, last_command_at: '2026-01-01T00:00:00.000Z' },
+						{ guild_id: 'g-high', command_count: 50, last_command_at: '2026-06-01T00:00:00.000Z' },
 					]),
 				}),
 			}),
@@ -541,14 +611,14 @@ describe('dashboard contacts', () => {
 		expect(data.guilds[1].guild_id).toBe('inactive');
 	});
 
-	it('loadContacts trie actifs avant inactifs puis command_count', async () => {
+	it('loadContacts trie actifs avant inactifs puis récence', async () => {
 		mongoose.connection.db.collection.mockImplementation((name) => ({
 			find: () => ({
 				project: () => ({
 					toArray: async () => ([
 						{ guild_id: 'left-high', left_at: '2026-01-01T00:00:00.000Z', command_count: 99 },
-						{ guild_id: 'active-low', command_count: 0 },
-						{ guild_id: 'active-high', command_count: 5 },
+						{ guild_id: 'active-low', command_count: 0, last_command_at: '2026-02-01T00:00:00.000Z' },
+						{ guild_id: 'active-high', command_count: 5, last_command_at: '2026-06-01T00:00:00.000Z' },
 					]),
 				}),
 			}),
@@ -661,6 +731,170 @@ describe('dashboard contacts', () => {
 			{ guild_id: 'g1' },
 			{ $set: { owner_id: 'new-owner' } },
 		);
+	});
+
+	it('loadContacts trie people avec noms vides en fallback', async () => {
+		mongoose.connection.db.collection.mockImplementation((name) => ({
+			find: () => ({
+				project: () => ({
+					toArray: async () => ([
+						{ guild_id: 'g1', owner_id: 'u1', last_command_at: '2026-06-01T00:00:00.000Z' },
+						{ guild_id: 'g2', owner_id: 'u2', last_command_at: '2026-06-01T00:00:00.000Z' },
+					]),
+				}),
+			}),
+			updateOne: jest.fn(),
+		}));
+		const data = await loadContacts({ force: true });
+		expect(data.people).toHaveLength(2);
+		expect(data.people[0].user_id).toBe('u1');
+	});
+
+	it('loadContacts trie people par username sans display_name', async () => {
+		mongoose.connection.db.collection.mockImplementation((name) => ({
+			find: () => ({
+				project: () => ({
+					toArray: async () => ([
+						{
+							guild_id: 'g1',
+							name: 'G1',
+							owner_id: 'user-z',
+							last_command_at: '2026-06-01T00:00:00.000Z',
+						},
+						{
+							guild_id: 'g2',
+							name: 'G2',
+							owner_id: 'user-a',
+							last_command_at: '2026-06-01T00:00:00.000Z',
+						},
+					]),
+				}),
+			}),
+			updateOne: jest.fn(),
+		}));
+
+		const data = await loadContacts({ force: true });
+		expect(data.people.map((p) => p.user_id)).toEqual(['user-a', 'user-z']);
+	});
+
+	it('loadContacts trie people par display_name quand last_active_at egal', async () => {
+		mongoose.connection.db.collection.mockImplementation((name) => ({
+			find: () => ({
+				project: () => ({
+					toArray: async () => ([
+						{
+							guild_id: 'g1',
+							name: 'G1',
+							owner_id: 'u-b',
+							last_command_at: '2026-06-01T00:00:00.000Z',
+						},
+						{
+							guild_id: 'g2',
+							name: 'G2',
+							owner_id: 'u-a',
+							last_command_at: '2026-06-01T00:00:00.000Z',
+						},
+					]),
+				}),
+			}),
+			updateOne: jest.fn(),
+		}));
+
+		const data = await loadContacts({ force: true });
+		expect(data.people.map((p) => p.user_id)).toEqual(['u-a', 'u-b']);
+	});
+
+	it('loadContacts ignore dates invalides pour le tri recency', async () => {
+		mongoose.connection.db.collection.mockImplementation((name) => ({
+			find: () => ({
+				project: () => ({
+					toArray: async () => ([
+						{ guild_id: 'left-bad', left_at: 'not-a-date', command_count: 5 },
+						{ guild_id: 'left-ok', left_at: '2026-06-01T00:00:00.000Z', command_count: 1 },
+						{ guild_id: 'active-bad', last_command_at: 'invalid', command_count: 2 },
+						{ guild_id: 'active-ok', last_command_at: '2026-06-01T00:00:00.000Z', command_count: 1 },
+					]),
+				}),
+			}),
+			updateOne: jest.fn(),
+		}));
+
+		const data = await loadContacts({ force: true });
+		expect(data.guilds[0].guild_id).toBe('active-ok');
+		expect(data.guilds.find((g) => g.guild_id === 'left-ok').guild_id).toBe('left-ok');
+	});
+
+	it('loadContacts trie people sans noms via fallback vide', async () => {
+		process.env.TOKEN = 'bot-token';
+		mapUser.mockImplementation((data) => ({
+			user_id: data.id,
+			username: null,
+			display_name: null,
+			avatar_url: null,
+			profile_url: `https://discord.com/users/${data.id}`,
+		}));
+		discordFetch.mockImplementation(async (url) => {
+			if (url === '/guilds/g1') return { ok: true, data: { owner_id: 'u-b' } };
+			if (url === '/guilds/g2') return { ok: true, data: { owner_id: 'u-a' } };
+			if (url.startsWith('/users/')) return { ok: true, data: { id: url.slice(7) } };
+			return { ok: false, status: 404 };
+		});
+		const sameTs = '2026-06-01T00:00:00.000Z';
+		mongoose.connection.db.collection.mockImplementation((name) => ({
+			find: () => ({
+				project: () => ({
+					toArray: async () => ([
+						{ guild_id: 'g1', name: 'G1', owner_id: 'u-b', last_command_at: sameTs },
+						{ guild_id: 'g2', name: 'G2', owner_id: 'u-a', last_command_at: sameTs },
+					]),
+				}),
+			}),
+			updateOne: jest.fn(),
+		}));
+
+		const data = await loadContacts({ force: true });
+		expect(data.people.map((p) => p.user_id)).toEqual(['u-b', 'u-a']);
+	});
+
+	it('loadContacts trie people par username quand display_name absent', async () => {
+		process.env.TOKEN = 'bot-token';
+		mapUser.mockImplementation((data) => ({
+			user_id: data.id,
+			username: data.username,
+			display_name: data.global_name || null,
+			avatar_url: null,
+			profile_url: `https://discord.com/users/${data.id}`,
+		}));
+		discordFetch.mockImplementation(async (url) => {
+			if (url === '/guilds/g1') {
+				return { ok: true, data: { owner_id: 'u-z' } };
+			}
+			if (url === '/guilds/g2') {
+				return { ok: true, data: { owner_id: 'u-a' } };
+			}
+			if (url === '/users/u-z') {
+				return { ok: true, data: { id: 'u-z', username: 'zulu', global_name: null } };
+			}
+			if (url === '/users/u-a') {
+				return { ok: true, data: { id: 'u-a', username: 'alpha', global_name: null } };
+			}
+			return { ok: false, status: 404 };
+		});
+		mongoose.connection.db.collection.mockImplementation((name) => ({
+			find: () => ({
+				project: () => ({
+					toArray: async () => ([
+						{ guild_id: 'g1', name: 'G1', owner_id: 'u-z' },
+						{ guild_id: 'g2', name: 'G2', owner_id: 'u-a' },
+					]),
+				}),
+			}),
+			updateOne: jest.fn(),
+		}));
+
+		const data = await loadContacts({ force: true });
+		expect(data.people.map((p) => p.user_id)).toEqual(['u-a', 'u-z']);
+		expect(data.people.every((p) => !p.display_name && p.username)).toBe(true);
 	});
 
 	it('loadContacts uses guild_id fallback and skips invalid owner ids in people map', async () => {

@@ -1,10 +1,30 @@
 'use strict';
 
-const mongoose = require('mongoose');
+const mongoose = require('./db');
 const { mapUser, discordFetch } = require('../../utils/discordRest');
+const { withProxyAvatar } = require('./discordAvatar');
+const { activityBucket } = require('./summary');
 
 const contactsCache = { at: 0, data: null };
 const CONTACTS_TTL_MS = 5 * 60 * 1000;
+const DISCORD_CONCURRENCY = 5;
+
+async function mapLimited(items, limit, mapper) {
+	if (!items.length) return [];
+	const results = new Array(items.length);
+	let next = 0;
+	async function worker() {
+		while (true) {
+			const i = next;
+			next += 1;
+			if (i >= items.length) return;
+			results[i] = await mapper(items[i], i);
+		}
+	}
+	const workers = Math.min(Math.max(1, limit), items.length);
+	await Promise.all(Array.from({ length: workers }, () => worker()));
+	return results;
+}
 
 function bumpCreator(map, guildId, userId, kind) {
 	if (!userId || userId === '0') return;
@@ -16,17 +36,30 @@ function bumpCreator(map, guildId, userId, kind) {
 	users.get(userId)[kind] += 1;
 }
 
+function recencyMs(g) {
+	if (!g.active && g.left_at) {
+		const t = new Date(g.left_at).getTime();
+		return Number.isFinite(t) ? t : 0;
+	}
+	if (g.last_command_at) {
+		const t = new Date(g.last_command_at).getTime();
+		return Number.isFinite(t) ? t : 0;
+	}
+	return 0;
+}
+
 async function loadContacts({ force = false } = {}) {
 	if (!force && contactsCache.data && (Date.now() - contactsCache.at) < CONTACTS_TTL_MS) {
 		return contactsCache.data;
 	}
 
 	const db = mongoose.connection.db;
-	const [allStats, stockpiles, operations, orderboards, orderlines] = await Promise.all([
+	const [allStats, servers, stockpiles, operations, orderboards, orderlines] = await Promise.all([
 		db.collection('stats').find({}).project({
 			guild_id: 1, name: 1, member_count: 1, joined_at: 1, left_at: 1,
 			command_count: 1, last_command_at: 1, owner_id: 1,
 		}).toArray(),
+		db.collection('servers').find({}).project({ guild_id: 1, lang: 1 }).toArray(),
 		db.collection('stockpiles').find({
 			owner_id: { $exists: true, $nin: [null, '', '0'] },
 			deleted: { $ne: true },
@@ -42,6 +75,8 @@ async function loadContacts({ force = false } = {}) {
 		}).project({ guild_id: 1, owner_id: 1 }).toArray(),
 	]);
 
+	const serverByGuild = new Map(servers.map((s) => [s.guild_id, s]));
+	const now = Date.now();
 	const creatorsByGuild = new Map();
 	for (const s of stockpiles) bumpCreator(creatorsByGuild, s.server_id, s.owner_id, 'stockpiles');
 	for (const o of operations) bumpCreator(creatorsByGuild, o.guild_id, o.owner_id, 'operations');
@@ -56,18 +91,18 @@ async function loadContacts({ force = false } = {}) {
 		if (!id || id === '0') return null;
 		if (userCache.has(id)) return userCache.get(id);
 		if (!token) {
-			const fallback = { user_id: id, username: null, display_name: id, avatar_url: null, profile_url: `https://discord.com/users/${id}` };
+			const fallback = withProxyAvatar({ user_id: id, username: null, display_name: id, avatar_url: null, profile_url: `https://discord.com/users/${id}` });
 			userCache.set(id, fallback);
 			return fallback;
 		}
 		const res = await discordFetch(`/users/${id}`);
-		const mapped = res.ok ? mapUser(res.data) : {
+		const mapped = res.ok ? withProxyAvatar(mapUser(res.data)) : withProxyAvatar({
 			user_id: id,
 			username: null,
 			display_name: id,
 			avatar_url: null,
 			profile_url: `https://discord.com/users/${id}`,
-		};
+		});
 		if (!res.ok && res.status && res.status !== 404) {
 			warnings.push(`user ${id}: HTTP ${res.status}`);
 		}
@@ -77,7 +112,7 @@ async function loadContacts({ force = false } = {}) {
 
 	const guildsOut = [];
 	const ownerBackfill = [];
-	for (const g of allStats) {
+	const built = await mapLimited(allStats, DISCORD_CONCURRENCY, async (g) => {
 		const active = !g.left_at;
 		let ownerId = g.owner_id || null;
 		let owner = null;
@@ -111,7 +146,8 @@ async function loadContacts({ force = false } = {}) {
 			creators.push({ ...user, ...c });
 		}
 
-		guildsOut.push({
+		const setup = serverByGuild.get(g.guild_id);
+		return {
 			guild_id: g.guild_id,
 			name: g.name || g.guild_id,
 			active,
@@ -120,12 +156,15 @@ async function loadContacts({ force = false } = {}) {
 			left_at: g.left_at || null,
 			command_count: g.command_count || 0,
 			last_command_at: g.last_command_at || null,
+			lang: setup?.lang || null,
+			activity: activityBucket(g.last_command_at, now),
 			owner_id: ownerId,
 			owner,
 			creators,
 			discord,
-		});
-	}
+		};
+	});
+	guildsOut.push(...built);
 
 	if (ownerBackfill.length) {
 		await Promise.all(ownerBackfill.map((row) =>
@@ -136,8 +175,11 @@ async function loadContacts({ force = false } = {}) {
 		));
 	}
 
-	guildsOut.sort((a, b) =>
-		(Number(b.active) - Number(a.active)) || (b.command_count - a.command_count));
+	guildsOut.sort((a, b) => {
+		const activeDiff = Number(b.active) - Number(a.active);
+		if (activeDiff) return activeDiff;
+		return recencyMs(b) - recencyMs(a);
+	});
 
 	const peopleMap = new Map();
 	for (const g of guildsOut) {
@@ -148,6 +190,7 @@ async function loadContacts({ force = false } = {}) {
 					...user,
 					roles: new Set(),
 					guilds: [],
+					last_active_at: 0,
 				});
 			}
 			const p = peopleMap.get(user.user_id);
@@ -162,6 +205,8 @@ async function loadContacts({ force = false } = {}) {
 				boards: user.boards || 0,
 				lines: user.lines || 0,
 			});
+			const ts = recencyMs(g);
+			if (ts > (p.last_active_at || 0)) p.last_active_at = ts;
 		};
 		add(g.owner, 'owner');
 		for (const c of g.creators) add(c, 'creator');
@@ -173,7 +218,8 @@ async function loadContacts({ force = false } = {}) {
 			roles: [...p.roles],
 			guild_count: new Set(p.guilds.map((x) => x.guild_id)).size,
 		}))
-		.sort((a, b) => b.guild_count - a.guild_count || String(a.display_name).localeCompare(String(b.display_name)));
+		.sort((a, b) => (b.last_active_at || 0) - (a.last_active_at || 0)
+			|| String(a.display_name || a.username || '').localeCompare(String(b.display_name || b.username || '')));
 
 	const activeCount = guildsOut.filter((g) => g.active).length;
 	const data = {
@@ -204,6 +250,9 @@ function resetContactsCacheForTests() {
 module.exports = {
 	loadContacts,
 	bumpCreator,
+	recencyMs,
 	resetContactsCacheForTests,
+	mapLimited,
 	CONTACTS_TTL_MS,
+	DISCORD_CONCURRENCY,
 };

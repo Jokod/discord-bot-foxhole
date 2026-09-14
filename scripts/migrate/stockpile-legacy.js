@@ -1,0 +1,64 @@
+/**
+ * One-time migration: add new required fields to stockpile documents
+ * that only have id, server_id, name, password (legacy schema).
+ *
+ * Run once after deploying the new stockpile schema:
+ *   node scripts/migrate-stockpile-legacy.js
+ *
+ * Requires .env with MONGODB_URL and MONGODB_NAME.
+ */
+
+require('dotenv').config();
+const mongoose = require('mongoose');
+const { STOCKPILE_RESET_DURATION_MS } = require('../../utils/constants.js');
+
+const MONGODB_URL = process.env.MONGODB_URL || 'mongodb://localhost:27017';
+const MONGODB_NAME = process.env.MONGODB_NAME || 'foxhole-bot';
+
+const LEGACY_REGION = 'Unknown';
+const LEGACY_CITY = 'Unknown';
+/** Legacy placeholder; formerly written as group_id, now channel_id */
+const LEGACY_CHANNEL_ID = 'legacy';
+const LEGACY_OWNER_ID = '0';
+
+async function run() {
+	await mongoose.connect(`${MONGODB_URL}/${MONGODB_NAME}`);
+	const db = mongoose.connection.db;
+	const collection = db.collection('stockpiles');
+
+	const now = new Date();
+	const expiresAt = new Date(now.getTime() + STOCKPILE_RESET_DURATION_MS);
+
+	const result = await collection.updateMany(
+		{ region: { $exists: false } },
+		{
+			$set: {
+				region: LEGACY_REGION,
+				city: LEGACY_CITY,
+				channel_id: LEGACY_CHANNEL_ID,
+				owner_id: LEGACY_OWNER_ID,
+				lastResetAt: now,
+				expiresAt,
+				deleted: false,
+				expiry_reminders_sent: [],
+			},
+		},
+	);
+
+	console.log(`Done: ${result.modifiedCount} stockpile(s) updated.`);
+	if (result.matchedCount > 0) {
+		console.log(`Legacy stocks: region/city="${LEGACY_REGION}", channel_id="${LEGACY_CHANNEL_ID}" (was group_id), owner_id="${LEGACY_OWNER_ID}".`);
+		console.log('Anyone can remove or restore these (no creator). To set real region/city: remove then re-add via /stockpile add.');
+	}
+	else {
+		console.log('No legacy documents found.');
+	}
+
+	await mongoose.disconnect();
+	process.exit(0);
+}
+
+run().catch((err) => {
+	console.error(err);
+	process.exit(1);
+});

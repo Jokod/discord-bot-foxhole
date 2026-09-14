@@ -48,6 +48,7 @@ function isValidOperationDescription(value) {
 	}
 
 	// Défense en profondeur contre les pings globaux même si @ était ajouté plus tard.
+	/* istanbul ignore next -- @ exclu du regex actuel */
 	if (/@(everyone|here)/i.test(value)) {
 		return false;
 	}

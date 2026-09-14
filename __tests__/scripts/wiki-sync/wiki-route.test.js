@@ -1,6 +1,6 @@
 'use strict';
 
-const { routeWikiInfoboxToMaterialFile, isHeavyAmmoItem } = require('../../../scripts/lib/wiki-sync/wiki-route');
+const { routeWikiInfoboxToMaterialFile, isHeavyAmmoItem } = require('../../../scripts/lib/wiki-sync/wiki/router');
 
 function itemFields(fields) {
 	return { kind: 'Item', fields };
@@ -81,6 +81,13 @@ describe('wiki-sync / wiki-route', () => {
 				construction_type: 'Shippable',
 				type: 'Production',
 			},
+		})).toBeNull();
+	});
+
+	it('Structure sans champs type/construction → null', () => {
+		expect(routeWikiInfoboxToMaterialFile({
+			kind: 'Structure',
+			fields: { name: 'Bare Structure' },
 		})).toBeNull();
 	});
 

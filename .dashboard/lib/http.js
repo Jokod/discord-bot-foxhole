@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { DASHBOARD_CSP } = require('./csp');
 
 const ASSET_TYPES = {
 	'.css': 'text/css; charset=utf-8',
@@ -10,9 +11,13 @@ const ASSET_TYPES = {
 	'.svg': 'image/svg+xml',
 	'.png': 'image/png',
 	'.ico': 'image/x-icon',
+	'.woff': 'font/woff',
+	'.woff2': 'font/woff2',
 };
 
-function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath, materialIconsDir }) {
+const BUILD_REQUIRED_HTML = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>FoxBot Dashboard</title></head><body><p>Dashboard frontend not built. Run <code>npm install</code> and <code>npm run build</code> in <code>.dashboard/</code>.</p></body></html>';
+
+function createHttpHelpers({ indexPath, assetsDir, materialIconsDir, swaggerAssetsDir }) {
 	function sendJson(res, status, body, extraHeaders = {}) {
 		res.writeHead(status, {
 			'Content-Type': 'application/json; charset=utf-8',
@@ -63,10 +68,14 @@ function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath, materi
 			'X-Content-Type-Options': 'nosniff',
 			'X-Frame-Options': 'DENY',
 			'Referrer-Policy': 'no-referrer',
-			'Content-Security-Policy':
-				'default-src \'self\'; script-src \'self\' https://cdn.jsdelivr.net; style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; font-src https://fonts.gstatic.com; img-src \'self\' https://cdn.discordapp.com data:; connect-src \'self\'; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\'',
+			'Content-Security-Policy': DASHBOARD_CSP,
 		});
-		res.end(fs.readFileSync(indexPath, 'utf8'));
+		if (fs.existsSync(indexPath)) {
+			res.end(fs.readFileSync(indexPath, 'utf8'));
+		}
+		else {
+			res.end(BUILD_REQUIRED_HTML);
+		}
 	}
 
 	function sendFile(res, filePath, { cache = 'no-store' } = {}) {
@@ -94,8 +103,11 @@ function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath, materi
 			return;
 		}
 
-		if (rel === 'war-progress.js') {
-			return sendFile(res, sharedWarProgressPath);
+		if (rel.startsWith('swagger-ui/') && swaggerAssetsDir) {
+			const filePath = path.join(swaggerAssetsDir, rel.slice('swagger-ui/'.length));
+			if (filePath.startsWith(swaggerAssetsDir)) {
+				return sendFile(res, filePath, { cache: 'public, max-age=86400' });
+			}
 		}
 
 		if (rel.startsWith('icons/materials/') && materialIconsDir) {
@@ -108,7 +120,6 @@ function createHttpHelpers({ indexPath, assetsDir, sharedWarProgressPath, materi
 				res.end('Bad request');
 				return;
 			}
-			// Alignement MediaWiki : espaces → underscores
 			name = name.replace(/ /g, '_');
 			if (!name || name.includes('/') || name.includes('\\') || name.includes('..')) {
 				res.writeHead(404, { 'Content-Type': 'text/plain' });

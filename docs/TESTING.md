@@ -12,6 +12,6 @@ CI (`.github/workflows/integration.yaml`) runs lint, i18n parity, then the full 
 
 `npm run test:coverage` also refreshes `badges/coverage.json` (README shield). Commit that file when the rate changes meaningfully.
 
-Dashboard coverage lives under `__tests__/dashboard/` (auth, HTTP helpers, request handler, summary/contacts/materials load, guild-action adapter, frontend assets) plus `__tests__/utils/` for `guildAdminActions`, `blockedGuilds`, and `announceChannels`. Wiki icon sync coverage lives under `__tests__/scripts/wiki-sync/` (`sync-icons`, content helpers, …).
+Dashboard coverage lives under `__tests__/dashboard/` (auth, HTTP helpers, request handler, summary/contacts/materials load, guild-action adapter, **wiki-sync jobs**, **public API / JWT / OpenAPI**) plus `__tests__/utils/` for `guildAdminActions`, `blockedGuilds`, and `announceChannels`. Wiki sync coverage lives under `__tests__/scripts/wiki-sync/`. Vue frontend tests: `npm run test --prefix .dashboard`.
 
 Manual smoke after upgrades: checklist in [MIGRATION.md](MIGRATION.md). Ops / env: [SELF-HOST.md](SELF-HOST.md).

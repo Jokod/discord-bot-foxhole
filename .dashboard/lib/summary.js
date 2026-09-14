@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const mongoose = require('mongoose');
+const mongoose = require('./db');
 const { getWarStatusSummary } = require('../../utils/foxholeWarApi');
 const { getBlockedGuildDetails } = require('../../utils/blockedGuilds');
 
@@ -85,6 +85,7 @@ function createLoadSummary(envPath) {
 			allStats,
 			servers,
 			commandTotals,
+			lastUsedByCommand,
 			orderboards,
 			orderlines,
 			stockpileCount,
@@ -92,8 +93,25 @@ function createLoadSummary(envPath) {
 			notifications,
 			trackedCount,
 		] = await Promise.all([
-			statsCol.find({}).toArray(),
-			serversCol.find({}).toArray(),
+			statsCol.find({}).project({
+				guild_id: 1,
+				name: 1,
+				member_count: 1,
+				command_count: 1,
+				last_command_at: 1,
+				first_command_at: 1,
+				joined_at: 1,
+				left_at: 1,
+				created_at: 1,
+				operation_count: 1,
+				stock_board_count: 1,
+				material_count: 1,
+				material_validated_count: 1,
+				command_breakdown: 1,
+			}).toArray(),
+			serversCol.find({}).project({
+				guild_id: 1, lang: 1, camp: 1, logs: 1,
+			}).toArray(),
 			statsCol.aggregate([
 				{
 					$project: {
@@ -104,11 +122,20 @@ function createLoadSummary(envPath) {
 				{ $group: { _id: '$items.k', total: { $sum: '$items.v' } } },
 				{ $sort: { total: -1 } },
 			]).toArray(),
-			orderboardsCol.find({}).toArray(),
-			orderlinesCol.find({}).toArray(),
+			statsCol.aggregate([
+				{
+					$project: {
+						items: { $objectToArray: { $ifNull: ['$last_command_by_type', {}] } },
+					},
+				},
+				{ $unwind: '$items' },
+				{ $group: { _id: '$items.k', last_used: { $max: '$items.v' } } },
+			]).toArray(),
+			orderboardsCol.find({}).project({ status: 1, kind: 1 }).toArray(),
+			orderlinesCol.find({}).project({ target: 1, current: 1, priority: 1 }).toArray(),
 			stockpilesCol.estimatedDocumentCount(),
-			operationsCol.find({}).toArray(),
-			notifCol.find({}).toArray(),
+			operationsCol.find({}).project({ status: 1 }).toArray(),
+			notifCol.find({}).project({ notification_type: 1 }).toArray(),
 			trackedCol.estimatedDocumentCount(),
 		]);
 
@@ -157,11 +184,21 @@ function createLoadSummary(envPath) {
 		}
 
 		const cmdTotal = commandTotals.reduce((n, r) => n + r.total, 0) || 1;
-		const commands = commandTotals.map((row) => ({
-			name: row._id,
-			total: row.total,
-			pct: Math.round((row.total / cmdTotal) * 1000) / 10,
-		}));
+		const lastUsedMap = new Map(lastUsedByCommand.map((row) => [row._id, row.last_used]));
+		const commands = commandTotals.map((row) => {
+			const rawLast = lastUsedMap.get(row._id);
+			let last_used = null;
+			if (rawLast) {
+				const d = new Date(rawLast);
+				if (!Number.isNaN(d.getTime())) last_used = d.toISOString();
+			}
+			return {
+				name: row._id,
+				total: row.total,
+				pct: Math.round((row.total / cmdTotal) * 1000) / 10,
+				last_used,
+			};
+		});
 
 		const blockedDetails = await getBlockedGuildDetails();
 
@@ -233,13 +270,15 @@ function createLoadSummary(envPath) {
 			console.error('[dashboard] war summary failed', err.message || err);
 		}
 
+		const statsByGuild = new Map(allStats.map((g) => [g.guild_id, g]));
+
 		return {
 			generated_at: new Date().toISOString(),
 			env_file: path.basename(envPath),
 			db_name: mongoose.connection.name || process.env.MONGODB_NAME || null,
 			war,
 			blocked_guilds: [...blockedDetails.entries()].map(([guild_id, source]) => {
-				const fromStats = allStats.find((g) => g.guild_id === guild_id);
+				const fromStats = statsByGuild.get(guild_id);
 				return {
 					guild_id,
 					source,

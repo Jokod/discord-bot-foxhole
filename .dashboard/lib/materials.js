@@ -3,11 +3,14 @@
 const fs = require('fs');
 const path = require('path');
 const { categories } = require('../../data/fournis');
-const { PUBLIC_ICON_PREFIX, canonicalIconFilename } = require('../../scripts/lib/wiki-sync/sync-icons');
-const { inferWikiTitle } = require('../../scripts/lib/wiki-sync/wiki-helpers');
+const { PUBLIC_ICON_PREFIX, canonicalIconFilename, inferWikiTitle } = require('../../scripts/lib/wiki-sync');
 
 const DEFAULT_MATERIALS_ROOT = path.join(__dirname, '..', '..', 'data', 'materials');
 const DEFAULT_ICONS_DIR = path.join(__dirname, '..', '..', 'assets', 'icons', 'materials');
+const CATALOG_CACHE_TTL_MS = 30_000;
+
+let catalogCache = null;
+let catalogCacheAt = 0;
 
 function loadManifest(iconsDir) {
 	const manifestPath = path.join(iconsDir, 'manifest.json');
@@ -39,7 +42,16 @@ function resolveIconUrl(itemName, iconsDir, manifest) {
 function listCatalog({
 	materialsRoot = DEFAULT_MATERIALS_ROOT,
 	iconsDir = DEFAULT_ICONS_DIR,
+	force = false,
 } = {}) {
+	const useCache = !force
+		&& materialsRoot === DEFAULT_MATERIALS_ROOT
+		&& iconsDir === DEFAULT_ICONS_DIR;
+	const now = Date.now();
+	if (useCache && catalogCache && now - catalogCacheAt < CATALOG_CACHE_TTL_MS) {
+		return catalogCache;
+	}
+
 	const manifest = loadManifest(iconsDir);
 	const categoryList = Object.keys(categories).sort().map((id) => ({
 		id,
@@ -85,7 +97,7 @@ function listCatalog({
 
 	items.sort((a, b) => a.itemName.localeCompare(b.itemName, 'en'));
 
-	return {
+	const catalog = {
 		categories: categoryList,
 		items,
 		generated_at: new Date().toISOString(),
@@ -95,13 +107,26 @@ function listCatalog({
 			total: items.length,
 		},
 	};
+
+	if (useCache) {
+		catalogCache = catalog;
+		catalogCacheAt = now;
+	}
+	return catalog;
+}
+
+function resetCatalogCacheForTests() {
+	catalogCache = null;
+	catalogCacheAt = 0;
 }
 
 module.exports = {
 	DEFAULT_MATERIALS_ROOT,
 	DEFAULT_ICONS_DIR,
 	PUBLIC_ICON_PREFIX,
+	CATALOG_CACHE_TTL_MS,
 	loadManifest,
 	resolveIconUrl,
 	listCatalog,
+	resetCatalogCacheForTests,
 };

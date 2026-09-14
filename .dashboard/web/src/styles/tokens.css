@@ -1,0 +1,35 @@
+:root {
+	--bg0: #f2efe8;
+	--bg1: #e7e2d6;
+	--ink: #1c1914;
+	--muted: #5c564c;
+	--line: #c9c1b2;
+	--card: rgba(255, 252, 246, .92);
+	--panel: rgba(255, 252, 246, .92);
+	--accent: #b4451a;
+	--ok: #2f6b4f;
+	--warn: #9a6b12;
+	--info: #3d5a80;
+	--shadow: 0 14px 34px rgba(40, 28, 12, .07);
+	--radius: 14px;
+	--radius-sm: 10px;
+	--radius-pill: 999px;
+	--space-1: .25rem;
+	--space-2: .5rem;
+	--space-3: .75rem;
+	--space-4: 1rem;
+	--space-5: 1.25rem;
+	--space-6: 1.5rem;
+	--space-xs: .35rem;
+	--space-sm: .55rem;
+	--space-md: .85rem;
+	--space-lg: 1.15rem;
+	--z-drawer: 40;
+	--z-backdrop: 30;
+	--z-menu: 25;
+	--z-modal: 50;
+	--transition-fast: .14s ease;
+	--transition-normal: .2s ease;
+	--war-col: #3f6b45;
+	--war-ward: #3d5a80;
+}

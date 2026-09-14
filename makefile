@@ -121,14 +121,19 @@ mongo-restore: ## Restore last dump (or MONGO_RESTORE_DIR=…) into MONGODB_NAME
 
 DASHBOARD_PORT     ?= 3847
 DASHBOARD_ENV_FILE ?= .env.prod
-DASHBOARD_PID      := .dashboard/dashboard.pid
-DASHBOARD_LOG      := .dashboard/dashboard.log
+DASHBOARD_PID      := .dashboard/var/dashboard.pid
+DASHBOARD_LOG      := .dashboard/var/logs/dashboard.log
 DASHBOARD_URL      := http://127.0.0.1:$(DASHBOARD_PORT)
 
 dashboard-start: ## Start stats dashboard on prod Mongo (.env.prod) — override: ENV_FILE=.env
+	@if [ ! -f .dashboard/dist/index.html ]; then \
+		echo "Building dashboard frontend (dist/ missing)…"; \
+		npm run build --prefix .dashboard || exit 1; \
+	fi
 	@if [ -f "$(DASHBOARD_PID)" ] && kill -0 $$(cat "$(DASHBOARD_PID)") 2>/dev/null; then \
 		echo "Dashboard déjà démarré → $(DASHBOARD_URL) (pid $$(cat $(DASHBOARD_PID)))"; \
 	else \
+		mkdir -p .dashboard/var/logs; \
 		DASHBOARD_PORT=$(DASHBOARD_PORT) DASHBOARD_ENV_FILE=$(DASHBOARD_ENV_FILE) \
 			nohup node .dashboard/server.js > "$(DASHBOARD_LOG)" 2>&1 & echo $$! > "$(DASHBOARD_PID)"; \
 		i=0; \

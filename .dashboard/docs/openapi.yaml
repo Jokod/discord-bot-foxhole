@@ -1,0 +1,61 @@
+# Source of truth: openapi.json (this file is a human-readable mirror — keep paths in sync)
+openapi: 3.1.0
+info:
+  title: FoxBot Dashboard Public API
+  version: 1.2.0
+  description: Read-only JWT API. Runtime docs at /api/docs include enabled scopes.
+tags:
+  - name: Materials
+    description: Categories and items via limit/offset
+  - name: Data
+    description: KPIs, commands, war status (no PII)
+  - name: Guilds
+    description: Active Discord servers (sensitive guild IDs)
+components:
+  securitySchemes:
+    BearerJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT created in Settings → API. Scopes materials, data, guilds.
+paths:
+  /api/public/materials/categories:
+    get:
+      tags: [Materials]
+      summary: Material categories
+      security: [{ BearerJWT: [] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+  /api/public/materials/items:
+    get:
+      tags: [Materials]
+      summary: Material items
+      security: [{ BearerJWT: [] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: subcategory
+          in: query
+          schema: { type: string }
+  /api/public/data:
+    get:
+      tags: [Data]
+      summary: Aggregated dashboard KPIs
+      security: [{ BearerJWT: [] }]
+  /api/public/guilds:
+    get:
+      tags: [Guilds]
+      summary: Active guild list
+      security: [{ BearerJWT: [] }]

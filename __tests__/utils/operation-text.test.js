@@ -14,6 +14,11 @@ describe('isValidOperationTitle', () => {
 		expect(isValidOperationTitle('titrelongxx')).toBe(false);
 		expect(isValidOperationTitle('')).toBe(false);
 	});
+
+	it('refuse @everyone / @here même si @ est autorisé dans le titre', () => {
+		expect(isValidOperationTitle('@everyone')).toBe(false);
+		expect(isValidOperationTitle('@here')).toBe(false);
+	});
 });
 
 describe('isValidOperationDescription', () => {

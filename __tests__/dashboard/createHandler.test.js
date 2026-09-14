@@ -1,12 +1,53 @@
 'use strict';
 
+jest.mock('../../.dashboard/lib/api/tokens', () => ({
+	...jest.requireActual('../../.dashboard/lib/api/tokens'),
+	listTokens: jest.fn().mockResolvedValue([]),
+	createToken: jest.fn().mockResolvedValue({ token: 'jwt', jti: 'j1' }),
+	revokeToken: jest.fn().mockResolvedValue({ ok: true, jti: 'j1' }),
+	checkCreateRateLimit: jest.fn(),
+}));
+
+jest.mock('../../.dashboard/lib/api/public', () => ({
+	...jest.requireActual('../../.dashboard/lib/api/public'),
+	handlePublicMaterialCategories: jest.fn().mockResolvedValue({ categories: [] }),
+	handlePublicMaterialItems: jest.fn().mockResolvedValue({ items: [] }),
+	handlePublicGuilds: jest.fn().mockResolvedValue({ guilds: [] }),
+}));
+
+jest.mock('../../.dashboard/lib/api/openapi', () => ({
+	...jest.requireActual('../../.dashboard/lib/api/openapi'),
+	isOpenApiRouteEnabled: jest.fn(),
+	filterOpenApiSpec: jest.fn(() => ({ openapi: '3.0.0', paths: {} })),
+}));
+
+jest.mock('../../.dashboard/lib/discordAvatar', () => ({
+	...jest.requireActual('../../.dashboard/lib/discordAvatar'),
+	serveAvatar: jest.fn().mockResolvedValue(undefined),
+}));
+
 const fs = require('fs');
 const path = require('path');
+const {
+	listTokens,
+	createToken,
+	revokeToken,
+	checkCreateRateLimit,
+} = require('../../.dashboard/lib/api/tokens');
+const {
+	handlePublicMaterialCategories,
+	handlePublicMaterialItems,
+	handlePublicGuilds,
+} = require('../../.dashboard/lib/api/public');
+const { isOpenApiRouteEnabled, filterOpenApiSpec } = require('../../.dashboard/lib/api/openapi');
+const { serveAvatar } = require('../../.dashboard/lib/discordAvatar');
 const {
 	safeHttpUrl,
 	publicLinks,
 	createAuthPayload,
 	createRequestHandler,
+	parseQuery,
+	isSpaDocumentRequest,
 } = require('../../.dashboard/lib/createHandler');
 
 function mockRes() {
@@ -31,6 +72,25 @@ function jsonBody(res) {
 }
 
 describe('dashboard createHandler', () => {
+	describe('parseQuery / isSpaDocumentRequest', () => {
+		it('parseQuery decode les paires query', () => {
+			expect(parseQuery('/x?a=1&b=2&empty=')).toEqual({ a: '1', b: '2', empty: '' });
+			expect(parseQuery('/x?&a=1')).toEqual({ a: '1' });
+			expect(parseQuery('/x?=ignored')).toEqual({});
+			expect(parseQuery('/x?bare')).toEqual({ bare: '' });
+			expect(parseQuery('/x')).toEqual({});
+		});
+
+		it('isSpaDocumentRequest filtre routes non-SPA', () => {
+			expect(isSpaDocumentRequest('GET', '/')).toBe(true);
+			expect(isSpaDocumentRequest('POST', '/')).toBe(false);
+			expect(isSpaDocumentRequest('GET', '/api/x')).toBe(false);
+			expect(isSpaDocumentRequest('GET', '/assets/x')).toBe(false);
+			expect(isSpaDocumentRequest('GET', '/i18n/en.json')).toBe(false);
+			expect(isSpaDocumentRequest('GET', '/favicon.ico')).toBe(false);
+		});
+	});
+
 	describe('safeHttpUrl / publicLinks', () => {
 		it('accepts http(s) and strips trailing slash', () => {
 			expect(safeHttpUrl('https://discord.gg/foo/')).toBe('https://discord.gg/foo');
@@ -303,6 +363,10 @@ describe('dashboard createHandler', () => {
 			const html = mockRes();
 			await handler({ method: 'GET', url: '/' }, html);
 			expect(sendHtml).toHaveBeenCalled();
+
+			const login = mockRes();
+			await handler({ method: 'GET', url: '/login' }, login);
+			expect(sendHtml).toHaveBeenCalledTimes(2);
 
 			const asset = mockRes();
 			await handler({ method: 'GET', url: '/assets/app.js' }, asset);
@@ -599,6 +663,361 @@ describe('dashboard createHandler', () => {
 			await handler({ method: 'GET', url: '/favicon.ico' }, res);
 			expect(existsSync).toHaveBeenCalled();
 			expect(readFileSync).toHaveBeenCalled();
+		});
+
+		it('createAuthPayload inclut wikiSyncStore config', async () => {
+			const authPayloadFn = createAuthPayload({
+				auth: {
+					getCredentials: jest.fn().mockResolvedValue(null),
+					describeSession: jest.fn(() => ({})),
+				},
+				envPath: '/tmp/.env',
+				wikiSyncStore: { getConfig: () => ({ enabled: true, write_enabled: false }) },
+			});
+			const out = await authPayloadFn({ username: 'admin', isDefault: false });
+			expect(out.wiki_sync).toEqual({ enabled: true, write_enabled: false });
+		});
+
+		it('GET routes publiques materials/data/guilds', async () => {
+			const handlePublicData = jest.fn().mockResolvedValue({ kpis: {} });
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi,
+				handlePublicData,
+				env: { DASHBOARD_API: '1' },
+			});
+
+			await handler({ method: 'GET', url: '/api/public/materials/categories' }, mockRes());
+			expect(handlePublicMaterialCategories).toHaveBeenCalled();
+
+			await handler({ method: 'GET', url: '/api/public/materials/items' }, mockRes());
+			expect(handlePublicMaterialItems).toHaveBeenCalled();
+
+			await handler({ method: 'GET', url: '/api/public/data' }, mockRes());
+			expect(handlePublicData).toHaveBeenCalled();
+
+			await handler({ method: 'GET', url: '/api/public/guilds' }, mockRes());
+			expect(handlePublicGuilds).toHaveBeenCalled();
+		});
+
+		it('GET /api/public/data 404 sans loader', async () => {
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi,
+			});
+			const res = mockRes();
+			await handler({ method: 'GET', url: '/api/public/data' }, res);
+			expect(res.statusCode).toBe(404);
+		});
+
+		it('GET openapi.json et /api/docs', async () => {
+			isOpenApiRouteEnabled.mockReturnValue(true);
+			const swaggerPath = path.join(__dirname, '../../.dashboard/docs/swagger.html');
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi,
+				swaggerHtmlPath: swaggerPath,
+			});
+
+			const specRes = mockRes();
+			await handler({ method: 'GET', url: '/api/openapi.json' }, specRes);
+			expect(filterOpenApiSpec).toHaveBeenCalled();
+			expect(jsonBody(specRes).openapi).toBe('3.0.0');
+
+			const docsRes = mockRes();
+			await handler({ method: 'GET', url: '/api/docs' }, docsRes);
+			expect(docsRes.statusCode).toBe(200);
+			expect(String(docsRes.body)).toContain('swagger');
+
+			isOpenApiRouteEnabled.mockReturnValue(false);
+			const disabled = mockRes();
+			await handler({ method: 'GET', url: '/api/docs' }, disabled);
+			expect(disabled.statusCode).toBe(404);
+
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi: { existsSync: jest.fn(() => false), readFileSync: jest.fn() },
+				swaggerHtmlPath: '/missing/swagger.html',
+				env: {},
+			});
+			isOpenApiRouteEnabled.mockReturnValue(true);
+			const missing = mockRes();
+			await handler({ method: 'GET', url: '/api/docs' }, missing);
+			expect(missing.statusCode).toBe(404);
+
+			const disabledSpec = mockRes();
+			isOpenApiRouteEnabled.mockReturnValue(false);
+			await handler({ method: 'GET', url: '/api/openapi.json' }, disabledSpec);
+			expect(disabledSpec.statusCode).toBe(404);
+		});
+
+		it('GET /api/avatar valide userId et délègue serveAvatar', async () => {
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			const bad = mockRes();
+			await handler({ method: 'GET', url: '/api/avatar/not-id' }, bad);
+			expect(bad.statusCode).toBe(400);
+
+			const ok = mockRes();
+			await handler({ method: 'GET', url: '/api/avatar/123456789012345678' }, ok);
+			expect(serveAvatar).toHaveBeenCalledWith('123456789012345678', ok);
+		});
+
+		it('routes API tokens profil', async () => {
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			auth.getCredentials = jest.fn().mockResolvedValue({ salt: 's', hash: 'h' });
+			auth.verifyPassword = jest.fn().mockReturnValue(true);
+			auth.sessionIdFromReq.mockReturnValue('sid');
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi,
+				env: { DASHBOARD_API: '1', DASHBOARD_API_MATERIALS: '1' },
+			});
+
+			listTokens.mockResolvedValueOnce([{ jti: 'j1' }]);
+			const listRes = mockRes();
+			await handler({ method: 'GET', url: '/api/profile/tokens' }, listRes);
+			expect(jsonBody(listRes).tokens).toHaveLength(1);
+
+			readJsonBody.mockResolvedValueOnce({
+				currentPassword: 'pw',
+				label: 'app',
+				scopes: ['materials'],
+				expires_in_days: 7,
+			});
+			const createRes = mockRes();
+			await handler({ method: 'POST', url: '/api/profile/tokens' }, createRes);
+			expect(checkCreateRateLimit).toHaveBeenCalledWith('sid');
+			expect(createToken).toHaveBeenCalled();
+			expect(createRes.statusCode).toBe(201);
+
+			readJsonBody.mockResolvedValueOnce({ label: 'x', scopes: ['materials'], expires_in_days: 7 });
+			const missingPw = mockRes();
+			await handler({ method: 'POST', url: '/api/profile/tokens' }, missingPw);
+			expect(jsonBody(missingPw).code).toBe('AUTH_FORBIDDEN_PASSWORD');
+
+			auth.verifyPassword.mockReturnValueOnce(false);
+			readJsonBody.mockResolvedValueOnce({ currentPassword: 'bad', label: 'x', scopes: [], expires_in_days: 7 });
+			const badPw = mockRes();
+			await handler({ method: 'POST', url: '/api/profile/tokens' }, badPw);
+			expect(jsonBody(badPw).code).toBe('AUTH_FORBIDDEN_PASSWORD');
+
+			const delBad = mockRes();
+			await handler({ method: 'DELETE', url: '/api/profile/tokens/' }, delBad);
+			expect(jsonBody(delBad).code).toBe('API_TOKEN_NOT_FOUND');
+
+			const delOk = mockRes();
+			await handler({ method: 'DELETE', url: '/api/profile/tokens/j1' }, delOk);
+			expect(revokeToken).toHaveBeenCalledWith('j1');
+			expect(jsonBody(delOk)).toEqual({ ok: true, jti: 'j1' });
+		});
+
+		it('routes wiki-sync start/status/abort', async () => {
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			const wikiSyncStore = {
+				startJob: jest.fn().mockResolvedValue({ job_id: 'job-1' }),
+				getStatus: jest.fn().mockReturnValue({ status: 'running' }),
+				abortJob: jest.fn().mockReturnValue({ ok: true, status: 'aborting' }),
+			};
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi,
+				wikiSyncStore,
+			});
+
+			readJsonBody.mockResolvedValueOnce({ mode: 'sync' });
+			const startRes = mockRes();
+			await handler({ method: 'POST', url: '/api/wiki-sync' }, startRes);
+			expect(startRes.statusCode).toBe(202);
+
+			wikiSyncStore.startJob.mockRejectedValueOnce(Object.assign(new Error('busy'), {
+				status: 409,
+				code: 'WIKI_SYNC_BUSY',
+				retry_after_ms: 1000,
+			}));
+			readJsonBody.mockResolvedValueOnce({ mode: 'sync' });
+			const errRes = mockRes();
+			await handler({ method: 'POST', url: '/api/wiki-sync' }, errRes);
+			expect(jsonBody(errRes).code).toBe('WIKI_SYNC_BUSY');
+
+			const statusRes = mockRes();
+			await handler({ method: 'GET', url: '/api/wiki-sync/status?job_id=job-1' }, statusRes);
+			expect(wikiSyncStore.getStatus).toHaveBeenCalledWith(
+				expect.anything(),
+				auth,
+				expect.objectContaining({ job_id: 'job-1' }),
+			);
+
+			wikiSyncStore.getStatus.mockImplementationOnce(() => {
+				throw Object.assign(new Error('poll'), { status: 429, code: 'WIKI_SYNC_POLL_RATE', retry_after_ms: 500 });
+			});
+			const pollErr = mockRes();
+			await handler({ method: 'GET', url: '/api/wiki-sync/status' }, pollErr);
+			expect(jsonBody(pollErr).retry_after_ms).toBe(500);
+
+			readJsonBody.mockResolvedValueOnce({ job_id: 'job-1' });
+			const abortRes = mockRes();
+			await handler({ method: 'POST', url: '/api/wiki-sync/abort' }, abortRes);
+			expect(jsonBody(abortRes).status).toBe('aborting');
+
+			wikiSyncStore.abortJob.mockImplementationOnce(() => {
+				throw Object.assign(new Error('fail'), { status: 500, code: 'X' });
+			});
+			readJsonBody.mockResolvedValueOnce({ job_id: 'job-1' });
+			const abortErr = mockRes();
+			await handler({ method: 'POST', url: '/api/wiki-sync/abort' }, abortErr);
+			expect(jsonBody(abortErr).code).toBe('X');
+
+			wikiSyncStore.getStatus.mockImplementationOnce(() => {
+				throw new Error('status fail');
+			});
+			const statusGeneric = mockRes();
+			await handler({ method: 'GET', url: '/api/wiki-sync/status' }, statusGeneric);
+			expect(jsonBody(statusGeneric).error).toBe('status fail');
+
+			wikiSyncStore.startJob.mockRejectedValueOnce(Object.assign(new Error('fail'), { status: 500, code: 'Y' }));
+			readJsonBody.mockResolvedValueOnce({ mode: 'sync' });
+			const startErrNoRetry = mockRes();
+			await handler({ method: 'POST', url: '/api/wiki-sync' }, startErrNoRetry);
+			expect(jsonBody(startErrNoRetry).code).toBe('Y');
+			expect(jsonBody(startErrNoRetry).retry_after_ms).toBeUndefined();
+
+			wikiSyncStore.startJob.mockRejectedValueOnce(new Error('start generic'));
+			readJsonBody.mockResolvedValueOnce({ mode: 'sync' });
+			const startGeneric = mockRes();
+			await handler({ method: 'POST', url: '/api/wiki-sync' }, startGeneric);
+			expect(startGeneric.statusCode).toBe(500);
+			expect(jsonBody(startGeneric).error).toBe('start generic');
+
+			wikiSyncStore.abortJob.mockImplementationOnce(() => {
+				throw new Error('abort generic');
+			});
+			readJsonBody.mockResolvedValueOnce({ job_id: 'job-1' });
+			const abortGeneric = mockRes();
+			await handler({ method: 'POST', url: '/api/wiki-sync/abort' }, abortGeneric);
+			expect(abortGeneric.statusCode).toBe(500);
+			expect(jsonBody(abortGeneric).error).toBe('abort generic');
+		});
+
+		it('parseQuery decode les query params wiki-sync', async () => {
+			auth.requireSession.mockReturnValue({ username: 'admin', isDefault: false });
+			const wikiSyncStore = {
+				startJob: jest.fn(),
+				getStatus: jest.fn().mockReturnValue({ status: 'idle' }),
+				abortJob: jest.fn(),
+			};
+			handler = createRequestHandler({
+				auth,
+				sendJson,
+				readJsonBody,
+				sendUnauthorized,
+				sendHtml,
+				sendAsset,
+				loadSummary,
+				loadContacts,
+				loadMaterials,
+				guildActions,
+				authPayload,
+				faviconPath: '/tmp/favicon.ico',
+				i18nDir,
+				i18nFiles: new Set(['en.json']),
+				fsApi,
+				wikiSyncStore,
+			});
+			await handler({ method: 'GET', url: '/api/wiki-sync/status?job_id=abc&empty=' }, mockRes());
+			expect(wikiSyncStore.getStatus).toHaveBeenCalledWith(
+				expect.anything(),
+				auth,
+				expect.objectContaining({ job_id: 'abc', empty: '' }),
+			);
+		});
+
+		it('isSpaDocumentRequest exclut POST et chemins statiques', async () => {
+			const post = mockRes();
+			await handler({ method: 'POST', url: '/settings' }, post);
+			expect(sendUnauthorized).toHaveBeenCalled();
+
+			auth.requireSession.mockReturnValue(null);
+			const api = mockRes();
+			await handler({ method: 'GET', url: '/api/unknown-public' }, api);
+			expect(sendUnauthorized).toHaveBeenCalled();
 		});
 	});
 });

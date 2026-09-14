@@ -1,2 +1,4 @@
-dashboard.pid
-dashboard.log
+node_modules/
+dist/
+var/
+*.log

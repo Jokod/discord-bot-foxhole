@@ -41,10 +41,7 @@ compose.yaml
 # Runtime host data (mounted or created in container)
 var/logs/*
 !var/logs/.gitignore
-data/announce-last-run.txt
-data/announce.md
 
 # Dashboard runtime pid/log (keep sources; ignore local process files)
-.dashboard/dashboard.pid
-.dashboard/dashboard.log
+.dashboard/var/
 .dashboard/*.log

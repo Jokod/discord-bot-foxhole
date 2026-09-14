@@ -778,6 +778,52 @@ describe('Stats events', () => {
 			consoleSpy.mockRestore();
 		});
 
+		it('should log leave failure with guild id when name missing on ready', async () => {
+			jest.resetModules();
+			const { Stats, Server, OrderLine, OrderBoard, Operation, NotificationSubscription, TrackedMessage, Stockpile } = require('../../data/models.js');
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			Stats.find = mockStatsFind;
+			Stats.distinct = mockStatsDistinct;
+			Server.distinct = jest.fn().mockResolvedValue([]);
+			OrderLine.distinct = jest.fn().mockResolvedValue([]);
+			OrderBoard.distinct = jest.fn().mockResolvedValue([]);
+			Operation.distinct = jest.fn().mockResolvedValue([]);
+			NotificationSubscription.distinct = jest.fn().mockResolvedValue([]);
+			TrackedMessage.distinct = jest.fn().mockResolvedValue([]);
+			Stockpile.distinct = jest.fn().mockResolvedValue([]);
+
+			const leave = jest.fn().mockRejectedValue(new Error('leave failed'));
+			const client = {
+				user: { tag: 'Bot#1234' },
+				guilds: {
+					cache: new Map([
+						['guild-a', {
+							id: 'guild-a',
+							name: undefined,
+							createdAt: new Date(),
+							memberCount: 1,
+							members: { me: null },
+							leave,
+						}],
+					]),
+				},
+			};
+
+			const prev = process.env.BLOCKED_GUILD_IDS;
+			process.env.BLOCKED_GUILD_IDS = 'guild-a';
+			const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+			const onReady = require('../../events/onReady.js');
+			await onReady.execute(client);
+			process.env.BLOCKED_GUILD_IDS = prev;
+
+			expect(leave).toHaveBeenCalled();
+			expect(consoleSpy).toHaveBeenCalledWith(
+				'[Blocked] Impossible de quitter le serveur guild-a (guild-a):',
+				'leave failed',
+			);
+			consoleSpy.mockRestore();
+		});
+
 		it('should log stockpile and order board sync failures on ready', async () => {
 			jest.resetModules();
 			const { syncAllStockpileLists } = require('../../utils/stockpileListSync.js');

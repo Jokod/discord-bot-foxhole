@@ -1,25 +1,39 @@
 'use strict';
 
-jest.mock('../../../scripts/lib/wiki-sync/config', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/config/api', () => ({
 	BATCH_SIZE: 1,
 	BATCH_DELAY_MS: 0,
 	WIKI_API: 'https://foxhole.wiki.gg/api.php',
 	USER_AGENT: 'FoxBot/1.0 (test)',
+}));
+
+jest.mock('../../../scripts/lib/wiki-sync/config/scan', () => ({
 	WIKI_ICON_PAGE_OVERRIDES: {
 		'Soldier Uniform': 'Legionary Fatigues',
 	},
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-helpers', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/rate-limiter', () => ({
 	sleep: jest.fn(async () => undefined),
-	isFrenchUniformEntry: jest.fn((m) => m.itemName === 'FR Uniform'),
-	inferWikiTitle: jest.fn((name) => name),
+	RateLimiter: jest.requireActual('../../../scripts/lib/wiki-sync/wiki/rate-limiter').RateLimiter,
 }));
+
+jest.mock('../../../scripts/lib/wiki-sync/wiki/title-resolver', () => {
+	const actual = jest.requireActual('../../../scripts/lib/wiki-sync/wiki/title-resolver');
+	const inferWikiTitle = jest.fn((name) => name);
+	return {
+		...actual,
+		sleep: jest.fn(async () => undefined),
+		isFrenchUniformEntry: jest.fn((m) => m.itemName === 'FR Uniform'),
+		inferWikiTitle,
+		resolveIconWikiTitle: jest.fn((name) => inferWikiTitle(name)),
+	};
+});
 
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { sleep } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+const { sleep } = require('../../../scripts/lib/wiki-sync/wiki/rate-limiter');
 const {
 	safeIconFilename,
 	isAllowedIconUrl,
@@ -31,8 +45,8 @@ const {
 	MAX_ICON_BYTES,
 	catalogItemNames,
 	resolveIconWikiTitle,
-} = require('../../../scripts/lib/wiki-sync/sync-icons');
-const { extractInfoboxImage } = require('../../../scripts/lib/wiki-sync/wiki-content');
+} = require('../../../scripts/lib/wiki-sync/wiki/sync-icons');
+const { extractInfoboxImage } = require('../../../scripts/lib/wiki-sync/wiki/infobox-parser');
 
 const PNG_1X1 = Buffer.from(
 	'89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489'
@@ -105,7 +119,7 @@ describe('wiki-sync / sync-icons', () => {
 	});
 
 	it('canonicalIconFilename remplace les espaces par des underscores', () => {
-		const { canonicalIconFilename, mediaWikiFileKey } = require('../../../scripts/lib/wiki-sync/sync-icons');
+		const { canonicalIconFilename, mediaWikiFileKey } = require('../../../scripts/lib/wiki-sync/wiki/sync-icons');
 		expect(canonicalIconFilename('74c-2 Ronan Meteora Gunship Vehicle Icon.png'))
 			.toBe('74c-2_Ronan_Meteora_Gunship_Vehicle_Icon.png');
 		expect(canonicalIconFilename('../x.png')).toBeNull();
@@ -130,7 +144,8 @@ describe('wiki-sync / sync-icons', () => {
 	});
 
 	it('resolveIconWikiTitle applique WIKI_ICON_PAGE_OVERRIDES', () => {
-		expect(resolveIconWikiTitle('Soldier Uniform')).toBe('Legionary Fatigues');
+		const { resolveIconWikiTitle: actualResolve } = jest.requireActual('../../../scripts/lib/wiki-sync/wiki/title-resolver');
+		expect(actualResolve('Soldier Uniform')).toBe('Legionary Fatigues');
 		expect(resolveIconWikiTitle('Basic Materials')).toBe('Basic Materials');
 	});
 
@@ -628,8 +643,9 @@ describe('wiki-sync / sync-icons', () => {
 			{ itemName: 'Alias A', itemDesc: 'a', itemCategory: 'resources' },
 			{ itemName: 'Alias B', itemDesc: 'b', itemCategory: 'resources' },
 		]);
-		const { inferWikiTitle } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
-		inferWikiTitle.mockImplementation(() => 'Shared Wiki Title');
+		const titleResolver = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
+		titleResolver.inferWikiTitle.mockImplementation(() => 'Shared Wiki Title');
+		titleResolver.resolveIconWikiTitle.mockImplementation(() => 'Shared Wiki Title');
 		const fetchWikitext = jest.fn(async () => new Map([
 			['Shared Wiki Title', `{{Item Infobox
 | name = Shared
