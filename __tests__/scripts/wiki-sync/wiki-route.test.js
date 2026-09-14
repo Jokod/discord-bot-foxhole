@@ -1,6 +1,6 @@
 'use strict';
 
-const { routeWikiInfoboxToMaterialFile, isHeavyAmmoItem } = require('../../../scripts/lib/wiki-sync/wiki-route');
+const { routeWikiInfoboxToMaterialFile, isHeavyAmmoItem } = require('../../../scripts/lib/wiki-sync/wiki/router');
 
 function itemFields(fields) {
 	return { kind: 'Item', fields };

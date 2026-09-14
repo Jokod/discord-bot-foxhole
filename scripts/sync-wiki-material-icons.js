@@ -11,34 +11,9 @@
 
 'use strict';
 
-const path = require('path');
-const { runSyncMaterialIcons } = require('./lib/wiki-sync/sync-icons');
+const { runCli } = require('./lib/wiki-sync/cli/run');
 
-async function main() {
-	const dryRun = process.argv.includes('--dry-run');
-	const force = process.argv.includes('--force');
-	const root = path.join(__dirname, '..');
-	const materialsRoot = path.join(root, 'data', 'materials');
-	const iconsDir = path.join(root, 'assets', 'icons', 'materials');
-
-	process.stderr.write(
-		`Sync icônes matériaux → ${path.relative(root, iconsDir)}`
-		+ `${dryRun ? ' (dry-run)' : ''}${force ? ' (force)' : ''}\n`,
-	);
-
-	const result = await runSyncMaterialIcons({
-		materialsRoot,
-		iconsDir,
-		dryRun,
-		force,
-	});
-
-	process.stderr.write(
-		`\nTerminé. Téléchargés : ${result.downloaded}, déjà présents : ${result.skippedExisting}, échecs : ${result.failed}.\n`,
-	);
-}
-
-main().catch((err) => {
+runCli(['--sync-icons', ...process.argv.slice(2)]).catch((err) => {
 	console.error(err);
 	process.exit(1);
 });

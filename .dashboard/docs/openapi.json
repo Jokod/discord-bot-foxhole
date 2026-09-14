@@ -1,0 +1,310 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "FoxBot Dashboard Public API",
+		"version": "1.2.0",
+		"description": "Read-only JWT API for FoxBot dashboard data. Runtime docs at `/api/docs` include enabled scopes for this server."
+	},
+	"tags": [
+		{ "name": "Materials", "description": "Materials catalogue from `data/materials/` (categories and items via `limit` / `offset`)" },
+		{ "name": "Data", "description": "Aggregated KPIs, commands and war status (no PII)" },
+		{ "name": "Guilds", "description": "Active Discord servers (sensitive: guild IDs exposed)" }
+	],
+	"components": {
+		"securitySchemes": {
+			"BearerJWT": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT",
+				"description": "JWT created in Settings → API. Scopes: materials, data, guilds."
+			}
+		},
+		"schemas": {
+			"MaterialCategory": {
+				"type": "object",
+				"properties": {
+					"id": { "type": "string", "example": "utilities" },
+					"icon": { "type": "string", "example": "🔧" },
+					"subcategories": {
+						"type": "array",
+						"items": { "type": "string" },
+						"example": ["basic", "uniforms"]
+					}
+				},
+				"required": ["id", "icon", "subcategories"]
+			},
+			"MaterialItem": {
+				"type": "object",
+				"properties": {
+					"itemName": { "type": "string" },
+					"itemDesc": { "type": "string" },
+					"faction": { "type": "array", "items": { "type": "string" } },
+					"itemCategory": { "type": "string" },
+					"category": { "type": "string" },
+					"subcategory": { "type": "string" },
+					"categoryIcon": { "type": "string" },
+					"wikiTitle": { "type": "string" },
+					"wikiUrl": { "type": "string", "format": "uri" },
+					"iconUrl": { "type": ["string", "null"], "format": "uri" },
+					"damageDesc": { "type": "string" },
+					"vehiclePen": { "type": "string" },
+					"highVelocityBonus": { "type": "string" },
+					"numberProducedBonus": { "type": "string" }
+				},
+				"required": ["itemName", "category", "subcategory"]
+			},
+			"CommandStat": {
+				"type": "object",
+				"properties": {
+					"name": { "type": "string" },
+					"total": { "type": "integer" },
+					"pct": { "type": "number" }
+				}
+			},
+			"DashboardData": {
+				"type": "object",
+				"properties": {
+					"generated_at": { "type": "string", "format": "date-time" },
+					"war": { "type": "object", "additionalProperties": true },
+					"kpis": { "type": "object", "additionalProperties": true },
+					"commands": { "type": "array", "items": { "$ref": "#/components/schemas/CommandStat" } },
+					"activity": { "type": "object", "additionalProperties": true },
+					"members": { "type": "object", "additionalProperties": true }
+				}
+			},
+			"PublicGuild": {
+				"type": "object",
+				"properties": {
+					"guild_id": { "type": "string" },
+					"name": { "type": "string" },
+					"member_count": { "type": "integer" },
+					"command_count": { "type": "integer" },
+					"last_command_at": { "type": ["string", "null"], "format": "date-time" },
+					"first_command_at": { "type": ["string", "null"], "format": "date-time" },
+					"joined_at": { "type": ["string", "null"], "format": "date-time" },
+					"left_at": { "type": ["string", "null"], "format": "date-time" },
+					"created_at": { "type": ["string", "null"], "format": "date-time" },
+					"operation_count": { "type": "integer" },
+					"stock_board_count": { "type": "integer" },
+					"material_count": { "type": "integer" },
+					"material_validated_count": { "type": "integer" },
+					"setup": { "type": "boolean" },
+					"lang": { "type": ["string", "null"] },
+					"camp": { "type": ["string", "null"] },
+					"logs": { "type": "boolean" },
+					"activity": { "type": ["string", "null"] },
+					"blocked": { "type": "boolean" },
+					"cmds_per_member": { "type": "number" }
+				}
+			},
+			"GuildList": {
+				"type": "object",
+				"properties": {
+					"generated_at": { "type": "string", "format": "date-time" },
+					"total": { "type": "integer" },
+					"guilds": { "type": "array", "items": { "$ref": "#/components/schemas/PublicGuild" } }
+				}
+			},
+			"ApiError": {
+				"type": "object",
+				"properties": {
+					"error": { "type": "string" },
+					"code": { "type": "string" }
+				}
+			},
+			"PaginationMeta": {
+				"type": "object",
+				"properties": {
+					"total": { "type": "integer", "description": "Total rows matching the query" },
+					"limit": { "type": "integer", "description": "Page size (max 200)" },
+					"offset": { "type": "integer", "description": "Start index" },
+					"count": { "type": "integer", "description": "Rows returned in this page" },
+					"has_more": { "type": "boolean" },
+					"next_offset": { "type": ["integer", "null"], "description": "Use as offset for the next page, or null" }
+				}
+			},
+			"MaterialCategoriesPage": {
+				"allOf": [
+					{ "$ref": "#/components/schemas/PaginationMeta" },
+					{
+						"type": "object",
+						"properties": {
+							"generated_at": { "type": "string", "format": "date-time" },
+							"categories": { "type": "array", "items": { "$ref": "#/components/schemas/MaterialCategory" } }
+						}
+					}
+				]
+			},
+			"MaterialItemsPage": {
+				"allOf": [
+					{ "$ref": "#/components/schemas/PaginationMeta" },
+					{
+						"type": "object",
+						"properties": {
+							"generated_at": { "type": "string", "format": "date-time" },
+							"items": { "type": "array", "items": { "$ref": "#/components/schemas/MaterialItem" } }
+						}
+					}
+				]
+			}
+		},
+		"parameters": {
+			"LimitParam": {
+				"name": "limit",
+				"in": "query",
+				"schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 },
+				"description": "Page size (default 50, max 200)"
+			},
+			"OffsetParam": {
+				"name": "offset",
+				"in": "query",
+				"schema": { "type": "integer", "minimum": 0, "default": 0 },
+				"description": "Number of rows to skip"
+			},
+			"CategoryParam": {
+				"name": "category",
+				"in": "query",
+				"schema": { "type": "string" },
+				"description": "Filter items by category id (e.g. utilities)"
+			},
+			"SubcategoryParam": {
+				"name": "subcategory",
+				"in": "query",
+				"schema": { "type": "string" },
+				"description": "Filter items by subcategory slug"
+			}
+		},
+		"responses": {
+			"Unauthorized": {
+				"description": "Invalid or expired JWT",
+				"content": {
+					"application/json": {
+						"schema": { "$ref": "#/components/schemas/ApiError" },
+						"examples": {
+							"invalid": { "value": { "error": "Invalid token", "code": "API_TOKEN_INVALID" } },
+							"expired": { "value": { "error": "Invalid token", "code": "API_TOKEN_EXPIRED" } }
+						}
+					}
+				}
+			},
+			"Forbidden": {
+				"description": "Scope missing on token",
+				"content": {
+					"application/json": {
+						"schema": { "$ref": "#/components/schemas/ApiError" },
+						"example": { "error": "Scope forbidden", "code": "API_SCOPE_FORBIDDEN" }
+					}
+				}
+			},
+			"RateLimited": {
+				"description": "Rate limit exceeded",
+				"content": {
+					"application/json": {
+						"schema": { "$ref": "#/components/schemas/ApiError" },
+						"example": { "error": "Rate limit", "code": "API_RATE_LIMIT" }
+					}
+				}
+			}
+		}
+	},
+	"paths": {
+		"/api/public/materials/categories": {
+			"get": {
+				"tags": ["Materials"],
+				"summary": "Material categories",
+				"description": "Returns catalogue category tree slices. Use `limit` and `offset` to paginate.",
+				"security": [{ "BearerJWT": [] }],
+				"parameters": [
+					{ "$ref": "#/components/parameters/LimitParam" },
+					{ "$ref": "#/components/parameters/OffsetParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Category page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/MaterialCategoriesPage" }
+							}
+						}
+					},
+					"401": { "$ref": "#/components/responses/Unauthorized" },
+					"403": { "$ref": "#/components/responses/Forbidden" },
+					"404": { "description": "API disabled" },
+					"429": { "$ref": "#/components/responses/RateLimited" }
+				}
+			}
+		},
+		"/api/public/materials/items": {
+			"get": {
+				"tags": ["Materials"],
+				"summary": "Material items",
+				"description": "Returns catalogue items. Optional filters: `category`, `subcategory`. Pagination via `limit` and `offset`.",
+				"security": [{ "BearerJWT": [] }],
+				"parameters": [
+					{ "$ref": "#/components/parameters/LimitParam" },
+					{ "$ref": "#/components/parameters/OffsetParam" },
+					{ "$ref": "#/components/parameters/CategoryParam" },
+					{ "$ref": "#/components/parameters/SubcategoryParam" }
+				],
+				"responses": {
+					"200": {
+						"description": "Items page",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/MaterialItemsPage" }
+							}
+						}
+					},
+					"401": { "$ref": "#/components/responses/Unauthorized" },
+					"403": { "$ref": "#/components/responses/Forbidden" },
+					"404": { "description": "API disabled" },
+					"429": { "$ref": "#/components/responses/RateLimited" }
+				}
+			}
+		},
+		"/api/public/data": {
+			"get": {
+				"tags": ["Data"],
+				"summary": "Aggregated dashboard KPIs",
+				"description": "War status, KPIs, command breakdown, activity and member distribution.",
+				"security": [{ "BearerJWT": [] }],
+				"responses": {
+					"200": {
+						"description": "KPIs",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/DashboardData" }
+							}
+						}
+					},
+					"401": { "$ref": "#/components/responses/Unauthorized" },
+					"403": { "$ref": "#/components/responses/Forbidden" },
+					"404": { "description": "API disabled" },
+					"429": { "$ref": "#/components/responses/RateLimited" }
+				}
+			}
+		},
+		"/api/public/guilds": {
+			"get": {
+				"tags": ["Guilds"],
+				"summary": "Active guild list",
+				"description": "Exposes Discord guild IDs. Sensitive scope.",
+				"security": [{ "BearerJWT": [] }],
+				"responses": {
+					"200": {
+						"description": "Guild list",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/GuildList" }
+							}
+						}
+					},
+					"401": { "$ref": "#/components/responses/Unauthorized" },
+					"403": { "$ref": "#/components/responses/Forbidden" },
+					"404": { "description": "API disabled" },
+					"429": { "$ref": "#/components/responses/RateLimited" }
+				}
+			}
+		}
+	}
+}

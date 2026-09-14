@@ -65,6 +65,7 @@ npm run start   # Production
 ├── bot.js                      # Entry point
 ├── events/                     # Discord event handlers
 ├── interactions/
+│   ├── autocomplete/           # Autocomplete handlers
 │   ├── buttons/                # Button interaction handlers
 │   ├── embeds/                 # Embed builders
 │   ├── modals/                 # Modal handlers
@@ -79,11 +80,25 @@ npm run start   # Production
 ├── services/                   # Domain services (e.g. order)
 ├── shared/                     # Shared helpers (customId, permissions, wizards)
 ├── data/
-│   ├── models.js               # Mongoose models
+│   ├── models.js               # Re-exports Mongoose models from models/
+│   ├── models/                 # Mongoose schemas (server, logistic, stats, …)
 │   └── materials/              # Material JSON files by category (order catalog)
 ├── languages/                  # Translation files (en, es, fr, ru, zh-cn)
 ├── utils/                      # Shared utilities
 ├── messages/                   # Default error/fallback messages
+├── scripts/                    # Maintenance scripts
+│   ├── wiki-sync.js            # Unified wiki sync CLI
+│   ├── sync-wiki-materials.js  # npm alias wrappers
+│   ├── sync-wiki-material-icons.js
+│   ├── migrate/                # DB migrations (+ lib/)
+│   ├── tools/                  # i18n parity, mongo backup, coverage badge
+│   └── lib/wiki-sync/          # Wiki sync pipeline
+├── .dashboard/                 # Optional local stats dashboard (self-host)
+│   ├── server.js               # Entry point
+│   ├── lib/                    # auth, handlers, api/, wiki/
+│   ├── docs/                   # OpenAPI spec + Swagger UI
+│   ├── assets/                 # Frontend static files
+│   └── i18n/
 └── __tests__/                  # Unit tests (mirrors source structure)
 ```
 
@@ -145,16 +160,19 @@ module.exports = {
 2. Export an object with the following shape:
 
 ```js
+const { decode } = require('../../../shared/customId.js');
+
 module.exports = {
-    id: 'my_button_id', // must match the customId (or its prefix before the first '-')
+    id: 'my_button_id', // must match the customId prefix (see shared/customId.js)
 
     async execute(interaction) {
-        // your logic here
+        const parsed = decode(interaction.customId);
+        // parsed.prefix === 'my_button_id', parsed.parts === ['…']
     },
 };
 ```
 
-3. For dynamic IDs (e.g. `stockpile_reset-42`), use the prefix as the `id` (e.g. `stockpile_reset`) and parse the rest from `interaction.customId`.
+3. Build IDs with `encode('my_button_id', part1, part2)` from `shared/customId.js` (format: `prefix|part1|part2`). Legacy `-` separators are still parsed for migration. For dynamic IDs (e.g. `stockpile_reset|42`), register the prefix as `id` and parse parts via `decode(interaction.customId)`.
 
 4. If the interaction may take more than 3 seconds to process, call `await interaction.deferUpdate()` or `await interaction.deferReply()` at the start.
 
@@ -193,6 +211,10 @@ All bot translation keys are defined in `languages/en.js` (the reference file). 
 2. Add the translated value to `languages/es.js`, `languages/fr.js`, `languages/ru.js`, and `languages/zh-cn.js`.
 
 3. If the string is shown in the stats dashboard, add it to `.dashboard/i18n/*.json` as well.
+
+### Dashboard public API
+
+When adding a route under `/api/public/*`: set a `DASHBOARD_API_*` flag in `.env.dist`, document it in [docs/API.md](docs/API.md), update [`.dashboard/docs/openapi.json`](.dashboard/docs/openapi.json), and add tests under `__tests__/dashboard/api/`.
 
 4. Use the key in code via the `Translate` helper:
    ```js

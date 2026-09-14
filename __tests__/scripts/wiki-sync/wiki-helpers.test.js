@@ -3,11 +3,12 @@
 const {
 	isFrenchUniformEntry,
 	inferWikiTitle,
+	resolveIconWikiTitle,
 	wikiFactionToArray,
 	canonicalInfoboxNameForCatalog,
 	asciiQuotesToCurly,
 	sleep,
-} = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+} = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 
 describe('wiki-sync / wiki-helpers', () => {
 	describe('isFrenchUniformEntry', () => {
@@ -104,5 +105,9 @@ describe('wiki-sync / wiki-helpers', () => {
 
 	it('inferWikiTitle convertit les guillemets ASCII', () => {
 		expect(inferWikiTitle('6" Gun')).toBe('6\u201c Gun');
+	});
+
+	it('resolveIconWikiTitle retombe sur inferWikiTitle sans override', () => {
+		expect(resolveIconWikiTitle('Basic Materials')).toBe('Basic Materials');
 	});
 });

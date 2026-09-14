@@ -2,10 +2,10 @@
 
 const {
 	parseItemOrVehicleInfobox,
-	descriptionFromWikitext,
 	extractFirstInfoboxFaction,
 	extractInfoboxImage,
-} = require('../../../scripts/lib/wiki-sync/wiki-content');
+} = require('../../../scripts/lib/wiki-sync/wiki/infobox-parser');
+const { descriptionFromWikitext } = require('../../../scripts/lib/wiki-sync/wiki/description');
 
 function itemInfobox(lines) {
 	return `{{Item Infobox
@@ -51,6 +51,38 @@ describe('wiki-sync / wiki-content', () => {
 			expect(p.kind).toBe('Structure');
 			expect(p.fields.name).toBe('Resource Container');
 		});
+
+		it('ignore les lignes non-champ dans le bloc infobox', () => {
+			const wt = `{{Item Infobox
+| name = X
+commentaire sans pipe
+| faction = Col
+}}
+`;
+			const p = parseItemOrVehicleInfobox(wt);
+			expect(p.fields.name).toBe('X');
+			expect(p.fields.faction).toBe('Col');
+			expect(p.fields.commentaire).toBeUndefined();
+		});
+
+		it('retourne null si le bloc infobox ne se ferme pas', () => {
+			const wt = `{{Item Infobox
+| name = Open
+`;
+			expect(parseItemOrVehicleInfobox(wt)).toBeNull();
+		});
+
+		it('termine le bloc infobox sur }} avec espaces', () => {
+			const wt = `{{Item Infobox
+| name = Done
+}}   
+`;
+			expect(parseItemOrVehicleInfobox(wt)).toEqual({
+				kind: 'Item',
+				fields: { name: 'Done' },
+			});
+		});
+
 	});
 
 	describe('extractFirstInfoboxFaction', () => {

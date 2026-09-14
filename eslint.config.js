@@ -1,6 +1,13 @@
 const js = require('@eslint/js');
 
 module.exports = [
+	{
+		ignores: [
+			'.dashboard/dist/**',
+			'.dashboard/node_modules/**',
+			'.dashboard/web/**',
+		],
+	},
 	js.configs.recommended,
 	{
 		languageOptions: {
@@ -86,22 +93,13 @@ module.exports = [
 		},
 	},
 	{
-		files: ['.dashboard/assets/**/*.js'],
+		files: ['.dashboard/web/public/**/*.js'],
 		languageOptions: {
 			sourceType: 'script',
 			globals: {
-				document: 'readonly',
 				window: 'readonly',
-				navigator: 'readonly',
-				fetch: 'readonly',
-				Chart: 'readonly',
-				Intl: 'readonly',
-				requestAnimationFrame: 'readonly',
-				setTimeout: 'readonly',
-				setInterval: 'readonly',
-				clearInterval: 'readonly',
-				clearTimeout: 'readonly',
-				console: 'readonly',
+				document: 'readonly',
+				SwaggerUIBundle: 'readonly',
 			},
 		},
 	},

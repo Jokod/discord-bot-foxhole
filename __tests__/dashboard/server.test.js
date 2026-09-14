@@ -12,13 +12,12 @@ jest.mock('http', () => ({
 	createServer: (...args) => mockCreateServer(...args),
 }));
 
-const mockConnect = jest.fn().mockResolvedValue(undefined);
-jest.mock('mongoose', () => ({
-	connect: (...args) => mockConnect(...args),
-}));
+const path = require('path');
+
+const { loadServerModule, mockConnect } = require('./helpers/load-server-module');
 
 const mockEnsureDefaultAdmin = jest.fn().mockResolvedValue(undefined);
-jest.mock('../../.dashboard/auth', () => ({
+jest.mock('../../.dashboard/lib/auth', () => ({
 	ensureDefaultAdmin: (...args) => mockEnsureDefaultAdmin(...args),
 }));
 
@@ -45,6 +44,19 @@ jest.mock('../../.dashboard/lib/guildActions', () => ({}));
 
 jest.mock('../../.dashboard/lib/materials', () => ({
 	listCatalog: jest.fn(async () => []),
+}));
+
+jest.mock('../../.dashboard/lib/api/tokens', () => ({
+	validateJwtSecretAtBoot: jest.fn(),
+	ensureTokenIndexes: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../.dashboard/lib/wiki/sync', () => ({
+	defaultStore: {},
+}));
+
+jest.mock('../../.dashboard/lib/api/public', () => ({
+	createPublicDataLoader: () => jest.fn(),
 }));
 
 const mockRequestHandler = jest.fn().mockResolvedValue(undefined);
@@ -88,7 +100,7 @@ describe('dashboard server', () => {
 	});
 
 	it('exporte main, requestHandler et métadonnées', () => {
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		expect(typeof server.main).toBe('function');
 		expect(typeof server.requestHandler).toBe('function');
 		expect(typeof server.loadMaterials).toBe('function');
@@ -100,14 +112,14 @@ describe('dashboard server', () => {
 	it('loadMaterials délègue à listCatalog', async () => {
 		const { listCatalog } = require('../../.dashboard/lib/materials');
 		listCatalog.mockResolvedValueOnce([{ id: 'mat-1' }]);
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		await expect(server.loadMaterials()).resolves.toEqual([{ id: 'mat-1' }]);
 		expect(listCatalog).toHaveBeenCalled();
 	});
 
 	it('utilise DASHBOARD_ENV_FILE quand défini', () => {
 		process.env.DASHBOARD_ENV_FILE = '/custom/path/.env.special';
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		expect(server.ENV_PATH).toBe('/custom/path/.env.special');
 		delete process.env.DASHBOARD_ENV_FILE;
 	});
@@ -115,19 +127,24 @@ describe('dashboard server', () => {
 	it('ENV_PATH utilise .env si .env.prod absent', () => {
 		delete process.env.DASHBOARD_ENV_FILE;
 		const fs = require('fs');
+		const actualExistsSync = fs.existsSync;
 		const existsSpy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
 			if (String(p).endsWith('.env.prod')) return false;
-			return jest.requireActual('fs').existsSync(p);
+			return actualExistsSync.call(fs, p);
 		});
-		const server = require('../../.dashboard/server.js');
-		expect(server.ENV_PATH).toMatch(/\.env$/);
-		expect(server.ENV_PATH).not.toMatch(/\.env\.prod$/);
-		existsSpy.mockRestore();
+		try {
+			const server = loadServerModule();
+			expect(server.ENV_PATH).toMatch(/\.env$/);
+			expect(server.ENV_PATH).not.toMatch(/\.env\.prod$/);
+		}
+		finally {
+			existsSpy.mockRestore();
+		}
 	});
 
 	it('le serveur HTTP envoie message par défaut si err.message absent', async () => {
 		mockRequestHandler.mockRejectedValueOnce({ status: 418 });
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		await server.main();
@@ -135,16 +152,16 @@ describe('dashboard server', () => {
 		const res = {};
 		await handler({}, res);
 		expect(mockSendJson).toHaveBeenCalledWith(res, 418, {
-			error: 'Internal error',
+			error: 'Error',
 			code: undefined,
 			params: undefined,
-		});
+		}, {});
 		log.mockRestore();
 		err.mockRestore();
 	});
 
 	it('maybeRunCliAsMain appelle runCli quand isMain true', async () => {
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 		await server.maybeRunCliAsMain(true);
 		expect(mockConnect).toHaveBeenCalled();
@@ -152,12 +169,12 @@ describe('dashboard server', () => {
 	});
 
 	it('main exit 1 sans MONGODB_URL', async () => {
-		delete process.env.MONGODB_URL;
-		const server = require('../../.dashboard/server.js');
 		const exit = jest.spyOn(process, 'exit').mockImplementation(() => {
 			throw new Error('exit');
 		});
 		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		process.env.MONGODB_URL = '';
+		const server = loadServerModule();
 		await expect(server.main()).rejects.toThrow('exit');
 		expect(exit).toHaveBeenCalledWith(1);
 		expect(mockConnect).not.toHaveBeenCalled();
@@ -165,8 +182,33 @@ describe('dashboard server', () => {
 		err.mockRestore();
 	});
 
+	it('main logue erreur si ensureTokenIndexes échoue', async () => {
+		const { ensureTokenIndexes } = require('../../.dashboard/lib/api/tokens');
+		ensureTokenIndexes.mockRejectedValueOnce(new Error('index fail'));
+		const server = loadServerModule();
+		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		await server.main();
+		expect(err).toHaveBeenCalledWith('[dashboard] API token indexes failed', 'index fail');
+		log.mockRestore();
+		err.mockRestore();
+	});
+
+	it('main logue erreur index sans message', async () => {
+		const { ensureTokenIndexes } = require('../../.dashboard/lib/api/tokens');
+		const bare = { code: 'INDEX_FAIL' };
+		ensureTokenIndexes.mockRejectedValueOnce(bare);
+		const server = loadServerModule();
+		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		await server.main();
+		expect(err).toHaveBeenCalledWith('[dashboard] API token indexes failed', bare);
+		log.mockRestore();
+		err.mockRestore();
+	});
+
 	it('main connecte Mongo, ensure admin et écoute', async () => {
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 		await server.main();
 		expect(mockConnect).toHaveBeenCalledWith(
@@ -185,7 +227,7 @@ describe('dashboard server', () => {
 			code: 'X',
 			params: { a: 1 },
 		}));
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		await server.main();
@@ -196,23 +238,46 @@ describe('dashboard server', () => {
 			error: 'boom',
 			code: 'X',
 			params: { a: 1 },
-		});
+		}, {});
+		log.mockRestore();
+		err.mockRestore();
+	});
+
+	it('le serveur HTTP propage retry_after_ms et Retry-After sur 429', async () => {
+		mockRequestHandler.mockRejectedValueOnce(Object.assign(new Error('Rate limit'), {
+			status: 429,
+			code: 'API_RATE_LIMIT',
+			retry_after_ms: 1500,
+		}));
+		const server = loadServerModule();
+		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		await server.main();
+		const handler = mockCreateServer.mock.calls[0][0];
+		const res = {};
+		await handler({}, res);
+		expect(mockSendJson).toHaveBeenCalledWith(res, 429, {
+			error: 'Rate limit',
+			code: 'API_RATE_LIMIT',
+			params: undefined,
+			retry_after_ms: 1500,
+		}, { 'Retry-After': '2' });
 		log.mockRestore();
 		err.mockRestore();
 	});
 
 	it('main sans MONGODB_NAME connecte sans dbName', async () => {
-		delete process.env.MONGODB_NAME;
-		const server = require('../../.dashboard/server.js');
+		process.env.MONGODB_NAME = '';
+		mockConnect.mockClear();
+		const server = loadServerModule();
 		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 		await server.main();
-		expect(mockConnect).toHaveBeenCalledWith('mongodb://localhost:27017/test', undefined);
+		expect(mockConnect).toHaveBeenLastCalledWith('mongodb://localhost:27017/test', undefined);
 		log.mockRestore();
 	});
 
 	it('require.main catch logue et exit 1 si main échoue', () => {
 		const { spawnSync } = require('child_process');
-		const path = require('path');
 		const root = path.join(__dirname, '../..');
 		const result = spawnSync(
 			process.execPath,
@@ -228,7 +293,7 @@ describe('dashboard server', () => {
 
 	it('runCli exit 1 si main échoue', async () => {
 		mockConnect.mockRejectedValueOnce(new Error('connect fail'));
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		const exit = jest.spyOn(process, 'exit').mockImplementation(() => {
 			throw new Error('exit');
 		});
@@ -239,27 +304,53 @@ describe('dashboard server', () => {
 		err.mockRestore();
 	});
 
+	it('choisit favicon dist quand présent', () => {
+		const fs = require('fs');
+		const actualExistsSync = fs.existsSync;
+		const existsSpy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
+			if (String(p).includes(`${path.sep}dist${path.sep}favicon.ico`)) return true;
+			if (String(p).endsWith('.env.prod')) return false;
+			return actualExistsSync.call(fs, p);
+		});
+		try {
+			loadServerModule();
+			expect(existsSpy).toHaveBeenCalled();
+		}
+		finally {
+			existsSpy.mockRestore();
+		}
+	});
+
 	it('utilise PORT/HOST par défaut et .env.prod si présent', async () => {
 		delete process.env.DASHBOARD_PORT;
 		delete process.env.DASHBOARD_HOST;
 		delete process.env.DASHBOARD_ENV_FILE;
 		const fs = require('fs');
+		const actualExistsSync = fs.existsSync;
 		const existsSpy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => {
 			if (String(p).endsWith('.env.prod')) return true;
-			return jest.requireActual('fs').existsSync(p);
+			return actualExistsSync.call(fs, p);
 		});
-		const server = require('../../.dashboard/server.js');
-		expect(server.ENV_PATH).toMatch(/\.env\.prod$/);
-		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
-		await server.main();
-		expect(mockListen).toHaveBeenCalledWith(3847, '127.0.0.1', expect.any(Function));
-		existsSpy.mockRestore();
-		log.mockRestore();
+		try {
+			const server = loadServerModule();
+			expect(server.ENV_PATH).toMatch(/\.env\.prod$/);
+			const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+			try {
+				await server.main();
+				expect(mockListen).toHaveBeenCalledWith(3847, '127.0.0.1', expect.any(Function));
+			}
+			finally {
+				log.mockRestore();
+			}
+		}
+		finally {
+			existsSpy.mockRestore();
+		}
 	});
 
 	it('le serveur HTTP envoie 500 pour erreur générique sans status', async () => {
 		mockRequestHandler.mockRejectedValueOnce(new Error('plain'));
-		const server = require('../../.dashboard/server.js');
+		const server = loadServerModule();
 		const log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
 		const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		await server.main();
@@ -267,10 +358,10 @@ describe('dashboard server', () => {
 		const res = {};
 		await handler({}, res);
 		expect(mockSendJson).toHaveBeenCalledWith(res, 500, {
-			error: 'plain',
+			error: 'Internal error',
 			code: undefined,
 			params: undefined,
-		});
+		}, {});
 		log.mockRestore();
 		err.mockRestore();
 	});

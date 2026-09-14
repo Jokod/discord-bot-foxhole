@@ -1,6 +1,6 @@
 'use strict';
 
-jest.mock('mongoose', () => ({
+jest.mock('../../.dashboard/lib/db', () => ({
 	connection: {
 		name: 'testdb',
 		db: {
@@ -19,7 +19,7 @@ jest.mock('../../utils/blockedGuilds', () => ({
 	])),
 }));
 
-const mongoose = require('mongoose');
+const mongoose = require('../../.dashboard/lib/db');
 const { getWarStatusSummary } = require('../../utils/foxholeWarApi');
 const { getBlockedGuildDetails } = require('../../utils/blockedGuilds');
 const {
@@ -30,9 +30,11 @@ const {
 } = require('../../.dashboard/lib/summary');
 
 function makeCursor(docs) {
-	return {
+	const cursor = {
 		toArray: jest.fn().mockResolvedValue(docs),
+		project: jest.fn(function project() { return cursor; }),
 	};
+	return cursor;
 }
 
 describe('dashboard summary extras', () => {
@@ -91,10 +93,15 @@ describe('createLoadSummary', () => {
 						joined_at: '2025-12-01T00:00:00.000Z',
 					},
 				])),
-				aggregate: jest.fn(() => makeCursor([
-					{ _id: 'help', total: 7 },
-					{ _id: 'setup', total: 3 },
-				])),
+				aggregate: jest.fn()
+					.mockImplementationOnce(() => makeCursor([
+						{ _id: 'help', total: 7 },
+						{ _id: 'setup', total: 3 },
+					]))
+					.mockImplementationOnce(() => makeCursor([
+						{ _id: 'help', last_used: new Date(now - 60_000) },
+						{ _id: 'setup', last_used: new Date(now - 120_000) },
+					])),
 			},
 			servers: {
 				find: jest.fn(() => makeCursor([
@@ -142,7 +149,7 @@ describe('createLoadSummary', () => {
 		expect(data.kpis.orderboards).toBe(2);
 		expect(data.kpis.stockpiles).toBe(4);
 		expect(data.kpis.tracked_messages).toBe(9);
-		expect(data.commands[0]).toMatchObject({ name: 'help', total: 7 });
+		expect(data.commands[0]).toMatchObject({ name: 'help', total: 7, last_used: expect.any(String) });
 
 		const alpha = data.guilds.find((g) => g.guild_id === 'g1');
 		expect(alpha.setup).toBe(true);
@@ -163,6 +170,28 @@ describe('createLoadSummary', () => {
 		expect(data.product.orderline_progress.complete).toBe(1);
 		expect(data.product.orderline_progress.pct).toBeCloseTo(73.3, 1);
 		expect(getBlockedGuildDetails).toHaveBeenCalled();
+	});
+
+	it('ignore invalid command last_used timestamps', async () => {
+		mongoose.connection.db.collection.mockImplementation((name) => {
+			if (name !== 'stats') {
+				return {
+					find: jest.fn(() => makeCursor([])),
+					estimatedDocumentCount: jest.fn().mockResolvedValue(0),
+				};
+			}
+			return {
+				find: jest.fn(() => makeCursor([
+					{ guild_id: 'g1', name: 'Alpha', member_count: 1, command_count: 1, command_breakdown: { help: 1 } },
+				])),
+				aggregate: jest.fn()
+					.mockImplementationOnce(() => makeCursor([{ _id: 'help', total: 1 }]))
+					.mockImplementationOnce(() => makeCursor([{ _id: 'help', last_used: 'not-a-date' }])),
+			};
+		});
+		const loadSummary = createLoadSummary('/repo/.env');
+		const data = await loadSummary();
+		expect(data.commands[0]).toMatchObject({ name: 'help', total: 1, last_used: null });
 	});
 
 	it('tolerates war summary failure', async () => {

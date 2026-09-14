@@ -5,7 +5,7 @@ const {
 	OBSOLETE_SLASH_COMMANDS,
 	isLegacyMaterial,
 	isValidTrackedType,
-} = require('../../scripts/lib/migrate-v2/constants.js');
+} = require('../../scripts/migrate/lib/constants.js');
 
 describe('migrate-v2 helpers', () => {
 	describe('isLegacyMaterial', () => {

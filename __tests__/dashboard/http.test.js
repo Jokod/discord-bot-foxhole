@@ -41,7 +41,6 @@ describe('dashboard http helpers', () => {
 	const helpers = createHttpHelpers({
 		indexPath,
 		assetsDir,
-		sharedWarProgressPath: warPath,
 	});
 
 	const iconsDir = path.join(tmp, 'material-icons');
@@ -50,7 +49,6 @@ describe('dashboard http helpers', () => {
 	const helpersWithIcons = createHttpHelpers({
 		indexPath,
 		assetsDir,
-		sharedWarProgressPath: warPath,
 		materialIconsDir: iconsDir,
 	});
 
@@ -74,7 +72,10 @@ describe('dashboard http helpers', () => {
 		const res = mockRes();
 		helpers.sendHtml(res);
 		expect(res.statusCode).toBe(200);
-		expect(res.headers['Content-Security-Policy']).toContain('default-src');
+		expect(res.headers['Content-Security-Policy']).toContain('script-src \'self\'');
+		expect(res.headers['Content-Security-Policy']).toContain('sha256-PG9x+1KqJ9AgIB7FzL0YalSXmqEKtvw9Wm9Rb3a9zdU=');
+		expect(res.headers['Content-Security-Policy']).toContain('font-src \'self\' data:');
+		expect(res.headers['Content-Security-Policy']).not.toContain('jsdelivr');
 		expect(res.body).toContain('<html>ok</html>');
 	});
 
@@ -83,10 +84,6 @@ describe('dashboard http helpers', () => {
 		helpers.sendAsset(ok, '/assets/app.js');
 		expect(ok.statusCode).toBe(200);
 		expect(ok.body.toString()).toBe('console.log(1)');
-
-		const war = mockRes();
-		helpers.sendAsset(war, '/assets/war-progress.js');
-		expect(war.statusCode).toBe(200);
 
 		const bad = mockRes();
 		helpers.sendAsset(bad, '/assets/../index.html');
@@ -189,6 +186,55 @@ describe('dashboard http helpers', () => {
 		helpers.sendAsset(res2, '/assets/app.js');
 		expect(res2.statusCode).toBe(404);
 		joinSpy2.mockRestore();
+	});
+
+	it('sendHtml returns build-required fallback when index missing', () => {
+		const missingIndex = createHttpHelpers({
+			indexPath: path.join(tmp, 'missing-index.html'),
+			assetsDir,
+		});
+		const res = mockRes();
+		missingIndex.sendHtml(res);
+		expect(res.body).toContain('Dashboard frontend not built');
+	});
+
+	it('sendAsset rejects swagger-ui path outside swaggerAssetsDir', () => {
+		const swaggerDir = path.join(tmp, 'swagger-ui-dist');
+		fs.mkdirSync(swaggerDir, { recursive: true });
+		const actualJoin = path.join.bind(path);
+		const joinSpy = jest.spyOn(path, 'join').mockImplementation((...parts) => {
+			if (parts[0] === swaggerDir) return '/outside/swagger.css';
+			return actualJoin(...parts);
+		});
+		try {
+			const swaggerHelpers = createHttpHelpers({
+				indexPath,
+				assetsDir,
+				swaggerAssetsDir: swaggerDir,
+			});
+			const res = mockRes();
+			swaggerHelpers.sendAsset(res, '/assets/swagger-ui/swagger-ui.css');
+			expect(res.statusCode).toBe(404);
+		}
+		finally {
+			joinSpy.mockRestore();
+		}
+	});
+
+	it('sendAsset serves swagger-ui assets when configured', () => {
+		const swaggerDir = path.join(tmp, 'swagger-ui-dist');
+		fs.mkdirSync(swaggerDir, { recursive: true });
+		fs.writeFileSync(path.join(swaggerDir, 'swagger-ui.css'), 'body{}');
+		const swaggerHelpers = createHttpHelpers({
+			indexPath,
+			assetsDir,
+			swaggerAssetsDir: swaggerDir,
+		});
+		const res = mockRes();
+		swaggerHelpers.sendAsset(res, '/assets/swagger-ui/swagger-ui.css');
+		expect(res.statusCode).toBe(200);
+		expect(res.headers['Content-Type']).toContain('text/css');
+		expect(res.headers['Cache-Control']).toContain('max-age');
 	});
 
 	it('readJsonBody parses, rejects invalid json and oversized body', async () => {

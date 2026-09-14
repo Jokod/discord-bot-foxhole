@@ -16,7 +16,7 @@
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
 		"posttest:coverage": "node scripts/update-coverage-badge.js",
-		"test:ci": "npm run lint && node scripts/check-i18n-parity.js && npm run test:coverage -- --ci --forceExit",
+		"test:ci": "npm run lint && node scripts/check-i18n-parity.js && npm run build --prefix .dashboard && npm run test:coverage -- --ci --forceExit",
 		"i18n:check": "node scripts/check-i18n-parity.js",
 		"wiki:sync-materials": "node scripts/sync-wiki-materials.js",
 		"wiki:sync-materials:dry": "node scripts/sync-wiki-materials.js --dry-run",
@@ -27,7 +27,7 @@
 		"wiki:sync-icons": "node scripts/sync-wiki-material-icons.js",
 		"wiki:sync-icons:dry": "node scripts/sync-wiki-material-icons.js --dry-run",
 		"wiki:sync-icons:force": "node scripts/sync-wiki-material-icons.js --force",
-		"dashboard": "node .dashboard/server.js"
+		"dashboard": "npm run start --prefix .dashboard"
 	},
 	"dependencies": {
 		"discord.js": "^14.25.1",

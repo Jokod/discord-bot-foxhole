@@ -10,7 +10,7 @@ jest.mock('../../../scripts/lib/wiki-sync/config', () => ({
 	WIKI_COVERED_BY_CATALOG_HUBS: new Set(['CoveredHub']),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-helpers', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/title-resolver', () => ({
 	sleep: jest.fn(async () => undefined),
 	isFrenchUniformEntry: jest.fn((m) => m.itemName === 'FR Uniform'),
 	inferWikiTitle: jest.fn((name) => name),
@@ -22,40 +22,55 @@ jest.mock('../../../scripts/lib/wiki-sync/wiki-helpers', () => ({
 	canonicalInfoboxNameForCatalog: jest.fn((name) => name || null),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-content', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/infobox-parser', () => ({
 	extractFirstInfoboxFaction: jest.fn(() => 'Colonial'),
-	descriptionFromWikitext: jest.fn(() => 'A description'),
 	parseItemOrVehicleInfobox: jest.fn(),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-route', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/description', () => ({
+	descriptionFromWikitext: jest.fn(() => 'A description'),
+}));
+
+jest.mock('../../../scripts/lib/wiki-sync/wiki/router', () => ({
 	routeWikiInfoboxToMaterialFile: jest.fn(),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-client', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/client', () => ({
+	createWikiClient: jest.fn(),
 	fetchCategoryPageTitles: jest.fn(),
 	fetchWikitextForTitles: jest.fn(),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/materials-store', () => ({
-	loadAllMaterialFiles: jest.fn(async (root) => [{ reloaded: true, root }]),
-	writeMaterialFile: jest.fn((_fp, materials) => [...materials].sort((a, b) => a.itemName.localeCompare(b.itemName))),
-}));
+jest.mock('../../../scripts/lib/wiki-sync/core/catalog', () => {
+	const actual = jest.requireActual('../../../scripts/lib/wiki-sync/core/catalog');
+	const writeMaterialFile = jest.fn((_fp, materials) => [...materials].sort((a, b) => a.itemName.localeCompare(b.itemName)));
+	return {
+		...actual,
+		loadAllMaterialFiles: jest.fn(async (root) => [{ reloaded: true, root }]),
+		writeMaterialFile,
+		flushModifiedMaterialFiles: (modifiedPaths, fileGroups) => {
+			for (const fp of modifiedPaths) {
+				const group = fileGroups.find((g) => g.filePath === fp);
+				if (!group) continue;
+				const sorted = writeMaterialFile(fp, group.materials);
+				group.materials.splice(0, group.materials.length, ...sorted);
+			}
+		},
+	};
+});
 
 const path = require('path');
-const { sleep } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
-const {
-	extractFirstInfoboxFaction,
-	descriptionFromWikitext,
-	parseItemOrVehicleInfobox,
-} = require('../../../scripts/lib/wiki-sync/wiki-content');
-const { routeWikiInfoboxToMaterialFile } = require('../../../scripts/lib/wiki-sync/wiki-route');
+const { sleep } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
+const { extractFirstInfoboxFaction } = require('../../../scripts/lib/wiki-sync/wiki/infobox-parser');
+const { descriptionFromWikitext } = require('../../../scripts/lib/wiki-sync/wiki/description');
+const { parseItemOrVehicleInfobox } = require('../../../scripts/lib/wiki-sync/wiki/infobox-parser');
+const { routeWikiInfoboxToMaterialFile } = require('../../../scripts/lib/wiki-sync/wiki/router');
 const {
 	fetchCategoryPageTitles,
 	fetchWikitextForTitles,
-} = require('../../../scripts/lib/wiki-sync/wiki-client');
-const { loadAllMaterialFiles, writeMaterialFile } = require('../../../scripts/lib/wiki-sync/materials-store');
-const { runAddMissing, flushModifiedMaterialFiles } = require('../../../scripts/lib/wiki-sync/add-missing');
+} = require('../../../scripts/lib/wiki-sync/wiki/client');
+const { loadAllMaterialFiles, writeMaterialFile } = require('../../../scripts/lib/wiki-sync/core/catalog');
+const { runAddMissing, flushModifiedMaterialFiles } = require('../../../scripts/lib/wiki-sync/core/pipeline');
 
 describe('wiki-sync / add-missing', () => {
 	const materialsRoot = '/tmp/materials';
@@ -99,7 +114,7 @@ describe('wiki-sync / add-missing', () => {
 	it('filtre candidats, ajoute en dry-run et ne écrit pas', async () => {
 		const fileGroups = [{
 			filePath: fp,
-			materials: [{ itemName: 'Existing Item', itemDesc: 'old' }],
+			materials: [{ itemName: 'Existing Item', itemDesc: 'old', faction: ['colonial'], itemCategory: 'resources' }],
 		}];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 		const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
@@ -118,7 +133,7 @@ describe('wiki-sync / add-missing', () => {
 	});
 
 	it('écrit les fichiers hors dry-run et recharge', async () => {
-		const materials = [{ itemName: 'Existing Item', itemDesc: 'old' }];
+		const materials = [{ itemName: 'Existing Item', itemDesc: 'old', faction: ['colonial'], itemCategory: 'resources' }];
 		const fileGroups = [{ filePath: fp, materials }];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
@@ -136,8 +151,8 @@ describe('wiki-sync / add-missing', () => {
 		const fileGroups = [{
 			filePath: fp,
 			materials: [
-				{ itemName: 'Existing Item' },
-				{ itemName: 'Dup Name' },
+				{ itemName: 'Existing Item', faction: ['colonial'], itemDesc: 'old', itemCategory: 'resources' },
+				{ itemName: 'Dup Name', faction: ['colonial'], itemDesc: 'old', itemCategory: 'resources' },
 			],
 		}];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
@@ -177,7 +192,7 @@ describe('wiki-sync / add-missing', () => {
 
 	it('utilise faction Both par défaut si extraction null', async () => {
 		extractFirstInfoboxFaction.mockReturnValue(null);
-		const { wikiFactionToArray } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { wikiFactionToArray } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		wikiFactionToArray.mockReturnValue(null);
 		fetchCategoryPageTitles
 			.mockReset()
@@ -204,7 +219,7 @@ describe('wiki-sync / add-missing', () => {
 	});
 
 	it('ignore les uniforms FR pour knownWikiTitles et message aucune entrée', async () => {
-		const { isFrenchUniformEntry, inferWikiTitle } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { isFrenchUniformEntry, inferWikiTitle } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		isFrenchUniformEntry.mockImplementation((m) => m.itemName === 'FR Uniform');
 		inferWikiTitle.mockImplementation((name) => name);
 		fetchCategoryPageTitles
@@ -227,7 +242,7 @@ describe('wiki-sync / add-missing', () => {
 	});
 
 	it('filtre knownWikiTitles et fallback desc —', async () => {
-		const { inferWikiTitle } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { inferWikiTitle } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		inferWikiTitle.mockImplementation((name) => (name === 'Local Name' ? 'Wiki Title' : name));
 		descriptionFromWikitext.mockReturnValue(null);
 		fetchCategoryPageTitles
@@ -244,7 +259,7 @@ describe('wiki-sync / add-missing', () => {
 			relPath: 'resources/bmat.json',
 			itemCategory: 'resources',
 		});
-		const materials = [{ itemName: 'Local Name', itemDesc: 'old' }];
+		const materials = [{ itemName: 'Local Name', itemDesc: 'old', faction: ['colonial'], itemCategory: 'resources' }];
 		const fileGroups = [{ filePath: fp, materials }];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
@@ -257,7 +272,7 @@ describe('wiki-sync / add-missing', () => {
 	});
 
 	it('unrouted si displayName vide + liste > 25 exemples', async () => {
-		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		canonicalInfoboxNameForCatalog.mockReturnValue(null);
 		const titles = Array.from({ length: 26 }, (_, i) => `U${i}`);
 		fetchCategoryPageTitles
@@ -310,7 +325,7 @@ describe('wiki-sync / add-missing', () => {
 			relPath: 'resources/bmat.json',
 			itemCategory: 'resources',
 		});
-		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		canonicalInfoboxNameForCatalog.mockReturnValue('Catalog Name');
 		const fileGroups = [{
 			filePath: fp,
@@ -375,7 +390,7 @@ describe('wiki-sync / add-missing', () => {
 			relPath: 'resources/bmat.json',
 			itemCategory: 'resources',
 		});
-		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		canonicalInfoboxNameForCatalog.mockReturnValue('Ghost');
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
 		const stdout = jest.spyOn(process.stdout, 'write').mockImplementation(() => true);
@@ -418,7 +433,7 @@ describe('wiki-sync / add-missing', () => {
 			relPath: 'resources/bmat.json',
 			itemCategory: 'resources',
 		});
-		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		canonicalInfoboxNameForCatalog.mockReturnValue('');
 		const fileGroups = [{ filePath: fp, materials: [] }];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
@@ -436,7 +451,7 @@ describe('wiki-sync / add-missing', () => {
 			fields: { name: 'BadRoute', category: 'X', type: 'T', ItemProfileType: 'P' },
 		});
 		routeWikiInfoboxToMaterialFile.mockReturnValue(null);
-		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		canonicalInfoboxNameForCatalog.mockReturnValue('BadRoute');
 		const fileGroups = [{ filePath: fp, materials: [] }];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
@@ -457,7 +472,7 @@ describe('wiki-sync / add-missing', () => {
 			relPath: 'resources/bmat.json',
 			itemCategory: 'resources',
 		});
-		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		canonicalInfoboxNameForCatalog.mockReturnValue('');
 		const fileGroups = [{ filePath: fp, materials: [] }];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
@@ -478,7 +493,7 @@ describe('wiki-sync / add-missing', () => {
 			relPath: 'resources/bmat.json',
 			itemCategory: 'resources',
 		});
-		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
+		const { canonicalInfoboxNameForCatalog } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
 		canonicalInfoboxNameForCatalog.mockReturnValue('NewItem');
 		const fileGroups = [{ filePath: fp, materials: [] }];
 		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
@@ -499,7 +514,7 @@ describe('wiki-sync / add-missing', () => {
 
 	it('flushModifiedMaterialFiles écrit un groupe trouvé', () => {
 		writeMaterialFile.mockClear().mockReturnValue([{ itemName: 'Sorted' }]);
-		const group = { filePath: fp, materials: [{ itemName: 'A' }] };
+		const group = { filePath: fp, materials: [{ itemName: 'A', faction: ['colonial'], itemDesc: '—', itemCategory: 'resources' }] };
 		flushModifiedMaterialFiles([fp], [group]);
 		expect(writeMaterialFile).toHaveBeenCalledWith(fp, expect.any(Array));
 		expect(group.materials).toEqual([{ itemName: 'Sorted' }]);

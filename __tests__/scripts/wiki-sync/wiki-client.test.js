@@ -1,13 +1,17 @@
 'use strict';
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-helpers', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/rate-limiter', () => ({
 	sleep: jest.fn().mockResolvedValue(undefined),
+	RateLimiter: jest.requireActual('../../../scripts/lib/wiki-sync/wiki/rate-limiter').RateLimiter,
 }));
 
 const {
 	fetchCategoryPageTitles,
 	fetchWikitextForTitles,
-} = require('../../../scripts/lib/wiki-sync/wiki-client');
+	createWikiClient,
+} = require('../../../scripts/lib/wiki-sync/wiki/client');
+const { PageCache } = require('../../../scripts/lib/wiki-sync/wiki/cache');
+const { RateLimiter } = require('../../../scripts/lib/wiki-sync/wiki/rate-limiter');
 
 describe('wiki-sync / wiki-client', () => {
 	const originalFetch = global.fetch;
@@ -236,5 +240,83 @@ describe('wiki-sync / wiki-client', () => {
 
 		const titles = await fetchCategoryPageTitles('Category:Empty');
 		expect(titles).toEqual(new Set());
+	});
+
+	it('createWikiClient utilise rateLimiter avant fetch', async () => {
+		const waitTurn = jest.fn(async () => undefined);
+		const rateLimiter = { waitTurn };
+		const fetchImpl = jest.fn().mockResolvedValue({
+			json: async () => ({
+				query: {
+					pages: {
+						'1': {
+							title: 'T',
+							revisions: [{ slots: { main: { '*': 'body' } } }],
+						},
+					},
+					normalized: [],
+					redirects: [],
+				},
+			}),
+		});
+		const client = createWikiClient({ rateLimiter, fetchImpl });
+		await client.fetchWikitextForTitles(['T']);
+		expect(waitTurn).toHaveBeenCalled();
+	});
+
+	it('createWikiClient retourne tout depuis le cache si rien à fetcher', async () => {
+		const cache = new PageCache();
+		cache.set('Cached', 'cached-body');
+		const fetchImpl = jest.fn();
+		const client = createWikiClient({ cache, fetchImpl });
+		const map = await client.fetchWikitextForTitles(['Cached']);
+		expect(fetchImpl).not.toHaveBeenCalled();
+		expect(map.get('Cached')).toBe('cached-body');
+	});
+
+	it('createWikiClient fusionne cache et fetch pour titres mixtes', async () => {
+		const cache = new PageCache();
+		cache.set('Hit', 'from-cache');
+		const fetchImpl = jest.fn().mockResolvedValue({
+			json: async () => ({
+				query: {
+					pages: {
+						'2': {
+							title: 'Miss',
+							revisions: [{ slots: { main: { '*': 'fetched-body' } } }],
+						},
+					},
+					normalized: [],
+					redirects: [],
+				},
+			}),
+		});
+		const client = createWikiClient({ cache, fetchImpl });
+		const map = await client.fetchWikitextForTitles(['Hit', 'Miss']);
+		expect(fetchImpl).toHaveBeenCalledTimes(1);
+		expect(map.get('Hit')).toBe('from-cache');
+		expect(map.get('Miss')).toBe('fetched-body');
+		expect(cache.get('Miss')).toBe('fetched-body');
+	});
+
+	it('createWikiClient sans cache retourne seulement les titres fetchés', async () => {
+		const fetchImpl = jest.fn().mockResolvedValue({
+			json: async () => ({
+				query: {
+					pages: {
+						'3': {
+							title: 'Only',
+							revisions: [{ slots: { main: { '*': 'only-body' } } }],
+						},
+					},
+					normalized: [],
+					redirects: [],
+				},
+			}),
+		});
+		const client = createWikiClient({ fetchImpl });
+		const map = await client.fetchWikitextForTitles(['Only']);
+		expect(map.get('Only')).toBe('only-body');
+		expect(map.size).toBe(1);
 	});
 });

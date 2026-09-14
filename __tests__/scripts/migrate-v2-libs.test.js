@@ -1,8 +1,8 @@
 'use strict';
 
-const { purgeLogistics } = require('../../scripts/lib/migrate-v2/purge-logistics.js');
-const { migrateStockpileChannelId } = require('../../scripts/lib/migrate-v2/stockpile-channel-id.js');
-const { cleanupStats } = require('../../scripts/lib/migrate-v2/stats-cleanup.js');
+const { purgeLogistics } = require('../../scripts/migrate/lib/purge-logistics.js');
+const { migrateStockpileChannelId } = require('../../scripts/migrate/lib/stockpile-channel-id.js');
+const { cleanupStats } = require('../../scripts/migrate/lib/stats-cleanup.js');
 
 function mockCollection(overrides = {}) {
 	return {

@@ -5,7 +5,7 @@ jest.mock('../../../scripts/lib/wiki-sync/config', () => ({
 	BATCH_DELAY_MS: 0,
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-helpers', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/title-resolver', () => ({
 	sleep: jest.fn(async () => undefined),
 	isFrenchUniformEntry: jest.fn((m) => m.itemName === 'FR Uniform'),
 	inferWikiTitle: jest.fn((name) => name),
@@ -16,32 +16,47 @@ jest.mock('../../../scripts/lib/wiki-sync/wiki-helpers', () => ({
 	}),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-content', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/infobox-parser', () => ({
 	extractFirstInfoboxFaction: jest.fn(),
+}));
+
+jest.mock('../../../scripts/lib/wiki-sync/wiki/description', () => ({
 	descriptionFromWikitext: jest.fn(),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/wiki-client', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/wiki/client', () => ({
+	createWikiClient: jest.fn(),
+	fetchCategoryPageTitles: jest.fn(),
 	fetchWikitextForTitles: jest.fn(),
 }));
 
-jest.mock('../../../scripts/lib/wiki-sync/materials-store', () => ({
+jest.mock('../../../scripts/lib/wiki-sync/core/catalog', () => ({
 	writeMaterialFile: jest.fn((_fp, materials) => [...materials]),
 }));
 
-const { sleep, inferWikiTitle } = require('../../../scripts/lib/wiki-sync/wiki-helpers');
-const {
-	extractFirstInfoboxFaction,
-	descriptionFromWikitext,
-} = require('../../../scripts/lib/wiki-sync/wiki-content');
-const { fetchWikitextForTitles } = require('../../../scripts/lib/wiki-sync/wiki-client');
-const { writeMaterialFile } = require('../../../scripts/lib/wiki-sync/materials-store');
-const { runSyncDescriptionsAndFactions } = require('../../../scripts/lib/wiki-sync/sync-descriptions');
+const { sleep, inferWikiTitle } = require('../../../scripts/lib/wiki-sync/wiki/title-resolver');
+const { extractFirstInfoboxFaction } = require('../../../scripts/lib/wiki-sync/wiki/infobox-parser');
+const { descriptionFromWikitext } = require('../../../scripts/lib/wiki-sync/wiki/description');
+const { fetchWikitextForTitles } = require('../../../scripts/lib/wiki-sync/wiki/client');
+const { writeMaterialFile } = require('../../../scripts/lib/wiki-sync/core/catalog');
+const { runSyncDescriptionsAndFactions } = require('../../../scripts/lib/wiki-sync/core/pipeline');
 
 describe('wiki-sync / sync-descriptions', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		inferWikiTitle.mockImplementation((name) => name);
+	});
+
+	it('accepte opts par défaut sans second argument', async () => {
+		const materials = [{ itemName: 'Bmats', itemDesc: 'old', faction: ['colonial'] }];
+		fetchWikitextForTitles.mockResolvedValue(new Map([['Bmats', 'wt']]));
+		descriptionFromWikitext.mockReturnValue('same');
+		extractFirstInfoboxFaction.mockReturnValue(null);
+		const stderr = jest.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+		await runSyncDescriptionsAndFactions([{ filePath: '/tmp/bmat.json', materials }]);
+
+		stderr.mockRestore();
 	});
 
 	it('met à jour desc + faction et écrit le fichier', async () => {
