@@ -85,6 +85,7 @@ module.exports = {
 	HELP_NOT_FOUND_HINT: 'Available commands: %commands%',
 
 	COMMAND_EXECUTE_ERROR: 'An error occured while executing the command.',
+	BOT_MISSING_CHANNEL_ACCESS: 'I cannot post in this channel (Missing Access / Missing Permissions). Give the bot **View Channel**, **Send Messages**, and **Embed Links** (plus thread permissions if Logs are enabled).',
 	NO_DM: 'I can\'t execute that command inside DMs!',
 	NO_PERMS: 'You don\'t have the permissions to use this command.',
 	// SERVER ---------------------------------------------

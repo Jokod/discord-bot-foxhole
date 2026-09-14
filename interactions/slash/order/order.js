@@ -5,6 +5,7 @@ const { Operation } = require('../../../data/models.js');
 const Translate = require('../../../utils/translations.js');
 const { safeEscapeMarkdown } = require('../../../utils/markdown.js');
 const { canManageBoard } = require('../../../utils/order-permissions.js');
+const { botCanPostInChannel } = require('../../../utils/discordAccess.js');
 const {
 	createBoard,
 	deleteBoard,
@@ -192,6 +193,13 @@ module.exports = {
 						flags: 64,
 					});
 				}
+			}
+
+			if (!botCanPostInChannel(channel, guild)) {
+				return interaction.reply({
+					content: translations.translate('BOT_MISSING_CHANNEL_ACCESS'),
+					flags: 64,
+				});
 			}
 
 			await interaction.deferReply({ flags: 64 });

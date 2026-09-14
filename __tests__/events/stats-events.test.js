@@ -182,14 +182,14 @@ describe('Stats events', () => {
 			});
 		});
 
-		it('should followUp COMMAND_EXECUTE_ERROR when command throws after defer', async () => {
+		it('should editReply COMMAND_EXECUTE_ERROR when command throws after defer', async () => {
 			jest.resetModules();
 			const { Server, Stats } = require('../../data/models.js');
 			Server.findOne = jest.fn().mockResolvedValue({});
 			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
 			const slashCreate = require('../../events/slashCreate.js');
 			const execute = jest.fn().mockRejectedValue(new Error('Boom'));
-			const followUp = jest.fn().mockResolvedValue(undefined);
+			const editReply = jest.fn().mockResolvedValue(undefined);
 			const interaction = {
 				isChatInputCommand: () => true,
 				guild: { id: 'guild-123', name: 'G', createdAt: new Date(), memberCount: 1 },
@@ -197,7 +197,8 @@ describe('Stats events', () => {
 				replied: false,
 				deferred: true,
 				reply: jest.fn(),
-				followUp,
+				editReply,
+				followUp: jest.fn(),
 				client: {
 					slashCommands: new Map([
 						['help', { execute, init: false }],
@@ -208,11 +209,47 @@ describe('Stats events', () => {
 
 			await slashCreate.execute(interaction);
 
-			expect(followUp).toHaveBeenCalledWith({
+			expect(editReply).toHaveBeenCalledWith({
 				content: 'COMMAND_EXECUTE_ERROR',
-				flags: 64,
 			});
 			consoleSpy.mockRestore();
+		});
+
+		it('should editReply BOT_MISSING_CHANNEL_ACCESS on Discord 50001 after defer', async () => {
+			jest.resetModules();
+			const { Server, Stats } = require('../../data/models.js');
+			Server.findOne = jest.fn().mockResolvedValue({});
+			Stats.findOneAndUpdate = mockStatsFindOneAndUpdate;
+			const slashCreate = require('../../events/slashCreate.js');
+			const execute = jest.fn().mockRejectedValue({ code: 50001, message: 'Missing Access' });
+			const editReply = jest.fn().mockResolvedValue(undefined);
+			const interaction = {
+				isChatInputCommand: () => true,
+				guild: { id: 'guild-123', name: 'G', createdAt: new Date(), memberCount: 1 },
+				commandName: 'order',
+				channelId: 'chan-1',
+				replied: false,
+				deferred: true,
+				reply: jest.fn(),
+				editReply,
+				followUp: jest.fn(),
+				client: {
+					slashCommands: new Map([
+						['order', { execute, init: false }],
+					]),
+				},
+			};
+			const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+			const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			await slashCreate.execute(interaction);
+
+			expect(editReply).toHaveBeenCalledWith({
+				content: 'BOT_MISSING_CHANNEL_ACCESS',
+			});
+			expect(errorSpy).not.toHaveBeenCalled();
+			warnSpy.mockRestore();
+			errorSpy.mockRestore();
 		});
 
 		it('should reply COMMAND_EXECUTE_ERROR when command throws before reply', async () => {

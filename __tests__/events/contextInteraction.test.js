@@ -146,22 +146,23 @@ describe('contextInteraction event', () => {
 		consoleSpy.mockRestore();
 	});
 
-	it('followUp COMMAND_EXECUTE_ERROR si MESSAGE command lève après defer', async () => {
+	it('editReply COMMAND_EXECUTE_ERROR si MESSAGE command lève après defer', async () => {
 		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
-		const followUp = jest.fn().mockResolvedValue(undefined);
+		const editReply = jest.fn().mockResolvedValue(undefined);
 		const interaction = createInteraction({
 			isUserContextMenuCommand: () => false,
 			isMessageContextMenuCommand: () => true,
 			replied: false,
 			deferred: true,
-			followUp,
+			editReply,
+			followUp: jest.fn(),
 		});
 		interaction.client.contextCommands.set('MESSAGE test', { execute: mockExecute });
 		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 		await contextInteraction.execute(interaction);
 
-		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(editReply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR' });
 		consoleSpy.mockRestore();
 	});
 

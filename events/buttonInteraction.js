@@ -2,6 +2,7 @@ const { Events } = require('discord.js');
 const { Server } = require('../data/models.js');
 const Translate = require('../utils/translations.js');
 const { getPrefix } = require('../shared/customId.js');
+const { handleInteractionError } = require('../utils/interactionErrors.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -39,24 +40,7 @@ module.exports = {
 			return await command.execute(interaction);
 		}
 		catch (err) {
-			console.error(err);
-			try {
-				if (interaction.replied || interaction.deferred) {
-					await interaction.followUp({
-						content: translations.translate('COMMAND_EXECUTE_ERROR'),
-						flags: 64,
-					});
-				}
-				else {
-					await interaction.reply({
-						content: translations.translate('COMMAND_EXECUTE_ERROR'),
-						flags: 64,
-					});
-				}
-			}
-			catch (replyErr) {
-				console.error('Failed to send error message to interaction:', replyErr);
-			}
+			await handleInteractionError(interaction, translations, err);
 		}
 	},
 };

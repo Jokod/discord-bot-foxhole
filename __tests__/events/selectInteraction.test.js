@@ -77,16 +77,16 @@ describe('selectInteraction event', () => {
 		consoleSpy.mockRestore();
 	});
 
-	it('followUp COMMAND_EXECUTE_ERROR si déjà replied/deferred', async () => {
+	it('editReply COMMAND_EXECUTE_ERROR si deferred sans reply', async () => {
 		const mockExecute = jest.fn().mockRejectedValue(new Error('Boom'));
-		const followUp = jest.fn().mockResolvedValue(undefined);
-		const interaction = createInteraction({ replied: false, deferred: true, followUp });
+		const editReply = jest.fn().mockResolvedValue(undefined);
+		const interaction = createInteraction({ replied: false, deferred: true, editReply, followUp: jest.fn() });
 		interaction.client.selectCommands.set('select_material', { execute: mockExecute, init: false });
 		const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
 		await selectInteraction.execute(interaction);
 
-		expect(followUp).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR', flags: 64 });
+		expect(editReply).toHaveBeenCalledWith({ content: 'COMMAND_EXECUTE_ERROR' });
 		consoleSpy.mockRestore();
 	});
 

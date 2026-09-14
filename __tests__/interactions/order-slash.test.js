@@ -34,11 +34,19 @@ describe('Slash /order', () => {
 		mockTranslate.mockImplementation((key) => key);
 	});
 
-	function interaction(subcommand, { strings = {}, userId = 'u1' } = {}) {
+	function interaction(subcommand, { strings = {}, userId = 'u1', channelPerms = null } = {}) {
+		const perms = channelPerms ?? { has: () => true };
 		return {
 			client: { traductions: new Map() },
-			guild: { id: 'g1' },
-			channel: { id: 'c1' },
+			guild: {
+				id: 'g1',
+				members: { me: { id: 'bot1' } },
+			},
+			channel: {
+				id: 'c1',
+				isTextBased: () => true,
+				permissionsFor: () => perms,
+			},
 			user: { id: userId },
 			options: {
 				getSubcommand: () => subcommand,
@@ -93,6 +101,24 @@ describe('Slash /order', () => {
 			const i = interaction('create', { strings: { name: 'OP', type: 'prod' } });
 			await orderCommand.execute(i);
 			expect(i.editReply).toHaveBeenCalledWith(expect.objectContaining({ content: 'ORDER_ALREADY_EXISTS' }));
+		});
+
+		it('refuse si le bot n\'a pas accès au salon', async () => {
+			const i = interaction('create', {
+				strings: { name: 'OP', type: 'prod' },
+				channelPerms: { has: () => false },
+			});
+			await orderCommand.execute(i);
+			expect(mockCreateBoard).not.toHaveBeenCalled();
+			expect(i.reply).toHaveBeenCalledWith(expect.objectContaining({ content: 'BOT_MISSING_CHANNEL_ACCESS' }));
+		});
+
+		it('propage Missing Access pour le handler central', async () => {
+			const err = new Error('Missing Access');
+			err.code = 50001;
+			mockCreateBoard.mockRejectedValue(err);
+			const i = interaction('create', { strings: { name: 'OP', type: 'prod' } });
+			await expect(orderCommand.execute(i)).rejects.toMatchObject({ code: 50001 });
 		});
 
 		it('refuse opération terminée', async () => {

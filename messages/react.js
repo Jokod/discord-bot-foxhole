@@ -1,3 +1,5 @@
+const { isMissingAccessError } = require('../utils/discordAccess.js');
+
 module.exports = {
 	async execute(message) {
 		for (const emoji of ['🟢', '🟠', '🔴']) {
@@ -5,9 +7,9 @@ module.exports = {
 				await message.react(emoji);
 			}
 			catch (err) {
-				if (err.code === 50001 || err.status === 403) {
-					const guildName = message.guild?.name ?? message.guildId ?? 'inconnu';
-					console.warn(`[React] Accès refusé sur le serveur ${guildName} (canal ${message.channelId}): ${err.message}`);
+				if (isMissingAccessError(err) || err.status === 403) {
+					const code = err.code ?? err.rawError?.code ?? err.status;
+					console.warn(`[React] Accès/permissions refusés sur le canal ${message.channelId} (code ${code})`);
 					return;
 				}
 				throw err;
