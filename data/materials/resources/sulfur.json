@@ -5,7 +5,7 @@
 			"warden"
 		],
 		"itemName": "Sulfur",
-		"itemDesc": "Sulfur that can be refined into Heavy Explosive Powder at a Refinery",
+		"itemDesc": "Sulfur that can be refined into Heavy Explosive Powder at a Refinery.",
 		"itemCategory": "resources"
 	}
 ]

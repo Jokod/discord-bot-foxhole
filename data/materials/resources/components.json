@@ -5,7 +5,7 @@
 			"warden"
 		],
 		"itemName": "Components",
-		"itemDesc": "Components that can be salvaged into Refined Materials at a Refinery",
+		"itemDesc": "Components that can be recycled into Refined Materials at a Refinery.",
 		"itemCategory": "resources"
 	}
 ]

@@ -49,7 +49,7 @@
 			"warden"
 		],
 		"itemName": "E681-B Hullbreaker Mine",
-		"itemDesc": "A specialized sea mine that floats near the surface, causing destructive damage to ship hulls.",
+		"itemDesc": "A specialized sea mine that floats near the surface, Sea Mines detonate upon contact with enemy vessels.",
 		"itemCategory": "heavy_arms"
 	},
 	{

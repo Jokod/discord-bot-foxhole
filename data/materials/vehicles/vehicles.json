@@ -71,7 +71,7 @@
 			"colonial"
 		],
 		"itemName": "85K-b \"Falchion\"",
-		"itemDesc": "Designed for mass-production in Kraunia, this assault tank features a modular turret system for maximum versatility. The “Falchion” class features a powerful if understated, 40mm cannon.",
+		"itemDesc": "Designed for mass-production in Kraunia, this assault tank features a modular turret system for maximum versatility. The “Falchion” class features a powerful, if understated, 40mm cannon.",
 		"itemCategory": "vehicles",
 		"numberProducedBonus": "2x bonus vehicles produced per crate"
 	},
@@ -393,7 +393,7 @@
 			"colonial"
 		],
 		"itemName": "HH-b \"Hoplite\"",
-		"itemDesc": "With reinforced armour at the expense of speed, the Hoplite is a formidable force in the heat of combat.",
+		"itemDesc": "With reinforced armour and towing capability at the expense of speed, the Hoplite is a formidable force in the heat of combat.",
 		"itemCategory": "vehicles"
 	},
 	{
@@ -522,7 +522,7 @@
 			"warden"
 		],
 		"itemName": "O'Brien v.101 Freeman",
-		"itemDesc": "This early O'Brien variant, the V.101 Freeman is fitted with a 360 degree ballistics cannon turret at the expense of top speed.",
+		"itemDesc": "This early O’Brien variant, the V.101 Freeman is fitted with a bulky 360 degree turret at the expense of top speed.",
 		"itemCategory": "vehicles"
 	},
 	{
