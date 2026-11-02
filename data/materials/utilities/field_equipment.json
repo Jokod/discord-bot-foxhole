@@ -4,15 +4,6 @@
 			"colonial",
 			"warden"
 		],
-		"itemName": "Abisme AT-99",
-		"itemDesc": "A simple mine that is placed under terrain and fitted with a pressure-sensitive plate to detonate under the weight of heavy vehicles. Mines are visible to friendlies and enemies on foot.",
-		"itemCategory": "utilities"
-	},
-	{
-		"faction": [
-			"colonial",
-			"warden"
-		],
 		"itemName": "Abisme AT-99 Mine",
 		"itemDesc": "A simple mine that is placed under terrain and fitted with a pressure-sensitive plate to detonate under the weight of heavy vehicles. Mines are visible to friendlies and enemies on foot.",
 		"itemCategory": "utilities"

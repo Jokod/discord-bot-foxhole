@@ -33,15 +33,6 @@
 	},
 	{
 		"faction": [
-			"colonial"
-		],
-		"itemName": "68-45 \"Smelter\" Heavy Field Gun",
-		"itemDesc": "Armed with explosive 40mm rounds, the Smelter is perfect for engaging enemy armour. The frontal blast shielding providers operators with ample cover in heated skirmishes.",
-		"itemCategory": "vehicles",
-		"highVelocityBonus": "Equipped with a high velocity barrel that deals 75% extra damage per shot"
-	},
-	{
-		"faction": [
 			"warden"
 		],
 		"itemName": "74b-1 Ronan Gunship",

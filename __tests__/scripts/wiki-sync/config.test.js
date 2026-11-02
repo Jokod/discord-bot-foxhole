@@ -33,6 +33,10 @@ describe('wiki-sync / config', () => {
 	it('PRUNE_CATALOG_ITEM_NAMES contient les alias RPG ASCII', () => {
 		expect(PRUNE_CATALOG_ITEM_NAMES.has('AP/RPG')).toBe(true);
 		expect(PRUNE_CATALOG_ITEM_NAMES.has('ARC/RPG')).toBe(true);
+		expect(PRUNE_CATALOG_ITEM_NAMES.has('Abisme AT-99')).toBe(true);
+		expect(PRUNE_CATALOG_ITEM_NAMES.has('KRN886-127 Gast')).toBe(true);
+		expect(PRUNE_CATALOG_ITEM_NAMES.has('Malone Ratcatcher')).toBe(true);
+		expect(PRUNE_CATALOG_ITEM_NAMES.has('68-45 "Smelter" Heavy Field Gun')).toBe(true);
 	});
 
 	it('RESOURCE_NAME_TO_REL mappe les ressources logi courantes', () => {

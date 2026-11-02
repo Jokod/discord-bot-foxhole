@@ -14,6 +14,10 @@ const PRUNE_CATALOG_ITEM_NAMES = new Set([
 	'ARC/RPG',
 	'Molten Wind',
 	'Molten Wind v.II Flame Torch',
+	'Abisme AT-99',
+	'KRN886-127 Gast',
+	'Malone Ratcatcher',
+	'68-45 "Smelter" Heavy Field Gun',
 ]);
 
 const ITEM_REHOME_TO_REL = new Map([
