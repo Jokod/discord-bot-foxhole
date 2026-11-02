@@ -62,7 +62,7 @@
 			"colonial"
 		],
 		"itemName": "85k-a \"Spatha\"",
-		"itemDesc": "The “Spatha” assault tank features a unique and destructive 40mm turret that fires high-velocity shells. This specialized turret is not as well suited to mass-production as its more refined counterpart, the “Falchion.”",
+		"itemDesc": "The “Spatha” assault tank features a unique and destructive, long-range 40mm turret. This specialized turret is not as well suited to mass-production as its more refined counterpart, the “Falchion.”",
 		"itemCategory": "vehicles",
 		"highVelocityBonus": "Equipped with a high velocity barrel that deals 20% extra damage per shot."
 	},
